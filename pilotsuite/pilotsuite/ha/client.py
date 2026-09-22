@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 from collections.abc import Awaitable, Callable
+from time import monotonic
 from typing import Any
 
 from aiohttp import ClientSession, ClientTimeout, WSMsgType
@@ -14,6 +15,7 @@ from aiohttp import ClientSession, ClientTimeout, WSMsgType
 LOGGER = logging.getLogger(__name__)
 StateCallback = Callable[[dict[str, Any]], Awaitable[None]]
 MAX_WS_MESSAGE_BYTES = 32 * 1024 * 1024
+STABLE_STREAM_SECONDS = 60
 
 
 class HomeAssistantError(RuntimeError):
@@ -70,6 +72,7 @@ class HomeAssistantClient:
             return
         delay = 1
         while not stop_event.is_set():
+            stream_started: float | None = None
             try:
                 await self.start()
                 assert self._session is not None
@@ -89,9 +92,9 @@ class HomeAssistantClient:
                     subscribed = await self._receive_json(socket)
                     if not subscribed.get("success"):
                         raise HomeAssistantError("state_changed subscription rejected")
-                    delay = 1
                     if connection_callback:
                         await connection_callback(True)
+                    stream_started = monotonic()
                     async for message in socket:
                         if stop_event.is_set():
                             break
@@ -113,6 +116,11 @@ class HomeAssistantClient:
             except Exception as exc:  # reconnect boundary
                 LOGGER.warning("Home Assistant event stream disconnected: %s", exc)
             finally:
+                # A successful handshake alone is not a stable connection.
+                # Quiet homes must recover too: stability does not require events.
+                if (stream_started is not None
+                        and monotonic() - stream_started >= STABLE_STREAM_SECONDS):
+                    delay = 1
                 if connection_callback:
                     await connection_callback(False)
             # A graceful remote close must back off too.

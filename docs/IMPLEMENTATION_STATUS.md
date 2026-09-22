@@ -6,7 +6,7 @@ Stand: capability correction 0.1.0-alpha.4. "Local tests" is not live HA accepta
 |---|---|---|
 | Add-on packaging | Implemented | alpha.4 installed and started after app-only backup |
 | Ingress routes / peer restriction | Implemented, local HTTP tests | Real browser API responses 200; new alpha.4 visual/asset rendering not yet independently checked |
-| HA snapshot and event stream | Implemented | Reconnect resync/backoff tests; live disconnect/load soak pending |
+| HA snapshot and event stream | Implemented; unreleased short-connection backoff fix | Three new synthetic reconnect regressions; 31 tests on reliability branch; live disconnect/load soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Not learned habits; no persistent feedback yet |
@@ -38,3 +38,15 @@ durable. Timestamp guarding prevents older state updates replacing newer values,
 but deletion ordering still relies on subsequent reconciliation. Current climate
 thresholds are heuristics, not a validated cellar-control policy. No ventilation
 command may be inferred from relative humidity alone.
+
+## Unreleased reliability gate
+
+The isolated reconnect fix preserves increasing delay after short authenticated
+connections and resets only after 60 seconds of subscribed uptime following
+successful resynchronization. Idle streams need no sensor events to qualify.
+No real HA outage was induced. Version remains alpha.4; do not reinstall it to
+test this unversioned development change. Exact-commit CI and integration with the
+ongoing PR #1 zone package precede release preparation and app-only recovery checks.
+
+PR #1's synthetic UI browser job passed at `6096783`; that is development evidence,
+not a new feature in installed alpha.4 or proof of authenticated live Ingress.

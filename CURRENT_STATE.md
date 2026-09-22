@@ -2,6 +2,32 @@
 
 Last updated: 2026-09-22
 
+## Unreleased reliability increment — reconnect backoff
+- Based on main `e2bb5a2`; isolated from active entity-selection / Habitus-zone
+  development in PR #1. No changes to that branch, zone ownership or release version.
+- Repeated short authenticated streams now retain 1/2/4/8/16/30-second backoff
+  instead of resetting on every handshake. Reset follows 60 seconds of subscribed
+  stream uptime after successful resynchronization, even without state events.
+- 31 local Python tests pass, including three new synthetic reconnect regressions;
+  repository validation and Python compilation pass. CI must be checked per commit.
+- This increment is not installed. No new learning, data collection or actuation.
+
+## Target recheck — 2026-09-22
+- Supervisor reports installed and offered version `0.1.0-alpha.4`, started,
+  no update available. No update/restart/backup/configuration change performed.
+- Current runtime logs report ready, connected stream, fresh snapshot and resolved
+  configured Golden Zone. No household values, identifiers or raw logs published.
+- Recorded alpha.4 source commit remains `941831cb74575ac17307b1a725f0120942ddd687`;
+  its [CI run](https://github.com/GreenhillEfka/pilotsuite/actions/runs/35782232480)
+  is successful. Supervisor version metadata does not independently attest the
+  running image's exact commit; no fresh digest/source attestation is claimed.
+- HA-MCP readiness proxy still receives 403 from the Ingress peer guard. No
+  authenticated HA browser session is available here, so visual/asset acceptance
+  remains open. The guard was not bypassed or changed.
+- PR #1 at `6096783` passed test, browser and amd64-container jobs in
+  [CI](https://github.com/GreenhillEfka/pilotsuite/actions/runs/35784860903).
+  Synthetic browser CI is not installed-version HA Ingress acceptance.
+
 ## alpha.4 capability correction
 - Transport readiness is independent of climate sensor availability.
 - Per-capability status: available, partial, unavailable, not_present.
@@ -37,7 +63,7 @@ Last updated: 2026-09-22
   were NOT comprehensively audited; do not claim complete legacy cleanup.
 - User reported Ingress 404. Internal root/health success did not prove browser UI.
 
-## Live deployment — 2026-09-22
+## Historical alpha.3 deployment — 2026-09-22 (superseded by alpha.4 above)
 - User authorized app-only backup, update and tests. A fresh app-only backup was
   created successfully and confirmed present through the dedicated backup listing.
 - Store check_updates discovered alpha.3; app update and start completed.
@@ -51,13 +77,18 @@ Last updated: 2026-09-22
   unauthorized earlier. Do not conflate that with all HA-MCP operations failing.
 
 ## Not yet verified live
-- Real Ingress browser path/assets and new readiness behavior.
-- Current alpha.3 Erdkeller projection and live apply rejection remain unverified
-  through the blocked proxy. Historical alpha.2 checks are not alpha.3 acceptance.
+- Independent visual/JS/CSS acceptance of the installed alpha.4 frontend through
+  authenticated HA Ingress. Logged browser API 200s are not full UI acceptance.
+- Fresh live apply-boundary verification remains open through the blocked proxy;
+  local denial tests are not a new live acceptance result.
 - Physical sensor freshness, correct sensor roles, disconnect/load soak.
 - No new HA configuration or automation changes are part of this milestone.
 
 ## Next
-Follow `docs/IMPLEMENTATION_STATUS.md` acceptance gates, then the consented
-read-only learning milestone in `docs/ROADMAP.md`.
-Do not claim SQLite, habit learning, voice, native entities or rollback are implemented.
+Check this reliability PR's exact-commit CI, then reconcile it with the active
+Habitus-zone package in PR #1 without duplicating or overwriting ongoing work.
+Complete that package's zone isolation, export/retention and release hardening;
+keep installed-version visual Ingress acceptance separate. Before any release
+deployment verify source identity, completed app-only backup and targeted recovery.
+SQLite selection storage exists in PR #1, not installed alpha.4. Do not claim habit
+learning, voice, native entities or a runtime rollback engine are implemented.
