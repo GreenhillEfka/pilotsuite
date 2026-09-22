@@ -55,11 +55,11 @@ class SelectionStoreTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_future_schema_refused_without_overwrite(self):
         with sqlite3.connect(self.store.path) as db:
-            db.execute('PRAGMA user_version=4')
+            db.execute('PRAGMA user_version=99')
         with self.assertRaises(RuntimeError):
             await self.store.initialize()
         with sqlite3.connect(self.store.path) as db:
-            self.assertEqual(4, db.execute('PRAGMA user_version').fetchone()[0])
+            self.assertEqual(99, db.execute('PRAGMA user_version').fetchone()[0])
 
 
 class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
@@ -86,7 +86,7 @@ class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
 
     async def test_inventory_and_missing_reappearance(self):
         body = await (await self.client.get(self.url)).json()
-        self.assertFalse(body['applied_to_inference'])
+        self.assertTrue(body['applied_to_inference'])
         self.assertEqual([True, False, False], [x['recommended'] for x in body['items']])
         self.assertTrue(all(x['decision'] == 'unreviewed' for x in body['items']))
         response = await self.client.patch(self.url, json={'revision': 0, 'changes': {'sensor.temperature': 'relevant'}})
@@ -106,13 +106,13 @@ class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(400, (await self.client.patch(self.url, data='{')).status)
         self.assertEqual(400, (await self.client.get('/api/v1/selections/other')).status)
 
-    async def test_activation_filters_inference_and_can_be_reversed(self):
+    async def test_only_confirmed_entities_are_evaluated_without_bypass(self):
         service = self.app[SERVICE_KEY]
         from datetime import datetime, UTC
         service._connected = service._stream_connected = True
         service._last_refresh_at = datetime.now(UTC).isoformat()
         await service._derive()
-        self.assertEqual(3, len(service._neurons))
+        self.assertEqual(0, len(service._neurons))
         response = await self.client.patch(self.url, json={'revision': 0, 'changes': {'sensor.temperature': 'relevant'}, 'active': True})
         self.assertEqual(200, response.status)
         self.assertTrue((await response.json())['applied_to_inference'])
@@ -124,18 +124,18 @@ class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue((await service.status())['ready'])
         self.assertEqual(0, (await service.status())['selection']['evaluated_count'])
         response = await self.client.patch(self.url, json={'revision': 2, 'changes': {}, 'active': False})
-        self.assertEqual(200, response.status)
-        self.assertEqual(3, len(service._neurons))
+        self.assertEqual(400, response.status)
+        self.assertEqual(0, len(service._neurons))
         self.assertEqual(400, (await self.client.patch(self.url, json={'revision': 3, 'changes': {}, 'active': None})).status)
 
     async def test_activation_persists_with_revision_conflict(self):
         store = self.app[SERVICE_KEY].selections
-        await store.patch('example', 0, {}, True)
+        await store.patch('example', 0, {'sensor.temperature': 'relevant'}, True)
         restored = SelectionStore(Path(self.temp.name))
         await restored.initialize()
         self.assertTrue((await restored.get('example'))['active'])
         with self.assertRaises(SelectionConflict):
-            await restored.patch('example', 0, {}, False)
+            await restored.patch('example', 0, {'sensor.temperature': 'ignored'}, True)
 
     async def test_zone_isolation_new_entities_and_state_events(self):
         from dataclasses import replace
@@ -166,10 +166,13 @@ class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
             db.execute('DROP TABLE selection_modes')
             db.execute('DROP TABLE habitus_zones')
             db.execute('DROP TABLE zone_meta')
+            db.execute('DROP TABLE zone_context')
+            db.execute('DROP TABLE activity_evidence')
+            db.execute('DROP TABLE pattern_feedback')
             db.execute('PRAGMA user_version=1')
         await store.initialize()
         saved = await store.get('example')
-        self.assertFalse(saved['active'])
+        self.assertTrue(saved['active'])
         self.assertEqual(1, saved['revision'])
         self.assertEqual('relevant', saved['decisions']['sensor.temperature'])
         backups = list(Path(self.temp.name).glob('selections.v1.*.bak'))

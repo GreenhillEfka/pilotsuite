@@ -115,6 +115,10 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post('/api/v1/zones', _save_zone)
     app.router.add_patch('/api/v1/zones/{zone_id}', _save_zone)
     app.router.add_get('/api/v1/entity-catalog', _entity_catalog)
+    app.router.add_get('/api/v1/zones/{zone_id}/context', _context_get)
+    app.router.add_patch('/api/v1/zones/{zone_id}/context', _context_patch)
+    app.router.add_get('/api/v1/zones/{zone_id}/context/export', _context_export)
+    app.router.add_post('/api/v1/zones/{zone_id}/feedback', _pattern_feedback)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
     app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
@@ -314,3 +318,64 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+async def _context_payload(service, zone_id, export=False):
+    inventory = await service.selection_inventory(zone_id)
+    report = await service.context.report(zone_id)
+    if not export: report.pop('evidence', None)
+    report['revision'] = inventory['revision']
+    report['enabled'] = inventory['enabled']
+    report['eligible'] = zone_id in service._learning_sources
+    report['candidates'] = [i for i in inventory['items'] if i['decision'] == 'relevant']
+    return report
+
+
+async def _context_get(request):
+    service = request.app[SERVICE_KEY]
+    async with service._projection_lock:
+        return web.json_response(await _context_payload(service, request.match_info['zone_id']))
+
+
+async def _context_export(request):
+    service = request.app[SERVICE_KEY]
+    async with service._projection_lock:
+        return web.json_response(await _context_payload(service, request.match_info['zone_id'], True),
+            headers={'Content-Disposition': 'attachment; filename="pilotsuite-learning.json"'})
+
+
+async def _context_patch(request):
+    from pilotsuite.core.context import ROLE_KINDS
+    service = request.app[SERVICE_KEY]
+    zone_id = request.match_info['zone_id']
+    try: payload = await request.json()
+    except ValueError as exc: raise InvalidSelection('invalid JSON') from exc
+    if not isinstance(payload, dict) or set(payload) not in ({'revision', 'roles', 'learning'}, {'revision', 'roles', 'learning', 'reset'}):
+        raise InvalidSelection('revision, roles and learning required')
+    if not isinstance(payload['roles'], dict): raise InvalidSelection('roles must be a mapping')
+    async with service._projection_lock:
+        inventory = await service.selection_inventory(zone_id)
+        previous = await service.context.get(zone_id)
+        candidates = {i['entity_id']: i for i in inventory['items'] if i['decision'] == 'relevant'}
+        for role, entities in payload['roles'].items():
+            if role not in ROLE_KINDS or not isinstance(entities, list) or len(entities)>20 or any(not isinstance(e, str) for e in entities):
+                raise InvalidSelection('Role groups require at most 20 entity IDs')
+            for entity in entities:
+                if entity in previous['roles'].get(role, []) and not payload['learning']: continue
+                if entity not in candidates or candidates[entity]['suggested_role'] not in ROLE_KINDS[role]:
+                    raise InvalidSelection('Role source must be a confirmed relevant entity of the matching type')
+        await service.context.configure(zone_id, payload['revision'], payload['roles'], payload['learning'], reset=payload.get('reset', False))
+        await service._derive()
+        return web.json_response(await _context_payload(service, zone_id))
+
+
+async def _pattern_feedback(request):
+    service = request.app[SERVICE_KEY]
+    try: payload = await request.json()
+    except ValueError as exc: raise InvalidSelection('invalid JSON') from exc
+    if not isinstance(payload, dict) or set(payload) != {'pattern_id', 'decision'} or not isinstance(payload['pattern_id'], str) or not isinstance(payload['decision'], str):
+        raise InvalidSelection('pattern_id and decision required')
+    async with service._projection_lock:
+        await service.selection_inventory(request.match_info['zone_id'])
+        await service.context.feedback(request.match_info['zone_id'], payload['pattern_id'], payload['decision'])
+        return web.json_response(await _context_payload(service, request.match_info['zone_id']))

@@ -57,6 +57,8 @@
           <button id="zone-edit" type="button">Name / Bereiche bearbeiten</button>
           <button id="zone-toggle" type="button">Auswertung starten</button>
         </div>
+        <p id="zone-counts"></p>
+        <div id="zone-summary" class="grid status-grid"></div>
         <p id="zone-state-message" role="status" aria-live="polite"></p>
       </section>
       <section class="panel selection-panel" aria-labelledby="selection-title">
@@ -85,9 +87,9 @@
           <p id="zone-message" role="status" aria-live="polite"></p>
         </details>
         <p class="eyebrow">BEWUSSTE AUSWAHL</p>
-        <h2 id="selection-title">Entitäten dieser Zone</h2>
+        <details id="entity-details"><summary id="selection-title">Entitäten auswählen / prüfen</summary>
         <p>Entitäten anhaken → Auswahl speichern → Auswertung starten. Relevanz ist keine Schaltfreigabe.</p>
-        <details><summary>Erweitert: Auswahlmodus</summary><label><input id="selection-active" type="checkbox" disabled> Nur bestätigte Entitäten auswerten</label><p>Bei ausgeschaltetem Auswahlmodus fließen alle geeigneten Kandidaten ein, auch ignorierte und ungeprüfte. Bestehende Einstellungen bleiben erhalten.</p></details>
+        <p>Nur relevante Entitäten werden berücksichtigt. Ungeprüfte und ignorierte bleiben ausgeschlossen.</p>
         <div class="selection-tools">
           <label hidden>Zone <select id="selection-zone" disabled></select></label>
           <label>Suche <input id="selection-search" type="search" placeholder="Name, ID oder Rolle"></label>
@@ -108,6 +110,7 @@
             <tbody id="selection-rows"></tbody>
           </table>
         </div>
+        </details>
       </section>
 
       <section class="split">
@@ -134,7 +137,7 @@
         </article>
       </section>
 
-      <section class="panel">
+      <section class="panel"><details id="neuron-details"><summary>Einzelne Neuronen und Messwerte</summary>
         <div class="panel-title">
           <div>
             <p class="eyebrow">QUELLE</p>
@@ -150,12 +153,31 @@
             <tbody id="observations"></tbody>
           </table>
         </div>
-      </section>
+      </details></section>
 
+      <section class="panel learning-panel">
+        <h2>Sensorrollen und Lernen</h2>
+        <p id="learning-status" role="status"></p>
+        <p>Erkennt wiederkehrende Aktivierungen bestätigter Präsenz-/Bewegungssensoren. Keine Anwesenheitsdauer, Personenidentifikation oder automatische Steuerung. Zeitfenster zunächst in UTC.</p>
+        <div class="selection-tools"><button id="context-edit" type="button">Rollen / Lernfreigabe bearbeiten</button><a id="learning-export" download>Belege exportieren</a><button id="learning-reset" type="button">Lerndaten löschen</button></div>
+        <form id="context-form" hidden><fieldset id="context-fields"><legend>Sensorrollen</legend>
+          <div class="selection-tools">
+            <label>Hauptsensoren Temperatur<div id="role-temperature" class="role-choices"></div></label>
+            <label>Hauptsensoren Feuchte<div id="role-humidity" class="role-choices"></div></label>
+            <label>Präsenz / Bewegung für Lernen<div id="role-presence" class="role-choices"></div></label>
+            <label>Referenztemperatur (nicht mitteln)<div id="role-reference_temperature" class="role-choices"></div></label>
+          </div>
+          <p>Sensorgruppen anhaken. Temperatur/Feuchte: Median mit Min/Max; Präsenz: mindestens ein aktiver Sensor. Referenzwerte werden nicht mitgemittelt. Ein Wechsel der Lernquellen löscht deren bisherige Belege und das Musterfeedback dieser Zone.</p>
+          <label><input id="learning-consent" type="checkbox"> Ich stimme dem Lernen in dieser Zone zu: Aktivierungen bis 14 Tage speichern (pro Zone höchstens eine je fünf Minuten), insgesamt höchstens 5.000 Belege.</label>
+          <p>Abwählen stoppt die Erfassung; vorhandene Belege laufen aus. „Lerndaten löschen“ entfernt Belege und Musterfeedback sofort und widerruft die Freigabe. Vorhandene App-Backups werden dadurch nicht geändert.</p>
+          <div class="selection-tools"><button type="submit">Rollen / Freigabe speichern</button><button id="context-cancel" type="button">Abbrechen</button></div>
+        </fieldset></form>
+        <p id="context-message" role="status"></p><div id="learned-patterns"></div>
+      </section>
       <p id="error" class="error" role="alert" hidden></p>
     </main>
 
-    <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.6.</footer>
+    <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.7.</footer>
     <script src="assets/selections.js" defer></script>
     <script src="assets/app.js" defer></script>
   </body>

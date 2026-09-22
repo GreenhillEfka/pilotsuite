@@ -41,39 +41,32 @@ class SelectionStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(sqlite3.connect(self.path)) as db, db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 3:
+            if version > 4:
                 raise RuntimeError("Selection database schema is newer than this release")
-            if version == 3:
+            if version == 4:
                 return
-            if version in (1, 2):
+            if version:
                 backup = self.path.with_name(f"selections.v{version}.{uuid.uuid4().hex}.bak")
                 with closing(sqlite3.connect(backup)) as target:
                     db.backup(target)
-                db.execute('BEGIN IMMEDIATE')
-                if version == 1:
-                    db.execute('CREATE TABLE selection_modes (zone_id TEXT PRIMARY KEY, active INTEGER NOT NULL CHECK(active IN (0,1)))')
+            elif db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchone():
+                raise RuntimeError("Unrecognized selection database; refusing to overwrite")
+            db.execute('BEGIN IMMEDIATE')
+            if version == 0:
+                db.execute('CREATE TABLE zones (zone_id TEXT PRIMARY KEY, revision INTEGER NOT NULL)')
+                db.execute("CREATE TABLE selections (zone_id TEXT NOT NULL, entity_id TEXT NOT NULL, decision TEXT NOT NULL CHECK(decision IN ('relevant','ignored','unreviewed')), PRIMARY KEY(zone_id, entity_id))")
+                db.execute('CREATE TABLE selection_journal (id INTEGER PRIMARY KEY, zone_id TEXT NOT NULL, revision INTEGER NOT NULL, changes TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)')
+            if version <= 1:
+                db.execute('CREATE TABLE selection_modes (zone_id TEXT PRIMARY KEY, active INTEGER NOT NULL CHECK(active IN (0,1)))')
+            if version <= 2:
                 db.execute('CREATE TABLE habitus_zones (zone_id TEXT PRIMARY KEY, definition TEXT NOT NULL)')
                 db.execute('CREATE TABLE zone_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
-                db.execute('PRAGMA user_version=3')
-                return
-            if db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchone():
-                raise RuntimeError("Unrecognized selection database; refusing to overwrite")
-            db.executescript("""
-                BEGIN IMMEDIATE;
-                CREATE TABLE zones (zone_id TEXT PRIMARY KEY, revision INTEGER NOT NULL);
-                CREATE TABLE habitus_zones (zone_id TEXT PRIMARY KEY, definition TEXT NOT NULL);
-                CREATE TABLE zone_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-                CREATE TABLE selection_modes (zone_id TEXT PRIMARY KEY, active INTEGER NOT NULL CHECK(active IN (0,1)));
-                CREATE TABLE selections (
-                    zone_id TEXT NOT NULL, entity_id TEXT NOT NULL,
-                    decision TEXT NOT NULL CHECK(decision IN ('relevant','ignored','unreviewed')),
-                    PRIMARY KEY (zone_id, entity_id));
-                CREATE TABLE selection_journal (
-                    id INTEGER PRIMARY KEY, zone_id TEXT NOT NULL, revision INTEGER NOT NULL,
-                    changes TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
-                PRAGMA user_version=3;
-                COMMIT;
-            """)
+            db.execute('CREATE TABLE zone_context (zone_id TEXT PRIMARY KEY, config TEXT NOT NULL)')
+            db.execute('CREATE TABLE activity_evidence (zone_id TEXT NOT NULL, entity_id TEXT NOT NULL, occurred REAL NOT NULL, origin TEXT NOT NULL, PRIMARY KEY(zone_id, entity_id, occurred))')
+            db.execute('CREATE TABLE pattern_feedback (zone_id TEXT NOT NULL, pattern_id TEXT NOT NULL, decision TEXT NOT NULL, updated REAL NOT NULL, PRIMARY KEY(zone_id, pattern_id))')
+            # Consent is never inferred; old automatic modes no longer bypass decisions.
+            db.execute('UPDATE selection_modes SET active=1')
+            db.execute('PRAGMA user_version=4')
 
     @staticmethod
     def _zone(zone_id: str) -> None:
@@ -90,7 +83,7 @@ class SelectionStore:
         records = db.execute("SELECT entity_id, decision FROM selections WHERE zone_id=? ORDER BY entity_id", (zone_id,)).fetchall()
         mode = db.execute("SELECT active FROM selection_modes WHERE zone_id=?", (zone_id,)).fetchone()
         return {"zone_id": zone_id, "revision": row[0] if row else 0,
-                "decisions": dict(records), "active": bool(mode and mode[0])}
+                "decisions": dict(records), "active": True}
 
     def _get(self, zone_id: str) -> dict[str, Any]:
         with closing(sqlite3.connect(self.path)) as db, db:
@@ -101,6 +94,8 @@ class SelectionStore:
         self._zone(zone_id)
         if type(revision) is not int or revision < 0:
             raise InvalidSelection("revision must be a nonnegative integer")
+        if active is False:
+            raise InvalidSelection("Only confirmed entities may be evaluated")
         if active is not None and type(active) is not bool:
             raise InvalidSelection("active must be a boolean")
         if not isinstance(changes, dict) or len(changes) > 500 or (not changes and active is None):

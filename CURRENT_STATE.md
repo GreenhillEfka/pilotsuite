@@ -2,7 +2,20 @@
 
 Last updated: 2026-09-23
 
-## Unreleased reliability integration — reconnect backoff
+## alpha.7 candidate — confirmed selection, role groups and activity learning
+
+Implemented contract: docs/OBSERVATION_LEARNING.md and ADR-017. Includes strict
+selection, compact summaries, plural roles, explicit consent, bounded live evidence,
+stable pattern candidates and independent persistent feedback, export and reset.
+58 backend tests and four JS tests pass locally. Browser and container CI must pass
+before installation. alpha.6 remains the deployed baseline until backup/update.
+No learning is enabled by deployment; the user grants consent per zone in the UI.
+The user confirmed Badbereich activation in alpha.6. Do not re-create existing zones.
+
+
+
+
+## Reliability integration included in alpha.7 — reconnect backoff
 
 The isolated, CI-proven reconnect correction from PR #2 is now applied to the
 current alpha.6 zone code rather than the superseded alpha.4 base. Repeated short,
@@ -13,10 +26,7 @@ connected stream.
 
 All 49 Python tests and four JavaScript model tests pass locally, including the
 three synthetic reconnect regressions and the existing zone/selection suite.
-Candidate 636c5a7 passed exact-commit CI run 35792464489: tests/contracts,
-browser and amd64 container. PR #4 merged as aac362a; its tree is identical to the
-tested candidate. Superseded PR #2 is closed. No version marker, Home Assistant
-app, configuration, zone choice or actuator was changed by this increment.
+Candidate 636c5a7 passed CI 35792464489 (tests, browser, amd64 container). PR #4 merged as aac362a with the same tree; PR #2 is superseded. PR #5 records this proof. These reliability changes are retained in the alpha.7 candidate.
 
 ## Released and installed: alpha.6 zone tabs and direct activation
 
@@ -29,8 +39,8 @@ Runtime logs confirm hard_read_only, ready=True, stream=True, snapshot_fresh=Tru
 zone_resolved=True. The user subsequently confirmed that Badbereich could be
 activated through the actual alpha.6 Ingress UI. This is direct workflow acceptance,
 not a disconnect/load soak or a claim that every visual/asset path was inspected.
-Fresh Safari requests through the actual Ingress proxy returned 200 for status,
-moods, suggestions, Golden Zone and zone APIs; the protection was not bypassed.
+Fresh Safari calls through actual Ingress returned HTTP 200 for status, moods,
+suggestions, Golden Zone and zone APIs, as recorded by PR #5.
 
 An earlier activation attempt produced selection PATCH calls but no zone-definition
 activation PATCH, exposing the confusing dual-control UI fixed in alpha.6. The later
@@ -89,12 +99,10 @@ feed a newer SQLite schema to older code. A recovery restore was not performed.
 
 ## Next
 
-1. Prepare a distinct release candidate for the merged reliability fix; do not
-   reinstall the already running alpha.6 under unchanged version metadata.
-2. Deploy only after exact source/version identity, an app-only backup and targeted
-   return to alpha.6 are verified; then perform startup/readiness/log checks.
-3. Next, make confirmed entity selection the only inference input and add contextual
-   sensor roles before consented read-only habit evidence or persistent feedback.
+1. Require complete alpha.7 CI, including integrated reconnect regressions.
+2. Release a new version only after version/source identity, an app-only backup and
+   targeted downgrade path are verified; then perform startup/readiness/log checks.
+3. Verify role groups, opt-in learning and saved choices in actual HA Ingress; observe real activity before claiming a learned routine.
 
 Contextual role priorities, import, permanent deletion, habit learning, voice,
 native entities and the runtime actuation/rollback engine are not implemented.

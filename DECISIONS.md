@@ -1,5 +1,33 @@
 # Architecture Decision Log
 
+## ADR-017 — Confirmed-only observations, role groups and bounded activity learning
+
+The user approved removing the automatic selection exception. Only explicitly
+relevant, supported candidates generate neurons, mood evidence or learning evidence.
+No migration infers relevance. This supersedes the optional-selection part of ADR-016.
+
+Roles are groups of up to 20 suitable relevant sources, not device_class overrides.
+Explicit climate groups use normalized valid values' median with min/max/spread and
+missing-source status. With no role, only one unambiguous climate candidate is used.
+References remain separate. Presence uses any-on; all-off requires all sources valid.
+Source-level evidence accompanies aggregate moods. Multi-room groups are summaries,
+not claims about a single room or replacements for independent safety alarms.
+
+The first learner is a deterministic recurring-activity candidate detector, not a
+full habit model. It records only fresh subscribed off-to-on events from consented,
+relevant presence group members in an enabled zone. A five-minute zone cooldown
+avoids multi-detector inflation. Snapshots/reconnects are never learning evidence.
+Five events on three UTC dates in the same UTC two-hour bucket produce a candidate;
+confidence remains unknown, outages are unobserved, and no causal inference is made.
+
+Schema 4 shares the canonical SQLite database, backs up before migration and defaults
+learning off. Retention: 14 days, 5,000 evidence records globally, 2,000 feedback rows.
+Feedback never changes counts. Revoke stops collection; reset deletes evidence and
+feedback and stops learning; changing the presence group clears its prior evidence
+and feedback. New consent timestamps prevent replay of older events. UI informs
+before granting consent/reset/group change. HA actuation remains hard-disabled.
+
+
 ## ADR-016 — One visible workspace per zone
 
 Zone tabs select the context for entity choices, evaluation, proposals and observations.
