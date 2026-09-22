@@ -11,6 +11,7 @@ from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
 from pilotsuite.core.audit import AuditLog
 from pilotsuite.core.plans import PlanStore
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.selections import SelectionStore, InvalidSelection
 from pilotsuite.domain.models import Mood, Neuron, Suggestion
 from pilotsuite.domain.moods import calculate_moods
 from pilotsuite.domain.neurons import build_neurons
@@ -27,6 +28,7 @@ class PilotSuiteService:
         self.settings = settings
         self.audit = AuditLog(settings.data_dir, settings.audit_retention)
         self.plans = PlanStore(settings.data_dir, self.audit)
+        self.selections = SelectionStore(settings.data_dir)
         self.world = WorldModel()
         self.client = HomeAssistantClient(
             settings.ha_ws_url, settings.supervisor_token
@@ -45,6 +47,7 @@ class PilotSuiteService:
         self._suggestions: list[Suggestion] = []
 
     async def start(self) -> None:
+        await self.selections.initialize()
         await self.client.start()
         await self.audit.append(
             "runtime.start",
@@ -157,6 +160,31 @@ class PilotSuiteService:
             **self._scope,
             "neurons": [item.to_dict() for item in self._neurons],
         }
+
+    async def selection_inventory(self, area_id: str) -> dict[str, Any]:
+        if area_id not in self.settings.golden_zone_area_ids:
+            raise InvalidSelection("area is outside the configured Golden Zone")
+        scope = await self.world.scope((area_id,))
+        stored = await self.selections.get(area_id)
+        items = []
+        for item in scope["entities"]:
+            entity_id = item["entity_id"]
+            registry = item["registry"]
+            attributes = item["state"].get("attributes", {})
+            attributes = attributes if isinstance(attributes, dict) else {}
+            domain = entity_id.split(".", 1)[0]
+            kind = attributes.get("device_class") or registry.get("device_class") or domain
+            recommended = domain in {"sensor", "binary_sensor", "light", "climate", "cover", "fan", "media_player"} and not registry.get("entity_category")
+            items.append({"entity_id": entity_id,
+                          "name": registry.get("name") or attributes.get("friendly_name") or entity_id,
+                          "state": item["state"].get("state"),
+                          "suggested_role": kind, "recommended": recommended,
+                          "decision": stored["decisions"].get(entity_id, "unreviewed")})
+        present = {item["entity_id"] for item in items}
+        return {"zone_id": area_id, "revision": stored["revision"], "items": items,
+                "missing": [{"entity_id": key, "decision": value} for key, value in stored["decisions"].items() if key not in present],
+                "resolved": bool(scope["resolved_area_ids"]),
+                "applied_to_inference": False}
 
     def moods(self) -> list[dict[str, Any]]:
         return [item.to_dict() for item in self._moods]

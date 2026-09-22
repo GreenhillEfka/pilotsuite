@@ -14,6 +14,7 @@ from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
 from pilotsuite.core.logging import configure_logging
 from pilotsuite.core.plans import InvalidPlan, ReadOnlyRelease
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
 
 
@@ -56,6 +57,12 @@ async def request_context(
         response = web.json_response(
             {"error": "invalid_plan", "message": str(exc), "request_id": request_id},
             status=400,
+        )
+    except (InvalidSelection, SelectionConflict) as exc:
+        response = web.json_response(
+            {"error": "selection_conflict" if isinstance(exc, SelectionConflict) else "invalid_selection",
+             "message": str(exc), "request_id": request_id},
+            status=409 if isinstance(exc, SelectionConflict) else 400,
         )
     except ReadOnlyRelease as exc:
         response = web.json_response(
@@ -104,6 +111,8 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_get("/api/v1/areas", _areas)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
+    app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
+    app.router.add_patch("/api/v1/selections/{area_id}", _selection_patch)
     app.router.add_get("/api/v1/moods", _moods)
     app.router.add_get("/api/v1/suggestions", _suggestions)
     app.router.add_get("/api/v1/audit", _audit)
@@ -115,6 +124,29 @@ def create_app(settings: Settings | None = None) -> web.Application:
 
 async def _startup(app: web.Application) -> None:
     await app[SERVICE_KEY].start()
+
+
+async def _selection_inventory(request: web.Request) -> web.Response:
+    return web.json_response(await request.app[SERVICE_KEY].selection_inventory(request.match_info["area_id"]))
+
+
+async def _selection_patch(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    area_id = request.match_info["area_id"]
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise InvalidSelection("body must be valid JSON") from exc
+    if not isinstance(payload, dict) or set(payload) != {"revision", "changes"}:
+        raise InvalidSelection("body requires exactly revision and changes")
+    async with service._projection_lock:
+        inventory = await service.selection_inventory(area_id)
+        known = {item["entity_id"] for item in inventory["items"] + inventory["missing"]}
+        changes = payload["changes"]
+        if not isinstance(changes, dict) or not set(changes).issubset(known):
+            raise InvalidSelection("all changed entities must belong to this zone's inventory")
+        await service.selections.patch(area_id, payload["revision"], changes)
+        return web.json_response(await service.selection_inventory(area_id))
 
 
 async def _cleanup(app: web.Application) -> None:
