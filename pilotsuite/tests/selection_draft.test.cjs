@@ -27,3 +27,12 @@ test('unknown IDs and invalid decisions are rejected', () => {
   assert.throws(() => draft.set('sensor.new', 'on'));
   assert.equal(draft.dirty, false);
 });
+test('activation is an explicit reversible draft change', () => {
+  const draft = new SelectionDraft(fixture());
+  assert.equal(draft.active, false);
+  draft.active = true;
+  assert.equal(draft.dirty, true);
+  assert.deepEqual(draft.changes, {});
+  draft.active = false;
+  assert.equal(draft.dirty, false);
+});

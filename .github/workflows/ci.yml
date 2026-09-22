@@ -57,3 +57,18 @@ jobs:
           tags: pilotsuite:ci
           build-args: |
             BUILD_ARCH=amd64
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install pinned browser test dependency
+        run: npm install --no-save --package-lock=false playwright@1.62.1
+      - name: Install Chromium
+        run: node node_modules/playwright/cli.js install --with-deps chromium
+      - name: Exercise entity selection UI
+        run: node scripts/test_selection_browser.cjs

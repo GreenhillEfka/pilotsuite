@@ -42,6 +42,7 @@ class PilotSuiteService:
         self._last_error: str | None = None
         self._last_refresh_at: str | None = None
         self._scope: dict[str, Any] = {}
+        self._selection_summary: dict[str, Any] = {}
         self._neurons: list[Neuron] = []
         self._moods: list[Mood] = []
         self._suggestions: list[Suggestion] = []
@@ -129,6 +130,7 @@ class PilotSuiteService:
         return {
             "ready": ready,
             "capabilities": capabilities,
+            "selection": self._selection_summary,
             "version": VERSION,
             "architecture": ARCHITECTURE_VERSION,
             "mode": "hard_read_only",
@@ -184,7 +186,7 @@ class PilotSuiteService:
         return {"zone_id": area_id, "revision": stored["revision"], "items": items,
                 "missing": [{"entity_id": key, "decision": value} for key, value in stored["decisions"].items() if key not in present],
                 "resolved": bool(scope["resolved_area_ids"]),
-                "applied_to_inference": False}
+                "applied_to_inference": stored["active"]}
 
     def moods(self) -> list[dict[str, Any]]:
         return [item.to_dict() for item in self._moods]
@@ -194,7 +196,17 @@ class PilotSuiteService:
 
     async def _derive(self) -> None:
         self._scope = await self.world.scope(self.settings.golden_zone_area_ids)
-        self._neurons = build_neurons(self._scope)
+        selections = {area: await self.selections.get(area) for area in self.settings.golden_zone_area_ids}
+        entities = [item for item in self._scope["entities"]
+                    if not selections[item["area_id"]]["active"]
+                    or selections[item["area_id"]]["decisions"].get(item["entity_id"]) == "relevant"]
+        self._selection_summary = {
+            "active_area_ids": [area for area, selected in selections.items() if selected["active"]],
+            "inventory_count": len(self._scope["entities"]),
+            "evaluated_count": len(entities),
+            "excluded_count": len(self._scope["entities"]) - len(entities),
+        }
+        self._neurons = build_neurons({**self._scope, "entities": entities})
         self._moods = calculate_moods(self._neurons, connected=self._connected and self._stream_connected)
         self._suggestions = build_suggestions(
             self._moods, self.settings.golden_zone_area_ids

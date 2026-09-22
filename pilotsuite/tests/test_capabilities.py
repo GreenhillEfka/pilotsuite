@@ -39,6 +39,7 @@ class CapabilityTests(unittest.IsolatedAsyncioTestCase):
     async def test_temperature_only_zone_is_operational(self):
         with tempfile.TemporaryDirectory() as directory:
             service = PilotSuiteService(Settings(Path(directory), Path(directory) / "options.json"))
+            await service.selections.initialize()
             service.client.snapshot = AsyncMock(return_value={
                 "areas": [{"area_id": "erdkeller"}],
                 "entities": [{"entity_id": "sensor.temperature", "area_id": "erdkeller"}],
@@ -56,6 +57,7 @@ class CapabilityTests(unittest.IsolatedAsyncioTestCase):
     async def test_empty_scope_is_separate_from_transport(self):
         with tempfile.TemporaryDirectory() as directory:
             service = PilotSuiteService(Settings(Path(directory), Path(directory) / "options.json"))
+            await service.selections.initialize()
             service.client.snapshot = AsyncMock(return_value={})
             await service._on_connection(True)
             state = await service.status()

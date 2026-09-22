@@ -29,7 +29,7 @@ const assert = require('node:assert/strict');
           if (conflict) return route.fulfill({status: 409, json: {message: 'conflict'}});
           const payload = route.request().postDataJSON();
           assert.equal(payload.revision, inventory.revision);
-          inventory = {...inventory, revision: inventory.revision + 1, items: inventory.items.map(item => ({...item, decision: payload.changes[item.entity_id] || item.decision}))};
+          inventory = {...inventory, applied_to_inference: payload.active, revision: inventory.revision + 1, items: inventory.items.map(item => ({...item, decision: payload.changes[item.entity_id] || item.decision}))};
         }
         data = inventory;
       } else data = {items: [], neurons: []};
@@ -61,8 +61,13 @@ const assert = require('node:assert/strict');
     assert.equal(await first.isChecked(), true);
     await page.locator('#selection-search').fill('no-match');
     assert.match(await page.locator('#selection-rows').textContent(), /Keine passenden/);
+    conflict = false;
+    await page.locator('#selection-active').check();
+    await page.locator('#selection-save').click();
+    await page.waitForFunction(() => document.getElementById('selection-message').textContent.includes('Bestätigte Auswahl ist'));
+    assert.equal(inventory.applied_to_inference, true);
     assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-    console.log('Browser regression passed: draft, save, conflict, discard, search, mobile, ingress prefix.');
+    console.log('Browser regression passed: draft, save, conflict, discard, activation, search, mobile, ingress prefix.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

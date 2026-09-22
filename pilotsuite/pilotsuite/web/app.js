@@ -31,6 +31,9 @@ function renderStatus(status) {
   text("zone-detail", `${zone.resolved_area_ids.join(", ") || "Bereich fehlt"} · ${capabilities.join(" · ")}`);
   text("habitus-state", `${status.habitus.neuron_count} Neuronen`);
   text("habitus-detail", `${status.habitus.suggestion_count} Vorschläge · ${status.habitus.ruleset}`);
+  if (status.selection?.active_area_ids.length) {
+    text('habitus-detail', `${status.habitus.suggestion_count} Vorschläge · ${status.selection.evaluated_count} ausgewertet, ${status.selection.excluded_count} durch Auswahl ausgeschlossen`);
+  }
   text("release-state", status.version);
 }
 
@@ -151,6 +154,8 @@ function selectionControls() {
   byId('selection-save').disabled = selectionBusy || selectionConflict || !selectionDraft?.dirty;
   byId('selection-discard').disabled = selectionBusy || !selectionZone;
   byId('selection-recommend').disabled = selectionBusy || selectionConflict || !selectionDraft;
+  byId('selection-active').disabled = selectionBusy || selectionConflict || !selectionDraft;
+  byId('selection-active').checked = Boolean(selectionDraft?.active);
 }
 
 function renderSelection() {
@@ -198,7 +203,7 @@ function renderSelection() {
 }
 
 function selectionChanged() {
-  text('selection-message', `${Object.keys(selectionDraft.changes).length} ungespeicherte Änderungen. Auswahl ist noch nicht an die Auswertung angebunden.`);
+  text('selection-message', `${Object.keys(selectionDraft.changes).length} geänderte Entitäten. Modus nach Speichern: ${selectionDraft.active ? 'nur bestätigte Auswahl' : 'automatischer Umfang'}. ${selectionDraft.dirty ? 'Ungespeichert.' : 'Keine Änderungen.'}`);
   renderSelection();
 }
 
@@ -217,6 +222,10 @@ async function loadSelection(zone) {
 }
 
 byId('selection-zone').addEventListener('change', event => loadSelection(event.target.value));
+byId('selection-active').addEventListener('change', event => {
+  selectionDraft.active = event.target.checked;
+  selectionChanged();
+});
 for (const id of ['selection-search', 'selection-filter']) byId(id).addEventListener('input', renderSelection);
 byId('selection-recommend').addEventListener('click', () => { selectionDraft.recommend(); selectionChanged(); });
 byId('selection-discard').addEventListener('click', () => {
@@ -227,13 +236,21 @@ byId('selection-save').addEventListener('click', async () => {
   if (selectionBusy || selectionConflict || !selectionDraft?.dirty) return;
   const changes = Object.entries(selectionDraft.changes);
   if (changes.length > 500) { text('selection-message', 'Bitte höchstens 500 Änderungen auf einmal speichern.'); return; }
+  if (selectionDraft.active !== Boolean(selectionDraft.inventory.applied_to_inference)) {
+    const count = selectionDraft.inventory.items.filter(item => selectionDraft.decisions.get(item.entity_id) === 'relevant').length;
+    const message = selectionDraft.active
+      ? `Auswertung auf ${count} bestätigte Entitäten dieser Zone beschränken? Ungeprüfte und ignorierte Entitäten werden ausgeschlossen. Bei leerer Auswahl stehen keine Beobachtungen dieser Zone zur Verfügung.`
+      : 'Zum automatischen Umfang zurückkehren? Dann werden auch ignorierte und ungeprüfte Entitäten wieder ausgewertet.';
+    if (!window.confirm(message)) return;
+  }
   selectionBusy = true; renderSelection();
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(selectionZone)}`, {
-      method: 'PATCH', body: JSON.stringify({revision: selectionDraft.inventory.revision, changes: Object.fromEntries(changes)}),
+      method: 'PATCH', body: JSON.stringify({revision: selectionDraft.inventory.revision, changes: Object.fromEntries(changes), active: selectionDraft.active}),
     });
     selectionDraft = new SelectionDraft(inventory);
-    text('selection-message', 'Gespeichert. Noch keine Auswirkung auf Moods oder Vorschläge.');
+    text('selection-message', `Gespeichert. ${inventory.applied_to_inference ? 'Bestätigte Auswahl ist für die Auswertung aktiv.' : 'Automatischer Umfang bleibt aktiv.'}`);
+    await load();
   } catch (error) {
     selectionConflict = error.status === 409;
     text('selection-message', selectionConflict

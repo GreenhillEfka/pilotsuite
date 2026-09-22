@@ -44,13 +44,23 @@ die erste Auswahloberfläche: Checkboxen, Suche, Statusfilter, Zonenwahl,
 Empfehlungsvorschau, Speichern/Verwerfen und Konfliktanzeige. Entwürfe bleiben
 bei Dashboard-Abgleichen erhalten; ein Zonenwechsel ist bei Änderungen gesperrt.
 Empfehlungen überschreiben keine explizit ignorierten Entscheidungen.
-`applied_to_inference: false` kennzeichnet ausdrücklich, dass gespeicherte
-Entscheidungen noch nicht die Auswertung verändern. Browserabnahme, Anbindung der
-Auswertung, Export und Journal-Aufbewahrung sind noch offen. Nicht als fertige
+Die Auswertung ist jetzt über einen gemeinsamen Filter angebunden.
+`applied_to_inference` zeigt den gespeicherten Aktivierungsmodus der Zone.
+Standard ist weiterhin der bisherige automatische Umfang. Erst ein explizit
+bestätigtes Speichern mit `active: true` schließt ungeprüfte und ignorierte
+Entitäten aus Neuronen, Moods und Vorschlägen aus. Eine leere Auswahl verändert
+nicht die HA-Verbindungsbereitschaft. Rückkehr zu `active: false` braucht in der
+Oberfläche ebenfalls eine Bestätigung. Inventar bleibt ungefiltert sichtbar.
+Browserabnahme, Export und Journal-Aufbewahrung sind noch offen. Nicht als fertige
 Checkbox-Funktion veröffentlichen oder auf HA installieren.
 
-SQLite-Schema 1 wird neu angelegt; unbekannte oder neuere Schemata werden
-abgewiesen statt überschrieben. Das ist noch kein allgemeines Migrationssystem.
+SQLite-Schema 2 wird neu angelegt. Beim Upgrade von Schema 1 wird zuerst eine
+eindeutige SQLite-Sicherung `selections.v1.<id>.bak` im Datenverzeichnis erzeugt,
+dann die Modustabelle transaktional ergänzt. Bestehende Entscheidungen und
+Revisionen bleiben erhalten; keine Zone wird durch Migration aktiviert.
+Unbekannte oder neuere Schemata werden abgewiesen statt überschrieben.
+Ein Downgrade des Entwicklungszweigs braucht die passende Datenbanksicherung;
+ältere Entwicklungsstände können Schema 2 nicht lesen.
 Journal und Entscheidungen werden in derselben Transaktion gespeichert.
 Keine echten Haushaltsdaten gehören in Tests oder öffentliche Dokumentation.
 
@@ -61,23 +71,27 @@ GET liefert `zone_id`, `revision`, `items`, `missing`, `resolved` und
 Heuristiken, keine Zustimmung. Diagnose-/Konfigurationsentitäten und Buttons
 werden nicht empfohlen. Fehlende Zustände dürfen trotzdem überprüft werden.
 
-PATCH erwartet ausschließlich `revision` und `changes`, etwa:
+PATCH erwartet `revision`, `changes` und optional den booleschen Wert `active`, etwa:
 
 ```json
 {"revision": 0, "changes": {"sensor.example_temperature": "relevant"}}
 ```
 
 Maximal 500 Entscheidungen pro Patch; falsche Nutzdaten ergeben 400,
+Eine reine Modusänderung erlaubt `changes: {}`. Aktivierung und Entscheidungen
+teilen Revision und Transaktion, inklusive Änderungsjournal.
 Revisionskonflikte 409. Wiederholungen ohne Änderung erhöhen die Revision nicht.
 Entscheidungen gelten nur für diese Zone.
 
 ## Verifikation des zweiten Inkrements
 
-- 35 Python-Tests und Repository-Vertragsprüfung erfolgreich.
-- Drei JavaScript-Modelltests erfolgreich; in CI aufgenommen.
+- 39 Python-Tests und Repository-Vertragsprüfung erfolgreich, einschließlich
+  Mehrzonen-Isolation und Zustandsereignissen bei aktiver Auswahl.
+- Vier JavaScript-Modelltests erfolgreich; in CI aufgenommen.
 - Optionaler Browsertest: `node scripts/test_selection_browser.cjs` (benötigt
-  Playwright mit Chromium). Lokal nicht ausgeführt: Chromium fehlt. Deckt nach
+  Playwright mit Chromium). Lokal blockiert: Browserdownload lieferte kein
+  gültiges ZIP-Archiv. Eigener CI-Browserjob mit Playwright 1.62.1 ergänzt. Deckt nach
   erfolgreichem Start Entwurf, Speichern, Konflikt, Verwerfen, Suche, schmale
   Ansicht und Ingress-Prefix ab. Keine Behauptung einer bestandenen Browserabnahme.
-- Keine Installation, kein Versionssprung. Nächste Schritte: Browserabnahme,
-  expliziter Aktivierungsvertrag je Zone, danach gemeinsamer Auswertungsfilter.
+- Keine Installation, kein Versionssprung. Nächste Schritte: CI-Browserabnahme,
+  Export/Aufbewahrung und Release-Härtung.

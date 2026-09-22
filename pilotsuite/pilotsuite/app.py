@@ -138,15 +138,18 @@ async def _selection_patch(request: web.Request) -> web.Response:
         payload = await request.json()
     except ValueError as exc:
         raise InvalidSelection("body must be valid JSON") from exc
-    if not isinstance(payload, dict) or set(payload) != {"revision", "changes"}:
-        raise InvalidSelection("body requires exactly revision and changes")
+    if not isinstance(payload, dict) or set(payload) not in ({"revision", "changes"}, {"revision", "changes", "active"}):
+        raise InvalidSelection("body requires revision, changes and optionally active")
+    if "active" in payload and type(payload["active"]) is not bool:
+        raise InvalidSelection("active must be a boolean")
     async with service._projection_lock:
         inventory = await service.selection_inventory(area_id)
         known = {item["entity_id"] for item in inventory["items"] + inventory["missing"]}
         changes = payload["changes"]
         if not isinstance(changes, dict) or not set(changes).issubset(known):
             raise InvalidSelection("all changed entities must belong to this zone's inventory")
-        await service.selections.patch(area_id, payload["revision"], changes)
+        await service.selections.patch(area_id, payload["revision"], changes, payload.get("active"))
+        await service._derive()
         return web.json_response(await service.selection_inventory(area_id))
 
 

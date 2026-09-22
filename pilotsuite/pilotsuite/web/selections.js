@@ -2,6 +2,7 @@
 class SelectionDraft {
   constructor(inventory) {
     this.inventory = inventory;
+    this.active = Boolean(inventory.applied_to_inference);
     this.original = new Map([...inventory.items, ...inventory.missing].map(item => [item.entity_id, item.decision]));
     this.decisions = new Map(this.original);
   }
@@ -12,7 +13,7 @@ class SelectionDraft {
   get changes() {
     return Object.fromEntries([...this.decisions].filter(([id, value]) => this.original.get(id) !== value));
   }
-  get dirty() { return Object.keys(this.changes).length > 0; }
+  get dirty() { return Object.keys(this.changes).length > 0 || this.active !== Boolean(this.inventory.applied_to_inference); }
   recommend() {
     for (const item of this.inventory.items) {
       if (item.recommended && this.decisions.get(item.entity_id) === 'unreviewed') this.set(item.entity_id, 'relevant');
