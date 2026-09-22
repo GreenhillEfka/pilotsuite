@@ -1,15 +1,19 @@
 # Capability and acceptance ledger
 
-Stand: alpha.7 candidate; alpha.6 live. Local/CI tests are not live HA acceptance.
-Release candidate b631f1c passed CI 35787425872: backend, browser and amd64 image.
-Identical-tree merge e94991a installed after confirmed App-only backup ec38dcca.
+Stand: released and installed 0.1.0-alpha.6. Local/CI tests are not live HA
+acceptance. Candidate 9d3b809 passed CI 35790792191: backend, browser and amd64
+image. Merge 290ef42 was installed after confirmed App-only backup dc8bd58c.
 Runtime logs confirm hard_read_only, ready, connected stream and resolved zone.
+The user confirmed successful Badbereich activation in the actual alpha.6 UI.
+
+
+alpha.7 candidate adds strict selection, plural roles, compact summaries and opt-in activity candidates; 58 backend tests locally. Final CI and deployment pending.
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
 | Add-on packaging | Implemented | alpha.5 installed and started after app-only backup ec38dcca |
 | Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; interactive alpha.5 acceptance in actual HA session still pending |
-| HA snapshot and event stream | Implemented | Reconnect resync/backoff tests; live disconnect/load soak pending |
+| HA snapshot and event stream | Integrated reconnect correction retained | Short-stream exponential backoff and stable-stream recovery tested; live soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Climate heuristics plus separate activity candidates with independent feedback; not causal habits |

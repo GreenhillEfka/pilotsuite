@@ -1,17 +1,35 @@
 # Current State
 
-Last updated: 2026-09-22
+Last updated: 2026-09-23
 
 ## alpha.7 candidate — confirmed selection, role groups and activity learning
 
 Implemented contract: docs/OBSERVATION_LEARNING.md and ADR-017. Includes strict
 selection, compact summaries, plural roles, explicit consent, bounded live evidence,
 stable pattern candidates and independent persistent feedback, export and reset.
-55 backend tests and four JS tests pass locally. Browser and container CI must pass
+58 backend tests and four JS tests pass locally. Browser and container CI must pass
 before installation. alpha.6 remains the deployed baseline until backup/update.
 No learning is enabled by deployment; the user grants consent per zone in the UI.
 The user confirmed Badbereich activation in alpha.6. Do not re-create existing zones.
 
+
+
+
+## Reliability integration included in alpha.7 — reconnect backoff
+
+The isolated, CI-proven reconnect correction from PR #2 is now applied to the
+current alpha.6 zone code rather than the superseded alpha.4 base. Repeated short,
+authenticated Home Assistant streams retain the bounded 1/2/4/8/16/30-second
+backoff. A subscribed stream resets it only after 60 seconds of uptime, including
+quiet installations with no state events. Authentication failures never report a
+connected stream.
+
+All 49 Python tests and four JavaScript model tests pass locally, including the
+three synthetic reconnect regressions and the existing zone/selection suite.
+Repository validation, frontend syntax checks and Python compilation pass. Exact-
+commit CI, including browser and amd64-container jobs, remains the merge gate.
+No version marker, Home Assistant app, configuration, zone choice or actuator was
+changed by this development increment.
 
 ## Released and installed: alpha.6 zone tabs and direct activation
 
@@ -21,13 +39,14 @@ browser (including activation, rename, pause, conflict and tab isolation), amd64
 The merge tree matches the tested candidate. Pre-update app-only backup dc8bd58c
 is confirmed in the HA listing. Update completed; Supervisor reports alpha.6 started.
 Runtime logs confirm hard_read_only, ready=True, stream=True, snapshot_fresh=True,
-zone_resolved=True. Actual interactive alpha.6 use in the user's HA session is
-pending; no claim that Badbereich has been activated by this deployment.
+zone_resolved=True. The user subsequently confirmed that Badbereich could be
+activated through the actual alpha.6 Ingress UI. This is direct workflow acceptance,
+not a disconnect/load soak or a claim that every visual/asset path was inspected.
 
-The user reports Badbereich cannot be activated. HA logs show successful selection
-PATCH calls for the new zone but no corresponding zone-definition activation PATCH
-in the inspected window. This supports a confusing dual-control UI; it does not prove
-a server-side rejection. Direct MCP reads remain blocked by the Ingress peer guard.
+An earlier activation attempt produced selection PATCH calls but no zone-definition
+activation PATCH, exposing the confusing dual-control UI fixed in alpha.6. The later
+successful user activation closes that specific workflow defect. Direct MCP reads
+remain blocked by the Ingress peer guard.
 
 Implemented: visible zone tabs; direct name/source editor and start/pause action;
 area checkboxes; scoped moods, suggestions and observations. Selection mode moves
@@ -81,10 +100,10 @@ feed a newer SQLite schema to older code. A recovery restore was not performed.
 
 ## Next
 
-1. Verify alpha.5 zone editor, persisted selection and export in actual HA Ingress.
-2. Review Erdkeller entity choices and a second unlike zone.
-3. Follow docs/IMPLEMENTATION_STATUS.md and docs/ROADMAP.md for consented read-only
-   learning, bounded evidence and durable proposal feedback.
+1. Require complete alpha.7 CI, including integrated reconnect regressions.
+2. Release a new version only after version/source identity, an app-only backup and
+   targeted downgrade path are verified; then perform startup/readiness/log checks.
+3. Verify role groups, opt-in learning and saved choices in actual HA Ingress; observe real activity before claiming a learned routine.
 
 Contextual role priorities, import, permanent deletion, habit learning, voice,
 native entities and the runtime actuation/rollback engine are not implemented.
