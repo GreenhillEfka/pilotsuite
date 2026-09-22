@@ -44,7 +44,7 @@ function renderMoods(items) {
     const row = document.createElement("div");
     row.className = "mood-row";
     const name = document.createElement("span");
-    name.textContent = item.name.replaceAll("_", " ");
+    name.textContent = `${item.zone_name ? item.zone_name + ' · ' : ''}${item.name.replaceAll("_", " ")}`;
     const bar = document.createElement("div");
     bar.className = "bar";
     const fill = document.createElement("i");
@@ -116,13 +116,8 @@ async function load() {
   renderObservations(zone.neurons || []);
   if (!selectionInitialized) {
     selectionInitialized = true;
-    const zones = status.golden_zone.requested_area_ids;
-    byId('selection-zone').replaceChildren(...zones.map(id => {
-      const option = document.createElement('option');
-      option.value = id; option.textContent = id; return option;
-    }));
-    if (zones.length) await loadSelection(zones[0]);
-    else text('selection-message', 'Keine Zone konfiguriert.');
+    try { await reloadZones(); }
+    catch (error) { selectionInitialized = false; throw error; }
   }
 }
 
@@ -147,14 +142,22 @@ let selectionDraft = null;
 let selectionBusy = false;
 let selectionConflict = false;
 let selectionZone = '';
+let zoneDefinitions = [];
+let zoneEditing = null;
+let zoneFormOpen = false;
+let zoneSaving = false;
+let zoneCatalog = [];
+let zoneExtraSelection = new Set();
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
 function selectionControls() {
-  byId('selection-zone').disabled = selectionBusy || !!selectionDraft?.dirty;
-  byId('selection-save').disabled = selectionBusy || selectionConflict || !selectionDraft?.dirty;
-  byId('selection-discard').disabled = selectionBusy || !selectionZone;
-  byId('selection-recommend').disabled = selectionBusy || selectionConflict || !selectionDraft;
-  byId('selection-active').disabled = selectionBusy || selectionConflict || !selectionDraft;
+  byId('selection-zone').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty;
+  byId('zone-new').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty;
+  byId('zone-edit').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty || !selectionZone;
+  byId('selection-save').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft?.dirty;
+  byId('selection-discard').disabled = selectionBusy || zoneFormOpen || !selectionZone;
+  byId('selection-recommend').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft;
+  byId('selection-active').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft;
   byId('selection-active').checked = Boolean(selectionDraft?.active);
 }
 
@@ -176,7 +179,7 @@ function renderSelection() {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox'; checkbox.checked = decision === 'relevant';
     checkbox.indeterminate = decision === 'unreviewed';
-    checkbox.disabled = selectionBusy || selectionConflict;
+    checkbox.disabled = selectionBusy || zoneFormOpen || selectionConflict;
     checkbox.setAttribute('aria-label', `${item.name || item.entity_id}: relevant`);
     checkbox.addEventListener('change', () => {
       selectionDraft.set(item.entity_id, checkbox.checked ? 'relevant' : 'ignored');
@@ -190,7 +193,7 @@ function renderSelection() {
     cells[4].textContent = decisionLabels[decision] + (item.recommended ? ' · empfohlen' : '');
     if (decision !== 'unreviewed') {
       const reset = document.createElement('button'); reset.type = 'button'; reset.textContent = 'Ungeprüft setzen';
-      reset.disabled = selectionBusy || selectionConflict;
+      reset.disabled = selectionBusy || zoneFormOpen || selectionConflict;
       reset.addEventListener('click', () => { selectionDraft.set(item.entity_id, 'unreviewed'); selectionChanged(); });
       cells[4].append(document.createElement('br'), reset);
     }
@@ -213,7 +216,7 @@ async function loadSelection(zone) {
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(zone)}`);
     selectionDraft = new SelectionDraft(inventory); selectionConflict = false;
-    text('selection-message', `${inventory.resolved ? 'Inventar geladen' : 'Zone derzeit nicht aufgelöst'} · Revision ${inventory.revision}. Ungeprüft ist nicht gleich ignoriert.`);
+    text('selection-message', `${inventory.resolved ? 'Inventar geladen' : 'Zone derzeit nicht aufgelöst'} · Revision ${inventory.revision}. ${inventory.enabled === false ? 'Zone ist deaktiviert. ' : ''}Ungeprüft ist nicht gleich ignoriert.`);
   } catch (error) {
     // Do not display one zone's data under another zone's label.
     if (selectionDraft?.inventory.zone_id !== zone) selectionDraft = null;
@@ -249,7 +252,7 @@ byId('selection-save').addEventListener('click', async () => {
       method: 'PATCH', body: JSON.stringify({revision: selectionDraft.inventory.revision, changes: Object.fromEntries(changes), active: selectionDraft.active}),
     });
     selectionDraft = new SelectionDraft(inventory);
-    text('selection-message', `Gespeichert. ${inventory.applied_to_inference ? 'Bestätigte Auswahl ist für die Auswertung aktiv.' : 'Automatischer Umfang bleibt aktiv.'}`);
+    text('selection-message', `Gespeichert. ${inventory.enabled === false ? 'Zone ist deaktiviert; Entscheidungen bleiben gespeichert.' : inventory.applied_to_inference ? 'Bestätigte Auswahl ist für die Auswertung aktiv.' : 'Automatischer Umfang bleibt aktiv.'}`);
     await load();
   } catch (error) {
     selectionConflict = error.status === 409;
@@ -259,7 +262,82 @@ byId('selection-save').addEventListener('click', async () => {
   } finally { selectionBusy = false; renderSelection(); }
 });
 window.addEventListener('beforeunload', event => {
-  if (selectionDraft?.dirty) { event.preventDefault(); event.returnValue = ''; }
+  if (selectionDraft?.dirty || zoneFormOpen) { event.preventDefault(); event.returnValue = ''; }
+});
+
+async function reloadZones(preferred = selectionZone) {
+  const data = await json('api/v1/zones');
+  zoneDefinitions = data.items;
+  byId('selection-zone').replaceChildren(...zoneDefinitions.map(zone => {
+    const option = document.createElement('option'); option.value = zone.zone_id;
+    option.textContent = zone.name + (zone.enabled ? '' : ' (deaktiviert)'); return option;
+  }));
+  const target = zoneDefinitions.find(z => z.zone_id === preferred) || zoneDefinitions[0];
+  if (target) { byId('selection-zone').value = target.zone_id; await loadSelection(target.zone_id); }
+  else { selectionZone = ''; selectionDraft = null; text('selection-message', 'Noch keine Habitus-Zone. Lege eine neue Zone an.'); renderSelection(); }
+}
+
+function renderExtraChoices() {
+  const query = byId('zone-extra-search').value.toLowerCase();
+  const options = zoneCatalog.filter(item => zoneExtraSelection.has(item.entity_id) || (!item.disabled && `${item.name} ${item.entity_id}`.toLowerCase().includes(query)))
+    .sort((a,b) => Number(zoneExtraSelection.has(b.entity_id)) - Number(zoneExtraSelection.has(a.entity_id))).slice(0, 600);
+  byId('zone-extras').replaceChildren(...options.map(item => {
+    const option = document.createElement('option'); option.value = item.entity_id;
+    option.textContent = `${item.name || item.entity_id} · ${item.entity_id}${item.disabled ? ' (nicht verfügbar)' : ''}`;
+    option.selected = zoneExtraSelection.has(item.entity_id); return option;
+  }));
+}
+
+async function openZoneEditor(existing) {
+  if (selectionBusy || selectionDraft?.dirty || zoneFormOpen) return;
+  zoneFormOpen = true; renderSelection();
+  try {
+    const [areas, catalog, zones] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones')]);
+    zoneEditing = existing ? zones.items.find(z => z.zone_id === selectionZone) : null;
+    if (existing && !zoneEditing) throw new Error('Zone nicht mehr vorhanden. Neu laden.');
+    const zone = zoneEditing || {name: '', area_ids: [], extra_entity_ids: [], enabled: false, profile: 'observe'};
+    byId('zone-name').value = zone.name; byId('zone-profile').value = zone.profile; byId('zone-enabled').checked = zone.enabled;
+    const allAreas = new Map(areas.items.map(a => [a.area_id, a.name || a.area_id]));
+    for (const id of zone.area_ids) if (!allAreas.has(id)) allAreas.set(id, `${id} (nicht verfügbar)`);
+    byId('zone-areas').replaceChildren(...[...allAreas].map(([id, name]) => {
+      const option = document.createElement('option'); option.value = id; option.textContent = name; option.selected = zone.area_ids.includes(id); return option;
+    }));
+    zoneExtraSelection = new Set(zone.extra_entity_ids);
+    const allEntities = new Map(catalog.items.map(e => [e.entity_id, e]));
+    for (const id of zoneExtraSelection) if (!allEntities.has(id)) allEntities.set(id, {entity_id: id, disabled: true});
+    zoneCatalog = [...allEntities.values()].sort((a,b) => Number(zoneExtraSelection.has(b.entity_id)) - Number(zoneExtraSelection.has(a.entity_id)));
+    byId('zone-extra-search').value = ''; renderExtraChoices();
+    text('zone-form-title', existing ? 'Zone bearbeiten' : 'Neue Zone');
+    text('zone-message', 'Zusätzliche Entitäten: bis zu 600 Treffer sichtbar. Suche eingrenzen; ausgewählte Einträge bleiben erhalten.');
+    byId('zone-form').hidden = false; byId('zone-name').focus();
+  } catch (error) { zoneFormOpen = false; text('zone-message', error.message); renderSelection(); }
+}
+byId('zone-new').addEventListener('click', () => openZoneEditor(false));
+byId('zone-edit').addEventListener('click', () => openZoneEditor(true));
+byId('zone-extra-search').addEventListener('input', renderExtraChoices);
+byId('zone-extras').addEventListener('change', () => {
+  for (const option of byId('zone-extras').options) {
+    if (option.selected) zoneExtraSelection.add(option.value); else zoneExtraSelection.delete(option.value);
+  }
+});
+byId('zone-cancel').addEventListener('click', () => {
+  if (zoneSaving) return;
+  zoneFormOpen = false; byId('zone-form').hidden = true; renderSelection();
+});
+byId('zone-form').addEventListener('submit', async event => {
+  event.preventDefault(); if (zoneSaving) return;
+  const definition = {name: byId('zone-name').value, profile: byId('zone-profile').value,
+    enabled: byId('zone-enabled').checked, area_ids: [...byId('zone-areas').selectedOptions].map(o => o.value), extra_entity_ids: [...zoneExtraSelection]};
+  if (definition.enabled && !window.confirm('Diese Zonendefinition für die Auswertung aktivieren? Nur bestätigte Entitäten neuer Zonen werden ausgewertet.')) return;
+  zoneSaving = true; byId('zone-fields').disabled = true;
+  try {
+    const payload = {definition}; if (zoneEditing) payload.revision = zoneEditing.revision;
+    const saved = await json(`api/v1/zones${zoneEditing ? '/' + encodeURIComponent(zoneEditing.zone_id) : ''}`, {method: zoneEditing ? 'PATCH' : 'POST', body: JSON.stringify(payload)});
+    zoneFormOpen = false; byId('zone-form').hidden = true;
+    text('zone-message', 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
+    await reloadZones(saved.zone_id); await load();
+  } catch (error) { text('zone-message', error.status === 409 ? 'Zone oder Entitätenauswahl zwischenzeitlich geändert. Entwurf bleibt erhalten. Abbrechen und erneut öffnen, um den aktuellen Stand zu laden.' : error.message); }
+  finally { zoneSaving = false; byId('zone-fields').disabled = false; renderSelection(); }
 });
 
 byId("refresh").addEventListener("click", refresh);

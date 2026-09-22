@@ -110,6 +110,11 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_get("/api/v1/status", _status)
     app.router.add_get("/api/v1/architecture", _architecture)
     app.router.add_get("/api/v1/areas", _areas)
+    app.router.add_get('/api/v1/zones', _zones)
+    app.router.add_get('/api/v1/zones/export', _zone_export)
+    app.router.add_post('/api/v1/zones', _save_zone)
+    app.router.add_patch('/api/v1/zones/{zone_id}', _save_zone)
+    app.router.add_get('/api/v1/entity-catalog', _entity_catalog)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
     app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
@@ -129,6 +134,45 @@ async def _startup(app: web.Application) -> None:
 
 async def _selection_inventory(request: web.Request) -> web.Response:
     return web.json_response(await request.app[SERVICE_KEY].selection_inventory(request.match_info["area_id"]))
+
+
+async def _zones(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    return web.json_response({'items': await service.zones.list(), 'results': service._zone_results})
+
+
+async def _entity_catalog(request: web.Request) -> web.Response:
+    return web.json_response({'items': await request.app[SERVICE_KEY].world.catalog()})
+
+
+async def _zone_export(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    async with service._projection_lock:
+        items = [dict(zone, selection=await service.selections.get(zone['zone_id'])) for zone in await service.zones.list()]
+        return web.json_response({'format': 'pilotsuite-habitus-zones', 'schema': 1, 'items': items},
+                                 headers={'Content-Disposition': 'attachment; filename="pilotsuite-zones.json"'})
+
+
+async def _save_zone(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise InvalidSelection('invalid JSON') from exc
+    zone_id = request.match_info.get('zone_id')
+    expected = {'definition', 'revision'} if zone_id else {'definition'}
+    if not isinstance(payload, dict) or set(payload) != expected:
+        raise InvalidSelection('invalid zone request fields')
+    definition = service.zones.validate(payload['definition'])
+    async with service._projection_lock:
+        previous = next((z for z in await service.zones.list() if z['zone_id'] == zone_id), {})
+        areas = {a['area_id'] for a in await service.world.areas()} | set(previous.get('area_ids', []))
+        entities = {e['entity_id'] for e in await service.world.catalog() if not e['disabled']} | set(previous.get('extra_entity_ids', []))
+        if not set(definition['area_ids']) <= areas or not set(definition['extra_entity_ids']) <= entities:
+            raise InvalidSelection('unknown area or unavailable extra entity; reload the inventory')
+        saved = await service.zones.save(definition, zone_id, payload.get('revision'))
+        await service._derive()
+        return web.json_response(saved, status=200 if zone_id else 201)
 
 
 async def _selection_patch(request: web.Request) -> web.Response:

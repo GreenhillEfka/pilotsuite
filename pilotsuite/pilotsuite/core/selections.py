@@ -27,8 +27,12 @@ class SelectionStore:
     rename or delete may transfer an explicit decision to a different entity.
     """
 
-    def __init__(self, data_dir: Path):
+    def __init__(self, data_dir: Path, journal_limit: int = 5000):
         self.path = data_dir / "selections.sqlite3"
+        self.journal_limit = max(1, journal_limit)
+
+    def prune_journal(self, db: sqlite3.Connection) -> None:
+        db.execute('DELETE FROM selection_journal WHERE id NOT IN (SELECT id FROM selection_journal ORDER BY id DESC LIMIT ?)', (self.journal_limit,))
 
     async def initialize(self) -> None:
         await asyncio.to_thread(self._initialize)
@@ -37,26 +41,28 @@ class SelectionStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(sqlite3.connect(self.path)) as db, db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 2:
+            if version > 3:
                 raise RuntimeError("Selection database schema is newer than this release")
-            if version == 2:
+            if version == 3:
                 return
-            if version == 1:
-                backup = self.path.with_name(f"selections.v1.{uuid.uuid4().hex}.bak")
+            if version in (1, 2):
+                backup = self.path.with_name(f"selections.v{version}.{uuid.uuid4().hex}.bak")
                 with closing(sqlite3.connect(backup)) as target:
                     db.backup(target)
-                db.executescript("""
-                    BEGIN IMMEDIATE;
-                    CREATE TABLE selection_modes (zone_id TEXT PRIMARY KEY, active INTEGER NOT NULL CHECK(active IN (0,1)));
-                    PRAGMA user_version=2;
-                    COMMIT;
-                """)
+                db.execute('BEGIN IMMEDIATE')
+                if version == 1:
+                    db.execute('CREATE TABLE selection_modes (zone_id TEXT PRIMARY KEY, active INTEGER NOT NULL CHECK(active IN (0,1)))')
+                db.execute('CREATE TABLE habitus_zones (zone_id TEXT PRIMARY KEY, definition TEXT NOT NULL)')
+                db.execute('CREATE TABLE zone_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
+                db.execute('PRAGMA user_version=3')
                 return
             if db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchone():
                 raise RuntimeError("Unrecognized selection database; refusing to overwrite")
             db.executescript("""
                 BEGIN IMMEDIATE;
                 CREATE TABLE zones (zone_id TEXT PRIMARY KEY, revision INTEGER NOT NULL);
+                CREATE TABLE habitus_zones (zone_id TEXT PRIMARY KEY, definition TEXT NOT NULL);
+                CREATE TABLE zone_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
                 CREATE TABLE selection_modes (zone_id TEXT PRIMARY KEY, active INTEGER NOT NULL CHECK(active IN (0,1)));
                 CREATE TABLE selections (
                     zone_id TEXT NOT NULL, entity_id TEXT NOT NULL,
@@ -65,7 +71,7 @@ class SelectionStore:
                 CREATE TABLE selection_journal (
                     id INTEGER PRIMARY KEY, zone_id TEXT NOT NULL, revision INTEGER NOT NULL,
                     changes TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
-                PRAGMA user_version=2;
+                PRAGMA user_version=3;
                 COMMIT;
             """)
 
@@ -125,4 +131,5 @@ class SelectionStore:
                 db.execute("INSERT INTO selection_modes VALUES (?, ?) ON CONFLICT(zone_id) DO UPDATE SET active=excluded.active", (zone_id, int(active)))
                 journal["$active"] = {"before": previous["active"], "after": active}
             db.execute("INSERT INTO selection_journal(zone_id, revision, changes) VALUES (?, ?, ?)", (zone_id, revision + 1, json.dumps(journal, sort_keys=True)))
+            self.prune_journal(db)
             return self._read(db, zone_id)

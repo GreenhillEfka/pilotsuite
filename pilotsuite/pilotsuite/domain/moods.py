@@ -10,7 +10,7 @@ import math
 from .models import Mood, Neuron
 
 
-def calculate_moods(neurons: Iterable[Neuron], *, connected: bool) -> list[Mood]:
+def calculate_moods(neurons: Iterable[Neuron], *, connected: bool, profile: str = 'cellar') -> list[Mood]:
     observations = list(neurons)
     humidity = _numeric(observations, "humidity")
     temperature = _numeric(observations, "temperature")
@@ -64,6 +64,9 @@ def calculate_moods(neurons: Iterable[Neuron], *, connected: bool) -> list[Mood]
             ({"home_assistant_connected": connected},),
         ),
     ]
+    if profile == 'observe':
+        # No cellar-specific comfort thresholds in a general-purpose zone.
+        values = [m if m.name in {'uncertainty', 'system_health'} else Mood(m.name, None) for m in values]
     return values
 
 

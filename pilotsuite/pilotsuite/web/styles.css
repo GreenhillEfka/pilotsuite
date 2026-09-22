@@ -56,6 +56,10 @@ footer { padding: 1.5rem 0 2.5rem; color: var(--muted); text-align: center; font
 .selection-tools { display: flex; flex-wrap: wrap; gap: .8rem; margin-block: 1rem; }
 .selection-tools label { display: grid; gap: .4rem; flex: 1 1 180px; }
 select, input[type="search"] { min-width: 0; width: 100%; padding: .7rem; border: 1px solid var(--line); border-radius: .5rem; color: var(--text); background: var(--panel-soft); font: inherit; }
+input:not([type]), input[type="text"] { min-width: 0; padding: .7rem; color: var(--text); background: var(--panel-soft); border: 1px solid var(--line); border-radius: .5rem; font: inherit; }
+fieldset { min-width: 0; border: 1px solid var(--line); border-radius: .6rem; }
+summary { cursor: pointer; font-weight: 700; padding-block: .8rem; }
+a { color: var(--accent); }
 input[type="checkbox"] { width: 1.3rem; height: 1.3rem; accent-color: var(--accent); }
 .selection-panel td { overflow-wrap: anywhere; min-width: 100px; }
 .selection-panel td small { display: block; color: var(--muted); }

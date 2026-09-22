@@ -20,7 +20,7 @@
       <section class="hero">
         <div>
           <p class="eyebrow">GOLDEN ZONE</p>
-          <h2>Erdkeller verstehen, bevor irgendetwas handelt.</h2>
+          <h2>Dein Zuhause verstehen, bevor irgendetwas handelt.</h2>
           <p class="lede">Home Assistant bleibt die Wahrheit. PilotSuite ordnet Beobachtungen ein, zeigt Belege und schlägt nachvollziehbare nächste Schritte vor.</p>
         </div>
         <button id="refresh" type="button">Jetzt abgleichen</button>
@@ -74,6 +74,32 @@
       </section>
 
       <section class="panel selection-panel" aria-labelledby="selection-title">
+        <details id="zone-editor">
+          <summary>Habitus-Zonen verwalten</summary>
+          <p>Bereiche liefern Kandidaten. Zusätzliche Entitäten können aus anderen Bereichen stammen. Neue Zonen starten deaktiviert und mit bestätigter Auswahl.</p>
+          <div class="selection-tools">
+            <button id="zone-new" type="button">Neue Zone</button>
+            <button id="zone-edit" type="button">Gewählte Zone bearbeiten</button>
+            <a href="api/v1/zones/export" download="pilotsuite-zones.json">Zonen exportieren</a>
+          </div>
+          <form id="zone-form" hidden>
+            <fieldset id="zone-fields">
+              <legend id="zone-form-title">Zone</legend>
+              <div class="selection-tools">
+                <label>Name <input id="zone-name" required maxlength="80"></label>
+                <label>Regelprofil <select id="zone-profile"><option value="observe">Neutral beobachten</option><option value="cellar">Erdkeller – konservative Klimaregeln</option></select></label>
+              </div>
+              <label><input id="zone-enabled" type="checkbox"> Zone auswerten (deaktivieren erhält alle Entscheidungen)</label>
+              <div class="selection-tools">
+                <label>HA-Bereiche als Quellen <select id="zone-areas" multiple size="6"></select></label>
+                <label>Zusätzliche Entitäten suchen <input id="zone-extra-search" type="search" placeholder="Name oder ID"><select id="zone-extras" multiple size="6" aria-label="Zusätzliche Entitäten"></select></label>
+              </div>
+              <p>Mehrfachauswahl möglich. Quellen speichern bestätigt noch keine Entität als relevant. Entfernte Quellen behalten ihre Entscheidungen für eine spätere Wiederaufnahme.</p>
+              <div class="selection-tools"><button type="submit">Zone speichern</button><button id="zone-cancel" type="button">Abbrechen</button></div>
+            </fieldset>
+          </form>
+          <p id="zone-message" role="status" aria-live="polite"></p>
+        </details>
         <p class="eyebrow">BEWUSSTE AUSWAHL</p>
         <h2 id="selection-title">Relevante Entitäten</h2>
         <p>Ohne Aktivierung gilt der bisherige automatische Umfang. Aktiviert werden nur als relevant bestätigte Entitäten ausgewertet. Keine Schaltfreigabe.</p>

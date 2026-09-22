@@ -1,5 +1,16 @@
 # Architecture Decision Log
 
+## ADR-015 — Logical Habitus zones own context, not HA topology (2026-09-22)
+
+Zones have stable identity, mutable names, HA-area sources and extra entity
+candidates. One SQLite store owns definitions and selection with a shared revision.
+Existing configured areas are bootstrapped once without losing decisions. New zones
+start with curated selection; the UI creates them paused with a neutral profile.
+Inference is per zone. Global entity counts deduplicate IDs; zone proposals retain
+their own scope. Cellar thresholds are opt-in for new zones. HA registries are never
+rewritten. Disable preserves data; export and bounded journal support review.
+See docs/HABITUS_ZONES.md for the implemented contract and deferred extensions.
+
 ## ADR-014 — Operational readiness is not domain completeness (2026-09-22)
 
 Accepted after the alpha.3 live UI review: readiness measures a connected HA

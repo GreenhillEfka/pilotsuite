@@ -1,5 +1,10 @@
 # Nächstes Paket: bewusste Entitätenauswahl
 
+Erweitert um eigenständige Habitus-Zonen: siehe [HABITUS_ZONES.md](HABITUS_ZONES.md).
+Der dort dokumentierte Schema-3-Vertrag ersetzt die frühere Bindung an einzelne
+HA-Bereiche sowie die folgenden historischen Inkrementbeschreibungen.
+Zoneneditor, separate Auswertung, Export und begrenztes Journal sind implementiert.
+
 Status: in Entwicklung, kein Release und keine Installationsfreigabe.
 Ausgangspunkt: 0.1.0-alpha.4. Bestehende Installation bleibt unverändert.
 

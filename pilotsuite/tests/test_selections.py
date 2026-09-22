@@ -55,11 +55,11 @@ class SelectionStoreTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_future_schema_refused_without_overwrite(self):
         with sqlite3.connect(self.store.path) as db:
-            db.execute('PRAGMA user_version=3')
+            db.execute('PRAGMA user_version=4')
         with self.assertRaises(RuntimeError):
             await self.store.initialize()
         with sqlite3.connect(self.store.path) as db:
-            self.assertEqual(3, db.execute('PRAGMA user_version').fetchone()[0])
+            self.assertEqual(4, db.execute('PRAGMA user_version').fetchone()[0])
 
 
 class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
@@ -150,18 +150,22 @@ class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
                                  {'entity_id': 'sensor.new', 'area_id': 'example'}],
                     'states': [{'entity_id': 'sensor.a', 'state': '20', 'attributes': {'device_class': 'temperature', 'unit_of_measurement': '°C'}}]}
         await service.world.replace(snapshot)
+        other = await service.zones.save({'name': 'Other', 'area_ids': ['other'], 'extra_entity_ids': [], 'enabled': True, 'profile': 'observe'})
+        await service.selections.patch(other['zone_id'], 1, {'sensor.b': 'relevant'})
         await service.selections.patch('example', 0, {'sensor.a': 'relevant'}, True)
         await service._derive()
-        self.assertEqual(['sensor.a', 'sensor.b'], [n.entity_id for n in service._neurons])
+        self.assertEqual({'sensor.a', 'sensor.b'}, {n.entity_id for n in service._neurons})
         await service._on_state_change({'entity_id': 'sensor.a', 'new_state': {'entity_id': 'sensor.a', 'state': '22', 'attributes': {'device_class': 'temperature', 'unit_of_measurement': '°C'}}})
-        self.assertEqual(22, service._neurons[0].value)
-        self.assertEqual(['example'], (await service.status())['selection']['active_area_ids'])
+        self.assertEqual(22, next(n.value for n in service._neurons if n.entity_id == 'sensor.a'))
+        self.assertEqual({'example', other['zone_id']}, set((await service.status())['selection']['active_area_ids']))
 
     async def test_schema_migration_keeps_backup_and_decisions(self):
         store = self.app[SERVICE_KEY].selections
         await store.patch('example', 0, {'sensor.temperature': 'relevant'})
         with sqlite3.connect(store.path) as db:
             db.execute('DROP TABLE selection_modes')
+            db.execute('DROP TABLE habitus_zones')
+            db.execute('DROP TABLE zone_meta')
             db.execute('PRAGMA user_version=1')
         await store.initialize()
         saved = await store.get('example')
