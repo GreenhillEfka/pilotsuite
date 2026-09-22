@@ -1,15 +1,18 @@
 # Current State
 
-## Under review: structured activity-candidate evidence
+## Release candidate: 0.1.0-alpha.10 structured activity evidence
 
 The next bounded change gives `activity-v1` candidates independent observation
 statistics, deterministic threshold ratios, nullable statistical confidence,
 read-only risk and durable user preference fields. Deprecated flat alpha fields
 remain compatibility aliases; feedback still changes no evidence. Synthetic tests
-cover the contract and persistence. This work is not released or deployed;
-0.1.0-alpha.9 remains the installed rollback point. Next gate: pull-request CI
-including browser and amd64 container, then decide the next release package without
-changing production learning consent.
+cover the contract and persistence. PR #10 candidate CI 35798185711 passed 64
+backend tests, four JS tests, browser regression and amd64 container before the
+release metadata commit. App-only backup 522eda91 was then created from running
+alpha.9; the completed listing excludes HA configuration/database. The partial
+restore target is PilotSuite and its data only; archive internals and a restore
+drill were not performed. alpha.9 remains installed until the final release-metadata
+CI passes. Production learning consent remains unchanged.
 
 ## Released and running: 0.1.0-alpha.9
 

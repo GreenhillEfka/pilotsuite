@@ -1,11 +1,13 @@
 # Capability and acceptance ledger
 
-## Structured candidate contract under review
+## alpha.10 release candidate
 
 The next candidate separates activity observation statistics, deterministic rule
 threshold ratios, nullable confidence, read-only risk and persisted preference.
-Local synthetic regression currently covers evidence/feedback invariance. It is
-not released or deployed; pull-request browser/container CI is the next gate.
+Synthetic regression covers evidence/feedback invariance. PR #10 candidate CI
+35798185711 passed 64 backend tests, four JS tests, browser and amd64 container.
+App-only alpha.9 backup 522eda91 is complete; final release-metadata CI and live
+deployment verification remain. Learning consent is unchanged.
 
 ## alpha.9 update
 
