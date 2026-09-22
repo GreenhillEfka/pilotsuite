@@ -425,8 +425,8 @@ function renderCompactSummary(result) {
   const items = inventory?.items || [];
   const count = key => items.filter(i => i.decision === key).length;
   text('zone-counts', `${items.length} Kandidaten · ${count('relevant')} relevant · ${count('unreviewed')} ungeprüft · ${count('ignored')} ignoriert · ${result?.evaluated_count ?? 0} ausgewertete Beobachtungen`);
-  const labels = {temperature: 'Temperatur', humidity: 'Feuchte', presence: 'Präsenz / Bewegung', light: 'Licht'};
-  const statuses = {ambiguous: 'Hauptsensoren auswählen', unavailable: 'Messwert nicht verfügbar', not_present: 'Kein bestätigter Sensor', partial: 'Teilweise verfügbar'};
+  const labels = {temperature: 'Temperatur', humidity: 'Feuchte', illuminance: 'Helligkeit', presence: 'Präsenz / Bewegung', light: 'Licht'};
+  const statuses = {not_selected: 'Keine Hauptsensoren ausgewählt', ambiguous: 'Hauptsensoren auswählen', unavailable: 'Messwert nicht verfügbar', not_present: 'Kein bestätigter Sensor', partial: 'Teilweise verfügbar'};
   byId('zone-summary').replaceChildren(...Object.entries(labels).map(([kind, label]) => {
     const card = document.createElement('article'); card.className = 'card';
     const title = document.createElement('span'); title.textContent = label;
@@ -435,7 +435,12 @@ function renderCompactSummary(result) {
       ? info.value != null ? `${Number(info.value).toLocaleString('de-DE', {maximumFractionDigits: 1})} ${info.unit || ''}` : `${info.on} von ${info.total} aktiv${info.status === 'partial' ? ' · Daten fehlen' : ''}`
       : statuses[info.status] || info.status;
     card.append(title, value);
-    if (info?.sources?.length) { const source = document.createElement('small'); source.textContent = `${info.valid_count} gültige Sensoren${info.status === 'partial' ? ' · Daten fehlen' : ''} · Median; Min ${info.min} / Max ${info.max} ${info.unit || ''}`; card.append(source); }
+    if (info?.aggregation === 'any_on') {
+      const source = document.createElement('small');
+      source.textContent = `Zonenreferenz: ${info.active === true ? 'Aktivität' : info.active === false ? 'alle Quellen inaktiv' : 'unbekannt'} · ${(info.sources || []).join(', ') || 'keine Hauptquelle'}`;
+      card.append(source);
+    }
+    if (info?.sources?.length && info.aggregation === 'median') { const source = document.createElement('small'); source.textContent = `${info.valid_count} gültige Hauptsensoren · automatischer Referenzwert${info.status === 'partial' ? ' · Daten fehlen' : ''} · Median; Min ${info.min} / Max ${info.max} ${info.unit || ''}`; card.append(source); }
     return card;
   }));
 }
@@ -472,7 +477,15 @@ function renderLearning() {
     root.append(card);
   }
 }
-const roleKinds = {temperature:['temperature'], humidity:['humidity'], presence:['motion','occupancy','presence'], reference_temperature:['temperature']};
+const roleKinds = {temperature:['temperature'], humidity:['humidity'], illuminance:['illuminance'], light:['light'], presence:['motion','occupancy','presence'], reference_temperature:['temperature']};
+function renderRolePreview() {
+  const parts = Object.keys(roleKinds).filter(k => k !== 'reference_temperature').map(role => {
+    const count = byId(`role-${role}`).querySelectorAll('input:checked').length;
+    const labels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', presence:'Präsenz / Bewegung', light:'Licht'};
+    return `${labels[role]}: ${count} Hauptsensoren → ${count ? 'automatischer Referenzwert' : 'keine Auswertung'}`;
+  });
+  text('role-preview', parts.join(' · '));
+}
 byId('context-edit').addEventListener('click', async () => {
   if (selectionBusy || contextEditing || zoneFormOpen || selectionDraft?.dirty) return;
   contextEditing = true; renderSelection();
@@ -480,15 +493,17 @@ byId('context-edit').addEventListener('click', async () => {
     await loadContext();
     for (const [role, kinds] of Object.entries(roleKinds)) {
       const select = byId(`role-${role}`); select.replaceChildren();
-      const current = contextData.config.roles[role] || [];
+      const current = (contextData.effective_roles || contextData.config.roles)[role] || [];
       const candidates = (contextData.candidates || []).filter(i => kinds.includes(i.suggested_role));
       for (const id of current) if (!candidates.some(i=>i.entity_id===id)) candidates.push({entity_id:id,name:`${id} (aktuell nicht verfügbar / nicht relevant)`});
       if (!candidates.length) select.textContent='Keine bestätigten Sensoren dieses Typs.';
       for (const item of candidates) {
         const label=document.createElement('label'); const input=document.createElement('input'); input.type='checkbox'; input.value=item.entity_id; input.checked=current.includes(item.entity_id);
+        input.addEventListener('change', renderRolePreview);
         label.append(input, document.createTextNode(item.name || item.entity_id)); select.append(label);
       }
     }
+    renderRolePreview();
     byId('learning-consent').checked=contextData.config.learning;
     byId('context-form').hidden=false;
   } catch(error) { contextEditing=false; text('context-message',error.message); renderSelection(); }
@@ -496,7 +511,7 @@ byId('context-edit').addEventListener('click', async () => {
 byId('context-cancel').addEventListener('click', () => { if (selectionBusy) return; contextEditing=false; byId('context-form').hidden=true; renderSelection(); });
 byId('context-form').addEventListener('submit', async event => {
   event.preventDefault(); if (selectionBusy) return;
-  const roles=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]).filter(([,v])=>v.length));
+  const roles=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]));
   const learning=byId('learning-consent').checked;
   const sourceChanged=JSON.stringify(roles.presence || []) !== JSON.stringify(contextData.config.roles.presence || []);
   if (sourceChanged && contextData.event_count && !window.confirm('Lernquelle wechseln? Vorhandene Lernbelege und Musterfeedback dieser Zone werden gelöscht.')) return;

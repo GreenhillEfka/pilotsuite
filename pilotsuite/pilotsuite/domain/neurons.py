@@ -70,7 +70,7 @@ def build_neurons(scope: dict[str, Any]) -> list[Neuron]:
         quality = _quality(raw_state)
         value = _value(raw_state, str(device_class or ""), domain, quality)
         unit = _optional_string(attrs.get("unit_of_measurement"))
-        if quality == "good" and kind in {"temperature", "humidity"}:
+        if quality == "good" and kind in {"temperature", "humidity", "illuminance"}:
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
                 value, quality = None, "invalid"
             elif kind == "temperature":
@@ -82,6 +82,13 @@ def build_neurons(scope: dict[str, Any]) -> list[Neuron]:
                     value, quality = None, "unsupported_unit"
                 if value is not None and value < -273.15:
                     value, quality = None, "invalid"
+            elif kind == "illuminance":
+                if unit not in {"lx", "lux"}:
+                    value, quality = None, "unsupported_unit"
+                elif value < 0:
+                    value, quality = None, "invalid"
+                else:
+                    unit = "lx"
             elif unit != "%":
                 value, quality = None, "unsupported_unit"
             elif not 0 <= value <= 100:

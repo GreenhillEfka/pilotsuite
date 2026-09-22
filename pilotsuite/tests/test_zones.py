@@ -154,6 +154,29 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(409,(await self.client.patch(path,json={'revision':1,'roles':{},'learning':False})).status)
         self.assertEqual(400,(await self.client.post('/api/v1/zones/a/feedback',json={'pattern_id':'unknown','decision':'accepted'})).status)
 
+    async def test_presence_selection_drives_summary_and_learning_after_reload(self):
+        from pilotsuite.core.context import ContextStore
+        entities = [{'entity_id': e, 'area_id': 'a'} for e in ('binary_sensor.p', 'binary_sensor.q', 'sensor.lux')]
+        await self.service.world.replace({'areas': [{'area_id': 'a'}], 'entities': entities, 'states': [
+            {'entity_id': 'binary_sensor.p', 'state': 'off', 'attributes': {'device_class': 'motion'}},
+            {'entity_id': 'binary_sensor.q', 'state': 'on', 'attributes': {'device_class': 'occupancy'}},
+            {'entity_id': 'sensor.lux', 'state': '123', 'attributes': {'device_class': 'illuminance', 'unit_of_measurement': 'lx'}}]})
+        await self.service.selections.patch('a', 0, {e['entity_id']: 'relevant' for e in entities})
+        roles = {'presence': ['binary_sensor.p'], 'illuminance': ['sensor.lux'], 'temperature': []}
+        response = await self.client.patch('/api/v1/zones/a/context', json={'revision': 1, 'roles': roles, 'learning': True})
+        self.assertEqual(200, response.status)
+        self.service.context = ContextStore(self.service.selections)
+        await self.service._derive()
+        summary = self.service._zone_results[0]['summary']
+        self.assertFalse(summary['presence']['active'])
+        self.assertEqual(['binary_sensor.p'], self.service._learning_sources['a'])
+        self.assertEqual(123, summary['illuminance']['reference']['value'])
+        self.assertEqual(roles, (await self.service.context.get('a'))['roles'])
+        response = await self.client.patch('/api/v1/zones/a/context', json={'revision': 2, 'roles': {'presence': [], 'illuminance': []}, 'learning': False})
+        self.assertEqual(200, response.status)
+        self.assertNotIn('a', self.service._learning_sources)
+        self.assertIsNone(self.service._zone_results[0]['summary']['presence']['active'])
+
     async def test_learning_context_ingress_and_type_guards(self):
         from dataclasses import replace
         self.assertEqual(400,(await self.client.patch('/api/v1/zones/a/context',data='{')).status)

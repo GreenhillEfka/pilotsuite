@@ -11,6 +11,7 @@ from datetime import datetime, UTC
 from .selections import InvalidSelection, SelectionConflict
 
 ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
+              'illuminance': {'illuminance'}, 'light': {'light'},
               'presence': {'motion', 'occupancy', 'presence'}, 'reference_temperature': {'temperature'}}
 RETENTION = 14 * 86400
 MAX_EVIDENCE = 5000
@@ -44,7 +45,7 @@ class ContextStore:
             raise InvalidSelection('invalid context flags or revision')
         if not isinstance(roles, dict) or not set(roles) <= set(ROLE_KINDS) or any(not isinstance(v, list) or len(v)>20 or any(not isinstance(e, str) or not e or len(e)>255 for e in v) for v in roles.values()):
             raise InvalidSelection('invalid role mapping')
-        roles = {k: sorted(set(v)) for k,v in roles.items() if v}
+        roles = {k: sorted(set(v)) for k,v in roles.items()}
         if set(roles.get('temperature', [])) & set(roles.get('reference_temperature', [])):
             raise InvalidSelection('Main and reference temperature must be different sensors')
         if learning and not roles.get('presence'):

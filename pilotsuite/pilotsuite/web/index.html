@@ -164,10 +164,12 @@
           <div class="selection-tools">
             <label>Hauptsensoren Temperatur<div id="role-temperature" class="role-choices"></div></label>
             <label>Hauptsensoren Feuchte<div id="role-humidity" class="role-choices"></div></label>
-            <label>Präsenz / Bewegung für Lernen<div id="role-presence" class="role-choices"></div></label>
-            <label>Referenztemperatur (nicht mitteln)<div id="role-reference_temperature" class="role-choices"></div></label>
+            <label>Hauptsensoren Präsenz / Bewegung (Anzeige und Lernen)<div id="role-presence" class="role-choices"></div></label>
+            <label>Hauptsensoren Helligkeit<div id="role-illuminance" class="role-choices"></div></label>
+            <label>Hauptquellen Lichtzustand<div id="role-light" class="role-choices"></div></label>
+            <label>Externe Vergleichstemperatur (optional)<div id="role-reference_temperature" class="role-choices"></div></label>
           </div>
-          <p>Sensorgruppen anhaken. Temperatur/Feuchte: Median mit Min/Max; Präsenz: mindestens ein aktiver Sensor. Referenzwerte werden nicht mitgemittelt. Ein Wechsel der Lernquellen löscht deren bisherige Belege und das Musterfeedback dieser Zone.</p>
+          <p id="role-preview" role="status"></p><p>Aus den Hauptsensoren entsteht automatisch ein virtueller Zonen-Referenzwert. Keine weitere Referenzauswahl nötig. Sensorgruppen anhaken. Temperatur/Feuchte/Helligkeit: Median mit Min/Max; Präsenz: mindestens ein aktiver Sensor. Externe Vergleichstemperaturen werden nicht mitgemittelt. Präsenz und Lernen verwenden dieselbe Hauptsensorgruppe; Lernen benötigt zusätzlich deine Freigabe. Abgewählte Hauptsensoren werden nicht ersatzweise herangezogen. Ein Wechsel der Lernquellen löscht deren bisherige Belege und das Musterfeedback dieser Zone.</p>
           <label><input id="learning-consent" type="checkbox"> Ich stimme dem Lernen in dieser Zone zu: Aktivierungen bis 14 Tage speichern (pro Zone höchstens eine je fünf Minuten), insgesamt höchstens 5.000 Belege.</label>
           <p>Abwählen stoppt die Erfassung; vorhandene Belege laufen aus. „Lerndaten löschen“ entfernt Belege und Musterfeedback sofort und widerruft die Freigabe. Vorhandene App-Backups werden dadurch nicht geändert.</p>
           <div class="selection-tools"><button type="submit">Rollen / Freigabe speichern</button><button id="context-cancel" type="button">Abbrechen</button></div>
@@ -177,7 +179,7 @@
       <p id="error" class="error" role="alert" hidden></p>
     </main>
 
-    <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.8.</footer>
+    <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.9.</footer>
     <script src="assets/selections.js" defer></script>
     <script src="assets/app.js" defer></script>
   </body>

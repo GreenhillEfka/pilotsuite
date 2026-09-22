@@ -36,6 +36,42 @@ class RoleGroupTests(unittest.TestCase):
         summary, _ = context_summary([sensor('binary_sensor.p','motion',True)], {'presence':['binary_sensor.p','binary_sensor.missing']})
         self.assertTrue(summary['presence']['active'])
 
+    def test_virtual_reference_and_empty_main_group(self):
+        ns = [sensor('sensor.a', 'temperature', 20), sensor('sensor.b', 'temperature', 24)]
+        summary, _ = context_summary(ns, {'temperature': ['sensor.a', 'sensor.b']})
+        ref = summary['temperature']['reference']
+        self.assertTrue(ref['virtual'])
+        self.assertEqual(22, ref['value'])
+        self.assertEqual(['sensor.a', 'sensor.b'], ref['sources'])
+        summary, _ = context_summary(ns[:1], {'temperature': []})
+        self.assertIsNone(summary['temperature']['reference']['value'])
+        self.assertEqual('not_selected', summary['temperature']['status'])
+
+    def test_presence_never_falls_back_to_other_relevant_sensors(self):
+        ns = [sensor('binary_sensor.a', 'motion', False), sensor('binary_sensor.b', 'occupancy', True)]
+        summary, _ = context_summary(ns, {'presence': ['binary_sensor.a']})
+        self.assertFalse(summary['presence']['reference']['value'])
+        self.assertEqual(['binary_sensor.a'], summary['presence']['reference']['sources'])
+        for roles in ({}, {'presence': []}):
+            summary, _ = context_summary(ns, roles)
+            self.assertIsNone(summary['presence']['active'])
+            self.assertEqual('not_selected', summary['presence']['status'])
+
+    def test_illuminance_normalization_and_reference(self):
+        from pilotsuite.domain.neurons import build_neurons
+        ns = build_neurons({'entities': [
+            {'entity_id': 'sensor.'+str(i), 'area_id': 'a', 'state': {'state': value,
+             'attributes': {'device_class': 'illuminance', 'unit_of_measurement': unit}}}
+            for i, (value, unit) in enumerate([('100','lx'), ('300','lux'), ('-1','lx'), ('50','%'), ('bright','lx')])
+        ]})
+        summary, climate = context_summary(ns, {'illuminance': [n.entity_id for n in ns]})
+        info = summary['illuminance']
+        self.assertEqual(200, info['reference']['value'])
+        self.assertEqual('lx', info['reference']['unit'])
+        self.assertEqual('partial', info['status'])
+        self.assertEqual(2, info['valid_count'])
+        self.assertEqual([], climate)
+
 class LearningTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
