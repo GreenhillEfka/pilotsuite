@@ -1,5 +1,5 @@
 name: PilotSuite
-version: 0.1.0-alpha.1
+version: 0.1.0-alpha.2
 slug: pilotsuite
 description: Explainable, policy-governed Habitus intelligence for Home Assistant
 url: https://github.com/GreenhillEfka/pilotsuite
@@ -37,4 +37,3 @@ schema:
     - str
   refresh_interval_seconds: int(10,3600)
   audit_retention: int(100,50000)
-

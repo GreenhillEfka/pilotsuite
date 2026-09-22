@@ -2,6 +2,16 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.2] - 2026-09-22
+
+### Fixed
+
+- Raised the bounded Home Assistant WebSocket receive limit to 32 MiB so larger
+  state and registry snapshots do not close the connection at `aiohttp`'s
+  4 MiB default.
+- Report the actual WebSocket message type and transport error when a snapshot
+  connection fails.
+
 ## [0.1.0-alpha.1] - 2026-09-22
 
 ### Added
@@ -19,4 +29,3 @@ All notable changes follow [Semantic Versioning](https://semver.org/).
 
 - Hard-disabled Home Assistant mutations for the complete alpha release
 - No Home Assistant config mounts, host networking, privileged capabilities, or secret persistence
-

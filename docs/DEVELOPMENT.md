@@ -22,10 +22,10 @@ The UI starts on `http://localhost:8099`. Home Assistant connectivity is degrade
 ## Container build
 
 ```bash
-docker build -t pilotsuite:0.1.0-alpha.1 pilotsuite
+docker build -t pilotsuite:0.1.0-alpha.2 pilotsuite
 docker run --rm -p 8099:8099 \
   -e PILOTSUITE_DATA_DIR=/tmp/data \
-  pilotsuite:0.1.0-alpha.1
+  pilotsuite:0.1.0-alpha.2
 ```
 
 ## Contribution rules
@@ -37,4 +37,3 @@ docker run --rm -p 8099:8099 \
 - never introduce a second service-call path;
 - never log Supervisor credentials or raw authorization headers;
 - keep HA entity selection registry- and area-based.
-

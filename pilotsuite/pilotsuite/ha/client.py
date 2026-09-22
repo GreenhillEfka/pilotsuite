@@ -13,6 +13,7 @@ from aiohttp import ClientSession, ClientTimeout, WSMsgType
 
 LOGGER = logging.getLogger(__name__)
 StateCallback = Callable[[dict[str, Any]], Awaitable[None]]
+MAX_WS_MESSAGE_BYTES = 32 * 1024 * 1024
 
 
 class HomeAssistantError(RuntimeError):
@@ -39,7 +40,11 @@ class HomeAssistantClient:
             raise HomeAssistantError("SUPERVISOR_TOKEN is not available")
         await self.start()
         assert self._session is not None
-        async with self._session.ws_connect(self._ws_url, heartbeat=30) as socket:
+        async with self._session.ws_connect(
+            self._ws_url,
+            heartbeat=30,
+            max_msg_size=MAX_WS_MESSAGE_BYTES,
+        ) as socket:
             await self._authenticate(socket)
             commands = (
                 ("config", {"type": "get_config"}),
@@ -68,7 +73,9 @@ class HomeAssistantClient:
                 await self.start()
                 assert self._session is not None
                 async with self._session.ws_connect(
-                    self._ws_url, heartbeat=30
+                    self._ws_url,
+                    heartbeat=30,
+                    max_msg_size=MAX_WS_MESSAGE_BYTES,
                 ) as socket:
                     await self._authenticate(socket)
                     await socket.send_json(
@@ -135,7 +142,13 @@ class HomeAssistantClient:
     async def _receive_json(socket: Any) -> dict[str, Any]:
         message = await socket.receive(timeout=20)
         if message.type is not WSMsgType.TEXT:
-            raise HomeAssistantError("Home Assistant WebSocket closed unexpectedly")
+            detail = str(message.data or "").strip()
+            if not detail and hasattr(socket, "exception"):
+                detail = str(socket.exception() or "").strip()
+            suffix = f": {detail}" if detail else ""
+            raise HomeAssistantError(
+                f"Home Assistant WebSocket returned {message.type.name}{suffix}"
+            )
         value = json.loads(message.data)
         if not isinstance(value, dict):
             raise HomeAssistantError("invalid Home Assistant WebSocket response")

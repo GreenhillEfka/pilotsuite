@@ -24,7 +24,7 @@ All endpoints are relative to the Ingress root. Responses are JSON unless noted.
 ```json
 {
   "error": "read_only_release",
-  "message": "0.1.0-alpha.1 cannot execute Home Assistant mutations",
+  "message": "0.1.0-alpha.2 cannot execute Home Assistant mutations",
   "request_id": "..."
 }
 ```
@@ -32,4 +32,3 @@ All endpoints are relative to the Ingress root. Responses are JSON unless noted.
 ## API stability
 
 The `/api/v1` prefix is stable, but alpha response fields may grow. Existing fields will not be silently repurposed.
-

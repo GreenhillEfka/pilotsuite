@@ -18,8 +18,8 @@ def fail(message: str) -> None:
 
 def main() -> None:
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    if not re.fullmatch(r"0\.1\.0-alpha\.1", version):
-        fail(f"unexpected initial version: {version}")
+    if not re.fullmatch(r"0\.1\.0-alpha\.[1-9][0-9]*", version):
+        fail(f"unexpected alpha version: {version}")
 
     repository = (ROOT / "repository.yaml").read_text(encoding="utf-8")
     config = (APP / "config.yaml").read_text(encoding="utf-8")

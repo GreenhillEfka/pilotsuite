@@ -1,6 +1,6 @@
 # Home Assistant compatibility
 
-PilotSuite `0.1.0-alpha.1` targets Home Assistant Core `2026.9.3` and the 2026 Supervisor App format.
+PilotSuite `0.1.0-alpha.2` targets Home Assistant Core `2026.9.3` and the 2026 Supervisor App format.
 
 Implementation choices:
 
@@ -14,4 +14,3 @@ Implementation choices:
 - Ingress on port `8099`;
 - `/data` for app-owned persistent state;
 - no direct `.storage` or Home Assistant YAML access.
-

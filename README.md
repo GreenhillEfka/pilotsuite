@@ -2,7 +2,7 @@
 
 PilotSuite is the canonical, add-on-first implementation of the PilotSuite/Habitus architecture for Home Assistant.
 
-> Current release: `0.1.0-alpha.1` — architecture generation v21.
+> Current release: `0.1.0-alpha.2` — architecture generation v21.
 
 PilotSuite observes Home Assistant, resolves entities into a semantic world model, calculates deterministic mood signals, and produces explainable suggestions. Home Assistant remains the source of truth for devices, entities, areas, labels, and live states. PilotSuite owns only additional semantics, policies, learning records, plans, and audit data.
 
@@ -15,7 +15,7 @@ The alpha is deliberately **read-only**. It can inspect and explain, but cannot 
 3. Install **PilotSuite**.
 4. Start it and open the Web UI.
 
-The repository is private. The GitHub repository must therefore be reachable by the Home Assistant app store before installation.
+The repository is public so Home Assistant can clone it through the App Store without embedded credentials.
 
 ## v21 in one picture
 
