@@ -26,10 +26,7 @@ connected stream.
 
 All 49 Python tests and four JavaScript model tests pass locally, including the
 three synthetic reconnect regressions and the existing zone/selection suite.
-Repository validation, frontend syntax checks and Python compilation pass. Exact-
-commit CI, including browser and amd64-container jobs, remains the merge gate.
-No version marker, Home Assistant app, configuration, zone choice or actuator was
-changed by this development increment.
+Candidate 636c5a7 passed CI 35792464489 (tests, browser, amd64 container). PR #4 merged as aac362a with the same tree; PR #2 is superseded. PR #5 records this proof. These reliability changes are retained in the alpha.7 candidate.
 
 ## Released and installed: alpha.6 zone tabs and direct activation
 
@@ -42,6 +39,8 @@ Runtime logs confirm hard_read_only, ready=True, stream=True, snapshot_fresh=Tru
 zone_resolved=True. The user subsequently confirmed that Badbereich could be
 activated through the actual alpha.6 Ingress UI. This is direct workflow acceptance,
 not a disconnect/load soak or a claim that every visual/asset path was inspected.
+Fresh Safari calls through actual Ingress returned HTTP 200 for status, moods,
+suggestions, Golden Zone and zone APIs, as recorded by PR #5.
 
 An earlier activation attempt produced selection PATCH calls but no zone-definition
 activation PATCH, exposing the confusing dual-control UI fixed in alpha.6. The later

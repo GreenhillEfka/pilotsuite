@@ -45,3 +45,6 @@ durable. Timestamp guarding prevents older state updates replacing newer values,
 but deletion ordering still relies on subsequent reconciliation. Current climate
 thresholds are heuristics, not a validated cellar-control policy. No ventilation
 command may be inferred from relative humidity alone.
+
+The retained reconnect correction from PR #4 passed CI 35792464489 before merge
+aac362a; PR #5 records that gate. alpha.7 combines it with the new role/learning package.
