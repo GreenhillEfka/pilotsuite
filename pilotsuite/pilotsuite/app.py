@@ -324,6 +324,14 @@ async def _context_payload(service, zone_id, export=False):
     report['enabled'] = inventory['enabled']
     report['eligible'] = zone_id in service._learning_sources
     report['candidates'] = [i for i in inventory['items'] if i['decision'] == 'relevant']
+    # Surface legacy automatic defaults so opening/saving cannot silently clear them.
+    roles = dict(report['config']['roles'])
+    for kind in ('temperature', 'humidity', 'illuminance', 'light'):
+        ids = [i['entity_id'] for i in report['candidates'] if i['suggested_role'] == kind
+               and i['entity_id'] not in roles.get('reference_temperature', [])]
+        if kind not in roles:
+            roles[kind] = ids if kind == 'light' or len(ids) == 1 else []
+    report['effective_roles'] = roles
     return report
 
 

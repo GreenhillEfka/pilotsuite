@@ -1,5 +1,14 @@
 # Architecture Decision Log
 
+## ADR-018 — One main group yields one virtual reference per supported class
+
+Main groups produce automatic typed zone references; external comparison sources
+are separate. Presence display and opt-in learning use the same saved group, with
+no all-relevant fallback. Explicit empty groups persist and never trigger fallback.
+Illuminance uses validated lux values and a median with spread, not a switching rule.
+Legacy singleton climate defaults remain visible until explicitly edited.
+See docs/SENSOR_REFERENCES.md for semantics and unsupported-class limits.
+
 ## ADR-017 — Confirmed-only observations, role groups and bounded activity learning
 
 The user approved removing the automatic selection exception. Only explicitly
