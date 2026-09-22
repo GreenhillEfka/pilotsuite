@@ -316,10 +316,6 @@ def main() -> None:
     web.run_app(create_app(settings), host=settings.host, port=settings.port)
 
 
-if __name__ == "__main__":
-    main()
-
-
 async def _context_payload(service, zone_id, export=False):
     inventory = await service.selection_inventory(zone_id)
     report = await service.context.report(zone_id)
@@ -379,3 +375,7 @@ async def _pattern_feedback(request):
         await service.selection_inventory(request.match_info['zone_id'])
         await service.context.feedback(request.match_info['zone_id'], payload['pattern_id'], payload['decision'])
         return web.json_response(await _context_payload(service, request.match_info['zone_id']))
+
+
+if __name__ == "__main__":
+    main()

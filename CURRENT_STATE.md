@@ -1,5 +1,18 @@
 # Current State
 
+## alpha.8 corrective release candidate
+
+alpha.7 merged as 5c25bc2 after CI 35793455952 (58 backend, 4 JS, browser,
+amd64 build) and installed after confirmed alpha.6 backup 89e963d5. Real startup
+failed with NameError _context_get: the module entrypoint ran before appended
+handler definitions. This was not covered by module-import tests. Failure occurred
+before app startup callbacks and therefore before schema migration.
+
+alpha.8 moves the entrypoint below all handlers and adds an actual subprocess
+startup/HTTP regression. It retains the full confirmed-selection, plural-role and
+opt-in-learning package. Runtime recovery must be verified before claiming success.
+
+
 Last updated: 2026-09-23
 
 ## alpha.7 candidate — confirmed selection, role groups and activity learning
