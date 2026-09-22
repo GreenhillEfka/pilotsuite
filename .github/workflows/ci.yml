@@ -25,6 +25,11 @@ jobs:
           cache-dependency-path: pilotsuite/requirements.txt
       - name: Validate repository contracts
         run: python scripts/validate.py
+      - name: Check frontend syntax and selection model
+        run: |
+          node --check pilotsuite/pilotsuite/web/app.js
+          node --check pilotsuite/pilotsuite/web/selections.js
+          node --test pilotsuite/tests/selection_draft.test.cjs
       - name: Install runtime dependencies
         run: python -m pip install --disable-pip-version-check --requirement pilotsuite/requirements.txt
       - name: Compile Python

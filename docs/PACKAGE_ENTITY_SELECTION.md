@@ -39,9 +39,13 @@ Automationen oder Geräte werden verändert. Kein neues paralleles Projekt.
 
 ## Aktueller Implementierungsstand
 
-Dieser erste Inkrement enthält Auswahlspeicher, Inventar-API und Backendtests.
+Der Entwicklungszweig enthält Auswahlspeicher, Inventar-API, Backendtests und
+die erste Auswahloberfläche: Checkboxen, Suche, Statusfilter, Zonenwahl,
+Empfehlungsvorschau, Speichern/Verwerfen und Konfliktanzeige. Entwürfe bleiben
+bei Dashboard-Abgleichen erhalten; ein Zonenwechsel ist bei Änderungen gesperrt.
+Empfehlungen überschreiben keine explizit ignorierten Entscheidungen.
 `applied_to_inference: false` kennzeichnet ausdrücklich, dass gespeicherte
-Entscheidungen noch nicht die Auswertung verändern. Oberfläche, Anbindung der
+Entscheidungen noch nicht die Auswertung verändern. Browserabnahme, Anbindung der
 Auswertung, Export und Journal-Aufbewahrung sind noch offen. Nicht als fertige
 Checkbox-Funktion veröffentlichen oder auf HA installieren.
 
@@ -65,5 +69,15 @@ PATCH erwartet ausschließlich `revision` und `changes`, etwa:
 
 Maximal 500 Entscheidungen pro Patch; falsche Nutzdaten ergeben 400,
 Revisionskonflikte 409. Wiederholungen ohne Änderung erhöhen die Revision nicht.
-Entscheidungen gelten nur für diese Zone. Der nächste konkrete Schritt ist die
-Auswahloberfläche mit Speichern/Verwerfen auf diesem Vertrag.
+Entscheidungen gelten nur für diese Zone.
+
+## Verifikation des zweiten Inkrements
+
+- 35 Python-Tests und Repository-Vertragsprüfung erfolgreich.
+- Drei JavaScript-Modelltests erfolgreich; in CI aufgenommen.
+- Optionaler Browsertest: `node scripts/test_selection_browser.cjs` (benötigt
+  Playwright mit Chromium). Lokal nicht ausgeführt: Chromium fehlt. Deckt nach
+  erfolgreichem Start Entwurf, Speichern, Konflikt, Verwerfen, Suche, schmale
+  Ansicht und Ingress-Prefix ab. Keine Behauptung einer bestandenen Browserabnahme.
+- Keine Installation, kein Versionssprung. Nächste Schritte: Browserabnahme,
+  expliziter Aktivierungsvertrag je Zone, danach gemeinsamer Auswertungsfilter.

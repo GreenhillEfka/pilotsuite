@@ -102,6 +102,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.on_cleanup.append(_cleanup)
     app.router.add_get("/", _index)
     app.router.add_get("/assets/app.js", _javascript)
+    app.router.add_get("/assets/selections.js", _selection_javascript)
     app.router.add_get("/assets/styles.css", _stylesheet)
     app.router.add_get("/health", _health)
     app.router.add_get("/health/ready", _ready)
@@ -163,6 +164,10 @@ async def _javascript(_: web.Request) -> web.FileResponse:
 
 async def _stylesheet(_: web.Request) -> web.FileResponse:
     return web.FileResponse(WEB_DIR / "styles.css", headers={"Content-Type": "text/css"})
+
+
+async def _selection_javascript(_: web.Request) -> web.FileResponse:
+    return web.FileResponse(WEB_DIR / "selections.js", headers={"Content-Type": "text/javascript"})
 
 
 async def _health(_: web.Request) -> web.Response:

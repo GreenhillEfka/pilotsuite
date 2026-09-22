@@ -73,6 +73,32 @@
         </article>
       </section>
 
+      <section class="panel selection-panel" aria-labelledby="selection-title">
+        <p class="eyebrow">BEWUSSTE AUSWAHL</p>
+        <h2 id="selection-title">Relevante Entitäten</h2>
+        <p>Entwicklungsstand: Die Auswahl wird gespeichert, beeinflusst die Auswertung aber noch nicht. Keine Schaltfreigabe.</p>
+        <div class="selection-tools">
+          <label>Zone <select id="selection-zone" disabled></select></label>
+          <label>Suche <input id="selection-search" type="search" placeholder="Name, ID oder Rolle"></label>
+          <label>Status <select id="selection-filter">
+            <option value="all">Alle</option><option value="unreviewed">Ungeprüft</option>
+            <option value="relevant">Relevant</option><option value="ignored">Ignoriert</option>
+            <option value="missing">Nicht im aktuellen Inventar</option>
+          </select></label>
+        </div>
+        <p id="selection-message" role="status" aria-live="polite">Inventar wird geladen …</p>
+        <div class="selection-tools">
+          <button id="selection-recommend" type="button" disabled>Empfohlene ungeprüfte auswählen</button>
+          <button id="selection-save" type="button" disabled>Speichern</button>
+          <button id="selection-discard" type="button" disabled>Verwerfen / neu laden</button>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Relevant</th><th>Entität</th><th>Rollen-Vorschlag</th><th>Zustand</th><th>Prüfstatus</th></tr></thead>
+            <tbody id="selection-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="panel">
         <div class="panel-title">
           <div>
@@ -95,6 +121,7 @@
     </main>
 
     <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.4.</footer>
+    <script src="assets/selections.js" defer></script>
     <script src="assets/app.js" defer></script>
   </body>
 </html>

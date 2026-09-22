@@ -7,7 +7,11 @@ async function json(path, options = {}) {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
   });
   const body = await response.json();
-  if (!response.ok) throw new Error(body.message || `HTTP ${response.status}`);
+  if (!response.ok) {
+    const error = new Error(body.message || `HTTP ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
   return body;
 }
 
@@ -107,6 +111,16 @@ async function load() {
   renderMoods(moods.items);
   renderSuggestions(suggestions.items);
   renderObservations(zone.neurons || []);
+  if (!selectionInitialized) {
+    selectionInitialized = true;
+    const zones = status.golden_zone.requested_area_ids;
+    byId('selection-zone').replaceChildren(...zones.map(id => {
+      const option = document.createElement('option');
+      option.value = id; option.textContent = id; return option;
+    }));
+    if (zones.length) await loadSelection(zones[0]);
+    else text('selection-message', 'Keine Zone konfiguriert.');
+  }
 }
 
 async function refresh() {
@@ -124,6 +138,112 @@ async function refresh() {
     button.textContent = "Jetzt abgleichen";
   }
 }
+
+let selectionInitialized = false;
+let selectionDraft = null;
+let selectionBusy = false;
+let selectionConflict = false;
+let selectionZone = '';
+const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
+
+function selectionControls() {
+  byId('selection-zone').disabled = selectionBusy || !!selectionDraft?.dirty;
+  byId('selection-save').disabled = selectionBusy || selectionConflict || !selectionDraft?.dirty;
+  byId('selection-discard').disabled = selectionBusy || !selectionZone;
+  byId('selection-recommend').disabled = selectionBusy || selectionConflict || !selectionDraft;
+}
+
+function renderSelection() {
+  selectionControls();
+  const root = byId('selection-rows');
+  root.replaceChildren();
+  if (!selectionDraft) return;
+  const query = byId('selection-search').value.toLocaleLowerCase('de');
+  const filter = byId('selection-filter').value;
+  const inventory = selectionDraft.inventory;
+  const items = [...inventory.items, ...inventory.missing.map(item => ({...item, missing: true}))];
+  for (const item of items) {
+    const decision = selectionDraft.decisions.get(item.entity_id);
+    if (filter === 'missing' ? !item.missing : filter !== 'all' && decision !== filter) continue;
+    if (![item.entity_id, item.name, item.suggested_role].join(' ').toLocaleLowerCase('de').includes(query)) continue;
+    const row = document.createElement('tr');
+    const cells = Array.from({length: 5}, () => document.createElement('td'));
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox'; checkbox.checked = decision === 'relevant';
+    checkbox.indeterminate = decision === 'unreviewed';
+    checkbox.disabled = selectionBusy || selectionConflict;
+    checkbox.setAttribute('aria-label', `${item.name || item.entity_id}: relevant`);
+    checkbox.addEventListener('change', () => {
+      selectionDraft.set(item.entity_id, checkbox.checked ? 'relevant' : 'ignored');
+      selectionChanged();
+    });
+    cells[0].append(checkbox);
+    cells[1].textContent = item.name || item.entity_id;
+    const id = document.createElement('small'); id.textContent = item.entity_id; cells[1].append(id);
+    cells[2].textContent = item.suggested_role || '—';
+    cells[3].textContent = item.missing ? 'Nicht im aktuellen Inventar' : (item.state ?? '—');
+    cells[4].textContent = decisionLabels[decision] + (item.recommended ? ' · empfohlen' : '');
+    if (decision !== 'unreviewed') {
+      const reset = document.createElement('button'); reset.type = 'button'; reset.textContent = 'Ungeprüft setzen';
+      reset.disabled = selectionBusy || selectionConflict;
+      reset.addEventListener('click', () => { selectionDraft.set(item.entity_id, 'unreviewed'); selectionChanged(); });
+      cells[4].append(document.createElement('br'), reset);
+    }
+    row.append(...cells); root.append(row);
+  }
+  if (!root.children.length) {
+    const row = document.createElement('tr'); const cell = document.createElement('td');
+    cell.colSpan = 5; cell.textContent = 'Keine passenden Entitäten.'; row.append(cell); root.append(row);
+  }
+}
+
+function selectionChanged() {
+  text('selection-message', `${Object.keys(selectionDraft.changes).length} ungespeicherte Änderungen. Auswahl ist noch nicht an die Auswertung angebunden.`);
+  renderSelection();
+}
+
+async function loadSelection(zone) {
+  if (selectionBusy) return;
+  selectionBusy = true; selectionZone = zone; renderSelection();
+  try {
+    const inventory = await json(`api/v1/selections/${encodeURIComponent(zone)}`);
+    selectionDraft = new SelectionDraft(inventory); selectionConflict = false;
+    text('selection-message', `${inventory.resolved ? 'Inventar geladen' : 'Zone derzeit nicht aufgelöst'} · Revision ${inventory.revision}. Ungeprüft ist nicht gleich ignoriert.`);
+  } catch (error) {
+    // Do not display one zone's data under another zone's label.
+    if (selectionDraft?.inventory.zone_id !== zone) selectionDraft = null;
+    text('selection-message', `Laden fehlgeschlagen: ${error.message}. Neu laden zum Wiederholen.`);
+  } finally { selectionBusy = false; renderSelection(); }
+}
+
+byId('selection-zone').addEventListener('change', event => loadSelection(event.target.value));
+for (const id of ['selection-search', 'selection-filter']) byId(id).addEventListener('input', renderSelection);
+byId('selection-recommend').addEventListener('click', () => { selectionDraft.recommend(); selectionChanged(); });
+byId('selection-discard').addEventListener('click', () => {
+  if (selectionDraft?.dirty && !window.confirm('Ungespeicherte Änderungen verwerfen und aktuellen Stand laden?')) return;
+  loadSelection(selectionZone);
+});
+byId('selection-save').addEventListener('click', async () => {
+  if (selectionBusy || selectionConflict || !selectionDraft?.dirty) return;
+  const changes = Object.entries(selectionDraft.changes);
+  if (changes.length > 500) { text('selection-message', 'Bitte höchstens 500 Änderungen auf einmal speichern.'); return; }
+  selectionBusy = true; renderSelection();
+  try {
+    const inventory = await json(`api/v1/selections/${encodeURIComponent(selectionZone)}`, {
+      method: 'PATCH', body: JSON.stringify({revision: selectionDraft.inventory.revision, changes: Object.fromEntries(changes)}),
+    });
+    selectionDraft = new SelectionDraft(inventory);
+    text('selection-message', 'Gespeichert. Noch keine Auswirkung auf Moods oder Vorschläge.');
+  } catch (error) {
+    selectionConflict = error.status === 409;
+    text('selection-message', selectionConflict
+      ? 'Zwischenzeitlich geändert. Dein Entwurf bleibt sichtbar. Bitte verwerfen / neu laden und Auswahl erneut prüfen.'
+      : `Speichern nicht bestätigt: ${error.message}. Entwurf bleibt erhalten; bei Unsicherheit neu laden.`);
+  } finally { selectionBusy = false; renderSelection(); }
+});
+window.addEventListener('beforeunload', event => {
+  if (selectionDraft?.dirty) { event.preventDefault(); event.returnValue = ''; }
+});
 
 byId("refresh").addEventListener("click", refresh);
 load().catch((error) => {
