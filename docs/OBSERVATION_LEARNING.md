@@ -46,12 +46,15 @@ sondern über Min/Max und Details sichtbar. Die Zusammenfassung ersetzt keinen A
   Abgleichen ohne neue Ereignisse. Bei ausgeschalteter App beim nächsten Start.
 - Musterkandidat ab fünf Aktivierungen an drei UTC-Tagen im selben Zwei-Stunden-
   UTC-Fenster. Sommerzeit/Lokalzeitmodell, Wochentage und Grundraten folgen später.
-- Angegeben werden Ereignisse, beobachtete Tage, Gesamtbelege und Quelle(n).
-  Keine Anwesenheitswahrscheinlichkeit; statistische Konfidenz bleibt unbekannt.
+- Beobachtungsstatistik (Ereignisse, Tage, Gesamtbelege, Herkunft), deterministische
+  Regelschwelle, statistische Konfidenz, Read-only-Risiko und Nutzerpräferenz sind
+  getrennte Felder. Regelstärke zeigt nur den Abstand zur Kandidatenschwelle, keine
+  Wahrscheinlichkeit. Statistische Konfidenz bleibt unbekannt (`null`).
 - Herkunft nur user_context/derived_context/unknown, ohne Benutzer-/Context-IDs.
   Das ist kein Beweis für manuelle Bedienung oder eine konkrete Automation.
 - Stabile Muster-ID aus Algorithmus, Zone, sortierter Quellgruppe und Zeitfenster.
-- Feedback getrennt von Belegen; höchstens 2.000 letzte Feedbackeinträge.
+- Nutzerpräferenz getrennt von Belegen; höchstens 2.000 letzte Feedbackeinträge.
+  Eine Präferenz ändert weder Beobachtungszahlen noch Regelstärke oder Konfidenz.
 - Widerruf stoppt Aufzeichnung. Reset löscht Belege/Feedback und widerruft Freigabe.
   Wechsel der Präsenzgruppe löscht alte Belege/Feedback; die UI informiert vorher.
   Referenz-/Klimagruppenänderungen ändern keine Aktivitätsbelege.

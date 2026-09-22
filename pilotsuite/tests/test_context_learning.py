@@ -109,14 +109,32 @@ class LearningTests(unittest.IsolatedAsyncioTestCase):
         report=await self.store.report('a',now=self.now)
         self.assertEqual(6,report['event_count']); self.assertEqual(1,len(report['patterns']))
         pattern=report['patterns'][0]
-        self.assertEqual(3,len(pattern['days'])); self.assertIsNone(pattern['confidence'])
+        self.assertEqual(3,pattern['statistics']['distinct_day_count']); self.assertIsNone(pattern['confidence'])
         await self.store.feedback('a',pattern['id'],'accepted')
         restored=ContextStore(self.selections)
         after=await restored.report('a',now=self.now)
         self.assertEqual(report['evidence'],after['evidence'])
-        self.assertEqual('accepted',after['patterns'][0]['feedback'])
+        self.assertEqual('accepted',after['patterns'][0]['preference'])
+        self.assertEqual(pattern['statistics'],after['patterns'][0]['statistics'])
         self.assertEqual(pattern['id'],after['patterns'][0]['id'])
         self.assertEqual(0,(await restored.report('other',now=self.now))['event_count'])
+
+    async def test_pattern_contract_separates_statistics_rule_confidence_risk_and_preference(self):
+        await self.seed()
+        pattern=(await self.store.report('a',now=self.now))['patterns'][0]
+        self.assertEqual({'activation_count': 6, 'distinct_day_count': 3,
+                          'observed_zone_activations': 6},
+                         {key: pattern['statistics'][key] for key in
+                          ('activation_count','distinct_day_count','observed_zone_activations')})
+        self.assertEqual('activity-v1',pattern['rule_strength']['rule_id'])
+        self.assertTrue(pattern['rule_strength']['threshold_met'])
+        self.assertEqual(1.2,pattern['rule_strength']['event_ratio'])
+        self.assertEqual(1.0,pattern['rule_strength']['day_ratio'])
+        self.assertIsNone(pattern['confidence'])
+        self.assertEqual('not_estimated',pattern['confidence_basis'])
+        self.assertEqual('read_only',pattern['risk'])
+        self.assertIsNone(pattern['preference'])
+        self.assertEqual(pattern['preference'],pattern['feedback'])
 
     async def test_revoke_reset_and_group_change_preserve_selections(self):
         await self.seed()
