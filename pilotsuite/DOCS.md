@@ -19,15 +19,21 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Policy mode: hard read-only
-- Release: `0.1.0-alpha.5`
+- Release: `0.1.0-alpha.6`
 
 ## Habitus zones and entity selection
 
-Open the zone editor to create or edit logical zones. Select one or more HA areas
-as candidate sources and optionally add entity IDs. New zones start paused with a
-neutral observation profile. Confirm relevant entities, save, and activate the zone
-when ready. Relevance never grants actuator permission. Ignored and unreviewed
-entities are excluded when curated selection is active.
+Each Habitus zone has a visible tab. Select a tab to see only that zone's entity
+choices, evaluation, suggestions and observations. Use **Name / Bereiche bearbeiten**
+to rename it or tick HA-area sources (e.g. Bad and Toilette).
+
+For a new zone: **+ Neue Zone** → name and area checkboxes → **Zone speichern** →
+select relevant entities → **Auswahl speichern** → **Auswertung starten**.
+The same button pauses an active zone without losing its choices. Save or discard
+pending entity edits before switching tabs or starting/pausing. Selection mode is
+under advanced settings and is not the zone activation switch. An active zone with
+no suitable selected observations is explicitly shown as having no observations.
+Neutral zones report observation/data quality; they do not claim learned habits.
 
 Existing `golden_zone_area_ids` are imported once into persistent zones. After that,
 use the zone editor for source changes; changing bootstrap options does not replace

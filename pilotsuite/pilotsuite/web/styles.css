@@ -75,3 +75,16 @@ input[type="checkbox"] { width: 1.3rem; height: 1.3rem; accent-color: var(--acce
   .status-grid { grid-template-columns: 1fr; }
   .mood-row { grid-template-columns: 115px 1fr 38px; }
 }
+
+.zone-navigation { margin-bottom: 1rem; }
+#zone-tabs { display: flex; flex-wrap: wrap; gap: .5rem; }
+#zone-tabs button { background: var(--panel-soft); color: var(--text); white-space: normal; overflow-wrap: anywhere; }
+#zone-tabs button[aria-selected="true"] { background: var(--accent); color: #062015; }
+#zone-heading { align-items: center; }
+#zone-heading h2 { flex: 1 1 180px; overflow-wrap: anywhere; }
+.area-field { flex: 1 1 250px; }
+.area-choices { display: grid; gap: .6rem; max-height: 18rem; overflow-y: auto; }
+.area-choices label { display: flex; align-items: center; gap: .6rem; }
+.area-choices input { flex-shrink: 0; }
+[hidden] { display: none !important; }
+.mood-row { grid-template-columns: minmax(90px, 1fr) minmax(40px, 1fr) minmax(90px, auto); }

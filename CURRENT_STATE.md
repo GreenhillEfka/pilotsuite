@@ -2,6 +2,21 @@
 
 Last updated: 2026-09-22
 
+## alpha.6 release candidate: zone tabs and direct activation
+
+The user reports Badbereich cannot be activated. HA logs show successful selection
+PATCH calls for the new zone but no corresponding zone-definition activation PATCH
+in the inspected window. This supports a confusing dual-control UI; it does not prove
+a server-side rejection. Direct MCP reads remain blocked by the Ingress peer guard.
+
+Implemented: visible zone tabs; direct name/source editor and start/pause action;
+area checkboxes; scoped moods, suggestions and observations. Selection mode moves
+to advanced settings. Activation fetches the shared revision after selection saves.
+46 backend and four JS model tests pass locally; extended CI browser regression
+must pass before release. alpha.5 remains deployed until scoped backup and update.
+No existing zone choices or HA assignments are changed by deployment.
+
+
 ## Released and installed: 0.1.0-alpha.5
 
 - PR #1 merged; release commit e94991af088a4ea1886d40ab020c3919535f8f8f.
