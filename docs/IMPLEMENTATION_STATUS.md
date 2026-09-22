@@ -4,8 +4,8 @@ Stand: capability correction 0.1.0-alpha.4. "Local tests" is not live HA accepta
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
-| Add-on packaging | Implemented | alpha.3 installed, UI confirmed by user; alpha.4 deployment pending |
-| Ingress routes / peer restriction | Implemented, local HTTP tests | Real Supervisor/browser UI including assets still required |
+| Add-on packaging | Implemented | alpha.4 installed and started after app-only backup |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | Real browser API responses 200; new alpha.4 visual/asset rendering not yet independently checked |
 | HA snapshot and event stream | Implemented | Reconnect resync/backoff tests; live disconnect/load soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
