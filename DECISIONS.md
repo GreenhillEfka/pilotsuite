@@ -1,5 +1,15 @@
 # Architecture Decision Log
 
+## ADR-019 — Explain evidence progress without inventing confidence
+
+The existing activity detector exposes counts and missing requirements per UTC
+window. Totals from different windows must not qualify a candidate. First/last
+retained evidence timestamps are not continuous coverage or a collection start.
+Consent, zone enablement, transport readiness and suitable sources are separate
+collection gates. UI surfaces persisted presence sources and compact source details.
+No new consent, thresholds, storage schema or actuation is introduced.
+
+
 ## ADR-018 — One main group yields one virtual reference per supported class
 
 Main groups produce automatic typed zone references; external comparison sources

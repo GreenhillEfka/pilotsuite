@@ -15,6 +15,8 @@ ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
               'presence': {'motion', 'occupancy', 'presence'}, 'reference_temperature': {'temperature'}}
 RETENTION = 14 * 86400
 MAX_EVIDENCE = 5000
+MIN_EVENTS = 5
+MIN_DAYS = 3
 
 class ContextStore:
     def __init__(self, selections):
@@ -112,10 +114,14 @@ class ContextStore:
             for entity, occurred, origin in rows:
                 if entity in cfg['roles'].get('presence', []):
                     buckets[datetime.fromtimestamp(occurred, UTC).hour//2].append((occurred, origin))
-            patterns = []
+            patterns, windows = [], []
             for bucket, events in sorted(buckets.items()):
                 days = sorted({datetime.fromtimestamp(t, UTC).date().isoformat() for t,_ in events})
-                if len(events) < 5 or len(days) < 3: continue
+                windows.append({'start_hour': bucket*2, 'end_hour': bucket*2+2,
+                                'events': len(events), 'days': len(days),
+                                'missing_events': max(0, MIN_EVENTS-len(events)),
+                                'missing_days': max(0, MIN_DAYS-len(days))})
+                if len(events) < MIN_EVENTS or len(days) < MIN_DAYS: continue
                 pid = hashlib.sha256(f'activity-v1:{zone_id}:{cfg["roles"].get("presence")}:{bucket}'.encode()).hexdigest()[:24]
                 patterns.append({'id': pid, 'title': f'Wiederkehrende Aktivierungen {bucket*2:02d}–{bucket*2+2:02d} Uhr UTC',
                                  'sources': cfg['roles'].get('presence', []), 'events': len(events), 'days': days,
@@ -123,6 +129,11 @@ class ContextStore:
                                  'origins': dict(Counter(origin for _,origin in events)),
                                  'proposal': 'Prüfen, ob dieses Zeitfenster eine relevante Routine beschreibt. Keine Automation wird erstellt.'})
             return {'config': cfg, 'event_count': len(rows), 'retention_days': 14, 'limit': MAX_EVIDENCE,
+                    'progress': {'required_events': MIN_EVENTS, 'required_days': MIN_DAYS,
+                                 'window_hours': 2, 'windows': windows,
+                                 'first_evidence_at': datetime.fromtimestamp(rows[0][1], UTC).isoformat() if rows else None,
+                                 'last_evidence_at': datetime.fromtimestamp(rows[-1][1], UTC).isoformat() if rows else None,
+                                 'observed_days': len({datetime.fromtimestamp(row[1], UTC).date() for row in rows})},
                     'time_basis': 'UTC', 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o} for e,t,o in rows],
                     'limitations': 'Nur beobachtete Aktivierungen, keine Anwesenheitsdauer oder Wahrscheinlichkeit. Ausfälle und inaktive Lernzeiten sind unbeobachtet; Herkunft ist kein Beweis menschlicher Bedienung.'}
 

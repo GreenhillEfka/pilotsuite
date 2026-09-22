@@ -323,6 +323,12 @@ async def _context_payload(service, zone_id, export=False):
     report['revision'] = inventory['revision']
     report['enabled'] = inventory['enabled']
     report['eligible'] = zone_id in service._learning_sources
+    report['collection_state'] = (
+        'off' if not report['config']['learning'] else
+        'paused' if not report['enabled'] else
+        'disconnected' if not (await service.status())['ready'] else
+        'no_source' if not report['eligible'] else 'collecting')
+    report['collecting_sources'] = service._learning_sources.get(zone_id, [])
     report['candidates'] = [i for i in inventory['items'] if i['decision'] == 'relevant']
     # Surface legacy automatic defaults so opening/saving cannot silently clear them.
     roles = dict(report['config']['roles'])

@@ -435,6 +435,19 @@ function renderCompactSummary(result) {
       ? info.value != null ? `${Number(info.value).toLocaleString('de-DE', {maximumFractionDigits: 1})} ${info.unit || ''}` : `${info.on} von ${info.total} aktiv${info.status === 'partial' ? ' · Daten fehlen' : ''}`
       : statuses[info.status] || info.status;
     card.append(title, value);
+    const ids = [...new Set([...(info?.requested_sources || []), ...(info?.sources || [])])];
+    if (ids.length) {
+      const detail = document.createElement('details');
+      const heading = document.createElement('summary'); heading.textContent = `Quellen prüfen (${ids.length})`;
+      detail.append(heading);
+      for (const id of ids) {
+        const line = document.createElement('p');
+        const item = items.find(i => i.entity_id === id);
+        line.textContent = `${item?.name || id} · ${id}${info.sources.includes(id) ? '' : ' · nicht in der Auswertung verfügbar'}`;
+        detail.append(line);
+      }
+      card.append(detail);
+    }
     if (info?.aggregation === 'any_on') {
       const source = document.createElement('small');
       source.textContent = `Zonenreferenz: ${info.active === true ? 'Aktivität' : info.active === false ? 'alle Quellen inaktiv' : 'unbekannt'} · ${(info.sources || []).join(', ') || 'keine Hauptquelle'}`;
@@ -453,6 +466,20 @@ function renderLearning() {
   if (!contextData?.config) return;
   const cfg = contextData.config;
   text('learning-status', `${cfg.learning ? contextData.eligible ? 'Lernfreigabe aktiv' : 'Freigegeben, aber Zone oder Lernquelle derzeit nicht auswertbar' : 'Lernen ausgeschaltet'} · ${contextData.event_count} Aktivierungen gespeichert · maximal 14 Tage.`);
+  const states = {off:'Lernen ausgeschaltet', paused:'Zone pausiert – keine Sammlung', disconnected:'Datenverbindung nicht bereit – Sammlung nicht bestätigt', no_source:'Keine auswertbare Lernquelle', collecting:'Lernfreigabe aktiv – Sammlung bereit'};
+  if (contextData.collection_state) text('learning-status', `${states[contextData.collection_state]} · ${contextData.event_count} Aktivierungen gespeichert · maximal ${contextData.retention_days} Tage.`);
+  const sourceIds = cfg.roles.presence || [];
+  const sourceName = id => contextData.candidates?.find(i => i.entity_id === id)?.name || id;
+  text('learning-sources', `Gespeicherte Präsenzgruppe: ${sourceIds.map(sourceName).join(', ') || 'keine'}. Auswertbare Quellen: ${(contextData.collecting_sources || []).map(sourceName).join(', ') || 'keine'}.`);
+  const progress = contextData.progress;
+  const date = value => value ? new Date(value).toLocaleString('de-DE', {timeZone:'UTC'}) + ' UTC' : 'noch keine';
+  text('learning-period', `Lernfreigabe seit: ${date(cfg.consented_at ? cfg.consented_at * 1000 : null)}. Ältester aufbewahrter Beleg: ${date(progress?.first_evidence_at)}. Letzter Beleg: ${date(progress?.last_evidence_at)}. Keine Aussage über lückenlose Beobachtung.`);
+  const progressRoot = byId('learning-progress'); progressRoot.replaceChildren();
+  for (const window of progress?.windows || []) {
+    const row = document.createElement('p');
+    row.textContent = `${String(window.start_hour).padStart(2,'0')}–${String(window.end_hour).padStart(2,'0')} Uhr UTC: ${window.events} Aktivierungen an ${window.days} Tagen. ${window.missing_events || window.missing_days ? `Noch mindestens ${window.missing_events} Aktivierungen und ${window.missing_days} weitere Tage in diesem Zeitfenster nötig.` : 'Mindestbelege erreicht – Muster prüfen.'}`;
+    progressRoot.append(row);
+  }
   byId('learning-export').href = endpoint(`api/v1/zones/${encodeURIComponent(selectionZone)}/context/export`);
   const root = byId('learned-patterns'); root.replaceChildren();
   if (!contextData.patterns?.length) { root.textContent = 'Noch kein Musterkandidat: mindestens fünf beobachtete Aktivierungen an drei verschiedenen UTC-Tagen im gleichen Zwei-Stunden-Fenster nötig.'; return; }

@@ -40,7 +40,7 @@ const assert = require('node:assert/strict');
       }
       else if (/api\/v1\/zones\/[^/]+\/context$/.test(suffix)) {
         const id = suffix.split('/')[3];
-        contexts[id] ||= {revision: 1, config: {roles:{},learning:false,consented_at:null},event_count:0,patterns:[],eligible:false,candidates:roleCandidates};
+        contexts[id] ||= {revision: 1, config: {roles:{},learning:false,consented_at:null},event_count:0,patterns:[],eligible:false,candidates:roleCandidates,progress:{first_evidence_at:null,last_evidence_at:null,windows:[{start_hour:8,end_hour:10,events:3,days:3,missing_events:2,missing_days:0}]}};
         if (route.request().method() === 'PATCH') {
           const payload=route.request().postDataJSON();
           if (conflict) return route.fulfill({status:409,json:{message:'context conflict'}});
@@ -75,6 +75,8 @@ const assert = require('node:assert/strict');
       await route.fulfill({json: data});
     });
     await page.goto('http://pilotsuite.test/ingress/test/');
+    await page.waitForFunction(() => document.getElementById('learning-progress').textContent.includes('Noch mindestens 2 Aktivierungen'));
+    assert.match(await page.locator('#learning-period').innerText(), /noch keine/);
     await page.locator('#entity-details summary').click();
     const first = page.locator('#selection-rows input').first();
     await first.waitFor();

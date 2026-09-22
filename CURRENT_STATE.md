@@ -1,5 +1,20 @@
 # Current State
 
+## Development: zone overview and evidence progress
+
+Extends alpha.9 with expandable source details in reference cards; persisted
+presence-group names; collection-state explanations; consent and first/last retained
+evidence timestamps; per-UTC-window counts and missing candidate requirements.
+No statistical confidence percentage or uninterrupted coverage is implied.
+No schema migration, role rewrite, consent change or HA update in this increment.
+66 backend tests and four JS tests pass locally; repository validation passes.
+Browser regression extended, but local Chromium is unavailable: CI must verify it.
+Live read-only check confirms alpha.9 started, ready and real Ingress API HTTP 200.
+The user's exact live selection remains uninspected through the protected APIs.
+Next: CI browser/container gate, then release preparation and scoped backup before
+any production update. Real multi-day habits and live interactive acceptance remain open.
+
+
 ## Released and running: 0.1.0-alpha.9
 
 PR #8 merged as 04db3fb103850dd1c6f495d035f646d488a27b3d. Its tree
