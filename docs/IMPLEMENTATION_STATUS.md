@@ -1,21 +1,22 @@
 # Capability and acceptance ledger
 
-Stand: released and installed 0.1.0-alpha.6. Local/CI tests are not live HA
-acceptance. Candidate 9d3b809 passed CI 35790792191: backend, browser and amd64
-image. Merge 290ef42 was installed after confirmed App-only backup dc8bd58c.
-Runtime logs confirm hard_read_only, ready, connected stream and resolved zone.
-The user confirmed successful Badbereich activation in the actual alpha.6 UI.
-
-
-alpha.7 candidate adds strict selection, plural roles, compact summaries and opt-in activity candidates; 58 backend tests locally. Final CI and deployment pending.
+Stand: released and running 0.1.0-alpha.8, merge 3aec18f. CI 35793755621
+passed 59 backend tests (including real module startup), four JS tests, browser
+workflows and amd64 image build. Confirmed pre-update App-only backup: 89e963d5.
+alpha.7 failed before schema migration due to handler definition order; alpha.8
+fixes that startup defect. Supervisor reports started; runtime at
+2026-09-23T00:45:49Z confirms hard_read_only, ready, connected stream, fresh
+snapshot and resolved zone. Local/CI tests are not interactive live HA acceptance.
+The user confirmed Badbereich activation in alpha.6. New role/learning interactions
+and real multi-day activity candidates still need live acceptance; consent stays off.
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
-| Add-on packaging | Implemented | alpha.5 installed and started after app-only backup ec38dcca |
-| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; interactive alpha.5 acceptance in actual HA session still pending |
+| Add-on packaging | Implemented | alpha.8 installed and started after app-only backup 89e963d5 |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; interactive alpha.8 role/learning acceptance in actual HA session still pending |
 | HA snapshot and event stream | Integrated reconnect correction retained | Short-stream exponential backoff and stable-stream recovery tested; live soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
-| Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
+| Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Plural roles, separate references and source spread implemented; live mapping review pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Climate heuristics plus separate activity candidates with independent feedback; not causal habits |
 | Habitus zones and roles | Logical zones and entity selection implemented | Stable IDs, multiple areas, extras, editor; role groups with climate median/min/max, separate references and presence-any implemented |
 | Learning and consent | Bounded activity candidates implemented | Live event replay tests, role groups, opt-in, retention/export/reset; extended HA learning acceptance still pending |
@@ -47,4 +48,4 @@ thresholds are heuristics, not a validated cellar-control policy. No ventilation
 command may be inferred from relative humidity alone.
 
 The retained reconnect correction from PR #4 passed CI 35792464489 before merge
-aac362a; PR #5 records that gate. alpha.7 combines it with the new role/learning package.
+aac362a; PR #5 records that gate. alpha.8 retains it with the new role/learning package.
