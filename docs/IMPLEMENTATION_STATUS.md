@@ -1,15 +1,16 @@
 # Capability and acceptance ledger
 
-Stand: released 0.1.0-alpha.5. Local/CI tests are not live HA acceptance.
-Release candidate b631f1c passed CI 35787425872: backend, browser and amd64 image.
-Identical-tree merge e94991a installed after confirmed App-only backup ec38dcca.
+Stand: released and installed 0.1.0-alpha.6. Local/CI tests are not live HA
+acceptance. Candidate 9d3b809 passed CI 35790792191: backend, browser and amd64
+image. Merge 290ef42 was installed after confirmed App-only backup dc8bd58c.
 Runtime logs confirm hard_read_only, ready, connected stream and resolved zone.
+The user confirmed successful Badbereich activation in the actual alpha.6 UI.
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
-| Add-on packaging | Implemented | alpha.5 installed and started after app-only backup ec38dcca |
-| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; interactive alpha.5 acceptance in actual HA session still pending |
-| HA snapshot and event stream | Implemented | Reconnect resync/backoff tests; live disconnect/load soak pending |
+| Add-on packaging | Implemented | alpha.6 installed and started after app-only backup dc8bd58c |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; actual alpha.6 zone activation confirmed, exhaustive visual/asset review still open |
+| HA snapshot and event stream | Implemented; reconnect integration pending CI | Short streams retain exponential backoff; stable idle streams reset it; live disconnect/load soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Not learned habits; no persistent feedback yet |
@@ -41,3 +42,12 @@ durable. Timestamp guarding prevents older state updates replacing newer values,
 but deletion ordering still relies on subsequent reconciliation. Current climate
 thresholds are heuristics, not a validated cellar-control policy. No ventilation
 command may be inferred from relative humidity alone.
+
+## Current development gate
+
+The reconnect correction previously proven in PR #2 is integrated onto alpha.6.
+49 Python and four JavaScript model tests pass locally, plus repository validation,
+frontend syntax and Python compilation. Exact-commit CI remains required before
+merge. No release or deployment is part of this increment. Next after the reliability
+gate: enforce confirmed-only inference and add explicit contextual sensor roles;
+only then introduce consented, synthetic-fixture-first habit evidence and feedback.
