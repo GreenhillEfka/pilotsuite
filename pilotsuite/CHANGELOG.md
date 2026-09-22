@@ -1,18 +1,70 @@
 # Changelog
 
-## 0.1.0-alpha.3
+All notable changes follow [Semantic Versioning](https://semver.org/).
 
-- Fix Home Assistant Ingress root routing that returned HTTP 404
+## [0.1.0-alpha.5] - 2026-09-22
 
-## 0.1.0-alpha.2
+- Add logical Habitus zones with stable IDs, multiple area sources and extra entities.
+- Add zone editor and persistent relevant/ignored/unreviewed entity selection.
+- Keep per-zone inference isolated and deduplicate global entity counts.
+- Add SQLite schema 3, pre-migration backups, shared revision conflict protection,
+  JSON export and a journal bounded to 5,000 transactions.
+- New UI-created zones start paused with a neutral profile and curated selection.
+- Preserve existing zone behavior on first migration; HA actuation stays disabled.
+- Verify with 46 backend tests, four JavaScript tests, browser tests and amd64 CI build.
+- Learning, contextual role priorities, import and permanent deletion remain deferred.
 
-- Accept bounded Home Assistant WebSocket snapshots up to 32 MiB
-- Preserve transport details in WebSocket error reporting
+## [0.1.0-alpha.4] - 2026-09-22
 
-## 0.1.0-alpha.1
+- Separate transport readiness from zone and capability availability.
+- Report missing climate evidence as null / not assessable, not zero.
+- Exclude buttons and unrelated diagnostics from climate uncertainty.
+- Display capability-specific availability and log safe readiness summaries.
+- Add four regression tests (28 total); no HA actuation enabled.
 
-- Initial PilotSuite v21 alpha
-- Read-only Home Assistant connector and world model
-- Erdkeller Golden Zone
-- Deterministic Habitus pipeline
-- Ingress dashboard and API
+## [0.1.0-alpha.3] - 2026-09-22
+
+### Fixed
+- Route repeated Ingress slashes internally without losing the external prefix.
+  Omitting the default ingress_entry alone was not a proven fix.
+- Normalize climate units and reject invalid readings; missing climate data is not stable.
+- Separate severity from unknown confidence; keep proposal identity stable.
+- Track event stream health, resynchronize after reconnect and back off on clean close.
+- Reject older state updates and exclude disabled entities from the projection.
+
+### Security
+- Restrict UI/API to the Ingress TCP peer; allow loopback liveness probes only.
+- Home Assistant mutations remain hard-disabled.
+
+### Added
+- Reviewed full vision, capability/acceptance ledger and revised learning-first roadmap.
+- Regression tests and periodic dashboard refresh.
+- Real Supervisor/browser acceptance is still pending.
+
+## [0.1.0-alpha.2] - 2026-09-22
+
+### Fixed
+
+- Raised the bounded Home Assistant WebSocket receive limit to 32 MiB so larger
+  state and registry snapshots do not close the connection at `aiohttp`'s
+  4 MiB default.
+- Report the actual WebSocket message type and transport error when a snapshot
+  connection fails.
+
+## [0.1.0-alpha.1] - 2026-09-22
+
+### Added
+
+- Canonical PilotSuite v21 repository and project memory
+- Installable Home Assistant Supervisor App skeleton
+- REST/WebSocket Home Assistant connector
+- Registry-backed world model and area resolver
+- Erdkeller Golden Zone configuration
+- Deterministic neurons, moods, synapses, and suggestions
+- Read-only policy gate and dry-run plans
+- Ingress dashboard, API, audit trail, tests, and CI
+
+### Security
+
+- Hard-disabled Home Assistant mutations for the complete alpha release
+- No Home Assistant config mounts, host networking, privileged capabilities, or secret persistence

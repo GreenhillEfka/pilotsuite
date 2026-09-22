@@ -11,6 +11,8 @@ from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
 from pilotsuite.core.audit import AuditLog
 from pilotsuite.core.plans import PlanStore
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.selections import SelectionStore, InvalidSelection
+from pilotsuite.core.zones import ZoneStore
 from pilotsuite.domain.models import Mood, Neuron, Suggestion
 from pilotsuite.domain.moods import calculate_moods
 from pilotsuite.domain.neurons import build_neurons
@@ -27,6 +29,9 @@ class PilotSuiteService:
         self.settings = settings
         self.audit = AuditLog(settings.data_dir, settings.audit_retention)
         self.plans = PlanStore(settings.data_dir, self.audit)
+        self.selections = SelectionStore(settings.data_dir)
+        self.zones = ZoneStore(self.selections)
+        self._zone_results: list[dict[str, Any]] = []
         self.world = WorldModel()
         self.client = HomeAssistantClient(
             settings.ha_ws_url, settings.supervisor_token
@@ -40,11 +45,14 @@ class PilotSuiteService:
         self._last_error: str | None = None
         self._last_refresh_at: str | None = None
         self._scope: dict[str, Any] = {}
+        self._selection_summary: dict[str, Any] = {}
         self._neurons: list[Neuron] = []
         self._moods: list[Mood] = []
         self._suggestions: list[Suggestion] = []
 
     async def start(self) -> None:
+        await self.selections.initialize()
+        await self.zones.bootstrap(self.settings.golden_zone_area_ids)
         await self.client.start()
         await self.audit.append(
             "runtime.start",
@@ -108,13 +116,11 @@ class PilotSuiteService:
         fresh = self._last_refresh_at is not None and (
             datetime.now(UTC) - datetime.fromisoformat(self._last_refresh_at)
         ).total_seconds() <= max(60, self.settings.refresh_interval_seconds * 2)
-        missing_kinds = next((
-            list(m.evidence[0].get("missing_required_kinds", []))
-            for m in self._moods if m.name == "uncertainty" and m.evidence
-        ), ["humidity", "temperature"])
+        missing_kinds = [kind for kind in ('humidity', 'temperature')
+                         if not any(n.kind == kind and n.quality == 'good' and n.value is not None for n in self._neurons)]
         ready = bool(self._connected and self._stream_connected and fresh)
-        zone_resolved = bool(self._scope.get("resolved_area_ids")
-                             and not self._scope.get("missing_area_ids"))
+        zone_resolved = bool(self._zone_results and not self._scope.get('missing_area_ids')
+                             and (self._scope.get('resolved_area_ids') or self._scope.get('entities')))
         capabilities = {}
         for name, kinds in (("temperature", {"temperature"}), ("humidity", {"humidity"}),
                             ("motion", {"motion"}), ("presence", {"occupancy", "presence"}),
@@ -126,6 +132,7 @@ class PilotSuiteService:
         return {
             "ready": ready,
             "capabilities": capabilities,
+            "selection": self._selection_summary,
             "version": VERSION,
             "architecture": ARCHITECTURE_VERSION,
             "mode": "hard_read_only",
@@ -137,7 +144,7 @@ class PilotSuiteService:
                 "last_error": self._last_error,
             },
             "golden_zone": {
-                "requested_area_ids": list(self.settings.golden_zone_area_ids),
+                "requested_area_ids": self._scope.get('requested_area_ids', list(self.settings.golden_zone_area_ids)),
                 "resolved_area_ids": self._scope.get("resolved_area_ids", []),
                 "missing_area_ids": self._scope.get("missing_area_ids", []),
                 "entity_count": len(self._scope.get("entities", [])),
@@ -158,19 +165,77 @@ class PilotSuiteService:
             "neurons": [item.to_dict() for item in self._neurons],
         }
 
+    async def selection_inventory(self, area_id: str) -> dict[str, Any]:
+        await self.zones.bootstrap(self.settings.golden_zone_area_ids)
+        definition = next((z for z in await self.zones.list() if z['zone_id'] == area_id), None)
+        if definition is None:
+            raise InvalidSelection("unknown Habitus zone")
+        scope = await self.world.scope(tuple(definition['area_ids']), tuple(definition['extra_entity_ids']))
+        stored = await self.selections.get(area_id)
+        items = []
+        for item in scope["entities"]:
+            entity_id = item["entity_id"]
+            registry = item["registry"]
+            attributes = item["state"].get("attributes", {})
+            attributes = attributes if isinstance(attributes, dict) else {}
+            domain = entity_id.split(".", 1)[0]
+            kind = attributes.get("device_class") or registry.get("device_class") or domain
+            recommended = domain in {"sensor", "binary_sensor", "light", "climate", "cover", "fan", "media_player"} and not registry.get("entity_category")
+            items.append({"entity_id": entity_id,
+                          "name": registry.get("name") or attributes.get("friendly_name") or entity_id,
+                          "state": item["state"].get("state"),
+                          "suggested_role": kind, "recommended": recommended,
+                          "decision": stored["decisions"].get(entity_id, "unreviewed")})
+        present = {item["entity_id"] for item in items}
+        return {"zone_id": area_id, "name": definition['name'], "enabled": definition['enabled'], "revision": stored["revision"], "items": items,
+                "missing": [{"entity_id": key, "decision": stored['decisions'].get(key, 'unreviewed')} for key in sorted(set(stored['decisions']) | set(definition['extra_entity_ids'])) if key not in present],
+                "resolved": not scope.get('missing_area_ids', []) and bool(scope["resolved_area_ids"] or items),
+                "applied_to_inference": stored["active"]}
+
     def moods(self) -> list[dict[str, Any]]:
-        return [item.to_dict() for item in self._moods]
+        return [dict(item, zone_id=zone['zone_id'], zone_name=zone['name'])
+                for zone in self._zone_results for item in zone['moods']]
 
     def suggestions(self) -> list[dict[str, Any]]:
         return [item.to_dict() for item in self._suggestions]
 
     async def _derive(self) -> None:
-        self._scope = await self.world.scope(self.settings.golden_zone_area_ids)
-        self._neurons = build_neurons(self._scope)
-        self._moods = calculate_moods(self._neurons, connected=self._connected and self._stream_connected)
-        self._suggestions = build_suggestions(
-            self._moods, self.settings.golden_zone_area_ids
-        )
+        await self.zones.bootstrap(self.settings.golden_zone_area_ids)
+        definitions = [z for z in await self.zones.list() if z['enabled']]
+        results, neurons, moods, suggestions = [], {}, [], []
+        raw, resolved, missing, requested = {}, set(), set(), set()
+        active_ids = []
+        for zone in definitions:
+            scope = await self.world.scope(tuple(zone['area_ids']), tuple(zone['extra_entity_ids']))
+            selected = await self.selections.get(zone['zone_id'])
+            requested.update(zone['area_ids'])
+            resolved.update(scope.get('resolved_area_ids', []))
+            missing.update(scope.get('missing_area_ids', []))
+            raw.update({item['entity_id']: item for item in scope['entities']})
+            entities = [item for item in scope['entities'] if not selected['active'] or selected['decisions'].get(item['entity_id']) == 'relevant']
+            if selected['active']:
+                active_ids.append(zone['zone_id'])
+            zone_neurons = build_neurons({**scope, 'entities': entities})
+            zone_moods = calculate_moods(zone_neurons, connected=self._connected and self._stream_connected, profile=zone['profile'])
+            zone_suggestions = build_suggestions(zone_moods, (zone['zone_id'],), zone_name=zone['name'])
+            neurons.update({n.entity_id: n for n in zone_neurons})
+            moods.extend(zone_moods)
+            suggestions.extend(zone_suggestions)
+            results.append({'zone_id': zone['zone_id'], 'name': zone['name'], 'profile': zone['profile'],
+                            'inventory_count': len(scope['entities']), 'evaluated_count': len(zone_neurons),
+                            'moods': [m.to_dict() for m in zone_moods], 'missing_area_ids': scope.get('missing_area_ids', [])})
+        self._scope = {'requested_area_ids': sorted(requested), 'resolved_area_ids': sorted(resolved),
+                       'missing_area_ids': sorted(missing), 'entities': list(raw.values())}
+        self._zone_results = results
+        self._selection_summary = {
+            "active_area_ids": active_ids,
+            "inventory_count": len(self._scope["entities"]),
+            "evaluated_count": len(neurons),
+            "excluded_count": len(raw) - len(neurons),
+        }
+        self._neurons = list(neurons.values())
+        self._moods = moods
+        self._suggestions = suggestions
 
     async def _on_state_change(self, event_data: dict[str, Any]) -> None:
         async with self._projection_lock:

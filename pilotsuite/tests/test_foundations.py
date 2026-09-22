@@ -105,6 +105,7 @@ class ProjectionTests(unittest.IsolatedAsyncioTestCase):
     async def test_readiness_requires_stream_scope_and_climate(self):
         with tempfile.TemporaryDirectory() as directory:
             service = PilotSuiteService(Settings(Path(directory), Path(directory) / "options.json"))
+            await service.selections.initialize()
             service.client.snapshot = AsyncMock(return_value={
                 "areas": [{"area_id": "erdkeller"}],
                 "entities": [{"entity_id": f"sensor.{kind}", "area_id": "erdkeller"}

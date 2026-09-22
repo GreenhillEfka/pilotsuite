@@ -13,7 +13,7 @@ Bestehende Automationen haben Vorrang vor neu erzeugten Duplikaten.
 |---|---|---|
 | Home Assistant | Geräte, Entitäten, Areas, Labels, Zustände, Ausführung | PilotSuite-Lernmodell |
 | Add-on-Kern | Semantik, Habitus-Zonen, Rollen, Vorschläge, Policies, Feedback | zweite HA-Gerätedatenbank |
-| SQLite (geplant) | eigene Definitionen, begrenzte Belege, Journal | vollständige HA-Historie |
+| SQLite (Zonen/Auswahl implementiert; Lernbelege geplant) | eigene Definitionen, begrenzte Belege, Journal | vollständige HA-Historie |
 | Ingress-UI | Erklärung, Konfiguration, Freigaben, Dev/Wiki-Ansichten | eigene Entscheidungslogik |
 | Optionaler HA-Adapter | native Entitäten, Conversation, Bedienfunktionen | zweite Engine oder Zonendefinition |
 | Optionales LLM/RAG | Dialog, Erklärung, Entwürfe | unmittelbare Aktorbefehle oder Policy-Ausnahmen |

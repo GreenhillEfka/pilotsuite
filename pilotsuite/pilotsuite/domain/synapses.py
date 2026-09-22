@@ -13,7 +13,7 @@ RULESET_VERSION = "erdkeller-3"
 
 
 def build_suggestions(
-    moods: Iterable[Mood], area_ids: tuple[str, ...]
+    moods: Iterable[Mood], area_ids: tuple[str, ...], *, zone_name: str | None = None
 ) -> list[Suggestion]:
     mood_map = {mood.name: mood for mood in moods}
     suggestions: list[Suggestion] = []
@@ -68,8 +68,8 @@ def build_suggestions(
             Suggestion(
                 id=stable_id,
                 rule_id=f"{RULESET_VERSION}:{rule_id}",
-                title=title,
-                explanation=explanation,
+                title=(f"{zone_name}: " + {'humidity-high': 'Hohe Feuchte prüfen', 'humidity-low': 'Niedrige Feuchte prüfen', 'temperature-high': 'Erhöhte Temperatur prüfen', 'temperature-low': 'Frostnähe prüfen', 'data-quality': 'Sensordaten prüfen'}[rule_id]) if zone_name else title,
+                explanation=explanation.replace('für den Erdkeller', 'für das Erdkeller-Regelprofil') if zone_name else explanation,
                 confidence=None,
                 severity=mood.score,
                 risk=risk,

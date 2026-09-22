@@ -2,6 +2,18 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.5] - 2026-09-22
+
+- Add logical Habitus zones with stable IDs, multiple area sources and extra entities.
+- Add zone editor and persistent relevant/ignored/unreviewed entity selection.
+- Keep per-zone inference isolated and deduplicate global entity counts.
+- Add SQLite schema 3, pre-migration backups, shared revision conflict protection,
+  JSON export and a journal bounded to 5,000 transactions.
+- New UI-created zones start paused with a neutral profile and curated selection.
+- Preserve existing zone behavior on first migration; HA actuation stays disabled.
+- Verify with 46 backend tests, four JavaScript tests, browser tests and amd64 CI build.
+- Learning, contextual role priorities, import and permanent deletion remain deferred.
+
 ## [0.1.0-alpha.4] - 2026-09-22
 
 - Separate transport readiness from zone and capability availability.

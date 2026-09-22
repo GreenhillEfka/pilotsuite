@@ -14,6 +14,7 @@ from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
 from pilotsuite.core.logging import configure_logging
 from pilotsuite.core.plans import InvalidPlan, ReadOnlyRelease
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
 
 
@@ -57,6 +58,12 @@ async def request_context(
             {"error": "invalid_plan", "message": str(exc), "request_id": request_id},
             status=400,
         )
+    except (InvalidSelection, SelectionConflict) as exc:
+        response = web.json_response(
+            {"error": "selection_conflict" if isinstance(exc, SelectionConflict) else "invalid_selection",
+             "message": str(exc), "request_id": request_id},
+            status=409 if isinstance(exc, SelectionConflict) else 400,
+        )
     except ReadOnlyRelease as exc:
         response = web.json_response(
             {
@@ -95,6 +102,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.on_cleanup.append(_cleanup)
     app.router.add_get("/", _index)
     app.router.add_get("/assets/app.js", _javascript)
+    app.router.add_get("/assets/selections.js", _selection_javascript)
     app.router.add_get("/assets/styles.css", _stylesheet)
     app.router.add_get("/health", _health)
     app.router.add_get("/health/ready", _ready)
@@ -102,8 +110,15 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_get("/api/v1/status", _status)
     app.router.add_get("/api/v1/architecture", _architecture)
     app.router.add_get("/api/v1/areas", _areas)
+    app.router.add_get('/api/v1/zones', _zones)
+    app.router.add_get('/api/v1/zones/export', _zone_export)
+    app.router.add_post('/api/v1/zones', _save_zone)
+    app.router.add_patch('/api/v1/zones/{zone_id}', _save_zone)
+    app.router.add_get('/api/v1/entity-catalog', _entity_catalog)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
+    app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
+    app.router.add_patch("/api/v1/selections/{area_id}", _selection_patch)
     app.router.add_get("/api/v1/moods", _moods)
     app.router.add_get("/api/v1/suggestions", _suggestions)
     app.router.add_get("/api/v1/audit", _audit)
@@ -115,6 +130,71 @@ def create_app(settings: Settings | None = None) -> web.Application:
 
 async def _startup(app: web.Application) -> None:
     await app[SERVICE_KEY].start()
+
+
+async def _selection_inventory(request: web.Request) -> web.Response:
+    return web.json_response(await request.app[SERVICE_KEY].selection_inventory(request.match_info["area_id"]))
+
+
+async def _zones(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    return web.json_response({'items': await service.zones.list(), 'results': service._zone_results})
+
+
+async def _entity_catalog(request: web.Request) -> web.Response:
+    return web.json_response({'items': await request.app[SERVICE_KEY].world.catalog()})
+
+
+async def _zone_export(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    async with service._projection_lock:
+        items = [dict(zone, selection=await service.selections.get(zone['zone_id'])) for zone in await service.zones.list()]
+        return web.json_response({'format': 'pilotsuite-habitus-zones', 'schema': 1, 'items': items},
+                                 headers={'Content-Disposition': 'attachment; filename="pilotsuite-zones.json"'})
+
+
+async def _save_zone(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise InvalidSelection('invalid JSON') from exc
+    zone_id = request.match_info.get('zone_id')
+    expected = {'definition', 'revision'} if zone_id else {'definition'}
+    if not isinstance(payload, dict) or set(payload) != expected:
+        raise InvalidSelection('invalid zone request fields')
+    definition = service.zones.validate(payload['definition'])
+    async with service._projection_lock:
+        previous = next((z for z in await service.zones.list() if z['zone_id'] == zone_id), {})
+        areas = {a['area_id'] for a in await service.world.areas()} | set(previous.get('area_ids', []))
+        entities = {e['entity_id'] for e in await service.world.catalog() if not e['disabled']} | set(previous.get('extra_entity_ids', []))
+        if not set(definition['area_ids']) <= areas or not set(definition['extra_entity_ids']) <= entities:
+            raise InvalidSelection('unknown area or unavailable extra entity; reload the inventory')
+        saved = await service.zones.save(definition, zone_id, payload.get('revision'))
+        await service._derive()
+        return web.json_response(saved, status=200 if zone_id else 201)
+
+
+async def _selection_patch(request: web.Request) -> web.Response:
+    service = request.app[SERVICE_KEY]
+    area_id = request.match_info["area_id"]
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise InvalidSelection("body must be valid JSON") from exc
+    if not isinstance(payload, dict) or set(payload) not in ({"revision", "changes"}, {"revision", "changes", "active"}):
+        raise InvalidSelection("body requires revision, changes and optionally active")
+    if "active" in payload and type(payload["active"]) is not bool:
+        raise InvalidSelection("active must be a boolean")
+    async with service._projection_lock:
+        inventory = await service.selection_inventory(area_id)
+        known = {item["entity_id"] for item in inventory["items"] + inventory["missing"]}
+        changes = payload["changes"]
+        if not isinstance(changes, dict) or not set(changes).issubset(known):
+            raise InvalidSelection("all changed entities must belong to this zone's inventory")
+        await service.selections.patch(area_id, payload["revision"], changes, payload.get("active"))
+        await service._derive()
+        return web.json_response(await service.selection_inventory(area_id))
 
 
 async def _cleanup(app: web.Application) -> None:
@@ -131,6 +211,10 @@ async def _javascript(_: web.Request) -> web.FileResponse:
 
 async def _stylesheet(_: web.Request) -> web.FileResponse:
     return web.FileResponse(WEB_DIR / "styles.css", headers={"Content-Type": "text/css"})
+
+
+async def _selection_javascript(_: web.Request) -> web.FileResponse:
+    return web.FileResponse(WEB_DIR / "selections.js", headers={"Content-Type": "text/javascript"})
 
 
 async def _health(_: web.Request) -> web.Response:

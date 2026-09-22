@@ -64,7 +64,14 @@ class WorldModel:
                 key=lambda item: str(item.get("name", item.get("area_id", ""))).lower(),
             )
 
-    async def scope(self, area_ids: tuple[str, ...]) -> dict[str, Any]:
+    async def catalog(self) -> list[dict[str, Any]]:
+        async with self._lock:
+            return [{'entity_id': key, 'area_id': self._entity_area_id(value),
+                     'name': value.get('name') or _as_dict(self._states.get(key, {}).get('attributes')).get('friendly_name') or key,
+                     'disabled': value.get('disabled_by') is not None}
+                    for key, value in sorted(self._entities.items())]
+
+    async def scope(self, area_ids: tuple[str, ...], extra_entity_ids: tuple[str, ...] = ()) -> dict[str, Any]:
         requested = set(area_ids)
         async with self._lock:
             resolved_areas = [
@@ -77,13 +84,13 @@ class WorldModel:
                 if registry.get("disabled_by") is not None:
                     continue
                 area_id = self._entity_area_id(registry)
-                if area_id not in requested:
+                if area_id not in requested and entity_id not in extra_entity_ids:
                     continue
                 state = deepcopy(self._states.get(entity_id, {}))
                 scoped_entities.append(
                     {
                         "entity_id": entity_id,
-                        "area_id": area_id,
+                        "area_id": area_id or "",
                         "registry": deepcopy(registry),
                         "state": state,
                     }
