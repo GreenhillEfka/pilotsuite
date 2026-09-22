@@ -30,6 +30,8 @@ class RoleGroupTests(unittest.TestCase):
           {'temperature':['sensor.a','sensor.missing'], 'presence':['binary_sensor.p','binary_sensor.missing']})
         self.assertEqual('partial',summary['temperature']['status'])
         self.assertEqual(20,summary['temperature']['value'])
+        self.assertEqual(2,summary['temperature']['total_count'])
+        self.assertEqual(1,summary['temperature']['valid_count'])
         self.assertIsNone(summary['presence']['active'])
         summary, _ = context_summary([sensor('binary_sensor.p','motion',True)], {'presence':['binary_sensor.p','binary_sensor.missing']})
         self.assertTrue(summary['presence']['active'])

@@ -229,7 +229,15 @@ class PilotSuiteService:
             if cfg['learning'] and presence:
                 self._learning_sources[zone['zone_id']] = presence
             zone_moods = calculate_moods(climate_neurons, connected=self._connected and self._stream_connected, profile=zone['profile'])
-            zone_moods = [replace(m, evidence=m.evidence + ({'role_groups': summary},)) for m in zone_moods]
+            total = sum(summary[k]['total_count'] for k in ('temperature', 'humidity'))
+            valid = sum(summary[k]['valid_count'] for k in ('temperature', 'humidity'))
+            ambiguous = any(summary[k]['status'] == 'ambiguous' for k in ('temperature', 'humidity'))
+            uncertainty = (total-valid)/total if total and not ambiguous else None
+            incomplete = any(summary[k]['status'] != 'available' for k in ('temperature', 'humidity'))
+            zone_moods = [replace(m,
+                score=uncertainty if m.name == 'uncertainty' else None if m.name == 'stable' and incomplete else m.score,
+                evidence=({'role_groups': summary, 'aggregation': 'median of valid main sources', 'valid_sources': valid, 'total_sources': total},))
+                for m in zone_moods]
             zone_suggestions = build_suggestions(zone_moods, (zone['zone_id'],), zone_name=zone['name'])
             neurons.update({n.entity_id: n for n in zone_neurons})
             moods.extend(zone_moods)

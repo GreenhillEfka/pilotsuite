@@ -20,14 +20,12 @@ def context_summary(neurons, roles):
         summary[kind] = {'status': status, 'sources': [n.entity_id for n in members], 'requested_sources': explicit,
                          'value': value, 'unit': valid[0].unit if valid else None, 'candidate_count': len(candidates),
                          'min': min(values) if values else None, 'max': max(values) if values else None,
-                         'spread': max(values)-min(values) if values else None, 'valid_count': len(valid), 'missing_count': missing,
+                         'spread': max(values)-min(values) if values else None, 'valid_count': len(valid), 'missing_count': missing, 'total_count': len(members)+missing,
                          'measurements': [{'entity_id': n.entity_id, 'value': n.value, 'unit': n.unit, 'quality': n.quality} for n in members],
                          'aggregation': 'median', 'spatial_scope': 'zone summary, not necessarily one room'}
         # Mood severity uses the aggregate; evidence retains every contributing sensor below.
         if valid:
             climate.append(replace(valid[0], entity_id='aggregate.'+kind, name='Zone median '+kind, value=value))
-            climate.extend(n for n in members if n.quality != 'good' or n.value is None)
-            if missing: climate.append(replace(valid[0], entity_id='missing.'+kind, value=None, quality='missing'))
         elif members:
             climate.append(members[0])
     summary['reference_temperature'] = [{'source': n.entity_id, 'value': n.value, 'unit': n.unit, 'quality': n.quality} for n in neurons if n.entity_id in references and n.kind=='temperature']
