@@ -6,7 +6,12 @@ Last updated: 2026-09-22
 - Transport readiness is independent of climate sensor availability.
 - Per-capability status: available, partial, unavailable, not_present.
 - Unknown climate scores are null; buttons and diagnostics do not count as climate failures.
-- 28 local regression tests pass; alpha.4 live deployment pending.
+- 28 local regression tests and GitHub CI (including amd64 build) passed.
+- alpha.4 installed after confirmed app-only backup; Supervisor reports started.
+- Runtime logs confirm ready=True, connected stream, fresh snapshot and resolved zone.
+- Real browser Ingress requests to status, moods, suggestions and golden-zone returned 200.
+- Visual rendering of the newly delivered alpha.4 frontend remains separately unverified.
+- Deployed code: 941831cb74575ac17307b1a725f0120942ddd687. No actuation enabled.
 - User screenshot confirmed alpha.3 Ingress UI loads and displays live observations.
 
 ## Repository milestone
