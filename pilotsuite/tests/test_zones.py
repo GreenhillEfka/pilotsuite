@@ -99,3 +99,18 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         saved = next(z for z in export['items'] if z['zone_id'] == zone['zone_id'])
         self.assertEqual('relevant', saved['selection']['decisions']['sensor.hot'])
         self.assertNotIn('states', saved)
+
+    async def test_schema_two_migration_preserves_selection_mode(self):
+        import sqlite3
+        await self.service.selections.patch('a', 0, {'sensor.hot': 'relevant'}, True)
+        with sqlite3.connect(self.service.selections.path) as db:
+            db.execute('DROP TABLE habitus_zones')
+            db.execute('DROP TABLE zone_meta')
+            db.execute('PRAGMA user_version=2')
+        await self.service.selections.initialize()
+        await self.service.zones.bootstrap(('a',))
+        saved = await self.service.selections.get('a')
+        self.assertTrue(saved['active'])
+        self.assertEqual(1, saved['revision'])
+        self.assertEqual('relevant', saved['decisions']['sensor.hot'])
+        self.assertEqual(1, len(list(Path(self.temp.name).glob('selections.v2.*.bak'))))

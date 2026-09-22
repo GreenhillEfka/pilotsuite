@@ -1,5 +1,22 @@
 # Capability and acceptance ledger
 
+## Development branch: logical Habitus zones (2026-09-22)
+
+PR #1 (`feat/entity-selection-package`) implements logical zones with stable IDs,
+multiple HA-area sources and extra entity candidates; an Ingress editor, curated
+entity selection, shared revisions, per-zone inference, neutral/cellar profiles,
+JSON export and a bounded journal. Schema 3 backs up schema 1/2 before migration.
+Existing decisions are preserved; new zones start paused in the UI. Global entity
+counts deduplicate IDs. Contract: `docs/HABITUS_ZONES.md` and ADR-015.
+
+46 Python tests and four JavaScript model tests pass locally. CI run 35786624245
+passed backend, zone-creation browser regression and amd64 container for commit
+33da5d6. A final follow-up corrects multi-zone status and adds schema-2 migration
+coverage; use the latest PR checks for that head. No new version or HA installation
+in this increment. Production alpha.4 evidence below remains the live baseline.
+Contextual role priorities, import, permanent deletion and learning remain deferred.
+
+
 Stand: capability correction 0.1.0-alpha.4. "Local tests" is not live HA acceptance.
 
 | Capability | Code state | Acceptance / remaining work |

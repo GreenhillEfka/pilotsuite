@@ -116,13 +116,11 @@ class PilotSuiteService:
         fresh = self._last_refresh_at is not None and (
             datetime.now(UTC) - datetime.fromisoformat(self._last_refresh_at)
         ).total_seconds() <= max(60, self.settings.refresh_interval_seconds * 2)
-        missing_kinds = next((
-            list(m.evidence[0].get("missing_required_kinds", []))
-            for m in self._moods if m.name == "uncertainty" and m.evidence
-        ), ["humidity", "temperature"])
+        missing_kinds = [kind for kind in ('humidity', 'temperature')
+                         if not any(n.kind == kind and n.quality == 'good' and n.value is not None for n in self._neurons)]
         ready = bool(self._connected and self._stream_connected and fresh)
-        zone_resolved = bool(self._scope.get("resolved_area_ids")
-                             and not self._scope.get("missing_area_ids"))
+        zone_resolved = bool(self._zone_results and not self._scope.get('missing_area_ids')
+                             and (self._scope.get('resolved_area_ids') or self._scope.get('entities')))
         capabilities = {}
         for name, kinds in (("temperature", {"temperature"}), ("humidity", {"humidity"}),
                             ("motion", {"motion"}), ("presence", {"occupancy", "presence"}),
