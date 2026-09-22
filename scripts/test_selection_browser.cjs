@@ -24,7 +24,7 @@ const assert = require('node:assert/strict');
       }
       let data;
       if (suffix === 'api/v1/status') data = {ready: true, version: 'test', home_assistant: {connected: true}, golden_zone: {requested_area_ids: ['example'], resolved_area_ids: ['example'], missing_area_ids: [], entity_count: 2}, habitus: {neuron_count: 2, suggestion_count: 0, ruleset: 'test'}};
-      else if (suffix === 'api/v1/areas') data = {items: [{area_id: 'example', name: 'Example area'}]};
+      else if (suffix === 'api/v1/areas') data = {items: [{area_id: 'example', name: 'Bad'}, {area_id: 'toilet', name: 'Toilette'}]};
       else if (suffix === 'api/v1/entity-catalog') data = {items: [{entity_id: 'sensor.temperature', name: 'Temperature', disabled: false}]};
       else if (suffix === 'api/v1/zones') {
         if (route.request().method() === 'POST') {
@@ -32,9 +32,19 @@ const assert = require('node:assert/strict');
           const created = {zone_id: 'hz_test', revision: 1, ...definition}; zones.push(created);
           return route.fulfill({status: 201, json: created});
         }
-        data = {items: zones};
+        data = {items: zones, results: zones.filter(z => z.enabled).map(z => ({zone_id: z.zone_id, evaluated_count: 1,
+          moods: [{name: z.zone_id === 'example' ? 'cellar_only' : 'bath_only', score: 0.5}],
+          neurons: [{entity_id: z.zone_id + '_sensor', kind: 'temperature', value: 20, quality: 'good'}]}))};
       }
-      else if (suffix === 'api/v1/selections/hz_test') data = {...inventory, zone_id: 'hz_test', revision: 1, enabled: false, applied_to_inference: true, items: inventory.items.map(i => ({...i, decision: 'unreviewed'}))};
+      else if (suffix.startsWith('api/v1/zones/') && route.request().method() === 'PATCH') {
+        const id = suffix.split('/').pop(); const index = zones.findIndex(z => z.zone_id === id);
+        const payload = route.request().postDataJSON();
+        assert.equal(payload.revision, zones[index].revision);
+        if (conflict) return route.fulfill({status: 409, json: {message: 'conflict'}});
+        zones[index] = {...zones[index], ...payload.definition, revision: payload.revision + 1};
+        data = zones[index];
+      }
+      else if (suffix === 'api/v1/selections/hz_test') data = {...inventory, zone_id: 'hz_test', revision: 1, enabled: zones[1].enabled, applied_to_inference: true, items: inventory.items.map(i => ({...i, decision: 'unreviewed'}))};
       else if (suffix === 'api/v1/selections/example') {
         if (route.request().method() === 'PATCH') {
           writes++;
@@ -74,19 +84,50 @@ const assert = require('node:assert/strict');
     await page.locator('#selection-search').fill('no-match');
     assert.match(await page.locator('#selection-rows').textContent(), /Keine passenden/);
     conflict = false;
+    await page.getByText('Erweitert: Auswahlmodus', {exact: true}).click();
     await page.locator('#selection-active').check();
     await page.locator('#selection-save').click();
     await page.waitForFunction(() => document.getElementById('selection-message').textContent.includes('Bestätigte Auswahl ist'));
     assert.equal(inventory.applied_to_inference, true);
-    await page.locator('#zone-editor summary').click();
     await page.locator('#zone-new').click();
     await page.locator('#zone-name').fill('Living space');
-    assert.equal(await page.locator('#zone-enabled').isChecked(), false);
-    await page.locator('#zone-areas').selectOption(['example']);
+    await page.locator('#zone-areas input[value=example]').check();
+    await page.locator('#zone-areas input[value=toilet]').check();
     await page.locator('#zone-extras').selectOption(['sensor.temperature']);
     await page.locator('#zone-form button[type=submit]').click();
     await page.waitForFunction(() => document.getElementById('selection-zone').value === 'hz_test');
     assert.equal(zones[1].profile, 'observe');
+    assert.equal(zones[1].enabled, false);
+    assert.deepEqual(zones[1].area_ids, ['example', 'toilet']);
+    await page.locator('#zone-toggle').click();
+    await page.waitForFunction(() => document.getElementById('zone-toggle').textContent === 'Auswertung pausieren');
+    assert.equal(zones[1].enabled, true);
+    assert.match(await page.locator('#moods').textContent(), /bath only/);
+    assert.doesNotMatch(await page.locator('#moods').textContent(), /cellar only/);
+    assert.match(await page.locator('#observations').textContent(), /hz_test_sensor/);
+    await page.locator('#zone-edit').click();
+    await page.locator('#zone-name').fill('Badbereich');
+    await page.locator('#zone-form button[type=submit]').click();
+    await page.waitForFunction(() => document.getElementById('active-zone-name').textContent === 'Badbereich');
+    assert.equal(zones[1].enabled, true);
+    await page.getByRole('tab', {name: 'Example', exact: true}).click();
+    await page.waitForFunction(() => document.getElementById('active-zone-name').textContent === 'Example');
+    assert.match(await page.locator('#moods').textContent(), /cellar only/);
+    assert.doesNotMatch(await page.locator('#observations').textContent(), /hz_test_sensor/);
+    await page.getByRole('tab', {name: 'Badbereich', exact: true}).click();
+    await page.waitForFunction(() => document.getElementById('active-zone-name').textContent === 'Badbereich');
+    conflict = true;
+    await page.locator('#zone-toggle').click();
+    await page.waitForFunction(() => document.getElementById('zone-state-message').textContent.includes('nicht bestätigt'));
+    assert.equal(zones[1].enabled, true);
+    conflict = false;
+    await page.locator('#zone-toggle').click();
+    await page.waitForFunction(() => document.getElementById('zone-toggle').textContent === 'Auswertung starten');
+    assert.equal(zones[1].enabled, false);
+    await page.reload();
+    await page.getByRole('tab', {name: 'Badbereich · pausiert', exact: true}).click();
+    await page.waitForFunction(() => document.getElementById('active-zone-name').textContent === 'Badbereich');
+    assert.match(await page.locator('#zone-state-message').textContent(), /Pausiert/);
     assert.deepEqual(zones[1].extra_entity_ids, ['sensor.temperature']);
     assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);

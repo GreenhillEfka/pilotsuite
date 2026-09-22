@@ -223,7 +223,7 @@ class PilotSuiteService:
             suggestions.extend(zone_suggestions)
             results.append({'zone_id': zone['zone_id'], 'name': zone['name'], 'profile': zone['profile'],
                             'inventory_count': len(scope['entities']), 'evaluated_count': len(zone_neurons),
-                            'moods': [m.to_dict() for m in zone_moods], 'missing_area_ids': scope.get('missing_area_ids', [])})
+                            'moods': [m.to_dict() for m in zone_moods], 'neurons': [n.to_dict() for n in zone_neurons], 'missing_area_ids': scope.get('missing_area_ids', [])})
         self._scope = {'requested_area_ids': sorted(requested), 'resolved_area_ids': sorted(resolved),
                        'missing_area_ids': sorted(missing), 'entities': list(raw.values())}
         self._zone_results = results

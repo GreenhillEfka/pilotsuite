@@ -19,7 +19,7 @@
     <main>
       <section class="hero">
         <div>
-          <p class="eyebrow">GOLDEN ZONE</p>
+          <p class="eyebrow">DEINE HABITUS-ZONEN</p>
           <h2>Dein Zuhause verstehen, bevor irgendetwas handelt.</h2>
           <p class="lede">Home Assistant bleibt die Wahrheit. PilotSuite ordnet Beobachtungen ein, zeigt Belege und schlägt nachvollziehbare nächste Schritte vor.</p>
         </div>
@@ -49,12 +49,73 @@
         </article>
       </section>
 
+      <section class="panel zone-navigation" aria-label="Habitus-Zonen">
+        <div class="selection-tools"><h2>Habitus-Zonen</h2><button id="zone-new" type="button">+ Neue Zone</button></div>
+        <div id="zone-tabs" role="tablist" aria-label="Zone auswählen"></div>
+        <div id="zone-heading" class="selection-tools">
+          <h2 id="active-zone-name">Zone laden …</h2>
+          <button id="zone-edit" type="button">Name / Bereiche bearbeiten</button>
+          <button id="zone-toggle" type="button">Auswertung starten</button>
+        </div>
+        <p id="zone-state-message" role="status" aria-live="polite"></p>
+      </section>
+      <section class="panel selection-panel" aria-labelledby="selection-title">
+        <details id="zone-editor">
+          <summary>Zoneneinstellungen und Export</summary>
+          <p>Bereiche liefern Kandidaten. Zusätzliche Entitäten können aus anderen Bereichen stammen. Neue Zonen starten deaktiviert und mit bestätigter Auswahl.</p>
+          <div class="selection-tools">
+            <a href="api/v1/zones/export" download="pilotsuite-zones.json">Zonen exportieren</a>
+          </div>
+          <form id="zone-form" hidden>
+            <fieldset id="zone-fields">
+              <legend id="zone-form-title">Zone</legend>
+              <div class="selection-tools">
+                <label>Name <input id="zone-name" required maxlength="80"></label>
+                <label>Regelprofil <select id="zone-profile"><option value="observe">Neutral beobachten</option><option value="cellar">Erdkeller – konservative Klimaregeln</option></select></label>
+              </div>
+              <p>Die Auswertung startest oder pausierst du direkt im Zonen-Reiter. Eine neue Zone startet pausiert.</p>
+              <div class="selection-tools">
+                <fieldset class="area-field"><legend>Bereiche auswählen</legend><div id="zone-areas" class="area-choices"></div></fieldset>
+                <label>Zusätzliche Entitäten suchen <input id="zone-extra-search" type="search" placeholder="Name oder ID"><select id="zone-extras" multiple size="6" aria-label="Zusätzliche Entitäten"></select></label>
+              </div>
+              <p>Bereiche einzeln anhaken, zum Beispiel Bad und Toilette. Anschließend relevante Entitäten auswählen. Entfernte Quellen behalten ihre Entscheidungen für eine spätere Wiederaufnahme.</p>
+              <div class="selection-tools"><button type="submit">Zone speichern</button><button id="zone-cancel" type="button">Abbrechen</button></div>
+            </fieldset>
+          </form>
+          <p id="zone-message" role="status" aria-live="polite"></p>
+        </details>
+        <p class="eyebrow">BEWUSSTE AUSWAHL</p>
+        <h2 id="selection-title">Entitäten dieser Zone</h2>
+        <p>Entitäten anhaken → Auswahl speichern → Auswertung starten. Relevanz ist keine Schaltfreigabe.</p>
+        <details><summary>Erweitert: Auswahlmodus</summary><label><input id="selection-active" type="checkbox" disabled> Nur bestätigte Entitäten auswerten</label><p>Bei ausgeschaltetem Auswahlmodus fließen alle geeigneten Kandidaten ein, auch ignorierte und ungeprüfte. Bestehende Einstellungen bleiben erhalten.</p></details>
+        <div class="selection-tools">
+          <label hidden>Zone <select id="selection-zone" disabled></select></label>
+          <label>Suche <input id="selection-search" type="search" placeholder="Name, ID oder Rolle"></label>
+          <label>Status <select id="selection-filter">
+            <option value="all">Alle</option><option value="unreviewed">Ungeprüft</option>
+            <option value="relevant">Relevant</option><option value="ignored">Ignoriert</option>
+            <option value="missing">Nicht im aktuellen Inventar</option>
+          </select></label>
+        </div>
+        <p id="selection-message" role="status" aria-live="polite">Inventar wird geladen …</p>
+        <div class="selection-tools">
+          <button id="selection-recommend" type="button" disabled>Empfohlene ungeprüfte auswählen</button>
+          <button id="selection-save" type="button" disabled>Auswahl speichern</button>
+          <button id="selection-discard" type="button" disabled>Verwerfen / neu laden</button>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Relevant</th><th>Entität</th><th>Rollen-Vorschlag</th><th>Zustand</th><th>Prüfstatus</th></tr></thead>
+            <tbody id="selection-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="split">
         <article class="panel">
           <div class="panel-title">
             <div>
               <p class="eyebrow">KONTEXT</p>
-              <h2>Moods</h2>
+              <h2>Bewertung dieser Zone</h2>
             </div>
             <span class="tag">deterministisch</span>
           </div>
@@ -73,64 +134,11 @@
         </article>
       </section>
 
-      <section class="panel selection-panel" aria-labelledby="selection-title">
-        <details id="zone-editor">
-          <summary>Habitus-Zonen verwalten</summary>
-          <p>Bereiche liefern Kandidaten. Zusätzliche Entitäten können aus anderen Bereichen stammen. Neue Zonen starten deaktiviert und mit bestätigter Auswahl.</p>
-          <div class="selection-tools">
-            <button id="zone-new" type="button">Neue Zone</button>
-            <button id="zone-edit" type="button">Gewählte Zone bearbeiten</button>
-            <a href="api/v1/zones/export" download="pilotsuite-zones.json">Zonen exportieren</a>
-          </div>
-          <form id="zone-form" hidden>
-            <fieldset id="zone-fields">
-              <legend id="zone-form-title">Zone</legend>
-              <div class="selection-tools">
-                <label>Name <input id="zone-name" required maxlength="80"></label>
-                <label>Regelprofil <select id="zone-profile"><option value="observe">Neutral beobachten</option><option value="cellar">Erdkeller – konservative Klimaregeln</option></select></label>
-              </div>
-              <label><input id="zone-enabled" type="checkbox"> Zone auswerten (deaktivieren erhält alle Entscheidungen)</label>
-              <div class="selection-tools">
-                <label>HA-Bereiche als Quellen <select id="zone-areas" multiple size="6"></select></label>
-                <label>Zusätzliche Entitäten suchen <input id="zone-extra-search" type="search" placeholder="Name oder ID"><select id="zone-extras" multiple size="6" aria-label="Zusätzliche Entitäten"></select></label>
-              </div>
-              <p>Mehrfachauswahl möglich. Quellen speichern bestätigt noch keine Entität als relevant. Entfernte Quellen behalten ihre Entscheidungen für eine spätere Wiederaufnahme.</p>
-              <div class="selection-tools"><button type="submit">Zone speichern</button><button id="zone-cancel" type="button">Abbrechen</button></div>
-            </fieldset>
-          </form>
-          <p id="zone-message" role="status" aria-live="polite"></p>
-        </details>
-        <p class="eyebrow">BEWUSSTE AUSWAHL</p>
-        <h2 id="selection-title">Relevante Entitäten</h2>
-        <p>Ohne Aktivierung gilt der bisherige automatische Umfang. Aktiviert werden nur als relevant bestätigte Entitäten ausgewertet. Keine Schaltfreigabe.</p>
-        <label><input id="selection-active" type="checkbox" disabled> Nur bestätigte Auswahl für diese Zone auswerten</label>
-        <div class="selection-tools">
-          <label>Zone <select id="selection-zone" disabled></select></label>
-          <label>Suche <input id="selection-search" type="search" placeholder="Name, ID oder Rolle"></label>
-          <label>Status <select id="selection-filter">
-            <option value="all">Alle</option><option value="unreviewed">Ungeprüft</option>
-            <option value="relevant">Relevant</option><option value="ignored">Ignoriert</option>
-            <option value="missing">Nicht im aktuellen Inventar</option>
-          </select></label>
-        </div>
-        <p id="selection-message" role="status" aria-live="polite">Inventar wird geladen …</p>
-        <div class="selection-tools">
-          <button id="selection-recommend" type="button" disabled>Empfohlene ungeprüfte auswählen</button>
-          <button id="selection-save" type="button" disabled>Speichern</button>
-          <button id="selection-discard" type="button" disabled>Verwerfen / neu laden</button>
-        </div>
-        <div class="table-wrap">
-          <table><thead><tr><th>Relevant</th><th>Entität</th><th>Rollen-Vorschlag</th><th>Zustand</th><th>Prüfstatus</th></tr></thead>
-            <tbody id="selection-rows"></tbody>
-          </table>
-        </div>
-      </section>
-
       <section class="panel">
         <div class="panel-title">
           <div>
             <p class="eyebrow">QUELLE</p>
-            <h2>Golden-Zone-Beobachtungen</h2>
+            <h2>Beobachtungen dieser Zone</h2>
           </div>
           <span id="observation-count" class="tag">0</span>
         </div>
@@ -147,7 +155,7 @@
       <p id="error" class="error" role="alert" hidden></p>
     </main>
 
-    <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.5.</footer>
+    <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.6.</footer>
     <script src="assets/selections.js" defer></script>
     <script src="assets/app.js" defer></script>
   </body>

@@ -1,5 +1,14 @@
 # Architecture Decision Log
 
+## ADR-016 — One visible workspace per zone
+
+Zone tabs select the context for entity choices, evaluation, proposals and observations.
+Direct start/pause changes only the zone enabled flag with revision protection.
+Entity selection mode remains distinct and advanced; saving relevant entities does
+not silently activate a paused zone. Source areas use checkboxes. New zones stay
+paused and neutral. Existing stored definitions and decisions remain authoritative.
+
+
 ## ADR-015 — Logical Habitus zones own context, not HA topology (2026-09-22)
 
 Zones have stable identity, mutable names, HA-area sources and extra entity

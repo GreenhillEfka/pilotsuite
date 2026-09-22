@@ -111,14 +111,16 @@ async function load() {
     json("api/v1/golden-zone"),
   ]);
   renderStatus(status);
-  renderMoods(moods.items);
-  renderSuggestions(suggestions.items);
-  renderObservations(zone.neurons || []);
+  dashboardSuggestions = suggestions.items;
   if (!selectionInitialized) {
     selectionInitialized = true;
     try { await reloadZones(); }
     catch (error) { selectionInitialized = false; throw error; }
+  } else {
+    const data = await json('api/v1/zones');
+    zoneDefinitions = data.items; zoneResults = data.results || [];
   }
+  renderZoneView();
 }
 
 async function refresh() {
@@ -147,10 +149,14 @@ let zoneEditing = null;
 let zoneFormOpen = false;
 let zoneSaving = false;
 let zoneCatalog = [];
+let zoneResults = [];
+let dashboardSuggestions = [];
+let zoneToggleBusy = false;
 let zoneExtraSelection = new Set();
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
 function selectionControls() {
+  byId('zone-toggle').disabled = zoneToggleBusy || selectionBusy || zoneFormOpen || !selectionZone || !!selectionDraft?.dirty || selectionConflict;
   byId('selection-zone').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty;
   byId('zone-new').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty;
   byId('zone-edit').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty || !selectionZone;
@@ -159,6 +165,7 @@ function selectionControls() {
   byId('selection-recommend').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft;
   byId('selection-active').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft;
   byId('selection-active').checked = Boolean(selectionDraft?.active);
+  renderZoneTabs();
 }
 
 function renderSelection() {
@@ -207,7 +214,7 @@ function renderSelection() {
 
 function selectionChanged() {
   text('selection-message', `${Object.keys(selectionDraft.changes).length} geänderte Entitäten. Modus nach Speichern: ${selectionDraft.active ? 'nur bestätigte Auswahl' : 'automatischer Umfang'}. ${selectionDraft.dirty ? 'Ungespeichert.' : 'Keine Änderungen.'}`);
-  renderSelection();
+  renderSelection(); renderZoneView();
 }
 
 async function loadSelection(zone) {
@@ -221,7 +228,7 @@ async function loadSelection(zone) {
     // Do not display one zone's data under another zone's label.
     if (selectionDraft?.inventory.zone_id !== zone) selectionDraft = null;
     text('selection-message', `Laden fehlgeschlagen: ${error.message}. Neu laden zum Wiederholen.`);
-  } finally { selectionBusy = false; renderSelection(); }
+  } finally { selectionBusy = false; renderSelection(); renderZoneView(); }
 }
 
 byId('selection-zone').addEventListener('change', event => loadSelection(event.target.value));
@@ -267,7 +274,7 @@ window.addEventListener('beforeunload', event => {
 
 async function reloadZones(preferred = selectionZone) {
   const data = await json('api/v1/zones');
-  zoneDefinitions = data.items;
+  zoneDefinitions = data.items; zoneResults = data.results || [];
   byId('selection-zone').replaceChildren(...zoneDefinitions.map(zone => {
     const option = document.createElement('option'); option.value = zone.zone_id;
     option.textContent = zone.name + (zone.enabled ? '' : ' (deaktiviert)'); return option;
@@ -290,17 +297,19 @@ function renderExtraChoices() {
 
 async function openZoneEditor(existing) {
   if (selectionBusy || selectionDraft?.dirty || zoneFormOpen) return;
-  zoneFormOpen = true; renderSelection();
+  zoneFormOpen = true; byId('zone-editor').open = true; renderSelection();
   try {
     const [areas, catalog, zones] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones')]);
     zoneEditing = existing ? zones.items.find(z => z.zone_id === selectionZone) : null;
     if (existing && !zoneEditing) throw new Error('Zone nicht mehr vorhanden. Neu laden.');
     const zone = zoneEditing || {name: '', area_ids: [], extra_entity_ids: [], enabled: false, profile: 'observe'};
-    byId('zone-name').value = zone.name; byId('zone-profile').value = zone.profile; byId('zone-enabled').checked = zone.enabled;
+    byId('zone-name').value = zone.name; byId('zone-profile').value = zone.profile;
     const allAreas = new Map(areas.items.map(a => [a.area_id, a.name || a.area_id]));
     for (const id of zone.area_ids) if (!allAreas.has(id)) allAreas.set(id, `${id} (nicht verfügbar)`);
     byId('zone-areas').replaceChildren(...[...allAreas].map(([id, name]) => {
-      const option = document.createElement('option'); option.value = id; option.textContent = name; option.selected = zone.area_ids.includes(id); return option;
+      const label = document.createElement('label'); const input = document.createElement('input');
+      input.type = 'checkbox'; input.value = id; input.checked = zone.area_ids.includes(id);
+      label.append(input, document.createTextNode(name)); return label;
     }));
     zoneExtraSelection = new Set(zone.extra_entity_ids);
     const allEntities = new Map(catalog.items.map(e => [e.entity_id, e]));
@@ -327,8 +336,7 @@ byId('zone-cancel').addEventListener('click', () => {
 byId('zone-form').addEventListener('submit', async event => {
   event.preventDefault(); if (zoneSaving) return;
   const definition = {name: byId('zone-name').value, profile: byId('zone-profile').value,
-    enabled: byId('zone-enabled').checked, area_ids: [...byId('zone-areas').selectedOptions].map(o => o.value), extra_entity_ids: [...zoneExtraSelection]};
-  if (definition.enabled && !window.confirm('Diese Zonendefinition für die Auswertung aktivieren? Nur bestätigte Entitäten neuer Zonen werden ausgewertet.')) return;
+    enabled: zoneEditing?.enabled ?? false, area_ids: [...byId('zone-areas').querySelectorAll('input:checked')].map(o => o.value), extra_entity_ids: [...zoneExtraSelection]};
   zoneSaving = true; byId('zone-fields').disabled = true;
   try {
     const payload = {definition}; if (zoneEditing) payload.revision = zoneEditing.revision;
@@ -353,3 +361,68 @@ setInterval(() => {
     byId("error").hidden = false;
   });
 }, 15000);
+
+
+function renderZoneTabs() {
+  const locked = selectionBusy || zoneFormOpen || zoneToggleBusy || !!selectionDraft?.dirty;
+  byId('zone-tabs').replaceChildren(...zoneDefinitions.map(zone => {
+    const button = document.createElement('button'); button.type = 'button';
+    button.id = `tab-${zone.zone_id}`;
+    button.setAttribute('role', 'tab'); button.setAttribute('aria-selected', String(zone.zone_id === selectionZone));
+    button.textContent = `${zone.name}${zone.enabled ? '' : ' · pausiert'}`;
+    button.disabled = locked;
+    button.addEventListener('click', async () => {
+      byId('selection-search').value = ''; byId('selection-filter').value = 'all';
+      byId('selection-zone').value = zone.zone_id;
+      await loadSelection(zone.zone_id);
+      document.getElementById(`tab-${zone.zone_id}`)?.focus();
+    });
+    button.addEventListener('keydown', event => {
+      const tabs = [...byId('zone-tabs').children]; let index = tabs.indexOf(button);
+      if (event.key === 'ArrowRight') index = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') index = (index + tabs.length - 1) % tabs.length;
+      else if (event.key === 'Home') index = 0;
+      else if (event.key === 'End') index = tabs.length - 1;
+      else return;
+      event.preventDefault(); tabs[index].click();
+    });
+    return button;
+  }));
+}
+
+function renderZoneView() {
+  const zone = zoneDefinitions.find(z => z.zone_id === selectionZone);
+  const result = zoneResults.find(z => z.zone_id === selectionZone);
+  text('active-zone-name', zone?.name || 'Noch keine Zone');
+  text('zone-toggle', zone?.enabled ? 'Auswertung pausieren' : 'Auswertung starten');
+  const note = zone?.profile === 'observe' ? 'Neutrales Profil: Beobachtung und Datenqualität; noch keine gelernten Gewohnheiten.' : 'Erdkeller-Klimaregeln.';
+  text('zone-state-message', !zone ? 'Mit + Neue Zone beginnen.' :
+    `${zone.enabled ? 'Auswertung aktiv' : 'Pausiert – Entitäten können bereits ausgewählt werden'}. ${result?.evaluated_count ?? 0} Beobachtungen. ${note}${selectionDraft?.dirty ? ' Bitte Auswahl zuerst speichern oder verwerfen.' : ''}${zone.enabled && !result?.evaluated_count ? ' Noch keine auswertbaren Beobachtungen: relevante Entitäten und deren Zustände prüfen.' : ''}`);
+  renderMoods(result?.moods || []);
+  if (!result?.moods?.length) text('moods', zone?.enabled ? 'Noch keine Bewertung verfügbar.' : 'Zone pausiert. Auswahl speichern und Auswertung starten.');
+  renderSuggestions(zone?.enabled ? dashboardSuggestions.filter(item => item.scope?.includes(selectionZone)) : []);
+  renderObservations(result?.neurons || []);
+  renderZoneTabs();
+}
+
+byId('zone-toggle').addEventListener('click', async () => {
+  if (selectionBusy || zoneFormOpen || zoneToggleBusy || selectionDraft?.dirty || selectionConflict) return;
+  const current = zoneDefinitions.find(z => z.zone_id === selectionZone);
+  if (!current) return;
+  zoneToggleBusy = true; selectionBusy = true; renderSelection();
+  try {
+    // Definitions and selections share a revision; fetch it after the latest selection save.
+    const fresh = await json('api/v1/zones');
+    const zone = fresh.items.find(z => z.zone_id === selectionZone);
+    if (!zone) throw new Error('Zone nicht mehr vorhanden. Bitte neu laden.');
+    const {name, area_ids, extra_entity_ids, profile} = zone;
+    await json(`api/v1/zones/${encodeURIComponent(zone.zone_id)}`, {
+      method: 'PATCH', body: JSON.stringify({revision: zone.revision,
+        definition: {name, area_ids, extra_entity_ids, profile, enabled: !current.enabled}}),
+    });
+    selectionBusy = false;
+    await reloadZones(zone.zone_id); await load();
+  } catch (error) {
+    text('zone-state-message', `Änderung nicht bestätigt: ${error.message}. Bitte neu laden und Status prüfen.`);
+  } finally { zoneToggleBusy = false; selectionBusy = false; renderSelection(); }
+});

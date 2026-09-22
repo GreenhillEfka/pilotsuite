@@ -2,6 +2,16 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.6] - 2026-09-22
+
+- Add visible tabs per Habitus zone with scoped evaluation, suggestions and observations.
+- Add direct start/pause and name/source editing; fetch shared revision before activation.
+- Replace HA-area multi-select with checkboxes for composing zones such as Bad + Toilette.
+- Separate zone activation from the advanced entity-selection mode; explain unsaved edits.
+- Preserve zone definitions, decisions, neutral profiles and the HA read-only boundary.
+- Extend browser regression for multi-area creation, activation, rename, pause, conflicts,
+  reload and tab isolation. Real HA interactive acceptance remains separate.
+
 ## [0.1.0-alpha.5] - 2026-09-22
 
 - Add logical Habitus zones with stable IDs, multiple area sources and extra entities.

@@ -45,6 +45,10 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(zone_id, (await response.json())['zone_id'])
         zone_result = next(z for z in self.service._zone_results if z['zone_id'] == zone_id)
         self.assertEqual(1, zone_result['evaluated_count'])
+        self.assertEqual(['sensor.hot'], [n['entity_id'] for n in zone_result['neurons']])
+        api = await (await self.client.get('/api/v1/zones')).json()
+        scoped = next(z for z in api['results'] if z['zone_id'] == zone_id)
+        self.assertEqual(['sensor.hot'], [n['entity_id'] for n in scoped['neurons']])
         self.assertIsNone(next(m['score'] for m in zone_result['moods'] if m['name'] == 'temperature_high'))
         self.assertFalse(any(s.scope == (zone_id,) for s in self.service._suggestions))
         # Overlapping sensor is counted only once across both zones.
