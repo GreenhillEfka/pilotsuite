@@ -2,7 +2,16 @@
 
 Last updated: 2026-09-22
 
-## alpha.6 release candidate: zone tabs and direct activation
+## Released and installed: alpha.6 zone tabs and direct activation
+
+PR #3 merged at 290ef423b0072a60d3239fb9992b72008677b470. Candidate
+9d3b8097c5456284867f15b89d4a15c11f85fe6b passed CI 35790792191: backend,
+browser (including activation, rename, pause, conflict and tab isolation), amd64 image.
+The merge tree matches the tested candidate. Pre-update app-only backup dc8bd58c
+is confirmed in the HA listing. Update completed; Supervisor reports alpha.6 started.
+Runtime logs confirm hard_read_only, ready=True, stream=True, snapshot_fresh=True,
+zone_resolved=True. Actual interactive alpha.6 use in the user's HA session is
+pending; no claim that Badbereich has been activated by this deployment.
 
 The user reports Badbereich cannot be activated. HA logs show successful selection
 PATCH calls for the new zone but no corresponding zone-definition activation PATCH
@@ -12,12 +21,12 @@ a server-side rejection. Direct MCP reads remain blocked by the Ingress peer gua
 Implemented: visible zone tabs; direct name/source editor and start/pause action;
 area checkboxes; scoped moods, suggestions and observations. Selection mode moves
 to advanced settings. Activation fetches the shared revision after selection saves.
-46 backend and four JS model tests pass locally; extended CI browser regression
-must pass before release. alpha.5 remains deployed until scoped backup and update.
+46 backend and four JS model tests pass locally; extended CI browser regression passed.
+alpha.6 is now deployed after scoped backup and update.
 No existing zone choices or HA assignments are changed by deployment.
 
 
-## Released and installed: 0.1.0-alpha.5
+## Historical alpha.5 release evidence
 
 - PR #1 merged; release commit e94991af088a4ea1886d40ab020c3919535f8f8f.
 - Release candidate b631f1cb9db0e65e91a4e7f2a5fb30c3de745080 passed CI run
