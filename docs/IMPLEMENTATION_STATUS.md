@@ -1,13 +1,14 @@
 # Capability and acceptance ledger
 
-Stand: release candidate 0.1.0-alpha.5. Local/CI tests are not live HA acceptance.
-Implementation head ae7a4f9 passed CI 35786845667: backend, browser and amd64 image.
-The release candidate must pass its own checks before installation.
+Stand: released 0.1.0-alpha.5. Local/CI tests are not live HA acceptance.
+Release candidate b631f1c passed CI 35787425872: backend, browser and amd64 image.
+Identical-tree merge e94991a installed after confirmed App-only backup ec38dcca.
+Runtime logs confirm hard_read_only, ready, connected stream and resolved zone.
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
-| Add-on packaging | Implemented | alpha.4 installed and started after app-only backup |
-| Ingress routes / peer restriction | Implemented, local HTTP tests | Real browser API responses 200; new alpha.4 visual/asset rendering not yet independently checked |
+| Add-on packaging | Implemented | alpha.5 installed and started after app-only backup ec38dcca |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; interactive alpha.5 acceptance in actual HA session still pending |
 | HA snapshot and event stream | Implemented | Reconnect resync/backoff tests; live disconnect/load soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |

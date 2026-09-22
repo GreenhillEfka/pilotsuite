@@ -1,6 +1,6 @@
 # Paket: Habitus-Zonen und bewusste Entitätenauswahl
 
-Status: Release-Kandidat `0.1.0-alpha.5`, PR #1.
+Status: `0.1.0-alpha.5` veröffentlicht und installiert; PR #1 zusammengeführt.
 Ausgangsinstallation: 0.1.0-alpha.4; Live-Stand siehe CURRENT_STATE.md.
 
 ## Verbindliches Konzept
@@ -29,9 +29,10 @@ Repository-Vertragsprüfung lokal erfolgreich. GitHub CI prüft zusätzlich die
 mobile Oberfläche einschließlich Zonenerstellung sowie den amd64-Container.
 CI-Nachweise werden im PR und CURRENT_STATE.md festgehalten.
 
-Vor Veröffentlichung: Versions-/Release-Dokumentation konsolidieren, alle
-CI-Ergebnisse prüfen, app-eigenes Backup verifizieren, Update und HA-Ingress-
-Smoketest durchführen. Installation ist vom Nutzer autorisiert.
+Release-CI 35787425872 erfolgreich. App-Backup ec38dcca bestätigt; alpha.5
+installiert, Start und Betriebsbereitschaft durch Laufzeitprotokoll geprüft.
+Interaktive Prüfung des neuen Editors in der tatsächlichen HA-Sitzung bleibt offen.
+Nachweise und nächste Schritte: CURRENT_STATE.md.
 
 Noch nicht enthalten: bestätigte kontextuelle Rollenprioritäten, Import,
 endgültiges Löschen, Gewohnheitslernen oder Aktorfreigaben.

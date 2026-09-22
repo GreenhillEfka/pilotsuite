@@ -1,74 +1,57 @@
 # Current State
 
-## Release candidate 0.1.0-alpha.5
-
-PR #1 implements logical Habitus zones, persistent entity selection, per-zone
-inference, SQLite schema 3 with migration backups, export and bounded journal.
-Contract: docs/HABITUS_ZONES.md, ADR-015. The implementation head ae7a4f9 passed
-CI run 35786845667 (backend, browser and amd64 container). Release metadata is
-consolidated in this candidate; its own CI must pass before merge and deployment.
-HA remains alpha.4 until a fresh app-only backup and verified update. Live zone
-editor interaction is an independent acceptance step, not proven by CI.
-Contextual role priorities, import, permanent deletion and learning remain deferred.
-
 Last updated: 2026-09-22
 
-## alpha.4 capability correction
-- Transport readiness is independent of climate sensor availability.
-- Per-capability status: available, partial, unavailable, not_present.
-- Unknown climate scores are null; buttons and diagnostics do not count as climate failures.
-- 28 local regression tests and GitHub CI (including amd64 build) passed.
-- alpha.4 installed after confirmed app-only backup; Supervisor reports started.
-- Runtime logs confirm ready=True, connected stream, fresh snapshot and resolved zone.
-- Real browser Ingress requests to status, moods, suggestions and golden-zone returned 200.
-- Visual rendering of the newly delivered alpha.4 frontend remains separately unverified.
-- Deployed code: 941831cb74575ac17307b1a725f0120942ddd687. No actuation enabled.
-- User screenshot confirmed alpha.3 Ingress UI loads and displays live observations.
+## Released and installed: 0.1.0-alpha.5
 
-## Repository milestone
-- Version: `0.1.0-alpha.5`; architecture v21, reviewed modular-monolith target.
-- Read-only foundation milestone, NOT a complete habit-learning implementation.
-- Existing alpha.3 metadata work retained; no restart or legacy bulk merge.
+- PR #1 merged; release commit e94991af088a4ea1886d40ab020c3919535f8f8f.
+- Release candidate b631f1cb9db0e65e91a4e7f2a5fb30c3de745080 passed CI run
+  35787425872: backend/contracts, browser including mobile zone creation, amd64 build.
+- Merge tree matches the tested candidate tree exactly (20edababa91113a44ea4dc6fe772fe8ee1cf3faa).
+- 46 Python tests and four JavaScript model tests passed locally.
+- PilotSuite-only pre-update backup ec38dcca created and confirmed in HA backup listing.
+  Home Assistant settings/database and unrelated Apps were excluded.
+- App Store refreshed; update completed for 0d79c5e8_pilotsuite.
+- Supervisor confirms version 0.1.0-alpha.5 and state started; options preserved.
+- Runtime log confirms version alpha.5, hard_read_only, ready=True, stream=True,
+  snapshot_fresh=True and zone_resolved=True after startup.
+- Temperature, motion, presence, light and illuminance available; humidity not_present.
+- No unrelated HA configuration, automations or actuators changed.
 
-## Implemented in alpha.3
-- Ingress TCP-peer restriction, loopback liveness only, internal repeated-slash routing.
-- Celsius normalization from Celsius/Fahrenheit/Kelvin; invalid climate data excluded.
-- Missing required climate kinds prevent stable/ready claims.
-- Severity separated from unknown statistical confidence; stable rule/scope IDs.
-- Stream connection health, resync on subscription/reconnect, backoff on clean close.
-- Snapshot/derivation serialization and older-state rejection; disabled entities excluded.
-- Scoped derivation and periodic UI reads.
-- Review decisions, full vision and capability ledger in the repository.
-- Local regression suite covers HTTP paths/security, semantics, projection and reconnect.
+## Implemented
 
-## Previously verified on target HA (historical alpha.2 evidence)
-- App `0d79c5e8_pilotsuite` installed; HA Core 2026.9.3.
-- HA projection resolved Erdkeller with 48 entities; apply rejected with HTTP 409.
-- Old Core App Store repository removed. Remaining HACS/config entries/entities
-  were NOT comprehensively audited; do not claim complete legacy cleanup.
-- User reported Ingress 404. Internal root/health success did not prove browser UI.
+Logical Habitus zones have stable IDs, mutable names, multiple HA-area sources and
+extra entity candidates. The Ingress editor supports creating, editing and pausing
+zones. Relevant/ignored/unreviewed selection persists in SQLite schema 3 with
+pre-migration backups, shared revision conflict protection, JSON export and a journal
+bounded to 5,000 transactions. Existing configured zones bootstrap once; new UI zones
+start paused with a neutral profile and curated selection. Inference is per zone;
+global entity counts deduplicate IDs. Contract: docs/HABITUS_ZONES.md and ADR-015.
 
-## Live deployment — 2026-09-22
-- User authorized app-only backup, update and tests. A fresh app-only backup was
-  created successfully and confirmed present through the dedicated backup listing.
-- Store check_updates discovered alpha.3; app update and start completed.
-- Supervisor app metadata confirms alpha.3 and state started. Startup logs confirm
-  version alpha.3 and hard_read_only mode. No unrelated apps/configurations changed.
-- Deployed code commit: ae971e4072123a0462435f85aa742f1c14b1f86c; CI succeeded.
-- HA-MCP proxy request to /health/ready returns 403 Ingress access required:
-  the transport peer is not the permitted Ingress proxy. Do not bypass or weaken
-  the peer guard. This does not establish failure of actual browser Ingress.
-- Dedicated app/backup tools worked; the raw hassio/api backup-info request was
-  unauthorized earlier. Do not conflate that with all HA-MCP operations failing.
+Readiness is separate from domain completeness. Ingress TCP-peer restriction,
+climate normalization, unknown values, stable proposal IDs, event reconnect/resync
+and hard-disabled HA mutations remain in effect.
 
-## Not yet verified live
-- Real Ingress browser path/assets and new readiness behavior.
-- Current alpha.3 Erdkeller projection and live apply rejection remain unverified
-  through the blocked proxy. Historical alpha.2 checks are not alpha.3 acceptance.
-- Physical sensor freshness, correct sensor roles, disconnect/load soak.
-- No new HA configuration or automation changes are part of this milestone.
+## Live acceptance limits
+
+Startup and transport readiness are verified for alpha.5. Interactive creation,
+selection save/reload and export through the user's actual HA Ingress session are
+not yet independently verified for this release. CI browser tests are separate
+evidence. Historical alpha.4 browser API HTTP 200 is not alpha.5 UI acceptance.
+The MCP proxy's earlier 403 comes from the Ingress peer guard; do not bypass it.
+Physical sensor freshness, contextual sensor roles and disconnect/load soak remain open.
+
+For app downgrade recovery use the pre-update App-and-data backup ec38dcca; do not
+feed a newer SQLite schema to older code. A recovery restore was not performed.
 
 ## Next
-Follow `docs/IMPLEMENTATION_STATUS.md` acceptance gates, then the consented
-read-only learning milestone in `docs/ROADMAP.md`.
-SQLite zone/selection persistence is implemented. Habit learning, voice, native entities and the runtime rollback engine are not.
+
+1. Verify alpha.5 zone editor, persisted selection and export in actual HA Ingress.
+2. Review Erdkeller entity choices and a second unlike zone.
+3. Follow docs/IMPLEMENTATION_STATUS.md and docs/ROADMAP.md for consented read-only
+   learning, bounded evidence and durable proposal feedback.
+
+Contextual role priorities, import, permanent deletion, habit learning, voice,
+native entities and the runtime actuation/rollback engine are not implemented.
+Existing rules are deterministic climate heuristics, not learned habits.
+The canonical repository remains GreenhillEfka/pilotsuite; do not restart the project.
