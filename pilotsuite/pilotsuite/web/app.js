@@ -465,6 +465,14 @@ async function loadContext() {
 function renderLearning() {
   if (!contextData?.config) return;
   const cfg = contextData.config;
+  const moduleRoot = byId('module-overview'); moduleRoot.replaceChildren();
+  const moduleStates = {active:'Aktiv', paused:'Pausiert', off:'Ausgeschaltet', collecting:'Sammlung bereit', disconnected:'Verbindung fehlt', no_source:'Quelle fehlt', planned:'Geplant', blocked:'Gesperrt'};
+  for (const module of contextData.modules || []) {
+    const card = document.createElement('article'); card.className='card';
+    const name = document.createElement('strong'); name.textContent=module.name;
+    const state = document.createElement('p'); state.textContent=`${moduleStates[module.state] || module.state}${module.configurable ? ' · Konfiguration: '+module.configurable : ''}`;
+    card.append(name,state); moduleRoot.append(card);
+  }
   text('learning-status', `${cfg.learning ? contextData.eligible ? 'Lernfreigabe aktiv' : 'Freigegeben, aber Zone oder Lernquelle derzeit nicht auswertbar' : 'Lernen ausgeschaltet'} · ${contextData.event_count} Aktivierungen gespeichert · maximal 14 Tage.`);
   const states = {off:'Lernen ausgeschaltet', paused:'Zone pausiert – keine Sammlung', disconnected:'Datenverbindung nicht bereit – Sammlung nicht bestätigt', no_source:'Keine auswertbare Lernquelle', collecting:'Lernfreigabe aktiv – Sammlung bereit'};
   if (contextData.collection_state) text('learning-status', `${states[contextData.collection_state]} · ${contextData.event_count} Aktivierungen gespeichert · maximal ${contextData.retention_days} Tage.`);
@@ -482,7 +490,7 @@ function renderLearning() {
   }
   byId('learning-export').href = endpoint(`api/v1/zones/${encodeURIComponent(selectionZone)}/context/export`);
   const root = byId('learned-patterns'); root.replaceChildren();
-  if (!contextData.patterns?.length) { root.textContent = 'Noch kein Musterkandidat: mindestens fünf beobachtete Aktivierungen an drei verschiedenen UTC-Tagen im gleichen Zwei-Stunden-Fenster nötig.'; return; }
+  if (!contextData.patterns?.length) { root.textContent = `Noch kein Musterkandidat: mindestens ${progress?.required_events ?? 5} beobachtete Aktivierungen an ${progress?.required_days ?? 3} verschiedenen UTC-Tagen im gleichen Zwei-Stunden-Fenster nötig.`; return; }
   for (const pattern of contextData.patterns) {
     const card = document.createElement('article'); card.className = 'suggestion';
     const title = document.createElement('h3'); title.textContent = pattern.title;
@@ -532,6 +540,8 @@ byId('context-edit').addEventListener('click', async () => {
     }
     renderRolePreview();
     byId('learning-consent').checked=contextData.config.learning;
+    byId('detector-events').value=contextData.config.detector?.min_events ?? 5;
+    byId('detector-days').value=contextData.config.detector?.min_days ?? 3;
     byId('context-form').hidden=false;
   } catch(error) { contextEditing=false; text('context-message',error.message); renderSelection(); }
 });
@@ -540,12 +550,13 @@ byId('context-form').addEventListener('submit', async event => {
   event.preventDefault(); if (selectionBusy) return;
   const roles=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]));
   const learning=byId('learning-consent').checked;
+  const detector={min_events:Number(byId('detector-events').value), min_days:Number(byId('detector-days').value)};
   const sourceChanged=JSON.stringify(roles.presence || []) !== JSON.stringify(contextData.config.roles.presence || []);
   if (sourceChanged && contextData.event_count && !window.confirm('Lernquelle wechseln? Vorhandene Lernbelege und Musterfeedback dieser Zone werden gelöscht.')) return;
   if (learning && (!contextData.config.learning || sourceChanged) && !window.confirm(`Lernen für ${roles.presence || 'keine ausgewählte Quelle'} freigeben? Bis 14 Tage Aktivierungen speichern, Zeitfenster in UTC, höchstens 5.000 Belege insgesamt. Keine Aktorsteuerung.`)) return;
   selectionBusy=true; byId('context-fields').disabled=true; renderSelection();
   try {
-    contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles,learning})});
+    contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles,learning,detector})});
     contextEditing=false; byId('context-form').hidden=true;
     text('context-message','Rollen und Lernfreigabe gespeichert.');
     selectionBusy=false; await loadSelection(selectionZone); await load();

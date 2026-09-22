@@ -1,5 +1,18 @@
 # Architecture Decision Log
 
+## ADR-020 — Bounded per-zone learner parameters, separate action authorization
+
+Activity-v1 thresholds are stored in the canonical zone context JSON with backward
+compatible defaults, integer limits and existing revision conflict protection.
+Omitted detector settings preserve the previous values. Parameter changes re-evaluate
+retained evidence without deleting or inflating it. Nondefault configurations have
+distinct candidate identities; feedback remains bound to its original configuration.
+No schema migration, arbitrary algorithm loading or new actuation permission.
+Modules expose implemented/planned/blocked state. Native HA scripts/automations are
+the preferred future delivery for stable rules after inventory review, preview,
+separate plan-bound approval, backup, apply and verification. See LEARNING_AND_ACTIONS.md.
+
+
 ## ADR-019 — Explain evidence progress without inventing confidence
 
 The existing activity detector exposes counts and missing requirements per UTC

@@ -18,6 +18,19 @@ MAX_EVIDENCE = 5000
 MIN_EVENTS = 5
 MIN_DAYS = 3
 
+DEFAULT_DETECTOR = {'min_events': MIN_EVENTS, 'min_days': MIN_DAYS}
+
+
+def validate_detector(value):
+    if not isinstance(value, dict) or set(value) != set(DEFAULT_DETECTOR):
+        raise InvalidSelection('Detector requires min_events and min_days')
+    if type(value['min_events']) is not int or not 5 <= value['min_events'] <= 100:
+        raise InvalidSelection('min_events must be an integer between 5 and 100')
+    if type(value['min_days']) is not int or not 3 <= value['min_days'] <= 14:
+        raise InvalidSelection('min_days must be an integer between 3 and 14')
+    return dict(value)
+
+
 class ContextStore:
     def __init__(self, selections):
         self.selections = selections
@@ -26,7 +39,9 @@ class ContextStore:
     @staticmethod
     def read(db, zone_id):
         row = db.execute('SELECT config FROM zone_context WHERE zone_id=?', (zone_id,)).fetchone()
-        return json.loads(row[0]) if row else {'roles': {}, 'learning': False, 'consented_at': None}
+        value = json.loads(row[0]) if row else {'roles': {}, 'learning': False, 'consented_at': None}
+        value.setdefault('detector', dict(DEFAULT_DETECTOR))
+        return value
 
     async def maintain(self):
         await asyncio.to_thread(self._maintain)
@@ -42,19 +57,20 @@ class ContextStore:
         with closing(sqlite3.connect(self.path)) as db:
             return self.read(db, zone_id)
 
-    async def configure(self, zone_id, revision, roles, learning, *, reset=False, now=None):
+    async def configure(self, zone_id, revision, roles, learning, *, reset=False, now=None, detector=None):
         if type(revision) is not int or revision < 0 or type(learning) is not bool or type(reset) is not bool:
             raise InvalidSelection('invalid context flags or revision')
         if not isinstance(roles, dict) or not set(roles) <= set(ROLE_KINDS) or any(not isinstance(v, list) or len(v)>20 or any(not isinstance(e, str) or not e or len(e)>255 for e in v) for v in roles.values()):
             raise InvalidSelection('invalid role mapping')
+        if detector is not None: detector = validate_detector(detector)
         roles = {k: sorted(set(v)) for k,v in roles.items()}
         if set(roles.get('temperature', [])) & set(roles.get('reference_temperature', [])):
             raise InvalidSelection('Main and reference temperature must be different sensors')
         if learning and not roles.get('presence'):
             raise InvalidSelection('Select a relevant presence or motion source before consenting')
-        return await asyncio.to_thread(self._configure, zone_id, revision, roles, learning, reset, time.time() if now is None else now)
+        return await asyncio.to_thread(self._configure, zone_id, revision, roles, learning, reset, time.time() if now is None else now, detector)
 
-    def _configure(self, zone_id, revision, roles, learning, reset, now):
+    def _configure(self, zone_id, revision, roles, learning, reset, now, detector):
         with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
             db.execute('BEGIN IMMEDIATE')
             if not db.execute('SELECT 1 FROM habitus_zones WHERE zone_id=?', (zone_id,)).fetchone():
@@ -66,13 +82,13 @@ class ContextStore:
             if reset or source_changed:
                 db.execute('DELETE FROM activity_evidence WHERE zone_id=?', (zone_id,))
                 db.execute('DELETE FROM pattern_feedback WHERE zone_id=?', (zone_id,))
-            value = {'roles': roles, 'learning': learning and not reset,
+            value = {'roles': roles, 'detector': detector if detector is not None else old['detector'], 'learning': learning and not reset,
                      'consented_at': now if learning and (source_changed or not old['learning']) and not reset else old['consented_at']}
             if reset: value['consented_at'] = None
             db.execute('INSERT INTO zone_context VALUES (?,?) ON CONFLICT(zone_id) DO UPDATE SET config=excluded.config', (zone_id, json.dumps(value)))
             db.execute('INSERT INTO zones VALUES (?,?) ON CONFLICT(zone_id) DO UPDATE SET revision=excluded.revision', (zone_id, revision+1))
             # Do not retain deleted learning evidence or individual identities in the journal.
-            db.execute('INSERT INTO selection_journal(zone_id, revision, changes) VALUES (?,?,?)', (zone_id, revision+1, json.dumps({'$context': {'roles': roles, 'learning': value['learning'], 'reset': reset}})))
+            db.execute('INSERT INTO selection_journal(zone_id, revision, changes) VALUES (?,?,?)', (zone_id, revision+1, json.dumps({'$context': {'roles': roles, 'learning': value['learning'], 'reset': reset, 'detector': value['detector']}})))
             self.selections.prune_journal(db)
             return value
 
@@ -114,22 +130,28 @@ class ContextStore:
             for entity, occurred, origin in rows:
                 if entity in cfg['roles'].get('presence', []):
                     buckets[datetime.fromtimestamp(occurred, UTC).hour//2].append((occurred, origin))
+            detector = cfg['detector']
+            min_events, min_days = detector['min_events'], detector['min_days']
             patterns, windows = [], []
             for bucket, events in sorted(buckets.items()):
                 days = sorted({datetime.fromtimestamp(t, UTC).date().isoformat() for t,_ in events})
                 windows.append({'start_hour': bucket*2, 'end_hour': bucket*2+2,
                                 'events': len(events), 'days': len(days),
-                                'missing_events': max(0, MIN_EVENTS-len(events)),
-                                'missing_days': max(0, MIN_DAYS-len(days))})
-                if len(events) < MIN_EVENTS or len(days) < MIN_DAYS: continue
-                pid = hashlib.sha256(f'activity-v1:{zone_id}:{cfg["roles"].get("presence")}:{bucket}'.encode()).hexdigest()[:24]
+                                'missing_events': max(0, min_events-len(events)),
+                                'missing_days': max(0, min_days-len(days))})
+                if len(events) < min_events or len(days) < min_days: continue
+                identity = f'activity-v1:{zone_id}:{cfg["roles"].get("presence")}:{bucket}'
+                if detector != DEFAULT_DETECTOR:
+                    identity += ':' + json.dumps(detector, sort_keys=True)
+                pid = hashlib.sha256(identity.encode()).hexdigest()[:24]
                 patterns.append({'id': pid, 'title': f'Wiederkehrende Aktivierungen {bucket*2:02d}–{bucket*2+2:02d} Uhr UTC',
+                                 'algorithm': 'activity-v1', 'parameters': dict(detector),
                                  'sources': cfg['roles'].get('presence', []), 'events': len(events), 'days': days,
                                  'observed_total': len(rows), 'confidence': None, 'feedback': feedback.get(pid),
                                  'origins': dict(Counter(origin for _,origin in events)),
                                  'proposal': 'Prüfen, ob dieses Zeitfenster eine relevante Routine beschreibt. Keine Automation wird erstellt.'})
             return {'config': cfg, 'event_count': len(rows), 'retention_days': 14, 'limit': MAX_EVIDENCE,
-                    'progress': {'required_events': MIN_EVENTS, 'required_days': MIN_DAYS,
+                    'progress': {'required_events': min_events, 'required_days': min_days,
                                  'window_hours': 2, 'windows': windows,
                                  'first_evidence_at': datetime.fromtimestamp(rows[0][1], UTC).isoformat() if rows else None,
                                  'last_evidence_at': datetime.fromtimestamp(rows[-1][1], UTC).isoformat() if rows else None,

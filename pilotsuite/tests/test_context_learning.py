@@ -96,6 +96,36 @@ class LearningTests(unittest.IsolatedAsyncioTestCase):
                 # Second detector seeing the same activity must not double-count it.
                 self.assertFalse(await self.store.record('a','binary_sensor.b',t+2,'unknown',now=t+2))
 
+    async def test_detector_settings_reassess_without_rewriting_evidence(self):
+        await self.seed()
+        before = await self.store.report('a', now=self.now)
+        await self.store.feedback('a', before['patterns'][0]['id'], 'accepted')
+        revision = (await self.selections.get('a'))['revision']
+        await self.store.configure('a', revision, self.roles, True, detector={'min_events': 10, 'min_days': 5})
+        after = await ContextStore(self.selections).report('a', now=self.now)
+        self.assertEqual(before['evidence'], after['evidence'])
+        self.assertEqual(before['config']['consented_at'], after['config']['consented_at'])
+        self.assertEqual([], after['patterns'])
+        self.assertEqual(4, after['progress']['windows'][0]['missing_events'])
+        self.assertEqual(2, after['progress']['windows'][0]['missing_days'])
+        revision += 1
+        await self.store.configure('a', revision, self.roles, True, detector={'min_events': 6, 'min_days': 3})
+        after = await self.store.report('a', now=self.now)
+        self.assertNotEqual(before['patterns'][0]['id'], after['patterns'][0]['id'])
+        self.assertIsNone(after['patterns'][0]['feedback'])
+        await self.store.configure('a', revision+1, self.roles, False)
+        self.assertEqual({'min_events': 6, 'min_days': 3}, (await self.store.get('a'))['detector'])
+        self.assertEqual({'min_events': 5, 'min_days': 3}, (await self.store.get('other'))['detector'])
+
+    async def test_detector_rejects_invalid_settings_before_mutation(self):
+        revision = (await self.selections.get('a'))['revision']
+        for detector in ({}, {'min_events': True, 'min_days': 3}, {'min_events': 4, 'min_days': 3},
+                         {'min_events': 5, 'min_days': 15}, {'min_events': 5.0, 'min_days': 3},
+                         {'min_events': 5, 'min_days': 3, 'execute': True}):
+            with self.assertRaises(InvalidSelection):
+                await self.store.configure('a', revision, self.roles, False, detector=detector)
+        self.assertEqual(revision, (await self.selections.get('a'))['revision'])
+
     async def test_progress_empty_and_retention_expiry(self):
         report = await self.store.report('a', now=self.now)
         self.assertEqual([], report['progress']['windows'])

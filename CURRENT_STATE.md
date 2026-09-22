@@ -2,12 +2,22 @@
 
 ## Development: zone overview and evidence progress
 
+PR #9 now also provides per-zone activity-v1 minimum events (5–100) and days
+(3–14), revision-safe persistence, bounded validation, parameter-specific pattern
+identity and a module status overview. Evidence is retained on parameter edits;
+consent does not change. docs/LEARNING_AND_ACTIONS.md separates implemented learning
+from planned script/automation drafts and governed execution. 69 backend tests,
+four JS tests and validation pass locally. The previous PR head d76b40a passed CI
+35798093744 (backend/browser/container); the expanded head needs its own CI gate.
+HA remains alpha.9; no installation or new learning/actuation consent performed.
+
+
 Extends alpha.9 with expandable source details in reference cards; persisted
 presence-group names; collection-state explanations; consent and first/last retained
 evidence timestamps; per-UTC-window counts and missing candidate requirements.
 No statistical confidence percentage or uninterrupted coverage is implied.
 No schema migration, role rewrite, consent change or HA update in this increment.
-66 backend tests and four JS tests pass locally; repository validation passes.
+Previous increment: 66 backend tests and four JS tests passed locally; repository validation passed.
 Browser regression extended, but local Chromium is unavailable: CI must verify it.
 Live read-only check confirms alpha.9 started, ready and real Ingress API HTTP 200.
 The user's exact live selection remains uninspected through the protected APIs.

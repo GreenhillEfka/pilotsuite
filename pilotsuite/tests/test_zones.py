@@ -122,6 +122,20 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('relevant', saved['decisions']['sensor.hot'])
         self.assertEqual(1, len(list(Path(self.temp.name).glob('selections.v2.*.bak'))))
 
+    async def test_detector_api_config_and_module_status(self):
+        path = '/api/v1/zones/a/context'
+        payload = {'revision': 0, 'roles': {}, 'learning': False, 'detector': {'min_events': 12, 'min_days': 6}}
+        response = await self.client.patch(path, json=payload)
+        self.assertEqual(200, response.status)
+        report = await (await self.client.get(path)).json()
+        self.assertEqual(payload['detector'], report['config']['detector'])
+        self.assertEqual(12, report['progress']['required_events'])
+        self.assertEqual('blocked', next(m['state'] for m in report['modules'] if m['id'] == 'action-execution'))
+        self.assertEqual(409, (await self.client.patch(path, json=payload)).status)
+        payload.update(revision=1, detector=None)
+        self.assertEqual(400, (await self.client.patch(path, json=payload)).status)
+        self.assertEqual(1, (await (await self.client.get(path)).json())['revision'])
+
     async def test_context_roles_consent_events_and_export_through_api(self):
         from datetime import datetime, UTC, timedelta
         now = datetime.now(UTC)

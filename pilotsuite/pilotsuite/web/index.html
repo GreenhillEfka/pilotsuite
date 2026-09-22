@@ -156,7 +156,8 @@
       </details></section>
 
       <section class="panel learning-panel">
-        <h2>Sensorrollen und Lernen</h2>
+        <h2>Sensorrollen, Module und Lernen</h2>
+        <div id="module-overview" class="grid"></div>
         <p id="learning-status" role="status"></p>
         <p id="learning-sources"></p>
         <p id="learning-period"></p>
@@ -174,10 +175,17 @@
             <label>Externe Vergleichstemperatur (optional)<div id="role-reference_temperature" class="role-choices"></div></label>
           </div>
           <p id="role-preview" role="status"></p><p>Aus den Hauptsensoren entsteht automatisch ein virtueller Zonen-Referenzwert. Keine weitere Referenzauswahl nötig. Sensorgruppen anhaken. Temperatur/Feuchte/Helligkeit: Median mit Min/Max; Präsenz: mindestens ein aktiver Sensor. Externe Vergleichstemperaturen werden nicht mitgemittelt. Präsenz und Lernen verwenden dieselbe Hauptsensorgruppe; Lernen benötigt zusätzlich deine Freigabe. Abgewählte Hauptsensoren werden nicht ersatzweise herangezogen. Ein Wechsel der Lernquellen löscht deren bisherige Belege und das Musterfeedback dieser Zone.</p>
+          <details><summary>Lernalgorithmus einstellen</summary>
+            <p>Aktivitätsmuster v1: deterministische Häufigkeitsanalyse. Einstellungen gelten nur für diese Zone. Höhere Mindestzahlen erzeugen weniger Kandidaten, sind aber kein statistischer Vertrauenswert.</p>
+            <label>Mindestaktivierungen pro Zeitfenster<input id="detector-events" type="number" min="5" max="100" step="1" required value="5"></label>
+            <label>Verschiedene Beobachtungstage pro Zeitfenster<input id="detector-days" type="number" min="3" max="14" step="1" required value="3"></label>
+            <p>Fest: Zwei-Stunden-Fenster in UTC, fünf Minuten Abstand zwischen Belegen und 14 Tage Aufbewahrung. Änderungen bewerten vorhandene Belege neu. Feedback bleibt an die jeweilige Algorithmuskonfiguration gebunden; Lernquellenwechsel löscht weiterhin die alten Belege.</p>
+          </details>
           <label><input id="learning-consent" type="checkbox"> Ich stimme dem Lernen in dieser Zone zu: Aktivierungen bis 14 Tage speichern (pro Zone höchstens eine je fünf Minuten), insgesamt höchstens 5.000 Belege.</label>
           <p>Abwählen stoppt die Erfassung; vorhandene Belege laufen aus. „Lerndaten löschen“ entfernt Belege und Musterfeedback sofort und widerruft die Freigabe. Vorhandene App-Backups werden dadurch nicht geändert.</p>
           <div class="selection-tools"><button type="submit">Rollen / Freigabe speichern</button><button id="context-cancel" type="button">Abbrechen</button></div>
         </fieldset></form>
+        <details><summary>Wie wird aus einem Muster eine Umsetzung?</summary><p>„Passt“ bestätigt nur, dass ein Muster hilfreich ist. Es erteilt keine Schaltfreigabe. Geplant: vorhandene HA-Automationen prüfen, konkreten Skript-/Automationsentwurf mit Bedingungen und Rückweg zeigen, separat freigeben, gesichert anwenden und Ergebnis prüfen. Die Ausführung ist in dieser Version gesperrt.</p></details>
         <p id="context-message" role="status"></p><div id="learned-patterns"></div>
       </section>
       <p id="error" class="error" role="alert" hidden></p>
