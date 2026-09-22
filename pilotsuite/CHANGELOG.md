@@ -2,6 +2,15 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.10] - 2026-09-23
+
+- Separate activity observation statistics, deterministic rule-threshold ratios,
+  nullable statistical confidence, read-only risk and durable user preference.
+- Keep preference feedback independent from evidence counts and rule strength.
+- Show every assessment dimension explicitly in the Ingress candidate card.
+- Retain earlier flat activity fields as deprecated alpha API compatibility aliases.
+- Add synthetic regression coverage; no production learning consent or HA action.
+
 ## [0.1.0-alpha.9] - 2026-09-22
 
 - Derive virtual zone references from main sensor groups, including illuminance.

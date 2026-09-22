@@ -6,10 +6,12 @@ PR #9 now also provides per-zone activity-v1 minimum events (5–100) and days
 (3–14), revision-safe persistence, bounded validation, parameter-specific pattern
 identity and a module status overview. Evidence is retained on parameter edits;
 consent does not change. docs/LEARNING_AND_ACTIONS.md separates implemented learning
-from planned script/automation drafts and governed execution. 69 backend tests,
+from planned script/automation drafts and governed execution. 70 backend tests,
 four JS tests and validation pass locally. The previous PR head d76b40a passed CI
 35798093744 (backend/browser/container); the expanded head needs its own CI gate.
-HA remains alpha.9; no installation or new learning/actuation consent performed.
+Main advanced to alpha.10 via PR #10 during this work. Its structured assessment
+contract is merged and rule-strength ratios use the configured per-zone thresholds.
+No installation or new learning/actuation consent performed in this increment.
 
 
 Extends alpha.9 with expandable source details in reference cards; persisted
@@ -24,6 +26,20 @@ The user's exact live selection remains uninspected through the protected APIs.
 Next: CI browser/container gate, then release preparation and scoped backup before
 any production update. Real multi-day habits and live interactive acceptance remain open.
 
+
+## Release candidate: 0.1.0-alpha.10 structured activity evidence
+
+The next bounded change gives `activity-v1` candidates independent observation
+statistics, deterministic threshold ratios, nullable statistical confidence,
+read-only risk and durable user preference fields. Deprecated flat alpha fields
+remain compatibility aliases; feedback still changes no evidence. Synthetic tests
+cover the contract and persistence. PR #10 candidate CI 35798185711 passed 64
+backend tests, four JS tests, browser regression and amd64 container before the
+release metadata commit. App-only backup 522eda91 was then created from running
+alpha.9; the completed listing excludes HA configuration/database. The partial
+restore target is PilotSuite and its data only; archive internals and a restore
+drill were not performed. alpha.9 remains installed until the final release-metadata
+CI passes. Production learning consent remains unchanged.
 
 ## Released and running: 0.1.0-alpha.9
 

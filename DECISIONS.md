@@ -1,6 +1,6 @@
 # Architecture Decision Log
 
-## ADR-020 — Bounded per-zone learner parameters, separate action authorization
+## ADR-021 — Bounded per-zone learner parameters, separate action authorization
 
 Activity-v1 thresholds are stored in the canonical zone context JSON with backward
 compatible defaults, integer limits and existing revision conflict protection.
@@ -13,7 +13,7 @@ the preferred future delivery for stable rules after inventory review, preview,
 separate plan-bound approval, backup, apply and verification. See LEARNING_AND_ACTIONS.md.
 
 
-## ADR-019 — Explain evidence progress without inventing confidence
+## ADR-020 — Explain evidence progress without inventing confidence
 
 The existing activity detector exposes counts and missing requirements per UTC
 window. Totals from different windows must not qualify a candidate. First/last
@@ -22,6 +22,17 @@ Consent, zone enablement, transport readiness and suitable sources are separate
 collection gates. UI surfaces persisted presence sources and compact source details.
 No new consent, thresholds, storage schema or actuation is introduced.
 
+
+## ADR-019 — Activity candidates expose independent assessment dimensions
+
+The `activity-v1` candidate contract separates observed statistics, deterministic
+rule strength, statistical confidence, action risk and user preference. Rule
+strength reports only ratios against the five-event/three-day candidate threshold.
+It is not a probability and does not imply causality. Confidence stays null until a
+validated estimator exists. Current risk is `read_only`; no action is attached.
+Persisted feedback is exposed canonically as preference and never mutates evidence
+or rule strength. Earlier flat fields remain deprecated compatibility aliases until
+an announced API-version transition; they are not a second stored model.
 
 ## ADR-018 — One main group yields one virtual reference per supported class
 

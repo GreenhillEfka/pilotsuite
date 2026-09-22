@@ -1,5 +1,14 @@
 # Capability and acceptance ledger
 
+## alpha.10 release candidate
+
+The next candidate separates activity observation statistics, deterministic rule
+threshold ratios, nullable confidence, read-only risk and persisted preference.
+Synthetic regression covers evidence/feedback invariance. PR #10 candidate CI
+35798185711 passed 64 backend tests, four JS tests, browser and amd64 container.
+App-only alpha.9 backup 522eda91 is complete; final release-metadata CI and live
+deployment verification remain. Learning consent is unchanged.
+
 ## alpha.9 update
 
 PR #8 / merge 04db3fb; final CI 35797007069 passed 63 backend tests, four JS

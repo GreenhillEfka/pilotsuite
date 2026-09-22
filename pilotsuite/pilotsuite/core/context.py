@@ -15,6 +15,7 @@ ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
               'presence': {'motion', 'occupancy', 'presence'}, 'reference_temperature': {'temperature'}}
 RETENTION = 14 * 86400
 MAX_EVIDENCE = 5000
+ACTIVITY_RULE_ID = 'activity-v1'
 MIN_EVENTS = 5
 MIN_DAYS = 3
 
@@ -144,11 +145,23 @@ class ContextStore:
                 if detector != DEFAULT_DETECTOR:
                     identity += ':' + json.dumps(detector, sort_keys=True)
                 pid = hashlib.sha256(identity.encode()).hexdigest()[:24]
+                origins = dict(Counter(origin for _,origin in events))
                 patterns.append({'id': pid, 'title': f'Wiederkehrende Aktivierungen {bucket*2:02d}–{bucket*2+2:02d} Uhr UTC',
-                                 'algorithm': 'activity-v1', 'parameters': dict(detector),
-                                 'sources': cfg['roles'].get('presence', []), 'events': len(events), 'days': days,
-                                 'observed_total': len(rows), 'confidence': None, 'feedback': feedback.get(pid),
-                                 'origins': dict(Counter(origin for _,origin in events)),
+                                 'algorithm': ACTIVITY_RULE_ID, 'parameters': dict(detector),
+                                 'sources': cfg['roles'].get('presence', []),
+                                 'statistics': {'activation_count': len(events), 'distinct_day_count': len(days),
+                                                'days_utc': days, 'observed_zone_activations': len(rows),
+                                                'origins': origins, 'window_utc': {'start_hour': bucket*2, 'end_hour': bucket*2+2}},
+                                 'confidence': None, 'confidence_basis': 'not_estimated',
+                                 'rule_strength': {'rule_id': ACTIVITY_RULE_ID, 'threshold_met': True,
+                                                   'event_ratio': round(len(events)/min_events, 3),
+                                                   'day_ratio': round(len(days)/min_days, 3),
+                                                   'minimum_events': min_events, 'minimum_days': min_days},
+                                 'risk': 'read_only', 'preference': feedback.get(pid),
+                                 # Deprecated alpha aliases; remove only with an
+                                 # announced API-version transition.
+                                 'events': len(events), 'days': days, 'observed_total': len(rows),
+                                 'origins': origins, 'feedback': feedback.get(pid),
                                  'proposal': 'Prüfen, ob dieses Zeitfenster eine relevante Routine beschreibt. Keine Automation wird erstellt.'})
             return {'config': cfg, 'event_count': len(rows), 'retention_days': 14, 'limit': MAX_EVIDENCE,
                     'progress': {'required_events': min_events, 'required_days': min_days,
