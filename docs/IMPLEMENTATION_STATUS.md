@@ -1,5 +1,16 @@
 # Capability and acceptance ledger
 
+## alpha.9 update
+
+PR #8 / merge 04db3fb; final CI 35797007069 passed 63 backend tests, four JS
+tests, browser and container. App-only backup 19bfccc7 confirmed. Supervisor and
+startup logs verify alpha.9 started/read-only/ready with connected event stream.
+Automatic typed references, illuminance, explicit-empty groups and unified
+presence-source semantics are implemented. Actual live user role-selection
+acceptance remains open. See CURRENT_STATE.md and docs/SENSOR_REFERENCES.md.
+
+## Historical alpha.8 baseline
+
 Stand: released and running 0.1.0-alpha.8, merge 3aec18f. CI 35793755621
 passed 59 backend tests (including real module startup), four JS tests, browser
 workflows and amd64 image build. Confirmed pre-update App-only backup: 89e963d5.

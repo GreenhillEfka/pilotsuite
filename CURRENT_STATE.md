@@ -1,15 +1,36 @@
 # Current State
 
-## alpha.9 release candidate: automatic sensor references
+## Released and running: 0.1.0-alpha.9
 
-ADR-018 and docs/SENSOR_REFERENCES.md define the revised role contract.
-Implemented automatic references for temperature, humidity, illuminance, presence
-and light; persisted empty groups; consistent presence display/learning sources;
-visible legacy defaults and explicit external comparison-temperature labeling.
-63 backend tests, four JS tests and repository validation pass locally. CI
-35796705508 passed backend, extended browser and container on d84375a. Release
-metadata requires its final CI before merge.
-No HA deployment performed in this increment; alpha.8 evidence below is historical.
+PR #8 merged as 04db3fb103850dd1c6f495d035f646d488a27b3d. Its tree
+cbe0f8e1140a0f0d57b444041f8213ce7a8ba529 exactly matches candidate b1553a2.
+Final CI 35797007069 passed 63 backend tests, four JS tests, extended mobile
+browser regression and amd64 container. A mismatched Docker version marker was
+caught by the release test and fixed before this final CI and deployment.
+
+ADR-018 and docs/SENSOR_REFERENCES.md define the revised contract: automatic
+virtual references for temperature, humidity, illuminance, presence and light;
+persisted empty groups; consistent presence display/learning sources; visible
+legacy defaults and explicit external comparison-temperature labeling.
+
+App-only backup 19bfccc7 was created and confirmed before merge (automatic app
+updates were already enabled). Listing reports unprotected, HA/database excluded.
+Only PilotSuite and its data were requested; archive contents were not inspected.
+Recovery is an App-and-data partial restore of that backup, not a full HA restore;
+no restore drill was performed. No database migration or role rewrite was added.
+
+Supervisor confirms alpha.9 started with unchanged options. Runtime logs at
+2026-09-23T01:23:08Z report hard_read_only, ready=True, stream=True,
+snapshot_fresh=True, zone_resolved=True. Existing source availability remains
+partial for presence/light; readiness is not a physical sensor completeness claim.
+Actual user selection and UI behavior in the live Ingress session remain to be
+accepted. Do not infer that the user's exact presence-saving issue was reproduced:
+code inspection found an inconsistent fallback and explicit-empty-group loss;
+API persistence and browser reopen tests cover the corrections. Learning consent
+was not changed by this deployment. New sensor classes require typed semantics;
+no generic energy/alarm aggregation and no native HA reference entities yet.
+
+## Historical alpha.8 deployment
 
 Last updated: 2026-09-23 (runtime log UTC)
 
