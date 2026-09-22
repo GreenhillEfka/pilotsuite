@@ -1,23 +1,8 @@
 # Capability and acceptance ledger
 
-## Development branch: logical Habitus zones (2026-09-22)
-
-PR #1 (`feat/entity-selection-package`) implements logical zones with stable IDs,
-multiple HA-area sources and extra entity candidates; an Ingress editor, curated
-entity selection, shared revisions, per-zone inference, neutral/cellar profiles,
-JSON export and a bounded journal. Schema 3 backs up schema 1/2 before migration.
-Existing decisions are preserved; new zones start paused in the UI. Global entity
-counts deduplicate IDs. Contract: `docs/HABITUS_ZONES.md` and ADR-015.
-
-46 Python tests and four JavaScript model tests pass locally. CI run 35786624245
-passed backend, zone-creation browser regression and amd64 container for commit
-33da5d6. A final follow-up corrects multi-zone status and adds schema-2 migration
-coverage; use the latest PR checks for that head. No new version or HA installation
-in this increment. Production alpha.4 evidence below remains the live baseline.
-Contextual role priorities, import, permanent deletion and learning remain deferred.
-
-
-Stand: capability correction 0.1.0-alpha.4. "Local tests" is not live HA acceptance.
+Stand: release candidate 0.1.0-alpha.5. Local/CI tests are not live HA acceptance.
+Implementation head ae7a4f9 passed CI 35786845667: backend, browser and amd64 image.
+The release candidate must pass its own checks before installation.
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
@@ -27,9 +12,9 @@ Stand: capability correction 0.1.0-alpha.4. "Local tests" is not live HA accepta
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Not learned habits; no persistent feedback yet |
-| Habitus zones and roles | Target accepted | Current resolver remains area-based; role editor/storage pending |
+| Habitus zones and roles | Logical zones and entity selection implemented | Stable IDs, multiple areas, extras, editor; contextual role priorities deferred |
 | Learning and consent | Planned | Attribution, bounded evidence, replay fixtures, consent/export/delete |
-| SQLite / migrations | Planned | Alpha audit/plans still JSONL; migration/recovery tests required |
+| SQLite / migrations | Schema 3 for zones and selections; migration tests pass | Pre-migration backup, shared revisions, export, bounded selection journal; audit/plans remain JSONL |
 | Multi-user preferences | Planned | Separate preference from evidence; conflict rules required |
 | Brain graph | Planned | Derived explanation graph, not a separate truth store |
 | Native HA adapter / Assist | Optional, planned | No current custom integration in canonical repository |

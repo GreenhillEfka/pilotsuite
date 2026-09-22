@@ -1,7 +1,7 @@
 # Paket: Habitus-Zonen und bewusste Entitätenauswahl
 
-Status: Entwicklungszweig `feat/entity-selection-package`, PR #1.
-Basis der laufenden Installation: 0.1.0-alpha.4. Noch kein neues Release.
+Status: Release-Kandidat `0.1.0-alpha.5`, PR #1.
+Ausgangsinstallation: 0.1.0-alpha.4; Live-Stand siehe CURRENT_STATE.md.
 
 ## Verbindliches Konzept
 
@@ -31,7 +31,7 @@ CI-Nachweise werden im PR und CURRENT_STATE.md festgehalten.
 
 Vor Veröffentlichung: Versions-/Release-Dokumentation konsolidieren, alle
 CI-Ergebnisse prüfen, app-eigenes Backup verifizieren, Update und HA-Ingress-
-Smoketest durchführen. In diesem Inkrement keine HA-Installation.
+Smoketest durchführen. Installation ist vom Nutzer autorisiert.
 
 Noch nicht enthalten: bestätigte kontextuelle Rollenprioritäten, Import,
 endgültiges Löschen, Gewohnheitslernen oder Aktorfreigaben.
