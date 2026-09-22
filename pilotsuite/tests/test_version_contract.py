@@ -18,8 +18,11 @@ class VersionContractTests(unittest.TestCase):
         self.assertIsNotNone(match)
         self.assertEqual(VERSION, root_version)
         self.assertEqual(VERSION, match.group(1))
+        dockerfile = (ROOT / "pilotsuite" / "Dockerfile").read_text(encoding="utf-8")
+        docker_version = re.search(r'^ARG BUILD_VERSION="([^"]+)"', dockerfile, re.MULTILINE)
+        self.assertIsNotNone(docker_version)
+        self.assertEqual(VERSION, docker_version.group(1))
 
 
 if __name__ == "__main__":
     unittest.main()
-
