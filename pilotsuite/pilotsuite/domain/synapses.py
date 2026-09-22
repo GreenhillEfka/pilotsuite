@@ -9,7 +9,7 @@ from typing import Any
 from .models import Mood, Suggestion
 
 
-RULESET_VERSION = "erdkeller-2"
+RULESET_VERSION = "erdkeller-3"
 
 
 def build_suggestions(
@@ -61,7 +61,7 @@ def build_suggestions(
     )
     for rule_id, mood_name, threshold, title, explanation, risk in rules:
         mood = mood_map.get(mood_name)
-        if mood is None or mood.score < threshold:
+        if mood is None or mood.score is None or mood.score < threshold:
             continue
         stable_id = _stable_id(rule_id, area_ids)
         suggestions.append(

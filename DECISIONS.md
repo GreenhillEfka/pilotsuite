@@ -1,5 +1,15 @@
 # Architecture Decision Log
 
+## ADR-014 — Operational readiness is not domain completeness (2026-09-22)
+
+Accepted after the alpha.3 live UI review: readiness measures a connected HA
+snapshot, healthy event subscription and recent reconciliation. Zone resolution
+and sensor capabilities are separate. Missing humidity does not disable motion,
+light or temperature observations. Absent measurements are not sensor failures;
+an existing invalid/unavailable climate sensor still contributes to climate
+uncertainty. Buttons and unrelated diagnostics do not. Unassessable climate moods
+use null, not zero. Capability availability never grants permission to actuate.
+
 ## ADR-009 — Reviewed target architecture (2026-09-22)
 
 Accepted: one repository, one modular add-on, one semantic owner. An optional

@@ -88,6 +88,11 @@ class PilotSuiteService:
                 self._last_refresh_at = datetime.now(UTC).isoformat()
                 await self._derive()
                 summary = await self.world.summary()
+                state = await self.status()
+                LOGGER.info("Readiness ready=%s stream=%s snapshot_fresh=%s zone_resolved=%s capabilities=%s",
+                            state["ready"], self._stream_connected,
+                            state["home_assistant"]["snapshot_fresh"], state["golden_zone"]["resolved"],
+                            {key: value["status"] for key, value in state["capabilities"].items()})
                 await self.audit.append(
                     "ha.snapshot",
                     details={"reason": reason, "summary": summary},
@@ -107,11 +112,20 @@ class PilotSuiteService:
             list(m.evidence[0].get("missing_required_kinds", []))
             for m in self._moods if m.name == "uncertainty" and m.evidence
         ), ["humidity", "temperature"])
-        ready = bool(self._connected and self._stream_connected and fresh
-                     and self._scope.get("resolved_area_ids")
-                     and not self._scope.get("missing_area_ids") and not missing_kinds)
+        ready = bool(self._connected and self._stream_connected and fresh)
+        zone_resolved = bool(self._scope.get("resolved_area_ids")
+                             and not self._scope.get("missing_area_ids"))
+        capabilities = {}
+        for name, kinds in (("temperature", {"temperature"}), ("humidity", {"humidity"}),
+                            ("motion", {"motion"}), ("presence", {"occupancy", "presence"}),
+                            ("light", {"light"}), ("illuminance", {"illuminance"})):
+            members = [n for n in self._neurons if n.kind in kinds]
+            valid = [n for n in members if n.quality == "good" and n.value is not None]
+            state = "not_present" if not members else "unavailable" if not valid else "partial" if len(valid) != len(members) else "available"
+            capabilities[name] = {"status": state, "entity_count": len(members), "valid_count": len(valid)}
         return {
             "ready": ready,
+            "capabilities": capabilities,
             "version": VERSION,
             "architecture": ARCHITECTURE_VERSION,
             "mode": "hard_read_only",
@@ -128,6 +142,7 @@ class PilotSuiteService:
                 "missing_area_ids": self._scope.get("missing_area_ids", []),
                 "entity_count": len(self._scope.get("entities", [])),
                 "missing_required_kinds": missing_kinds,
+                "resolved": zone_resolved,
             },
             "habitus": {
                 "neuron_count": len(self._neurons),

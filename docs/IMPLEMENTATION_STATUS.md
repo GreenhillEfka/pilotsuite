@@ -1,13 +1,13 @@
 # Capability and acceptance ledger
 
-Stand: foundation milestone 0.1.0-alpha.3. "Local tests" is not live HA acceptance.
+Stand: capability correction 0.1.0-alpha.4. "Local tests" is not live HA acceptance.
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
-| Add-on packaging | Implemented | alpha.2 previously installed; alpha.3 live acceptance pending |
+| Add-on packaging | Implemented | alpha.3 installed, UI confirmed by user; alpha.4 deployment pending |
 | Ingress routes / peer restriction | Implemented, local HTTP tests | Real Supervisor/browser UI including assets still required |
 | HA snapshot and event stream | Implemented | Reconnect resync/backoff tests; live disconnect/load soak pending |
-| Readiness | Stream + snapshot freshness + scope + required climate kinds | Not a physical sensor freshness guarantee |
+| Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Not learned habits; no persistent feedback yet |
 | Habitus zones and roles | Target accepted | Current resolver remains area-based; role editor/storage pending |

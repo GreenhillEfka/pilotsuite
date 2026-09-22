@@ -16,12 +16,12 @@
 5. In configuration, set `golden_zone_area_ids` to the exact Home Assistant area ID for the Erdkeller if it differs from `erdkeller`.
 6. Start the app and open its Web UI.
 
-## Acceptance check for 0.1.0-alpha.3
+## Acceptance check for 0.1.0-alpha.4
 
 - the app reaches `running` without restart loops;
 - `/health` reports `ok`;
 - `/health/ready` reports Home Assistant connected;
-- the status page shows version `0.1.0-alpha.3` and architecture `v21`;
+- the status page shows version `0.1.0-alpha.4` and architecture `v21`;
 - the Erdkeller area resolves and lists only its Home Assistant entities;
 - moods and suggestions contain readable evidence;
 - an Apply request is rejected with HTTP `409`;

@@ -24,7 +24,7 @@ class Neuron:
 @dataclass(frozen=True, slots=True)
 class Mood:
     name: str
-    score: float
+    score: float | None
     evidence: tuple[dict[str, Any], ...] = field(default_factory=tuple)
 
     def to_dict(self) -> dict[str, Any]:

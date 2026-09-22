@@ -12,7 +12,7 @@ async function json(path, options = {}) {
 }
 
 function text(id, value) { byId(id).textContent = value ?? "—"; }
-function percent(value) { return `${Math.round(Number(value || 0) * 100)}%`; }
+function percent(value) { return value == null ? "Nicht bewertbar" : `${Math.round(Number(value) * 100)}%`; }
 
 function renderStatus(status) {
   const ha = status.home_assistant;
@@ -21,6 +21,10 @@ function renderStatus(status) {
   const zone = status.golden_zone;
   text("zone-state", zone.missing_area_ids.length ? "Bereich fehlt" : `${zone.entity_count} Entitäten`);
   text("zone-detail", zone.resolved_area_ids.join(", ") || `Gesucht: ${zone.requested_area_ids.join(", ")}`);
+  const labels = {temperature: "Temperatur", humidity: "Feuchte", motion: "Bewegung", presence: "Präsenz", light: "Licht", illuminance: "Helligkeit"};
+  const states = {available: "verfügbar", partial: "teilweise verfügbar", unavailable: "Messwerte fehlen", not_present: "nicht vorhanden"};
+  const capabilities = Object.entries(status.capabilities || {}).map(([name, item]) => `${labels[name] || name}: ${states[item.status] || item.status}`);
+  text("zone-detail", `${zone.resolved_area_ids.join(", ") || "Bereich fehlt"} · ${capabilities.join(" · ")}`);
   text("habitus-state", `${status.habitus.neuron_count} Neuronen`);
   text("habitus-detail", `${status.habitus.suggestion_count} Vorschläge · ${status.habitus.ruleset}`);
   text("release-state", status.version);
@@ -37,7 +41,7 @@ function renderMoods(items) {
     const bar = document.createElement("div");
     bar.className = "bar";
     const fill = document.createElement("i");
-    fill.style.width = percent(item.score);
+    fill.style.width = item.score == null ? "0%" : percent(item.score);
     bar.append(fill);
     const score = document.createElement("strong");
     score.textContent = percent(item.score);

@@ -29,6 +29,18 @@ All endpoints are relative to the Ingress root. Responses are JSON unless noted.
 }
 ```
 
+## alpha.4 readiness and capability contract
+
+`ready` and `/health/ready` now describe transport readiness only: connected
+snapshot, live event stream and recent reconciliation. Zone resolution is
+`golden_zone.resolved`; `capabilities` reports per-kind status as `available`,
+`partial`, `unavailable` or `not_present`, with entity/valid counts. These describe
+observations, not permission or implemented automation capabilities.
+Mood `score` is nullable for missing evidence; clients must not convert null to
+zero. Climate uncertainty counts observed climate sensors only, never buttons
+or unrelated diagnostic entities. The legacy `missing_required_kinds` field
+remains informational for climate coverage; it no longer gates readiness.
+
 ## API stability
 
 ### alpha.3 contract change
@@ -37,8 +49,8 @@ Suggestion `confidence` is now nullable: deterministic climate rules return null
 instead of an uncalibrated number. New `severity` contains rule strength, not a
 probability. IDs are stable for the versioned rule and normalized scope.
 Status adds `ready`, `event_stream_connected`, `snapshot_fresh`, and
-`missing_required_kinds`. Readiness requires the stream, a recent snapshot, a
-resolved scope and valid temperature/humidity inputs. It does not certify physical
+`missing_required_kinds`. In alpha.3 readiness required the stream, a recent snapshot, a
+resolved scope and valid temperature/humidity inputs; alpha.4 supersedes that rule. It does not certify physical
 sensor freshness. All UI/API calls require the Ingress TCP peer; only `/health`
 also permits loopback probes. Forwarded headers do not grant access.
 

@@ -44,8 +44,8 @@ class SemanticTests(unittest.TestCase):
     def test_no_climate_is_not_stable(self):
         observations = build_neurons(scope("on", None, "switch"))
         moods = {m.name: m for m in calculate_moods(observations, connected=True)}
-        self.assertEqual(0, moods["stable"].score)
-        self.assertEqual(1, moods["uncertainty"].score)
+        self.assertIsNone(moods["stable"].score)
+        self.assertIsNone(moods["uncertainty"].score)
         self.assertEqual(["humidity", "temperature"], moods["uncertainty"].evidence[0]["missing_required_kinds"])
 
     def test_severity_is_not_confidence_and_id_does_not_flap(self):

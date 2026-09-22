@@ -14,48 +14,50 @@ def calculate_moods(neurons: Iterable[Neuron], *, connected: bool) -> list[Mood]
     observations = list(neurons)
     humidity = _numeric(observations, "humidity")
     temperature = _numeric(observations, "temperature")
-    unavailable = [n for n in observations if n.quality != "good"]
+    climate = [n for n in observations if n.kind in {"temperature", "humidity"}]
+    valid_ids = {n.entity_id for n in humidity + temperature}
+    unavailable = [n for n in climate if n.entity_id not in valid_ids]
 
     high_humidity = _high_score(humidity, warning=65.0, critical=80.0)
     low_humidity = _low_score(humidity, warning=45.0, critical=30.0)
     high_temperature = _high_score(temperature, warning=18.0, critical=25.0)
     low_temperature = _low_score(temperature, warning=5.0, critical=0.0)
-    uncertainty = 1.0 if not observations else len(unavailable) / len(observations)
+    uncertainty = len(unavailable) / len(climate) if climate else None
     missing_kinds = [kind for kind, values in (("humidity", humidity), ("temperature", temperature)) if not values]
-    uncertainty = max(uncertainty, len(missing_kinds) / 2)
     system_health = 1.0 if connected else 0.0
     alert = max(high_humidity, low_humidity, high_temperature, low_temperature)
-    stability = max(0.0, 1.0 - max(alert, uncertainty, 1.0 - system_health))
+    stability = max(0.0, 1.0 - max(alert, uncertainty or 0, 1.0 - system_health))
     if missing_kinds:
-        stability = 0.0
+        stability = None
 
     values = [
-        Mood("humidity_high", high_humidity, _evidence(humidity, "mean_humidity")),
-        Mood("humidity_low", low_humidity, _evidence(humidity, "mean_humidity")),
+        Mood("humidity_high", high_humidity if humidity else None, _evidence(humidity, "mean_humidity")),
+        Mood("humidity_low", low_humidity if humidity else None, _evidence(humidity, "mean_humidity")),
         Mood(
             "temperature_high",
-            high_temperature,
+            high_temperature if temperature else None,
             _evidence(temperature, "mean_temperature"),
         ),
         Mood(
             "temperature_low",
-            low_temperature,
+            low_temperature if temperature else None,
             _evidence(temperature, "mean_temperature"),
         ),
         Mood(
             "uncertainty",
-            _round(uncertainty),
+            _round(uncertainty) if uncertainty is not None else None,
             (
                 {
                     "unavailable": len(unavailable),
                     "missing_required_kinds": missing_kinds,
-                    "total": len(observations),
+                    "total": len(climate),
+                    "scope": "observed_climate_sensors",
                     "entity_ids": [item.entity_id for item in unavailable],
                 },
             ),
         ),
-        Mood("alert", _round(alert)),
-        Mood("stable", _round(stability)),
+        Mood("alert", _round(alert) if humidity or temperature else None),
+        Mood("stable", _round(stability) if stability is not None else None),
         Mood(
             "system_health",
             system_health,

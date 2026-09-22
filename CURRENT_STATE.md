@@ -2,8 +2,15 @@
 
 Last updated: 2026-09-22
 
+## alpha.4 capability correction
+- Transport readiness is independent of climate sensor availability.
+- Per-capability status: available, partial, unavailable, not_present.
+- Unknown climate scores are null; buttons and diagnostics do not count as climate failures.
+- 28 local regression tests pass; alpha.4 live deployment pending.
+- User screenshot confirmed alpha.3 Ingress UI loads and displays live observations.
+
 ## Repository milestone
-- Version: `0.1.0-alpha.3`; architecture v21, reviewed modular-monolith target.
+- Version: `0.1.0-alpha.4`; architecture v21, reviewed modular-monolith target.
 - Read-only foundation milestone, NOT a complete habit-learning implementation.
 - Existing alpha.3 metadata work retained; no restart or legacy bulk merge.
 

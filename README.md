@@ -2,7 +2,7 @@
 
 PilotSuite is the canonical, add-on-first implementation of the PilotSuite/Habitus architecture for Home Assistant.
 
-> Current release: `0.1.0-alpha.3` — architecture generation v21.
+> Current release: `0.1.0-alpha.4` — architecture generation v21.
 
 PilotSuite observes Home Assistant, resolves entities into a semantic world model, calculates deterministic mood signals, and produces explainable suggestions. Home Assistant remains the source of truth for devices, entities, areas, labels, and live states. PilotSuite owns only additional semantics, policies, learning records, plans, and audit data.
 

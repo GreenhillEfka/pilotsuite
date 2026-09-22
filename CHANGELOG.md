@@ -2,6 +2,14 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.4] - 2026-09-22
+
+- Separate transport readiness from zone and capability availability.
+- Report missing climate evidence as null / not assessable, not zero.
+- Exclude buttons and unrelated diagnostics from climate uncertainty.
+- Display capability-specific availability and log safe readiness summaries.
+- Add four regression tests (28 total); no HA actuation enabled.
+
 ## [0.1.0-alpha.3] - 2026-09-22
 
 ### Fixed

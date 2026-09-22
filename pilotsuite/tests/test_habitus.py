@@ -48,7 +48,7 @@ class HabitusTests(unittest.TestCase):
         )
         mood_map = {item.name: item.score for item in moods}
         self.assertEqual(0.5, mood_map["uncertainty"])
-        self.assertEqual(0.0, mood_map["stable"])
+        self.assertIsNone(mood_map["stable"])
 
 
 if __name__ == "__main__":
