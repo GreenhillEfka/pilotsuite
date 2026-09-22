@@ -1,0 +1,142 @@
+"""Supported Home Assistant WebSocket access through the Supervisor proxy."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+from collections.abc import Awaitable, Callable
+from typing import Any
+
+from aiohttp import ClientSession, ClientTimeout, WSMsgType
+
+
+LOGGER = logging.getLogger(__name__)
+StateCallback = Callable[[dict[str, Any]], Awaitable[None]]
+
+
+class HomeAssistantError(RuntimeError):
+    """Raised when Home Assistant rejects or cannot serve a request."""
+
+
+class HomeAssistantClient:
+    def __init__(self, ws_url: str, token: str) -> None:
+        self._ws_url = ws_url
+        self._token = token
+        self._session: ClientSession | None = None
+
+    async def start(self) -> None:
+        if self._session is None or self._session.closed:
+            self._session = ClientSession(timeout=ClientTimeout(total=20))
+
+    async def close(self) -> None:
+        if self._session and not self._session.closed:
+            await self._session.close()
+
+    async def snapshot(self) -> dict[str, Any]:
+        """Load a consistent-enough current projection through supported WS APIs."""
+        if not self._token:
+            raise HomeAssistantError("SUPERVISOR_TOKEN is not available")
+        await self.start()
+        assert self._session is not None
+        async with self._session.ws_connect(self._ws_url, heartbeat=30) as socket:
+            await self._authenticate(socket)
+            commands = (
+                ("config", {"type": "get_config"}),
+                ("areas", {"type": "config/area_registry/list"}),
+                ("devices", {"type": "config/device_registry/list"}),
+                ("entities", {"type": "config/entity_registry/list"}),
+                ("states", {"type": "get_states"}),
+            )
+            result: dict[str, Any] = {}
+            request_id = 1
+            for key, command in commands:
+                result[key] = await self._command(socket, request_id, command)
+                request_id += 1
+            return result
+
+    async def listen(
+        self, callback: StateCallback, stop_event: asyncio.Event
+    ) -> None:
+        """Subscribe to state changes and reconnect with bounded backoff."""
+        if not self._token:
+            await stop_event.wait()
+            return
+        delay = 1
+        while not stop_event.is_set():
+            try:
+                await self.start()
+                assert self._session is not None
+                async with self._session.ws_connect(
+                    self._ws_url, heartbeat=30
+                ) as socket:
+                    await self._authenticate(socket)
+                    await socket.send_json(
+                        {
+                            "id": 1,
+                            "type": "subscribe_events",
+                            "event_type": "state_changed",
+                        }
+                    )
+                    subscribed = await self._receive_json(socket)
+                    if not subscribed.get("success"):
+                        raise HomeAssistantError("state_changed subscription rejected")
+                    delay = 1
+                    async for message in socket:
+                        if stop_event.is_set():
+                            break
+                        if message.type is WSMsgType.TEXT:
+                            payload = json.loads(message.data)
+                            if payload.get("type") == "event":
+                                event = payload.get("event", {})
+                                data = event.get("data", {})
+                                if isinstance(data, dict):
+                                    await callback(data)
+                        elif message.type in {
+                            WSMsgType.CLOSED,
+                            WSMsgType.CLOSE,
+                            WSMsgType.ERROR,
+                        }:
+                            break
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:  # reconnect boundary
+                LOGGER.warning("Home Assistant event stream disconnected: %s", exc)
+                try:
+                    await asyncio.wait_for(stop_event.wait(), timeout=delay)
+                except TimeoutError:
+                    pass
+                delay = min(delay * 2, 30)
+
+    async def _authenticate(self, socket: Any) -> None:
+        hello = await self._receive_json(socket)
+        if hello.get("type") != "auth_required":
+            raise HomeAssistantError("unexpected Home Assistant auth greeting")
+        await socket.send_json({"type": "auth", "access_token": self._token})
+        response = await self._receive_json(socket)
+        if response.get("type") != "auth_ok":
+            raise HomeAssistantError("Home Assistant authentication failed")
+
+    async def _command(
+        self, socket: Any, request_id: int, command: dict[str, Any]
+    ) -> Any:
+        await socket.send_json({"id": request_id, **command})
+        while True:
+            response = await self._receive_json(socket)
+            if response.get("id") != request_id:
+                continue
+            if not response.get("success"):
+                error = response.get("error", {})
+                code = error.get("code", "unknown") if isinstance(error, dict) else "unknown"
+                raise HomeAssistantError(f"Home Assistant command failed: {code}")
+            return response.get("result")
+
+    @staticmethod
+    async def _receive_json(socket: Any) -> dict[str, Any]:
+        message = await socket.receive(timeout=20)
+        if message.type is not WSMsgType.TEXT:
+            raise HomeAssistantError("Home Assistant WebSocket closed unexpectedly")
+        value = json.loads(message.data)
+        if not isinstance(value, dict):
+            raise HomeAssistantError("invalid Home Assistant WebSocket response")
+        return value

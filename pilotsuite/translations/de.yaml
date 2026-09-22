@@ -1,0 +1,14 @@
+configuration:
+  log_level:
+    name: Protokollstufe
+    description: Detailgrad der Laufzeitprotokolle. Zugangsdaten werden immer entfernt.
+  golden_zone_area_ids:
+    name: Golden-Zone-Bereichs-IDs
+    description: Exakte Home-Assistant-Bereichs-IDs für den ersten begrenzten Geltungsbereich.
+  refresh_interval_seconds:
+    name: Aktualisierungsintervall
+    description: Sekunden zwischen vollständigen Abgleichen mit Home Assistant.
+  audit_retention:
+    name: Audit-Aufbewahrung
+    description: Maximale Anzahl gespeicherter PilotSuite-Auditereignisse.
+

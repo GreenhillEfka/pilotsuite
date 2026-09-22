@@ -1,0 +1,14 @@
+configuration:
+  log_level:
+    name: Log level
+    description: Runtime log verbosity. Credentials are always redacted.
+  golden_zone_area_ids:
+    name: Golden Zone area IDs
+    description: Exact Home Assistant area IDs used for the initial bounded scope.
+  refresh_interval_seconds:
+    name: Refresh interval
+    description: Seconds between full Home Assistant snapshot reconciliations.
+  audit_retention:
+    name: Audit retention
+    description: Maximum number of PilotSuite audit events retained.
+

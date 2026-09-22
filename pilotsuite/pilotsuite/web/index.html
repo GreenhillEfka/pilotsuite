@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>PilotSuite</title>
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">HABITUS ARCHITECTURE v21</p>
+        <h1>PilotSuite</h1>
+      </div>
+      <div class="mode"><span class="dot"></span> Hard read-only</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">GOLDEN ZONE</p>
+          <h2>Erdkeller verstehen, bevor irgendetwas handelt.</h2>
+          <p class="lede">Home Assistant bleibt die Wahrheit. PilotSuite ordnet Beobachtungen ein, zeigt Belege und schlägt nachvollziehbare nächste Schritte vor.</p>
+        </div>
+        <button id="refresh" type="button">Jetzt abgleichen</button>
+      </section>
+
+      <section class="grid status-grid" aria-label="Systemstatus">
+        <article class="card">
+          <span>Home Assistant</span>
+          <strong id="ha-state">Wird geprüft …</strong>
+          <small id="ha-detail"></small>
+        </article>
+        <article class="card">
+          <span>Golden Zone</span>
+          <strong id="zone-state">Wird aufgelöst …</strong>
+          <small id="zone-detail"></small>
+        </article>
+        <article class="card">
+          <span>Habitus</span>
+          <strong id="habitus-state">—</strong>
+          <small id="habitus-detail"></small>
+        </article>
+        <article class="card">
+          <span>Release</span>
+          <strong id="release-state">—</strong>
+          <small>Architecture v21</small>
+        </article>
+      </section>
+
+      <section class="split">
+        <article class="panel">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">KONTEXT</p>
+              <h2>Moods</h2>
+            </div>
+            <span class="tag">deterministisch</span>
+          </div>
+          <div id="moods" class="mood-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">ERKLÄRBAR</p>
+              <h2>Vorschläge</h2>
+            </div>
+            <span id="suggestion-count" class="tag">0</span>
+          </div>
+          <div id="suggestions" class="suggestion-list"></div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">QUELLE</p>
+            <h2>Golden-Zone-Beobachtungen</h2>
+          </div>
+          <span id="observation-count" class="tag">0</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Entität</th><th>Typ</th><th>Wert</th><th>Qualität</th></tr>
+            </thead>
+            <tbody id="observations"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <p id="error" class="error" role="alert" hidden></p>
+    </main>
+
+    <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.1.</footer>
+    <script src="assets/app.js" defer></script>
+  </body>
+</html>
+

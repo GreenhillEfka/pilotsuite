@@ -1,0 +1,40 @@
+name: PilotSuite
+version: 0.1.0-alpha.1
+slug: pilotsuite
+description: Explainable, policy-governed Habitus intelligence for Home Assistant
+url: https://github.com/GreenhillEfka/pilotsuite
+arch:
+  - amd64
+  - aarch64
+startup: application
+boot: auto
+init: false
+stage: experimental
+homeassistant: 2026.4.0
+homeassistant_api: true
+hassio_api: false
+auth_api: false
+ingress: true
+ingress_port: 8099
+ingress_entry: /
+ingress_stream: false
+panel_icon: mdi:brain
+panel_title: PilotSuite
+panel_admin: true
+watchdog: http://[HOST]:[PORT:8099]/health
+backup: cold
+tmpfs: true
+apparmor: true
+options:
+  log_level: info
+  golden_zone_area_ids:
+    - erdkeller
+  refresh_interval_seconds: 30
+  audit_retention: 5000
+schema:
+  log_level: list(trace|debug|info|warning|error)
+  golden_zone_area_ids:
+    - str
+  refresh_interval_seconds: int(10,3600)
+  audit_retention: int(100,50000)
+
