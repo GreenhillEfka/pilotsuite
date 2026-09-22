@@ -110,6 +110,9 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         with sqlite3.connect(self.service.selections.path) as db:
             db.execute('DROP TABLE habitus_zones')
             db.execute('DROP TABLE zone_meta')
+            db.execute('DROP TABLE zone_context')
+            db.execute('DROP TABLE activity_evidence')
+            db.execute('DROP TABLE pattern_feedback')
             db.execute('PRAGMA user_version=2')
         await self.service.selections.initialize()
         await self.service.zones.bootstrap(('a',))
@@ -118,3 +121,43 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(1, saved['revision'])
         self.assertEqual('relevant', saved['decisions']['sensor.hot'])
         self.assertEqual(1, len(list(Path(self.temp.name).glob('selections.v2.*.bak'))))
+
+    async def test_context_roles_consent_events_and_export_through_api(self):
+        from datetime import datetime, UTC, timedelta
+        now = datetime.now(UTC)
+        entities = [{'entity_id': 'binary_sensor.p', 'area_id':'a'}, {'entity_id':'binary_sensor.q','area_id':'a'}]
+        await self.service.world.replace({'areas':[{'area_id':'a'}], 'entities':entities,
+          'states':[{'entity_id':e['entity_id'],'state':'off','last_updated':now.isoformat(),'attributes':{'device_class':'motion'}} for e in entities]})
+        path='/api/v1/zones/a/context'
+        bad=await self.client.patch(path,json={'revision':0,'roles':{'presence':['binary_sensor.p']},'learning':True})
+        self.assertEqual(400,bad.status)  # Unreviewed is not permission to learn.
+        await self.service.selections.patch('a',0,{e['entity_id']:'relevant' for e in entities})
+        result=await self.client.patch(path,json={'revision':1,'roles':{'presence':['binary_sensor.p','binary_sensor.q']},'learning':True})
+        self.assertEqual(200,result.status)
+        self.service._connected=self.service._stream_connected=True
+        self.service._last_refresh_at=now.isoformat()
+        event_time=datetime.now(UTC)
+        event={'entity_id':'binary_sensor.p','old_state':{'state':'off'},'new_state':{'entity_id':'binary_sensor.p','state':'on','last_changed':event_time.isoformat(),'last_updated':event_time.isoformat(),'attributes':{'device_class':'motion'},'context':{'user_id':'secret-user-id'}}}
+        await self.service._on_state_change(event)
+        await self.service._on_state_change(event)
+        report=await (await self.client.get(path)).json()
+        self.assertEqual(1,report['event_count'])
+        self.assertNotIn('evidence',report)
+        export=await (await self.client.get(path+'/export')).json()
+        self.assertEqual('user_context',export['evidence'][0]['origin'])
+        self.assertNotIn('secret-user-id',str(export))
+        # Revoke: subsequent live events are not retained.
+        result=await self.client.patch(path,json={'revision':2,'roles':{'presence':['binary_sensor.p','binary_sensor.q']},'learning':False,'reset':True})
+        self.assertEqual(200,result.status)
+        self.assertEqual(0,(await result.json())['event_count'])
+        self.assertEqual('relevant',(await self.service.selections.get('a'))['decisions']['binary_sensor.p'])
+        self.assertEqual(409,(await self.client.patch(path,json={'revision':1,'roles':{},'learning':False})).status)
+        self.assertEqual(400,(await self.client.post('/api/v1/zones/a/feedback',json={'pattern_id':'unknown','decision':'accepted'})).status)
+
+    async def test_learning_context_ingress_and_type_guards(self):
+        from dataclasses import replace
+        self.assertEqual(400,(await self.client.patch('/api/v1/zones/a/context',data='{')).status)
+        self.assertEqual(400,(await self.client.patch('/api/v1/zones/a/context',json={'revision':0,'roles':{'temperature':['sensor.hot']},'learning':True})).status)
+        self.service.settings=replace(self.service.settings,ingress_allowed_peers=('172.30.32.2',))
+        self.assertEqual(403,(await self.client.get('/api/v1/zones/a/context/export')).status)
+        self.assertEqual(403,(await self.client.patch('/api/v1/zones/a/context',json={'revision':0,'roles':{},'learning':False})).status)

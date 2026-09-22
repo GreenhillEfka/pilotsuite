@@ -27,12 +27,9 @@ test('unknown IDs and invalid decisions are rejected', () => {
   assert.throws(() => draft.set('sensor.new', 'on'));
   assert.equal(draft.dirty, false);
 });
-test('activation is an explicit reversible draft change', () => {
-  const draft = new SelectionDraft(fixture());
-  assert.equal(draft.active, false);
-  draft.active = true;
-  assert.equal(draft.dirty, true);
-  assert.deepEqual(draft.changes, {});
-  draft.active = false;
+test('legacy inventory cannot make unchecked candidates relevant', () => {
+  const draft = new SelectionDraft({...fixture(), applied_to_inference:false});
+  assert.equal(draft.active, true);
   assert.equal(draft.dirty, false);
+  assert.equal(draft.decisions.get('sensor.new'), 'unreviewed');
 });

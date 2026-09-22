@@ -2,6 +2,17 @@
 
 Last updated: 2026-09-22
 
+## alpha.7 candidate — confirmed selection, role groups and activity learning
+
+Implemented contract: docs/OBSERVATION_LEARNING.md and ADR-017. Includes strict
+selection, compact summaries, plural roles, explicit consent, bounded live evidence,
+stable pattern candidates and independent persistent feedback, export and reset.
+55 backend tests and four JS tests pass locally. Browser and container CI must pass
+before installation. alpha.6 remains the deployed baseline until backup/update.
+No learning is enabled by deployment; the user grants consent per zone in the UI.
+The user confirmed Badbereich activation in alpha.6. Do not re-create existing zones.
+
+
 ## Released and installed: alpha.6 zone tabs and direct activation
 
 PR #3 merged at 290ef423b0072a60d3239fb9992b72008677b470. Candidate

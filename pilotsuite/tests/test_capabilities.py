@@ -45,6 +45,7 @@ class CapabilityTests(unittest.IsolatedAsyncioTestCase):
                 "entities": [{"entity_id": "sensor.temperature", "area_id": "erdkeller"}],
                 "states": [{"entity_id": "sensor.temperature", "state": "15.5",
                     "attributes": {"device_class": "temperature", "unit_of_measurement": "°C"}}]})
+            await service.selections.patch('erdkeller', 0, {'sensor.temperature': 'relevant'})
             await service._on_connection(True)
             state = await service.status()
             self.assertTrue(state["ready"])

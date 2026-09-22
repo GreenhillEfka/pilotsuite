@@ -2,6 +2,18 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.7] - 2026-09-22
+
+- Evaluate confirmed relevant entities only; reject the legacy automatic bypass.
+- Show compact per-zone capability cards and separate candidate/decision/evaluation counts.
+- Add role groups (up to 20 sources): climate median with min/max, visible missing data,
+  separate reference temperatures and presence-any logic without false absence.
+- Add opt-in recurring-activity candidates from live off-to-on events, with 5-minute
+  zone deduplication, 14-day retention and a global 5,000-evidence limit.
+- Persist independent pattern feedback; expose consent, revoke, reset and export.
+- SQLite schema 4 backs up older schemas; never infer roles, decisions or learning consent.
+- No actor control, person identification, occupancy probability or causal claims.
+
 ## [0.1.0-alpha.6] - 2026-09-22
 
 - Add visible tabs per Habitus zone with scoped evaluation, suggestions and observations.

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import UTC, datetime
+from dataclasses import replace
 from typing import Any
 
 from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
@@ -13,6 +14,8 @@ from pilotsuite.core.plans import PlanStore
 from pilotsuite.core.settings import Settings
 from pilotsuite.core.selections import SelectionStore, InvalidSelection
 from pilotsuite.core.zones import ZoneStore
+from pilotsuite.core.context import ContextStore
+from pilotsuite.domain.context import context_summary
 from pilotsuite.domain.models import Mood, Neuron, Suggestion
 from pilotsuite.domain.moods import calculate_moods
 from pilotsuite.domain.neurons import build_neurons
@@ -31,6 +34,8 @@ class PilotSuiteService:
         self.plans = PlanStore(settings.data_dir, self.audit)
         self.selections = SelectionStore(settings.data_dir)
         self.zones = ZoneStore(self.selections)
+        self.context = ContextStore(self.selections)
+        self._learning_sources = {}
         self._zone_results: list[dict[str, Any]] = []
         self.world = WorldModel()
         self.client = HomeAssistantClient(
@@ -190,7 +195,7 @@ class PilotSuiteService:
         return {"zone_id": area_id, "name": definition['name'], "enabled": definition['enabled'], "revision": stored["revision"], "items": items,
                 "missing": [{"entity_id": key, "decision": stored['decisions'].get(key, 'unreviewed')} for key in sorted(set(stored['decisions']) | set(definition['extra_entity_ids'])) if key not in present],
                 "resolved": not scope.get('missing_area_ids', []) and bool(scope["resolved_area_ids"] or items),
-                "applied_to_inference": stored["active"]}
+                "applied_to_inference": True}
 
     def moods(self) -> list[dict[str, Any]]:
         return [dict(item, zone_id=zone['zone_id'], zone_name=zone['name'])
@@ -201,10 +206,12 @@ class PilotSuiteService:
 
     async def _derive(self) -> None:
         await self.zones.bootstrap(self.settings.golden_zone_area_ids)
+        await self.context.maintain()
         definitions = [z for z in await self.zones.list() if z['enabled']]
         results, neurons, moods, suggestions = [], {}, [], []
         raw, resolved, missing, requested = {}, set(), set(), set()
         active_ids = []
+        self._learning_sources = {}
         for zone in definitions:
             scope = await self.world.scope(tuple(zone['area_ids']), tuple(zone['extra_entity_ids']))
             selected = await self.selections.get(zone['zone_id'])
@@ -212,17 +219,25 @@ class PilotSuiteService:
             resolved.update(scope.get('resolved_area_ids', []))
             missing.update(scope.get('missing_area_ids', []))
             raw.update({item['entity_id']: item for item in scope['entities']})
-            entities = [item for item in scope['entities'] if not selected['active'] or selected['decisions'].get(item['entity_id']) == 'relevant']
+            entities = [item for item in scope['entities'] if selected['decisions'].get(item['entity_id']) == 'relevant' and item['entity_id'].split('.')[0] in {'sensor', 'binary_sensor', 'light', 'switch', 'climate', 'cover', 'fan', 'media_player'}]
             if selected['active']:
                 active_ids.append(zone['zone_id'])
             zone_neurons = build_neurons({**scope, 'entities': entities})
-            zone_moods = calculate_moods(zone_neurons, connected=self._connected and self._stream_connected, profile=zone['profile'])
+            cfg = await self.context.get(zone['zone_id'])
+            summary, climate_neurons = context_summary(zone_neurons, cfg['roles'])
+            presence = [n.entity_id for n in zone_neurons if n.entity_id in cfg['roles'].get('presence', []) and n.kind in {'presence', 'occupancy', 'motion'} and n.quality == 'good']
+            if cfg['learning'] and presence:
+                self._learning_sources[zone['zone_id']] = presence
+            zone_moods = calculate_moods(climate_neurons, connected=self._connected and self._stream_connected, profile=zone['profile'])
+            zone_moods = [replace(m, evidence=m.evidence + ({'role_groups': summary},)) for m in zone_moods]
             zone_suggestions = build_suggestions(zone_moods, (zone['zone_id'],), zone_name=zone['name'])
             neurons.update({n.entity_id: n for n in zone_neurons})
             moods.extend(zone_moods)
             suggestions.extend(zone_suggestions)
             results.append({'zone_id': zone['zone_id'], 'name': zone['name'], 'profile': zone['profile'],
                             'inventory_count': len(scope['entities']), 'evaluated_count': len(zone_neurons),
+                            'counts': {decision: sum(selected['decisions'].get(i['entity_id'], 'unreviewed') == decision for i in scope['entities']) for decision in ('relevant', 'ignored', 'unreviewed')},
+                            'summary': summary,
                             'moods': [m.to_dict() for m in zone_moods], 'neurons': [n.to_dict() for n in zone_neurons], 'missing_area_ids': scope.get('missing_area_ids', [])})
         self._scope = {'requested_area_ids': sorted(requested), 'resolved_area_ids': sorted(resolved),
                        'missing_area_ids': sorted(missing), 'entities': list(raw.values())}
@@ -243,6 +258,22 @@ class PilotSuiteService:
             entity_id = event_data.get("entity_id")
             if any(item.entity_id == entity_id for item in self._neurons):
                 await self._derive()
+                old, new = event_data.get('old_state'), event_data.get('new_state')
+                if not isinstance(old, dict) or not isinstance(new, dict) or old.get('state') != 'off' or new.get('state') != 'on':
+                    return
+                fresh = self._last_refresh_at and (datetime.now(UTC)-datetime.fromisoformat(self._last_refresh_at)).total_seconds() <= max(60, self.settings.refresh_interval_seconds*2)
+                if not self._connected or not self._stream_connected or not fresh: return
+                try:
+                    stamp = datetime.fromisoformat(new['last_changed'])
+                    if stamp.tzinfo is None: return
+                    occurred = stamp.timestamp()
+                except (KeyError, ValueError, TypeError):
+                    return
+                ctx = new.get('context') if isinstance(new.get('context'), dict) else {}
+                origin = 'user_context' if ctx.get('user_id') else 'derived_context' if ctx.get('parent_id') else 'unknown'
+                for zone_id, source in self._learning_sources.items():
+                    if entity_id in source:
+                        await self.context.record(zone_id, entity_id, occurred, origin)
 
     async def _on_connection(self, connected: bool) -> None:
         self._stream_connected = connected

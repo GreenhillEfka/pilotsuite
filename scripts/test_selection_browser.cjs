@@ -9,9 +9,11 @@ const assert = require('node:assert/strict');
   try {
     const page = await browser.newPage({viewport: {width: 390, height: 844}});
     const errors = []; page.on('pageerror', error => errors.push(error.message));
-    let inventory = {zone_id: 'example', revision: 0, resolved: true, applied_to_inference: false,
+    let inventory = {zone_id: 'example', revision: 0, resolved: true, applied_to_inference: true,
       items: [{entity_id: 'sensor.temperature', name: '<script>unsafe</script>', state: '20', suggested_role: 'temperature', recommended: true, decision: 'unreviewed'},
         {entity_id: 'button.identify', state: null, recommended: false, decision: 'unreviewed'}], missing: []};
+    let contexts = {};
+    const roleCandidates = [{entity_id:'sensor.temperature',name:'Temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'sensor.second',name:'Second temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'binary_sensor.p',name:'Presence A',suggested_role:'motion',decision:'relevant'},{entity_id:'binary_sensor.q',name:'Presence B',suggested_role:'motion',decision:'relevant'}];
     let conflict = false; let writes = 0;
     let zones = [{zone_id: 'example', name: 'Example', area_ids: ['example'], extra_entity_ids: [], enabled: true, profile: 'cellar', revision: 0}];
     await page.route('http://pilotsuite.test/**', async route => {
@@ -36,6 +38,21 @@ const assert = require('node:assert/strict');
           moods: [{name: z.zone_id === 'example' ? 'cellar_only' : 'bath_only', score: 0.5}],
           neurons: [{entity_id: z.zone_id + '_sensor', kind: 'temperature', value: 20, quality: 'good'}]}))};
       }
+      else if (/api\/v1\/zones\/[^/]+\/context$/.test(suffix)) {
+        const id = suffix.split('/')[3];
+        contexts[id] ||= {revision: 1, config: {roles:{},learning:false,consented_at:null},event_count:0,patterns:[],eligible:false,candidates:roleCandidates};
+        if (route.request().method() === 'PATCH') {
+          const payload=route.request().postDataJSON();
+          if (conflict) return route.fulfill({status:409,json:{message:'context conflict'}});
+          contexts[id] = {...contexts[id], revision:contexts[id].revision+1,config:{roles:payload.roles,learning:payload.learning},eligible:payload.learning};
+          if (payload.reset) contexts[id] = {...contexts[id], event_count:0, patterns:[]};
+        }
+        data=contexts[id];
+      }
+      else if (/api\/v1\/zones\/[^/]+\/feedback$/.test(suffix)) {
+        const id=suffix.split('/')[3]; const payload=route.request().postDataJSON();
+        contexts[id].patterns[0].feedback=payload.decision; data=contexts[id];
+      }
       else if (suffix.startsWith('api/v1/zones/') && route.request().method() === 'PATCH') {
         const id = suffix.split('/').pop(); const index = zones.findIndex(z => z.zone_id === id);
         const payload = route.request().postDataJSON();
@@ -58,6 +75,7 @@ const assert = require('node:assert/strict');
       await route.fulfill({json: data});
     });
     await page.goto('http://pilotsuite.test/ingress/test/');
+    await page.locator('#entity-details summary').click();
     const first = page.locator('#selection-rows input').first();
     await first.waitFor();
     assert.equal(await first.evaluate(el => el.indeterminate), true);
@@ -84,11 +102,7 @@ const assert = require('node:assert/strict');
     await page.locator('#selection-search').fill('no-match');
     assert.match(await page.locator('#selection-rows').textContent(), /Keine passenden/);
     conflict = false;
-    await page.getByText('Erweitert: Auswahlmodus', {exact: true}).click();
-    await page.locator('#selection-active').check();
-    await page.locator('#selection-save').click();
-    await page.waitForFunction(() => document.getElementById('selection-message').textContent.includes('Bestätigte Auswahl ist'));
-    assert.equal(inventory.applied_to_inference, true);
+    assert.equal(await page.locator('#selection-active').count(), 0);
     await page.locator('#zone-new').click();
     await page.locator('#zone-name').fill('Living space');
     await page.locator('#zone-areas input[value=example]').check();
@@ -129,6 +143,36 @@ const assert = require('node:assert/strict');
     await page.waitForFunction(() => document.getElementById('active-zone-name').textContent === 'Badbereich');
     assert.match(await page.locator('#zone-state-message').textContent(), /Pausiert/);
     assert.deepEqual(zones[1].extra_entity_ids, ['sensor.temperature']);
+    await page.locator('#context-edit').click();
+    await page.locator('#role-temperature input[value="sensor.temperature"]').check();
+    await page.locator('#role-temperature input[value="sensor.second"]').check();
+    await page.locator('#role-presence input[value="binary_sensor.p"]').check();
+    await page.locator('#role-presence input[value="binary_sensor.q"]').check();
+    assert.equal(await page.locator('#learning-consent').isChecked(), false);
+    await page.locator('#learning-consent').check();
+    await page.locator('#context-form button[type=submit]').click();
+    await page.waitForFunction(() => document.getElementById('context-form').hidden);
+    assert.deepEqual(contexts.hz_test.config.roles.temperature, ['sensor.second','sensor.temperature']);
+    assert.deepEqual(contexts.hz_test.config.roles.presence, ['binary_sensor.p','binary_sensor.q']);
+    assert.equal(contexts.hz_test.config.learning,true);
+    contexts.hz_test.event_count=6;
+    contexts.hz_test.patterns=[{id:'p1',title:'Activity pattern',sources:['binary_sensor.p','binary_sensor.q'],events:6,observed_total:6,days:['a','b','c'],proposal:'Check routine',feedback:null}];
+    await page.evaluate(() => load());
+    await page.getByRole('button',{name:'Passt',exact:true}).click();
+    await page.waitForFunction(() => document.getElementById('learned-patterns').textContent.includes('Dein Feedback: Passt'));
+    assert.equal(contexts.hz_test.event_count,6);
+    await page.locator('#context-edit').click();
+    conflict=true;
+    await page.locator('#context-form button[type=submit]').click();
+    await page.waitForFunction(() => document.getElementById('context-message').textContent.includes('nicht bestätigt'));
+    assert.equal(await page.locator('#context-form').isVisible(),true);
+    conflict=false;
+    await page.locator('#context-cancel').click();
+    await page.locator('#learning-reset').click();
+    await page.waitForFunction(() => document.getElementById('learning-status').textContent.includes('Lernen ausgeschaltet'));
+    assert.equal(contexts.hz_test.event_count,0);
+    assert.deepEqual(contexts.hz_test.patterns,[]);
+    assert.equal(await page.locator('#neuron-details').getAttribute('open'),null);
     assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
     console.log('Browser regression passed: draft, save, conflict, discard, activation, search, mobile, ingress prefix.');

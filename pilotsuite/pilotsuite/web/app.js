@@ -104,11 +104,9 @@ function formatTime(value) {
 
 async function load() {
   byId("error").hidden = true;
-  const [status, moods, suggestions, zone] = await Promise.all([
+  const [status, suggestions] = await Promise.all([
     json("api/v1/status"),
-    json("api/v1/moods"),
     json("api/v1/suggestions"),
-    json("api/v1/golden-zone"),
   ]);
   renderStatus(status);
   dashboardSuggestions = suggestions.items;
@@ -120,6 +118,7 @@ async function load() {
     const data = await json('api/v1/zones');
     zoneDefinitions = data.items; zoneResults = data.results || [];
   }
+  if (!contextEditing && !selectionBusy && selectionZone) await loadContext();
   renderZoneView();
 }
 
@@ -152,19 +151,21 @@ let zoneCatalog = [];
 let zoneResults = [];
 let dashboardSuggestions = [];
 let zoneToggleBusy = false;
+let contextEditing = false;
+let contextData = null;
 let zoneExtraSelection = new Set();
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
 function selectionControls() {
-  byId('zone-toggle').disabled = zoneToggleBusy || selectionBusy || zoneFormOpen || !selectionZone || !!selectionDraft?.dirty || selectionConflict;
-  byId('selection-zone').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty;
-  byId('zone-new').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty;
-  byId('zone-edit').disabled = selectionBusy || zoneFormOpen || !!selectionDraft?.dirty || !selectionZone;
-  byId('selection-save').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft?.dirty;
-  byId('selection-discard').disabled = selectionBusy || zoneFormOpen || !selectionZone;
-  byId('selection-recommend').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft;
-  byId('selection-active').disabled = selectionBusy || zoneFormOpen || selectionConflict || !selectionDraft;
-  byId('selection-active').checked = Boolean(selectionDraft?.active);
+  byId('zone-toggle').disabled = zoneToggleBusy || selectionBusy || zoneFormOpen || contextEditing || !selectionZone || !!selectionDraft?.dirty || selectionConflict;
+  byId('selection-zone').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty;
+  byId('zone-new').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty;
+  byId('zone-edit').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty || !selectionZone;
+  byId('selection-save').disabled = selectionBusy || zoneFormOpen || contextEditing || selectionConflict || !selectionDraft?.dirty;
+  byId('selection-discard').disabled = selectionBusy || zoneFormOpen || contextEditing || !selectionZone;
+  byId('selection-recommend').disabled = selectionBusy || zoneFormOpen || contextEditing || selectionConflict || !selectionDraft;
+  byId('context-edit').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty || !selectionZone;
+  byId('learning-reset').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty || !selectionZone;
   renderZoneTabs();
 }
 
@@ -186,7 +187,7 @@ function renderSelection() {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox'; checkbox.checked = decision === 'relevant';
     checkbox.indeterminate = decision === 'unreviewed';
-    checkbox.disabled = selectionBusy || zoneFormOpen || selectionConflict;
+    checkbox.disabled = selectionBusy || zoneFormOpen || contextEditing || selectionConflict;
     checkbox.setAttribute('aria-label', `${item.name || item.entity_id}: relevant`);
     checkbox.addEventListener('change', () => {
       selectionDraft.set(item.entity_id, checkbox.checked ? 'relevant' : 'ignored');
@@ -200,7 +201,7 @@ function renderSelection() {
     cells[4].textContent = decisionLabels[decision] + (item.recommended ? ' · empfohlen' : '');
     if (decision !== 'unreviewed') {
       const reset = document.createElement('button'); reset.type = 'button'; reset.textContent = 'Ungeprüft setzen';
-      reset.disabled = selectionBusy || zoneFormOpen || selectionConflict;
+      reset.disabled = selectionBusy || zoneFormOpen || contextEditing || selectionConflict;
       reset.addEventListener('click', () => { selectionDraft.set(item.entity_id, 'unreviewed'); selectionChanged(); });
       cells[4].append(document.createElement('br'), reset);
     }
@@ -213,7 +214,7 @@ function renderSelection() {
 }
 
 function selectionChanged() {
-  text('selection-message', `${Object.keys(selectionDraft.changes).length} geänderte Entitäten. Modus nach Speichern: ${selectionDraft.active ? 'nur bestätigte Auswahl' : 'automatischer Umfang'}. ${selectionDraft.dirty ? 'Ungespeichert.' : 'Keine Änderungen.'}`);
+  text('selection-message', `${Object.keys(selectionDraft.changes).length} geänderte Entitäten. Nur bestätigte Entitäten werden ausgewertet. ${selectionDraft.dirty ? 'Ungespeichert.' : 'Keine Änderungen.'}`);
   renderSelection(); renderZoneView();
 }
 
@@ -223,6 +224,7 @@ async function loadSelection(zone) {
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(zone)}`);
     selectionDraft = new SelectionDraft(inventory); selectionConflict = false;
+    await loadContext();
     text('selection-message', `${inventory.resolved ? 'Inventar geladen' : 'Zone derzeit nicht aufgelöst'} · Revision ${inventory.revision}. ${inventory.enabled === false ? 'Zone ist deaktiviert. ' : ''}Ungeprüft ist nicht gleich ignoriert.`);
   } catch (error) {
     // Do not display one zone's data under another zone's label.
@@ -232,10 +234,6 @@ async function loadSelection(zone) {
 }
 
 byId('selection-zone').addEventListener('change', event => loadSelection(event.target.value));
-byId('selection-active').addEventListener('change', event => {
-  selectionDraft.active = event.target.checked;
-  selectionChanged();
-});
 for (const id of ['selection-search', 'selection-filter']) byId(id).addEventListener('input', renderSelection);
 byId('selection-recommend').addEventListener('click', () => { selectionDraft.recommend(); selectionChanged(); });
 byId('selection-discard').addEventListener('click', () => {
@@ -246,17 +244,10 @@ byId('selection-save').addEventListener('click', async () => {
   if (selectionBusy || selectionConflict || !selectionDraft?.dirty) return;
   const changes = Object.entries(selectionDraft.changes);
   if (changes.length > 500) { text('selection-message', 'Bitte höchstens 500 Änderungen auf einmal speichern.'); return; }
-  if (selectionDraft.active !== Boolean(selectionDraft.inventory.applied_to_inference)) {
-    const count = selectionDraft.inventory.items.filter(item => selectionDraft.decisions.get(item.entity_id) === 'relevant').length;
-    const message = selectionDraft.active
-      ? `Auswertung auf ${count} bestätigte Entitäten dieser Zone beschränken? Ungeprüfte und ignorierte Entitäten werden ausgeschlossen. Bei leerer Auswahl stehen keine Beobachtungen dieser Zone zur Verfügung.`
-      : 'Zum automatischen Umfang zurückkehren? Dann werden auch ignorierte und ungeprüfte Entitäten wieder ausgewertet.';
-    if (!window.confirm(message)) return;
-  }
   selectionBusy = true; renderSelection();
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(selectionZone)}`, {
-      method: 'PATCH', body: JSON.stringify({revision: selectionDraft.inventory.revision, changes: Object.fromEntries(changes), active: selectionDraft.active}),
+      method: 'PATCH', body: JSON.stringify({revision: selectionDraft.inventory.revision, changes: Object.fromEntries(changes), active: true}),
     });
     selectionDraft = new SelectionDraft(inventory);
     text('selection-message', `Gespeichert. ${inventory.enabled === false ? 'Zone ist deaktiviert; Entscheidungen bleiben gespeichert.' : inventory.applied_to_inference ? 'Bestätigte Auswahl ist für die Auswertung aktiv.' : 'Automatischer Umfang bleibt aktiv.'}`);
@@ -269,7 +260,7 @@ byId('selection-save').addEventListener('click', async () => {
   } finally { selectionBusy = false; renderSelection(); }
 });
 window.addEventListener('beforeunload', event => {
-  if (selectionDraft?.dirty || zoneFormOpen) { event.preventDefault(); event.returnValue = ''; }
+  if (selectionDraft?.dirty || zoneFormOpen || contextEditing) { event.preventDefault(); event.returnValue = ''; }
 });
 
 async function reloadZones(preferred = selectionZone) {
@@ -296,7 +287,7 @@ function renderExtraChoices() {
 }
 
 async function openZoneEditor(existing) {
-  if (selectionBusy || selectionDraft?.dirty || zoneFormOpen) return;
+  if (selectionBusy || selectionDraft?.dirty || zoneFormOpen || contextEditing) return;
   zoneFormOpen = true; byId('zone-editor').open = true; renderSelection();
   try {
     const [areas, catalog, zones] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones')]);
@@ -364,7 +355,7 @@ setInterval(() => {
 
 
 function renderZoneTabs() {
-  const locked = selectionBusy || zoneFormOpen || zoneToggleBusy || !!selectionDraft?.dirty;
+  const locked = selectionBusy || zoneFormOpen || contextEditing || zoneToggleBusy || !!selectionDraft?.dirty;
   byId('zone-tabs').replaceChildren(...zoneDefinitions.map(zone => {
     const button = document.createElement('button'); button.type = 'button';
     button.id = `tab-${zone.zone_id}`;
@@ -398,6 +389,7 @@ function renderZoneView() {
   const note = zone?.profile === 'observe' ? 'Neutrales Profil: Beobachtung und Datenqualität; noch keine gelernten Gewohnheiten.' : 'Erdkeller-Klimaregeln.';
   text('zone-state-message', !zone ? 'Mit + Neue Zone beginnen.' :
     `${zone.enabled ? 'Auswertung aktiv' : 'Pausiert – Entitäten können bereits ausgewählt werden'}. ${result?.evaluated_count ?? 0} Beobachtungen. ${note}${selectionDraft?.dirty ? ' Bitte Auswahl zuerst speichern oder verwerfen.' : ''}${zone.enabled && !result?.evaluated_count ? ' Noch keine auswertbaren Beobachtungen: relevante Entitäten und deren Zustände prüfen.' : ''}`);
+  renderCompactSummary(result);
   renderMoods(result?.moods || []);
   if (!result?.moods?.length) text('moods', zone?.enabled ? 'Noch keine Bewertung verfügbar.' : 'Zone pausiert. Auswahl speichern und Auswertung starten.');
   renderSuggestions(zone?.enabled ? dashboardSuggestions.filter(item => item.scope?.includes(selectionZone)) : []);
@@ -406,7 +398,7 @@ function renderZoneView() {
 }
 
 byId('zone-toggle').addEventListener('click', async () => {
-  if (selectionBusy || zoneFormOpen || zoneToggleBusy || selectionDraft?.dirty || selectionConflict) return;
+  if (selectionBusy || zoneFormOpen || contextEditing || zoneToggleBusy || selectionDraft?.dirty || selectionConflict) return;
   const current = zoneDefinitions.find(z => z.zone_id === selectionZone);
   if (!current) return;
   zoneToggleBusy = true; selectionBusy = true; renderSelection();
@@ -425,4 +417,107 @@ byId('zone-toggle').addEventListener('click', async () => {
   } catch (error) {
     text('zone-state-message', `Änderung nicht bestätigt: ${error.message}. Bitte neu laden und Status prüfen.`);
   } finally { zoneToggleBusy = false; selectionBusy = false; renderSelection(); }
+});
+
+
+function renderCompactSummary(result) {
+  const inventory = selectionDraft?.inventory;
+  const items = inventory?.items || [];
+  const count = key => items.filter(i => i.decision === key).length;
+  text('zone-counts', `${items.length} Kandidaten · ${count('relevant')} relevant · ${count('unreviewed')} ungeprüft · ${count('ignored')} ignoriert · ${result?.evaluated_count ?? 0} ausgewertete Beobachtungen`);
+  const labels = {temperature: 'Temperatur', humidity: 'Feuchte', presence: 'Präsenz / Bewegung', light: 'Licht'};
+  const statuses = {ambiguous: 'Hauptsensoren auswählen', unavailable: 'Messwert nicht verfügbar', not_present: 'Kein bestätigter Sensor', partial: 'Teilweise verfügbar'};
+  byId('zone-summary').replaceChildren(...Object.entries(labels).map(([kind, label]) => {
+    const card = document.createElement('article'); card.className = 'card';
+    const title = document.createElement('span'); title.textContent = label;
+    const value = document.createElement('strong'); const info = result?.summary?.[kind];
+    value.textContent = !info ? 'Zone pausiert / keine Bewertung' : (info.status === 'available' || info.status === 'partial')
+      ? info.value != null ? `${Number(info.value).toLocaleString('de-DE', {maximumFractionDigits: 1})} ${info.unit || ''}` : `${info.on} von ${info.total} aktiv${info.status === 'partial' ? ' · Daten fehlen' : ''}`
+      : statuses[info.status] || info.status;
+    card.append(title, value);
+    if (info?.sources?.length) { const source = document.createElement('small'); source.textContent = `${info.valid_count} gültige Sensoren${info.status === 'partial' ? ' · Daten fehlen' : ''} · Median; Min ${info.min} / Max ${info.max} ${info.unit || ''}`; card.append(source); }
+    return card;
+  }));
+}
+
+async function loadContext() {
+  contextData = await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`);
+  renderLearning();
+}
+function renderLearning() {
+  if (!contextData?.config) return;
+  const cfg = contextData.config;
+  text('learning-status', `${cfg.learning ? contextData.eligible ? 'Lernfreigabe aktiv' : 'Freigegeben, aber Zone oder Lernquelle derzeit nicht auswertbar' : 'Lernen ausgeschaltet'} · ${contextData.event_count} Aktivierungen gespeichert · maximal 14 Tage.`);
+  byId('learning-export').href = endpoint(`api/v1/zones/${encodeURIComponent(selectionZone)}/context/export`);
+  const root = byId('learned-patterns'); root.replaceChildren();
+  if (!contextData.patterns?.length) { root.textContent = 'Noch kein Musterkandidat: mindestens fünf beobachtete Aktivierungen an drei verschiedenen UTC-Tagen im gleichen Zwei-Stunden-Fenster nötig.'; return; }
+  for (const pattern of contextData.patterns) {
+    const card = document.createElement('article'); card.className = 'suggestion';
+    const title = document.createElement('h3'); title.textContent = pattern.title;
+    const evidence = document.createElement('p'); evidence.textContent = `${pattern.events} Aktivierungen an ${pattern.days.length} Tagen; insgesamt ${pattern.observed_total} erfasst. Quelle: ${(pattern.sources || []).join(', ')}. Keine Anwesenheitswahrscheinlichkeit. ${pattern.proposal}`;
+    const feedback = document.createElement('p'); feedback.textContent = `Dein Feedback: ${{accepted:'Passt', rejected:'Nicht hilfreich', later:'Später prüfen'}[pattern.feedback] || 'noch offen'}`;
+    card.append(title, evidence, feedback);
+    for (const [decision, label] of [['accepted','Passt'], ['rejected','Nicht hilfreich'], ['later','Später prüfen']]) {
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
+      button.disabled = selectionBusy || contextEditing;
+      button.addEventListener('click', async () => {
+        const zone = selectionZone;
+        selectionBusy = true; renderSelection(); renderLearning();
+        try { contextData = await json(`api/v1/zones/${encodeURIComponent(zone)}/feedback`, {method:'POST', body:JSON.stringify({pattern_id:pattern.id, decision})}); }
+        catch(error) { text('context-message', `Feedback nicht bestätigt: ${error.message}`); }
+        finally { selectionBusy = false; renderSelection(); renderLearning(); }
+      });
+      card.append(button);
+    }
+    root.append(card);
+  }
+}
+const roleKinds = {temperature:['temperature'], humidity:['humidity'], presence:['motion','occupancy','presence'], reference_temperature:['temperature']};
+byId('context-edit').addEventListener('click', async () => {
+  if (selectionBusy || contextEditing || zoneFormOpen || selectionDraft?.dirty) return;
+  contextEditing = true; renderSelection();
+  try {
+    await loadContext();
+    for (const [role, kinds] of Object.entries(roleKinds)) {
+      const select = byId(`role-${role}`); select.replaceChildren();
+      const current = contextData.config.roles[role] || [];
+      const candidates = (contextData.candidates || []).filter(i => kinds.includes(i.suggested_role));
+      for (const id of current) if (!candidates.some(i=>i.entity_id===id)) candidates.push({entity_id:id,name:`${id} (aktuell nicht verfügbar / nicht relevant)`});
+      if (!candidates.length) select.textContent='Keine bestätigten Sensoren dieses Typs.';
+      for (const item of candidates) {
+        const label=document.createElement('label'); const input=document.createElement('input'); input.type='checkbox'; input.value=item.entity_id; input.checked=current.includes(item.entity_id);
+        label.append(input, document.createTextNode(item.name || item.entity_id)); select.append(label);
+      }
+    }
+    byId('learning-consent').checked=contextData.config.learning;
+    byId('context-form').hidden=false;
+  } catch(error) { contextEditing=false; text('context-message',error.message); renderSelection(); }
+});
+byId('context-cancel').addEventListener('click', () => { if (selectionBusy) return; contextEditing=false; byId('context-form').hidden=true; renderSelection(); });
+byId('context-form').addEventListener('submit', async event => {
+  event.preventDefault(); if (selectionBusy) return;
+  const roles=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]).filter(([,v])=>v.length));
+  const learning=byId('learning-consent').checked;
+  const sourceChanged=JSON.stringify(roles.presence || []) !== JSON.stringify(contextData.config.roles.presence || []);
+  if (sourceChanged && contextData.event_count && !window.confirm('Lernquelle wechseln? Vorhandene Lernbelege und Musterfeedback dieser Zone werden gelöscht.')) return;
+  if (learning && (!contextData.config.learning || sourceChanged) && !window.confirm(`Lernen für ${roles.presence || 'keine ausgewählte Quelle'} freigeben? Bis 14 Tage Aktivierungen speichern, Zeitfenster in UTC, höchstens 5.000 Belege insgesamt. Keine Aktorsteuerung.`)) return;
+  selectionBusy=true; byId('context-fields').disabled=true; renderSelection();
+  try {
+    contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles,learning})});
+    contextEditing=false; byId('context-form').hidden=true;
+    text('context-message','Rollen und Lernfreigabe gespeichert.');
+    selectionBusy=false; await loadSelection(selectionZone); await load();
+  } catch(error) { text('context-message',`Speichern nicht bestätigt: ${error.message}. Bei Konflikt abbrechen und neu öffnen.`); }
+  finally { selectionBusy=false; byId('context-fields').disabled=false; renderSelection(); renderLearning(); }
+});
+byId('learning-reset').addEventListener('click', async () => {
+  if (selectionBusy || contextEditing || selectionDraft?.dirty || !window.confirm('Lernbelege und Musterfeedback dieser Zone löschen und Lernen ausschalten? Die Entitätenauswahl bleibt erhalten.')) return;
+  selectionBusy=true; renderSelection();
+  try {
+    await loadContext();
+    contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles:contextData.config.roles,learning:false,reset:true})});
+    text('context-message','Lernbelege und Feedback gelöscht. Lernen ausgeschaltet.');
+    selectionBusy=false; await loadSelection(selectionZone); await load();
+  } catch(error) { text('context-message',`Löschen nicht bestätigt: ${error.message}`); }
+  finally { selectionBusy=false; renderSelection(); renderLearning(); }
 });
