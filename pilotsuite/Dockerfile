@@ -22,10 +22,7 @@ RUN pip install --no-cache-dir --requirement requirements.txt
 
 COPY pilotsuite ./pilotsuite
 COPY run.sh /run.sh
-RUN chmod 0755 /run.sh \
-    && addgroup -S pilotsuite \
-    && adduser -S -D -H -G pilotsuite pilotsuite \
-    && chown -R pilotsuite:pilotsuite /opt/pilotsuite
+RUN chmod 0755 /run.sh
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -35,4 +32,3 @@ ENV PYTHONUNBUFFERED=1 \
 EXPOSE 8099
 
 CMD ["/run.sh"]
-

@@ -25,6 +25,8 @@ jobs:
           cache-dependency-path: pilotsuite/requirements.txt
       - name: Validate repository contracts
         run: python scripts/validate.py
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check --requirement pilotsuite/requirements.txt
       - name: Compile Python
         run: python -m compileall -q pilotsuite/pilotsuite
       - name: Run unit tests
