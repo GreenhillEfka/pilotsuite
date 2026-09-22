@@ -2,6 +2,14 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.9] - 2026-09-22
+
+- Derive virtual zone references from main sensor groups, including illuminance.
+- Use the same explicit presence group for summary and consented learning.
+- Preserve empty groups; display effective defaults before editing.
+- Validate lux units and values; distinguish external comparison temperatures.
+- Add API persistence, role-group and mobile browser regressions.
+
 ## [0.1.0-alpha.8] - 2026-09-22
 
 - Fix direct module startup: define all role/learning API handlers before calling main.

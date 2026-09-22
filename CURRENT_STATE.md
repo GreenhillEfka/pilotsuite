@@ -1,13 +1,14 @@
 # Current State
 
-## Development: automatic sensor references
+## alpha.9 release candidate: automatic sensor references
 
 ADR-018 and docs/SENSOR_REFERENCES.md define the revised role contract.
 Implemented automatic references for temperature, humidity, illuminance, presence
 and light; persisted empty groups; consistent presence display/learning sources;
 visible legacy defaults and explicit external comparison-temperature labeling.
-63 backend tests, four JS tests and repository validation pass locally. Local
-Chromium is unavailable; extended browser and container CI remain release gates.
+63 backend tests, four JS tests and repository validation pass locally. CI
+35796705508 passed backend, extended browser and container on d84375a. Release
+metadata requires its final CI before merge.
 No HA deployment performed in this increment; alpha.8 evidence below is historical.
 
 Last updated: 2026-09-23 (runtime log UTC)
