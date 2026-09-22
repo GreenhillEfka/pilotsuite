@@ -9,7 +9,7 @@ from typing import Any
 from .models import Mood, Suggestion
 
 
-RULESET_VERSION = "erdkeller-1"
+RULESET_VERSION = "erdkeller-2"
 
 
 def build_suggestions(
@@ -63,14 +63,15 @@ def build_suggestions(
         mood = mood_map.get(mood_name)
         if mood is None or mood.score < threshold:
             continue
-        stable_id = _stable_id(rule_id, area_ids, mood.score)
+        stable_id = _stable_id(rule_id, area_ids)
         suggestions.append(
             Suggestion(
                 id=stable_id,
                 rule_id=f"{RULESET_VERSION}:{rule_id}",
                 title=title,
                 explanation=explanation,
-                confidence=round(min(1.0, 0.5 + mood.score / 2), 3),
+                confidence=None,
+                severity=mood.score,
                 risk=risk,
                 scope=area_ids,
                 evidence=mood.evidence,
@@ -80,7 +81,6 @@ def build_suggestions(
     return suggestions
 
 
-def _stable_id(rule_id: str, area_ids: tuple[str, ...], score: float) -> str:
-    source = f"{RULESET_VERSION}:{rule_id}:{','.join(area_ids)}:{score:.2f}"
+def _stable_id(rule_id: str, area_ids: tuple[str, ...]) -> str:
+    source = f"{RULESET_VERSION}:{rule_id}:{','.join(sorted(set(area_ids)))}"
     return hashlib.sha256(source.encode("utf-8")).hexdigest()[:16]
-

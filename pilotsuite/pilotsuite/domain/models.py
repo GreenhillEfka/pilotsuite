@@ -39,10 +39,11 @@ class Suggestion:
     rule_id: str
     title: str
     explanation: str
-    confidence: float
+    confidence: float | None
     risk: str
     scope: tuple[str, ...]
     evidence: tuple[dict[str, Any], ...]
+    severity: float = 0.0
     proposed_actions: tuple[dict[str, Any], ...] = field(default_factory=tuple)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,4 +52,3 @@ class Suggestion:
         value["evidence"] = list(self.evidence)
         value["proposed_actions"] = list(self.proposed_actions)
         return value
-

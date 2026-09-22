@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import unittest
 import json
+import asyncio
+from unittest.mock import AsyncMock, patch
 from types import SimpleNamespace
 
 from aiohttp import WSMsgType
@@ -53,6 +55,34 @@ class _Session:
 
 
 class HomeAssistantClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_graceful_close_reports_disconnect_and_backs_off(self):
+        class ClosingSocket(_Socket):
+            def __aiter__(self):
+                return self
+
+            async def __anext__(self):
+                raise StopAsyncIteration
+
+        socket = ClosingSocket([
+            {"type": "auth_required"}, {"type": "auth_ok"},
+            {"id": 1, "success": True},
+        ])
+        client = HomeAssistantClient("ws://supervisor/core/websocket", "token")
+        client._session = _Session(socket)
+        stop = asyncio.Event()
+        connection = AsyncMock()
+        delays = []
+
+        async def wait(awaitable, timeout):
+            delays.append(timeout)
+            stop.set()
+            return await awaitable
+
+        with patch("pilotsuite.ha.client.asyncio.wait_for", side_effect=wait):
+            await client.listen(AsyncMock(), stop, connection)
+        self.assertEqual([1], delays)
+        self.assertEqual([True, False], [call.args[0] for call in connection.call_args_list])
+
     async def test_snapshot_raises_receive_limit_for_large_home_assistant(self) -> None:
         responses: list[dict[str, object]] = [
             {"type": "auth_required"},

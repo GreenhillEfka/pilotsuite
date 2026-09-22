@@ -23,7 +23,18 @@ This file is the canonical long-term context for humans and AI contributors. If 
 7. No Home Assistant configuration file is overwritten. Future file changes must be additive, backed up first, validated, and reversible.
 8. Secrets and Supervisor tokens are never logged or stored by PilotSuite.
 9. Every material decision is recorded in `DECISIONS.md`; every actual implementation state is recorded in `CURRENT_STATE.md`.
-10. The Erdkeller is the first Golden Zone. Expansion happens only after its acceptance criteria pass.
+10. The Erdkellerbereich is the first Golden Zone. A second read-only zone must test generality before 1.0; broader actuation remains gated.
+
+## Continue here — architecture review implementation
+
+Read `docs/VISION.md`, `docs/IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, and
+`CURRENT_STATE.md` before working. Do not restart or recreate the project.
+The September 2026 review is accepted as the target design, not a claim that
+all capabilities are implemented. Keep source code, passing tests, and live
+Home Assistant acceptance as three separate kinds of evidence.
+Old repositories are pinned reference sources, never runtime dependencies.
+Do not reintroduce two learning engines or independently owned zone stores.
+Current alpha rules are climate heuristics, not learned habits.
 
 ## Conceptual chain
 
@@ -48,4 +59,3 @@ The Erdkeller scope validates the full read path with a bounded domain: area res
 - mandatory local LLM/Ollama/Open WebUI dependency
 - generated automations without review, validation, backup, and rollback
 - broad multi-room learning before the Golden Zone is accepted
-

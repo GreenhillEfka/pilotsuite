@@ -1,5 +1,5 @@
 name: PilotSuite
-version: 0.1.0-alpha.2
+version: 0.1.0-alpha.3
 slug: pilotsuite
 description: Explainable, policy-governed Habitus intelligence for Home Assistant
 url: https://github.com/GreenhillEfka/pilotsuite
@@ -16,7 +16,6 @@ hassio_api: false
 auth_api: false
 ingress: true
 ingress_port: 8099
-ingress_entry: /
 ingress_stream: false
 panel_icon: mdi:brain
 panel_title: PilotSuite

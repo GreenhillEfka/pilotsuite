@@ -1,5 +1,18 @@
 # Architecture v21
 
+## Reviewed target and current implementation
+
+`VISION.md` and ADR-009 through ADR-013 refine this architecture. There is one
+modular add-on and optionally a thin native HA adapter, never two semantic owners.
+`IMPLEMENTATION_STATUS.md` distinguishes current code from the target below.
+Current JSONL persistence is not the planned SQLite store. Current climate rules
+are not habit learning. Action-specific recovery replaces any universal rollback
+promise; no action execution exists in alpha.3.
+
+Severity, evidence quality, statistical confidence, preference and risk are
+separate concepts. Unknown confidence is null. Scope identity must not change
+with the measurement. Read-only learning is the next milestone, before actuation.
+
 ## Design goal
 
 PilotSuite adds explainable context and governed suggestions to Home Assistant without becoming a second automation platform or a shadow source of truth.
@@ -118,4 +131,3 @@ The Erdkeller is accepted only when:
 5. restart rebuilds the same world projection;
 6. no Home Assistant mutation occurs;
 7. logs and audit records contain no token or secret.
-

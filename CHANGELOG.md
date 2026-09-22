@@ -2,6 +2,25 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.3] - 2026-09-22
+
+### Fixed
+- Route repeated Ingress slashes internally without losing the external prefix.
+  Omitting the default ingress_entry alone was not a proven fix.
+- Normalize climate units and reject invalid readings; missing climate data is not stable.
+- Separate severity from unknown confidence; keep proposal identity stable.
+- Track event stream health, resynchronize after reconnect and back off on clean close.
+- Reject older state updates and exclude disabled entities from the projection.
+
+### Security
+- Restrict UI/API to the Ingress TCP peer; allow loopback liveness probes only.
+- Home Assistant mutations remain hard-disabled.
+
+### Added
+- Reviewed full vision, capability/acceptance ledger and revised learning-first roadmap.
+- Regression tests and periodic dashboard refresh.
+- Real Supervisor/browser acceptance is still pending.
+
 ## [0.1.0-alpha.2] - 2026-09-22
 
 ### Fixed

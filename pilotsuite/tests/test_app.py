@@ -18,6 +18,7 @@ class AppSmokeTests(unittest.IsolatedAsyncioTestCase):
             options_path=Path(self.temp_dir.name) / "options.json",
             refresh_interval_seconds=3600,
             supervisor_token="",
+            ingress_allowed_peers=("127.0.0.1",),
         )
         self.client = TestClient(TestServer(create_app(settings)))
         await self.client.start_server()
@@ -59,4 +60,3 @@ class AppSmokeTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -61,7 +61,8 @@ class HomeAssistantClient:
             return result
 
     async def listen(
-        self, callback: StateCallback, stop_event: asyncio.Event
+        self, callback: StateCallback, stop_event: asyncio.Event,
+        connection_callback: Callable[[bool], Awaitable[None]] | None = None,
     ) -> None:
         """Subscribe to state changes and reconnect with bounded backoff."""
         if not self._token:
@@ -89,6 +90,8 @@ class HomeAssistantClient:
                     if not subscribed.get("success"):
                         raise HomeAssistantError("state_changed subscription rejected")
                     delay = 1
+                    if connection_callback:
+                        await connection_callback(True)
                     async for message in socket:
                         if stop_event.is_set():
                             break
@@ -109,11 +112,15 @@ class HomeAssistantClient:
                 raise
             except Exception as exc:  # reconnect boundary
                 LOGGER.warning("Home Assistant event stream disconnected: %s", exc)
-                try:
-                    await asyncio.wait_for(stop_event.wait(), timeout=delay)
-                except TimeoutError:
-                    pass
-                delay = min(delay * 2, 30)
+            finally:
+                if connection_callback:
+                    await connection_callback(False)
+            # A graceful remote close must back off too.
+            try:
+                await asyncio.wait_for(stop_event.wait(), timeout=delay)
+            except TimeoutError:
+                pass
+            delay = min(delay * 2, 30)
 
     async def _authenticate(self, socket: Any) -> None:
         hello = await self._receive_json(socket)

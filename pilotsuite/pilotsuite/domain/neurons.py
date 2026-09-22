@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+import math
 
 from .models import Neuron
 
@@ -68,6 +69,23 @@ def build_neurons(scope: dict[str, Any]) -> list[Neuron]:
         kind = str(device_class or domain)
         quality = _quality(raw_state)
         value = _value(raw_state, str(device_class or ""), domain, quality)
+        unit = _optional_string(attrs.get("unit_of_measurement"))
+        if quality == "good" and kind in {"temperature", "humidity"}:
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                value, quality = None, "invalid"
+            elif kind == "temperature":
+                if unit == "°F":
+                    value, unit = (value - 32) * 5 / 9, "°C"
+                elif unit == "K":
+                    value, unit = value - 273.15, "°C"
+                elif unit != "°C":
+                    value, quality = None, "unsupported_unit"
+                if value is not None and value < -273.15:
+                    value, quality = None, "invalid"
+            elif unit != "%":
+                value, quality = None, "unsupported_unit"
+            elif not 0 <= value <= 100:
+                value, quality = None, "invalid"
         name = str(
             registry.get("name")
             or attrs.get("friendly_name")
@@ -80,7 +98,7 @@ def build_neurons(scope: dict[str, Any]) -> list[Neuron]:
                 area_id=area_id,
                 kind=kind,
                 value=value,
-                unit=_optional_string(attrs.get("unit_of_measurement")),
+                unit=unit,
                 quality=quality,
                 observed_at=_optional_string(state.get("last_updated")),
                 name=name,
@@ -108,7 +126,8 @@ def _value(
         return normalized.lower() == "on"
     if device_class in NUMERIC_DEVICE_CLASSES or domain in {"sensor", "number"}:
         try:
-            return float(normalized)
+            number = float(normalized)
+            return number if math.isfinite(number) else None
         except ValueError:
             return normalized
     return normalized
@@ -116,4 +135,3 @@ def _value(
 
 def _optional_string(value: Any) -> str | None:
     return str(value) if value is not None else None
-

@@ -21,6 +21,7 @@ class Settings:
     port: int = 8099
     ha_ws_url: str = "ws://supervisor/core/websocket"
     supervisor_token: str = ""
+    ingress_allowed_peers: tuple[str, ...] = ("172.30.32.2",)
 
     @classmethod
     def load(cls) -> "Settings":
@@ -77,4 +78,3 @@ def _bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:
 def _log_level(value: Any) -> str:
     normalized = str(value).lower()
     return normalized if normalized in {"trace", "debug", "info", "warning", "error"} else "info"
-

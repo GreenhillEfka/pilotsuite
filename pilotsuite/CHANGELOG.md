@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-alpha.3
+
+- Fix Home Assistant Ingress root routing that returned HTTP 404
+
 ## 0.1.0-alpha.2
 
 - Accept bounded Home Assistant WebSocket snapshots up to 32 MiB

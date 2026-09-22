@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+import re
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,25 @@ WEB_DIR = Path(__file__).with_name("web")
 SERVICE_KEY: web.AppKey[PilotSuiteService] = web.AppKey(
     "service", PilotSuiteService
 )
+
+
+@web.middleware
+async def ingress_guard(request: web.Request, handler: Any) -> web.StreamResponse:
+    settings = request.app[SERVICE_KEY].settings
+    # Trust the TCP peer, never a client-supplied forwarding header.
+    local_probe = request.remote in {"127.0.0.1", "::1"} and request.path == "/health"
+    if not local_probe and request.remote not in settings.ingress_allowed_peers:
+        raise web.HTTPForbidden(text="Ingress access required")
+    normalized = re.sub(r"/{2,}", "/", request.path)
+    if normalized != request.path:
+        # Resolve internally: redirects can lose the Supervisor's external prefix.
+        request = request.clone(rel_url=request.rel_url.with_path(normalized, keep_query=True))
+        match = await request.app.router.resolve(request)
+        match.add_app(request.app)
+        match.freeze()
+        request._match_info = match
+        return await match.handler(request)
+    return await handler(request)
 
 
 @web.middleware
@@ -69,7 +89,7 @@ async def request_context(
 def create_app(settings: Settings | None = None) -> web.Application:
     resolved = settings or Settings.load()
     service = PilotSuiteService(resolved)
-    app = web.Application(middlewares=[request_context], client_max_size=128 * 1024)
+    app = web.Application(middlewares=[request_context, ingress_guard], client_max_size=128 * 1024)
     app[SERVICE_KEY] = service
     app.on_startup.append(_startup)
     app.on_cleanup.append(_cleanup)
@@ -119,7 +139,7 @@ async def _health(_: web.Request) -> web.Response:
 
 async def _ready(request: web.Request) -> web.Response:
     status = await request.app[SERVICE_KEY].status()
-    ready = bool(status["home_assistant"]["connected"])
+    ready = bool(status["ready"])
     return web.json_response(
         {"status": "ready" if ready else "degraded", **status},
         status=200 if ready else 503,
@@ -210,4 +230,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -16,7 +16,7 @@ function percent(value) { return `${Math.round(Number(value || 0) * 100)}%`; }
 
 function renderStatus(status) {
   const ha = status.home_assistant;
-  text("ha-state", ha.connected ? "Verbunden" : "Nicht bereit");
+  text("ha-state", status.ready ? "Bereit" : "Nicht bereit");
   text("ha-detail", ha.connected ? `Letzter Abgleich ${formatTime(ha.last_refresh_at)}` : (ha.last_error || "Verbindung ausstehend"));
   const zone = status.golden_zone;
   text("zone-state", zone.missing_area_ids.length ? "Bereich fehlt" : `${zone.entity_count} Entitäten`);
@@ -63,7 +63,7 @@ function renderSuggestions(items) {
     const title = document.createElement("h3");
     title.textContent = item.title;
     const explanation = document.createElement("p");
-    explanation.textContent = `${item.explanation} Konfidenz ${percent(item.confidence)} · Risiko ${item.risk}.`;
+    explanation.textContent = `${item.explanation} Regelstärke ${percent(item.severity)} · Konfidenz ${item.confidence == null ? "nicht bestimmt" : percent(item.confidence)} · Risiko ${item.risk}.`;
     box.append(title, explanation);
     root.append(box);
   }
@@ -127,3 +127,10 @@ load().catch((error) => {
   byId("error").hidden = false;
 });
 
+// Refresh the display without forcing additional HA snapshots.
+setInterval(() => {
+  if (!document.hidden) load().catch((error) => {
+    byId("error").textContent = error.message;
+    byId("error").hidden = false;
+  });
+}, 15000);

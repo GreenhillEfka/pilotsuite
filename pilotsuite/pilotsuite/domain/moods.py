@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from statistics import fmean
 from typing import Any
+import math
 
 from .models import Mood, Neuron
 
@@ -20,9 +21,13 @@ def calculate_moods(neurons: Iterable[Neuron], *, connected: bool) -> list[Mood]
     high_temperature = _high_score(temperature, warning=18.0, critical=25.0)
     low_temperature = _low_score(temperature, warning=5.0, critical=0.0)
     uncertainty = 1.0 if not observations else len(unavailable) / len(observations)
+    missing_kinds = [kind for kind, values in (("humidity", humidity), ("temperature", temperature)) if not values]
+    uncertainty = max(uncertainty, len(missing_kinds) / 2)
     system_health = 1.0 if connected else 0.0
     alert = max(high_humidity, low_humidity, high_temperature, low_temperature)
     stability = max(0.0, 1.0 - max(alert, uncertainty, 1.0 - system_health))
+    if missing_kinds:
+        stability = 0.0
 
     values = [
         Mood("humidity_high", high_humidity, _evidence(humidity, "mean_humidity")),
@@ -43,6 +48,7 @@ def calculate_moods(neurons: Iterable[Neuron], *, connected: bool) -> list[Mood]
             (
                 {
                     "unavailable": len(unavailable),
+                    "missing_required_kinds": missing_kinds,
                     "total": len(observations),
                     "entity_ids": [item.entity_id for item in unavailable],
                 },
@@ -63,7 +69,11 @@ def _numeric(neurons: list[Neuron], kind: str) -> list[Neuron]:
     return [
         neuron
         for neuron in neurons
-        if neuron.kind == kind and isinstance(neuron.value, (int, float))
+        if neuron.kind == kind and neuron.quality == "good"
+        and not isinstance(neuron.value, bool)
+        and isinstance(neuron.value, (int, float))
+        and math.isfinite(neuron.value)
+        and neuron.unit == ("°C" if kind == "temperature" else "%")
     ]
 
 
@@ -104,4 +114,3 @@ def _evidence(neurons: list[Neuron], key: str) -> tuple[dict[str, Any], ...]:
 
 def _round(value: float) -> float:
     return round(max(0.0, min(value, 1.0)) if value <= 1.0 else value, 3)
-

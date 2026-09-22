@@ -1,45 +1,38 @@
-# Roadmap
+# Roadmap — continue, do not restart
 
-## 0.1 — Observe and explain
+## 0.1 alpha — reliable observation (current)
+- Preserve canonical repository and read-only boundary.
+- Normalize units, explicit missing evidence, stable suggestion identity.
+- Guard Ingress peer; test actual proxy path and browser assets.
+- Distinguish snapshot freshness, stream health and sensor validity.
+- Ship foundation fixes before claiming live acceptance.
 
-Status: current
+## 0.2 — consented read-only learning
+- Compose Habitus zones and sensor roles from HA identifiers.
+- SQLite schema/migrations for own definitions, bounded evidence and feedback.
+- Attribute manual/existing-automation/own actions where possible.
+- Separate observed statistics, confidence, severity and preference.
+- One traceable habit -> proposal -> durable feedback loop.
+- Consent, retention, export, delete/reset and replay regression fixtures.
+- Test a second unlike zone; no execution.
 
-- installable Supervisor App
-- HA connector and registry projection
-- Erdkeller Golden Zone
-- deterministic Habitus pipeline
-- Ingress UI, API, audit, tests
-- hard read-only boundary
+## 0.3 — governed action pilot
+- Typed allowlisted actions, scope/expiry, conflict and idempotency handling.
+- Review existing HA automations before proposing duplicates.
+- Backup as required, precondition recheck, verify, action-specific recovery.
+- One reversible low-risk action only after explicit approval.
+- Disposable-HA fault tests before real actuation.
 
-## 0.2 — Reviewable plans
+## 0.4 — useful native surfaces
+- Thin optional HA adapter for entities and Conversation.
+- Reuse HA Assist and existing device integrations.
+- Module/automation review, explanation graph, Dev/Wiki views.
+- HomeKit candidate review; optional LLM/RAG, never mandatory.
 
-- typed action catalog without execution
-- policy editor and simulation
-- explicit approval records
-- verification and inverse definitions
-- richer data-quality and sensor conflict analysis
+## 1.0 — demonstrated reliability
+- Golden Zone plus second-zone acceptance over an agreed observation period.
+- Stable contracts, tested migrations, signed multi-architecture images.
+- Recovery drills, privacy controls, operational documentation.
+- Broader autonomy remains separately authorized and bounded.
 
-## 0.3 — Controlled transaction pilot
-
-- one low-risk allowlisted action in the Golden Zone
-- Supervisor backup integration where necessary
-- apply, verify, and automatic rollback
-- time-bounded autonomy switch, disabled by default
-- disposable-HA integration tests
-
-## 0.4 — Learning with consent
-
-- user-confirmed habit observations
-- explainable preference deltas
-- reset/export/delete controls
-- no silent behavioral learning
-
-## 1.0 — Golden Zone accepted
-
-- stable API and migrations
-- pre-built signed multi-architecture images
-- operational runbook and recovery drills
-- Erdkeller acceptance criteria passed over an agreed observation period
-
-Only after 1.0 should additional rooms and broader suggestion domains be enabled.
-
+No version number or green unit suite substitutes for live acceptance.

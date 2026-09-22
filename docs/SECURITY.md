@@ -2,6 +2,12 @@
 
 ## Alpha guarantees
 
+In alpha.3 the app enforces the TCP peer boundary: UI/API access only from the
+Supervisor Ingress proxy (172.30.32.2); loopback may read `/health` only. Forwarded
+headers are not authentication. The Supervisor token can access HA's API; the
+read-only guarantee is enforced by application code, not a read-only token scope.
+This is not a claim that a compromised process could never call HA services.
+
 - mutation code paths are hard-disabled, not merely hidden by the UI;
 - no host network, Docker socket, privileged capability, or Home Assistant config mount;
 - Home Assistant access uses the short-lived `SUPERVISOR_TOKEN` from the runtime environment;
@@ -30,4 +36,3 @@ No LLM response can satisfy or bypass these requirements.
 ## Reporting
 
 Do not open public issues containing household entity IDs, locations, logs with credentials, or private repository content. Redact sensitive data before sharing diagnostics.
-

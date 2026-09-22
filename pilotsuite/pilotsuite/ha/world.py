@@ -36,6 +36,13 @@ class WorldModel:
             if new_state is None:
                 self._states.pop(entity_id, None)
             elif isinstance(new_state, dict):
+                current = self._states.get(entity_id, {})
+                # Queued stream messages must not roll a newer snapshot back.
+                try:
+                    if datetime.fromisoformat(new_state["last_updated"]) < datetime.fromisoformat(current["last_updated"]):
+                        return
+                except (KeyError, TypeError, ValueError):
+                    pass
                 self._states[entity_id] = deepcopy(new_state)
 
     async def summary(self) -> dict[str, Any]:
@@ -67,6 +74,8 @@ class WorldModel:
             ]
             scoped_entities: list[dict[str, Any]] = []
             for entity_id, registry in self._entities.items():
+                if registry.get("disabled_by") is not None:
+                    continue
                 area_id = self._entity_area_id(registry)
                 if area_id not in requested:
                     continue
@@ -115,4 +124,3 @@ def _index(value: Any, key: str) -> dict[str, dict[str, Any]]:
 
 def _as_dict(value: Any) -> dict[str, Any]:
     return deepcopy(value) if isinstance(value, dict) else {}
-
