@@ -25,8 +25,23 @@ Last updated: 2026-09-22
   were NOT comprehensively audited; do not claim complete legacy cleanup.
 - User reported Ingress 404. Internal root/health success did not prove browser UI.
 
+## Live deployment — 2026-09-22
+- User authorized app-only backup, update and tests. A fresh app-only backup was
+  created successfully and confirmed present through the dedicated backup listing.
+- Store check_updates discovered alpha.3; app update and start completed.
+- Supervisor app metadata confirms alpha.3 and state started. Startup logs confirm
+  version alpha.3 and hard_read_only mode. No unrelated apps/configurations changed.
+- Deployed code commit: ae971e4072123a0462435f85aa742f1c14b1f86c; CI succeeded.
+- HA-MCP proxy request to /health/ready returns 403 Ingress access required:
+  the transport peer is not the permitted Ingress proxy. Do not bypass or weaken
+  the peer guard. This does not establish failure of actual browser Ingress.
+- Dedicated app/backup tools worked; the raw hassio/api backup-info request was
+  unauthorized earlier. Do not conflate that with all HA-MCP operations failing.
+
 ## Not yet verified live
-- alpha.3 installation, real Ingress browser path/assets and new readiness behavior.
+- Real Ingress browser path/assets and new readiness behavior.
+- Current alpha.3 Erdkeller projection and live apply rejection remain unverified
+  through the blocked proxy. Historical alpha.2 checks are not alpha.3 acceptance.
 - Physical sensor freshness, correct sensor roles, disconnect/load soak.
 - No new HA configuration or automation changes are part of this milestone.
 
