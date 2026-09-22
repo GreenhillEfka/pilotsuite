@@ -51,7 +51,7 @@ const assert = require('node:assert/strict');
       }
       else if (/api\/v1\/zones\/[^/]+\/feedback$/.test(suffix)) {
         const id=suffix.split('/')[3]; const payload=route.request().postDataJSON();
-        contexts[id].patterns[0].feedback=payload.decision; data=contexts[id];
+        contexts[id].patterns[0].preference=payload.decision; data=contexts[id];
       }
       else if (suffix.startsWith('api/v1/zones/') && route.request().method() === 'PATCH') {
         const id = suffix.split('/').pop(); const index = zones.findIndex(z => z.zone_id === id);
@@ -163,10 +163,10 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('#role-preview').textContent(), /Präsenz \/ Bewegung: 2 Hauptsensoren/);
     await page.locator('#context-cancel').click();
     contexts.hz_test.event_count=6;
-    contexts.hz_test.patterns=[{id:'p1',title:'Activity pattern',sources:['binary_sensor.p','binary_sensor.q'],events:6,observed_total:6,days:['a','b','c'],proposal:'Check routine',feedback:null}];
+    contexts.hz_test.patterns=[{id:'p1',title:'Activity pattern',sources:['binary_sensor.p','binary_sensor.q'],statistics:{activation_count:6,distinct_day_count:3,observed_zone_activations:6},confidence:null,confidence_basis:'not_estimated',rule_strength:{rule_id:'activity-v1',threshold_met:true,event_ratio:1.2,day_ratio:1},risk:'read_only',proposal:'Check routine',preference:null}];
     await page.evaluate(() => load());
     await page.getByRole('button',{name:'Passt',exact:true}).click();
-    await page.waitForFunction(() => document.getElementById('learned-patterns').textContent.includes('Dein Feedback: Passt'));
+    await page.waitForFunction(() => document.getElementById('learned-patterns').textContent.includes('Deine Präferenz: Passt'));
     assert.equal(contexts.hz_test.event_count,6);
     await page.locator('#context-edit').click();
     conflict=true;

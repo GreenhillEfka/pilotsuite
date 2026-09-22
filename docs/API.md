@@ -48,6 +48,13 @@ remains informational for climate coverage; it no longer gates readiness.
 Suggestion `confidence` is now nullable: deterministic climate rules return null
 instead of an uncalibrated number. New `severity` contains rule strength, not a
 probability. IDs are stable for the versioned rule and normalized scope.
+
+Activity candidates from `GET /api/v1/zones/{zone_id}/context` expose independent
+`statistics`, `rule_strength`, nullable `confidence`, `risk`, and `preference`
+fields. `rule_strength` reports deterministic threshold ratios only; it is not a
+probability. Posting feedback changes only `preference`, never stored evidence or
+counts. The earlier flat `events`/`days`/`observed_total`/`origins`/`feedback`
+fields remain deprecated read-only aliases until an announced API-version change.
 Status adds `ready`, `event_stream_connected`, `snapshot_fresh`, and
 `missing_required_kinds`. In alpha.3 readiness required the stream, a recent snapshot, a
 resolved scope and valid temperature/humidity inputs; alpha.4 supersedes that rule. It does not certify physical

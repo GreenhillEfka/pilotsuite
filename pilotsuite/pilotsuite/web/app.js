@@ -459,9 +459,11 @@ function renderLearning() {
   for (const pattern of contextData.patterns) {
     const card = document.createElement('article'); card.className = 'suggestion';
     const title = document.createElement('h3'); title.textContent = pattern.title;
-    const evidence = document.createElement('p'); evidence.textContent = `${pattern.events} Aktivierungen an ${pattern.days.length} Tagen; insgesamt ${pattern.observed_total} erfasst. Quelle: ${(pattern.sources || []).join(', ')}. Keine Anwesenheitswahrscheinlichkeit. ${pattern.proposal}`;
-    const feedback = document.createElement('p'); feedback.textContent = `Dein Feedback: ${{accepted:'Passt', rejected:'Nicht hilfreich', later:'Später prüfen'}[pattern.feedback] || 'noch offen'}`;
-    card.append(title, evidence, feedback);
+    const stats = pattern.statistics || {};
+    const evidence = document.createElement('p'); evidence.textContent = `${stats.activation_count ?? 0} Aktivierungen an ${stats.distinct_day_count ?? 0} Tagen; insgesamt ${stats.observed_zone_activations ?? 0} erfasst. Quelle: ${(pattern.sources || []).join(', ')}. Keine Anwesenheitswahrscheinlichkeit. ${pattern.proposal}`;
+    const assessment = document.createElement('p'); assessment.textContent = `Regelstärke: Schwelle erfüllt (Ereignisse ×${pattern.rule_strength?.event_ratio ?? '—'}, Tage ×${pattern.rule_strength?.day_ratio ?? '—'}). Konfidenz: ${pattern.confidence == null ? 'nicht bestimmt' : percent(pattern.confidence)}. Risiko: ${pattern.risk === 'read_only' ? 'nur Prüfung, keine Aktion' : pattern.risk}.`;
+    const feedback = document.createElement('p'); feedback.textContent = `Deine Präferenz: ${{accepted:'Passt', rejected:'Nicht hilfreich', later:'Später prüfen'}[pattern.preference] || 'noch offen'}`;
+    card.append(title, evidence, assessment, feedback);
     for (const [decision, label] of [['accepted','Passt'], ['rejected','Nicht hilfreich'], ['later','Später prüfen']]) {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
       button.disabled = selectionBusy || contextEditing;

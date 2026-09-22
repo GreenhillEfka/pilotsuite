@@ -1,5 +1,16 @@
 # Current State
 
+## Under review: structured activity-candidate evidence
+
+The next bounded change gives `activity-v1` candidates independent observation
+statistics, deterministic threshold ratios, nullable statistical confidence,
+read-only risk and durable user preference fields. Deprecated flat alpha fields
+remain compatibility aliases; feedback still changes no evidence. Synthetic tests
+cover the contract and persistence. This work is not released or deployed;
+0.1.0-alpha.9 remains the installed rollback point. Next gate: pull-request CI
+including browser and amd64 container, then decide the next release package without
+changing production learning consent.
+
 ## Released and running: 0.1.0-alpha.9
 
 PR #8 merged as 04db3fb103850dd1c6f495d035f646d488a27b3d. Its tree

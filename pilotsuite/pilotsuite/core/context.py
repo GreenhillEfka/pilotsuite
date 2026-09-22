@@ -15,6 +15,9 @@ ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
               'presence': {'motion', 'occupancy', 'presence'}, 'reference_temperature': {'temperature'}}
 RETENTION = 14 * 86400
 MAX_EVIDENCE = 5000
+ACTIVITY_RULE_ID = 'activity-v1'
+MIN_PATTERN_EVENTS = 5
+MIN_PATTERN_DAYS = 3
 
 class ContextStore:
     def __init__(self, selections):
@@ -115,12 +118,24 @@ class ContextStore:
             patterns = []
             for bucket, events in sorted(buckets.items()):
                 days = sorted({datetime.fromtimestamp(t, UTC).date().isoformat() for t,_ in events})
-                if len(events) < 5 or len(days) < 3: continue
-                pid = hashlib.sha256(f'activity-v1:{zone_id}:{cfg["roles"].get("presence")}:{bucket}'.encode()).hexdigest()[:24]
+                if len(events) < MIN_PATTERN_EVENTS or len(days) < MIN_PATTERN_DAYS: continue
+                pid = hashlib.sha256(f'{ACTIVITY_RULE_ID}:{zone_id}:{cfg["roles"].get("presence")}:{bucket}'.encode()).hexdigest()[:24]
+                origins = dict(Counter(origin for _,origin in events))
                 patterns.append({'id': pid, 'title': f'Wiederkehrende Aktivierungen {bucket*2:02d}–{bucket*2+2:02d} Uhr UTC',
-                                 'sources': cfg['roles'].get('presence', []), 'events': len(events), 'days': days,
-                                 'observed_total': len(rows), 'confidence': None, 'feedback': feedback.get(pid),
-                                 'origins': dict(Counter(origin for _,origin in events)),
+                                 'sources': cfg['roles'].get('presence', []),
+                                 'statistics': {'activation_count': len(events), 'distinct_day_count': len(days),
+                                                'days_utc': days, 'observed_zone_activations': len(rows),
+                                                'origins': origins, 'window_utc': {'start_hour': bucket*2, 'end_hour': bucket*2+2}},
+                                 'confidence': None, 'confidence_basis': 'not_estimated',
+                                 'rule_strength': {'rule_id': ACTIVITY_RULE_ID, 'threshold_met': True,
+                                                   'event_ratio': round(len(events)/MIN_PATTERN_EVENTS, 3),
+                                                   'day_ratio': round(len(days)/MIN_PATTERN_DAYS, 3),
+                                                   'minimum_events': MIN_PATTERN_EVENTS, 'minimum_days': MIN_PATTERN_DAYS},
+                                 'risk': 'read_only', 'preference': feedback.get(pid),
+                                 # Deprecated alpha aliases; remove only with an
+                                 # announced API-version transition.
+                                 'events': len(events), 'days': days, 'observed_total': len(rows),
+                                 'origins': origins, 'feedback': feedback.get(pid),
                                  'proposal': 'Prüfen, ob dieses Zeitfenster eine relevante Routine beschreibt. Keine Automation wird erstellt.'})
             return {'config': cfg, 'event_count': len(rows), 'retention_days': 14, 'limit': MAX_EVIDENCE,
                     'time_basis': 'UTC', 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o} for e,t,o in rows],

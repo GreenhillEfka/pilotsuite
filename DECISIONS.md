@@ -1,5 +1,16 @@
 # Architecture Decision Log
 
+## ADR-019 — Activity candidates expose independent assessment dimensions
+
+The `activity-v1` candidate contract separates observed statistics, deterministic
+rule strength, statistical confidence, action risk and user preference. Rule
+strength reports only ratios against the five-event/three-day candidate threshold.
+It is not a probability and does not imply causality. Confidence stays null until a
+validated estimator exists. Current risk is `read_only`; no action is attached.
+Persisted feedback is exposed canonically as preference and never mutates evidence
+or rule strength. Earlier flat fields remain deprecated compatibility aliases until
+an announced API-version transition; they are not a second stored model.
+
 ## ADR-018 — One main group yields one virtual reference per supported class
 
 Main groups produce automatic typed zone references; external comparison sources
