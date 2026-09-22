@@ -1,6 +1,6 @@
 # Home Assistant compatibility
 
-PilotSuite `0.1.0-alpha.7` targets Home Assistant Core `2026.9.3` and the 2026 Supervisor App format.
+PilotSuite `0.1.0-alpha.8` targets Home Assistant Core `2026.9.3` and the 2026 Supervisor App format.
 
 Implementation choices:
 

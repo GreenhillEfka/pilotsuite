@@ -2,6 +2,14 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.8] - 2026-09-22
+
+- Fix direct module startup: define all role/learning API handlers before calling main.
+- Add a real subprocess entrypoint regression: starts python -m pilotsuite.app and
+  checks loopback HTTP health, using isolated data and no Home Assistant credentials.
+- alpha.7 failed at route registration on the real App before startup/migration;
+  alpha.8 supersedes it. Role groups and opt-in learning otherwise unchanged.
+
 ## [0.1.0-alpha.7] - 2026-09-22
 
 - Evaluate confirmed relevant entities only; reject the legacy automatic bypass.
