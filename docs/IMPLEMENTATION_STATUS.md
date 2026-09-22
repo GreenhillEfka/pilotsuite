@@ -9,8 +9,8 @@ The user confirmed successful Badbereich activation in the actual alpha.6 UI.
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
 | Add-on packaging | Implemented | alpha.6 installed and started after app-only backup dc8bd58c |
-| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; actual alpha.6 zone activation confirmed, exhaustive visual/asset review still open |
-| HA snapshot and event stream | Implemented; reconnect integration pending CI | Short streams retain exponential backoff; stable idle streams reset it; live disconnect/load soak pending |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; actual alpha.6 zone activation and browser API 200s confirmed, exhaustive visual/asset review still open |
+| HA snapshot and event stream | Reconnect integration merged, not released | Exact-commit CI passed; short streams retain exponential backoff, stable idle streams reset it; live disconnect/load soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Sensor role assignment and conflicting readings still pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Not learned habits; no persistent feedback yet |
@@ -47,7 +47,9 @@ command may be inferred from relative humidity alone.
 
 The reconnect correction previously proven in PR #2 is integrated onto alpha.6.
 49 Python and four JavaScript model tests pass locally, plus repository validation,
-frontend syntax and Python compilation. Exact-commit CI remains required before
-merge. No release or deployment is part of this increment. Next after the reliability
-gate: enforce confirmed-only inference and add explicit contextual sensor roles;
-only then introduce consented, synthetic-fixture-first habit evidence and feedback.
+frontend syntax and Python compilation. Candidate 636c5a7 passed exact-commit CI
+35792464489 (test/contracts, browser, amd64 container) and PR #4 merged as aac362a
+with an identical tree. It is not released or deployed. Next: package a distinct
+release with verified source/version identity and recovery, then enforce confirmed-
+only inference and add explicit contextual sensor roles. Consented learning remains
+synthetic-fixture-first and follows those gates.
