@@ -7,7 +7,7 @@ local-day counts, bounded sampled observability and separately consented light/l
 context at accepted activity events. Explicit source groups only; unknown values
 stay unknown. Context cards make read-only review suggestions, not HA commands.
 Schema 5 backs up before adding two tables; existing context consent defaults off.
-84 backend tests and repository validation pass locally. Browser test now covers
+85 backend tests and repository validation pass locally. Browser test now covers
 new settings and context/coverage rendering; expanded CI remains a required gate.
 The previous df5a77b head passed all CI 35799028200 before this package.
 Verified at package start: PR #9 open, main d48e719, HA alpha.9 started. No production

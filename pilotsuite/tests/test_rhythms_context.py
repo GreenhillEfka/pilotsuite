@@ -135,6 +135,16 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         with sqlite3.connect(self.selections.path) as db:
             self.assertEqual(5,db.execute('PRAGMA user_version').fetchone()[0])
 
+    async def test_progress_counts_local_days_at_utc_midnight(self):
+        first=stamp('2026-09-25T22:30:00+00:00')
+        second=stamp('2026-09-26T00:30:00+00:00')
+        await self.configure(detector={'min_events':5,'min_days':3,'timezone':'Europe/Berlin'},now=first-1)
+        for t in (first,second):
+            await self.store.record('a','binary_sensor.p',t,'unknown',now=t)
+        report=await self.store.report('a',now=second)
+        self.assertEqual(1,report['progress']['observed_days'])
+        self.assertEqual(2,report['progress']['observed_days_utc'])
+
     async def test_threshold_edit_preserves_timezone_and_explicit_utc_clears_it(self):
         await self.configure(detector={'min_events':5,'min_days':3,'timezone':'Europe/Berlin','day_mode':'weekday_weekend'})
         await self.configure(detector={'min_events':10,'min_days':4})
