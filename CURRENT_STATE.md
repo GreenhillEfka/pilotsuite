@@ -1,5 +1,20 @@
 # Current State
 
+## Development: targeted history and zone trends
+
+Branch feat/history-and-trends is based on main ebadf12 (alpha.11). Implements
+scoped raw/statistics reads, source/reference graphs, presence/light timelines,
+weekly activity raster and chronological reobservation checks. One-time explicit
+consent imports only presence activations into the existing bounded activity-v1
+store, deduplicated against live/imported evidence. Schema 6 migration backs up
+schema 5 and preserves settings. Contract: docs/HISTORY_AND_TRENDS.md / ADR-023.
+105 backend tests, four JS tests and repository validation pass locally. Browser
+regression extended; local Chromium missing, so CI browser/container remain gates.
+HA read-only metadata confirms alpha.11 started. No release, update, role/consent
+change or live historical import performed. Actual Recorder coverage and Ingress
+acceptance remain open. Release requires scoped App-and-data backup first.
+
+
 ## Released and running: 0.1.0-alpha.11
 
 PR #9 merged as a1bb95f7a6c045ece234ad70e8e9ee3c855129d0. The merge tree

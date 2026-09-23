@@ -94,6 +94,8 @@ class ContextStore:
             source_changed = old['roles'].get('presence') != roles.get('presence')
             if reset or source_changed:
                 db.execute('DELETE FROM activity_evidence WHERE zone_id=?', (zone_id,))
+                db.execute('DELETE FROM history_provenance WHERE zone_id=?', (zone_id,))
+                db.execute('DELETE FROM history_imports WHERE zone_id=?', (zone_id,))
                 db.execute('DELETE FROM pattern_feedback WHERE zone_id=?', (zone_id,))
             context_enabled = (old['context_learning'] if context_learning is None else context_learning) and learning and not reset
             context_changed = any(old['roles'].get(k) != roles.get(k) for k in ('light', 'illuminance'))
@@ -117,6 +119,9 @@ class ContextStore:
     def prune(db, now):
         db.execute('DELETE FROM activity_evidence WHERE occurred < ?', (now-RETENTION,))
         db.execute('DELETE FROM activity_evidence WHERE rowid NOT IN (SELECT rowid FROM activity_evidence ORDER BY occurred DESC LIMIT ?)', (MAX_EVIDENCE,))
+        db.execute('DELETE FROM history_provenance WHERE NOT EXISTS (SELECT 1 FROM activity_evidence e WHERE e.zone_id=history_provenance.zone_id AND e.entity_id=history_provenance.entity_id AND e.occurred=history_provenance.occurred)')
+        db.execute('DELETE FROM history_imports WHERE created < ?', (now-RETENTION,))
+        db.execute('DELETE FROM history_imports WHERE rowid NOT IN (SELECT rowid FROM history_imports ORDER BY created DESC LIMIT 200)')
         db.execute('DELETE FROM activity_context WHERE occurred < ? OR NOT EXISTS (SELECT 1 FROM activity_evidence e WHERE e.zone_id=activity_context.zone_id AND e.occurred=activity_context.occurred)', (now-RETENTION,))
         db.execute('DELETE FROM coverage_checks WHERE slot < ?', (now-RETENTION,))
         db.execute('DELETE FROM coverage_checks WHERE rowid NOT IN (SELECT rowid FROM coverage_checks ORDER BY slot DESC LIMIT 50000)')
@@ -215,6 +220,8 @@ class ContextStore:
                     'coverage_samples': [{'slot': slot, 'state': state} for slot,state in db.execute('SELECT slot,state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,))],
                     'context_windows': context_report([(t, json.loads(p)) for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))], detector),
                     'context_evidence': [{'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'context': json.loads(p)} for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))],
+                    'history_imports': [json.loads(p) for (p,) in db.execute('SELECT payload FROM history_imports WHERE zone_id=? ORDER BY created DESC', (zone_id,))],
+                    'historical_event_count': db.execute('SELECT COUNT(*) FROM history_provenance WHERE zone_id=?', (zone_id,)).fetchone()[0],
                     'time_basis': local_zone.key, 'day_mode': day_mode, 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o} for e,t,o in rows],
                     'limitations': 'Nur beobachtete Aktivierungen, keine Anwesenheitsdauer oder Wahrscheinlichkeit. Ausfälle und inaktive Lernzeiten sind unbeobachtet; Herkunft ist kein Beweis menschlicher Bedienung.'}
 
@@ -230,3 +237,45 @@ class ContextStore:
         with closing(sqlite3.connect(self.path)) as db, db:
             db.execute('INSERT INTO pattern_feedback VALUES (?,?,?,?) ON CONFLICT(zone_id,pattern_id) DO UPDATE SET decision=excluded.decision, updated=excluded.updated', (zone_id, pattern_id, decision, time.time()))
             self.prune(db, time.time())
+
+    async def import_history(self, zone_id, revision, roles, events, start, end, *, now=None):
+        return await asyncio.to_thread(self._import_history, zone_id, revision, roles,
+                                       events, start, end, time.time() if now is None else now)
+
+    def _import_history(self, zone_id, revision, roles, events, start, end, now):
+        import uuid
+        from bisect import bisect_left, insort
+        with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            cfg = self.read(db, zone_id)
+            selected = self.selections._read(db, zone_id)
+            definition = db.execute('SELECT definition FROM habitus_zones WHERE zone_id=?', (zone_id,)).fetchone()
+            if selected['revision'] != revision:
+                raise SelectionConflict('Zone changed during history retrieval; reload and review again')
+            if not definition or not json.loads(definition[0])['enabled'] or not cfg['learning']:
+                raise InvalidSelection('Enable zone and activity learning before importing history')
+            if roles.get('presence') != cfg['roles'].get('presence') or not roles.get('presence'):
+                raise InvalidSelection('History requires the complete confirmed presence group')
+            if any(selected['decisions'].get(e) != 'relevant' for e in roles['presence']):
+                raise InvalidSelection('All history sources must still be relevant')
+            if not now-RETENTION-60 <= start < end <= now or end-start > RETENTION:
+                raise InvalidSelection('Historical learning is bounded to the last 14 days')
+            self.prune(db, now)
+            stamps = sorted(t for (t,) in db.execute('SELECT occurred FROM activity_evidence WHERE zone_id=?', (zone_id,)))
+            import_id, accepted = uuid.uuid4().hex, 0
+            for occurred, entity in sorted(events):
+                if entity not in roles['presence'] or not max(start,now-RETENTION) < occurred < end: continue
+                i = bisect_left(stamps, occurred)
+                if (i and occurred-stamps[i-1] < 300) or (i<len(stamps) and stamps[i]-occurred < 300): continue
+                db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)', (zone_id,entity,occurred,'unknown'))
+                db.execute('INSERT INTO history_provenance VALUES (?,?,?,?)', (zone_id,entity,occurred,import_id))
+                insort(stamps,occurred); accepted += 1
+            receipt = {'id':import_id, 'authorized_at':now, 'start':start, 'end':end,
+                       'sources':roles['presence'], 'accepted':accepted,
+                       'basis':'current_sources_applied_retrospectively', 'context_imported':False}
+            db.execute('INSERT INTO history_imports VALUES (?,?,?,?)', (import_id,zone_id,now,json.dumps(receipt)))
+            db.execute('INSERT INTO zones VALUES (?,?) ON CONFLICT(zone_id) DO UPDATE SET revision=excluded.revision', (zone_id, revision+1))
+            self.prune(db, now)
+            receipt['retained_from_import'] = db.execute('SELECT COUNT(*) FROM history_provenance WHERE import_id=?', (import_id,)).fetchone()[0]
+            db.execute('UPDATE history_imports SET payload=? WHERE id=?', (json.dumps(receipt),import_id))
+            return receipt

@@ -49,6 +49,20 @@ const assert = require('node:assert/strict');
         }
         data=contexts[id];
       }
+      else if (/api\/v1\/zones\/[^/]+\/history(?:\/import)?$/.test(suffix)) {
+        const id=suffix.split('/')[3], payload=route.request().postDataJSON();
+        if(suffix.endsWith('/import')) {
+          assert.equal(payload.consent,true); assert.equal(payload.mode,'states');
+          data={receipt:{accepted:3,retained_from_import:3}};
+        } else {
+          const start=new Date(payload.start).getTime()/1000, end=new Date(payload.end).getTime()/1000;
+          data={zone_id:id,revision:contexts[id].revision,start,end,timezone:'Europe/Berlin',
+            trends:{basis:payload.mode==='statistics'?'hourly_source_statistics':'sampled_recorded_states',warning:'Lücken sind unbekannt.',
+              sources:[{entity_id:'sensor.temperature',kind:'temperature',unit:'°C',record_count:2,points:[[start,20],[end,22]]}],
+              references:payload.mode==='statistics'?[]:[{kind:'temperature',unit:'°C',sources:['sensor.temperature'],points:[{t:start,value:20,min:19,max:21},{t:end,value:22,min:21,max:23}]}]},
+            activity:{timezone:'Europe/Berlin',limitations:'Keine Genauigkeitsquote.',heatmap:[{weekday:0,start_hour:8,events:3}],checks:[]}};
+        }
+      }
       else if (/api\/v1\/zones\/[^/]+\/feedback$/.test(suffix)) {
         const id=suffix.split('/')[3]; const payload=route.request().postDataJSON();
         contexts[id].patterns[0].preference=payload.decision; data=contexts[id];
@@ -195,6 +209,25 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('#context-form').isVisible(),true);
     conflict=false;
     await page.locator('#context-cancel').click();
+    contexts.hz_test.enabled=true;
+    await page.locator('#history-load').click();
+    await page.locator('#history-chart svg').waitFor();
+    assert.match(await page.locator('#history-legend').innerText(),/Zonenreferenz/);
+    assert.equal(await page.locator('#history-import').isDisabled(),true);
+    await page.locator('#history-consent').check();
+    assert.equal(await page.locator('#history-import').isEnabled(),true);
+    await page.locator('#history-import').click();
+    await page.waitForFunction(()=>document.getElementById('history-message').textContent.includes('3 neue Aktivierungen'));
+    assert.equal(await page.locator('#history-consent').isChecked(),false);
+    await page.locator('#history-mode').selectOption('statistics');
+    await page.locator('#history-load').click();
+    await page.locator('#history-chart svg').waitFor();
+    assert.match(await page.locator('#history-basis').innerText(),/Stundenmittel/);
+    await page.locator('#history-consent').check();
+    assert.equal(await page.locator('#history-import').isDisabled(),true);
+    await page.locator('#history-range').selectOption('custom');
+    assert.equal(await page.locator('#history-start').isVisible(),true);
+    assert.equal(await page.locator('#history-display').isVisible(),false);
     await page.locator('#learning-reset').click();
     await page.waitForFunction(() => document.getElementById('learning-status').textContent.includes('Lernen ausgeschaltet'));
     assert.equal(contexts.hz_test.event_count,0);

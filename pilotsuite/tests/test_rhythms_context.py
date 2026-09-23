@@ -133,7 +133,7 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse((await self.store.get('a'))['context_learning'])
         self.assertEqual('relevant',(await self.selections.get('a'))['decisions']['binary_sensor.p'])
         with sqlite3.connect(self.selections.path) as db:
-            self.assertEqual(5,db.execute('PRAGMA user_version').fetchone()[0])
+            self.assertEqual(6,db.execute('PRAGMA user_version').fetchone()[0])
 
     async def test_progress_counts_local_days_at_utc_midnight(self):
         first=stamp('2026-09-25T22:30:00+00:00')

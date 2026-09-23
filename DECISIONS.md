@@ -200,3 +200,16 @@ The Erdkeller is the first bounded end-to-end scope. Entity selection is derived
 **Status:** accepted — 2026-09-22
 
 The Dockerfile is the single build source according to the Home Assistant 2026 BuildKit migration. The Home Assistant multi-architecture Python base image is pinned.
+
+## ADR-023 — Targeted history and shared retrospective activity evidence
+
+Accepted 2026-09-23 for the history package. Read only saved relevant main groups
+through HA APIs; do not copy Recorder. Separate sampled state graphs from hourly
+statistics and prohibit statistics-based activation imports. One-time scoped
+historical consent complements live consent. Import off→on transitions into the
+existing activity-v1 store with provenance, bidirectional cooldown deduplication,
+revision guards and existing retention. History never fabricates uptime samples.
+Schema 6 backs up before adding provenance/receipts. Current source mapping applied
+retrospectively is explicit. Chronological 70/30 reobservation checks do not claim
+predictive accuracy or authorize actions. Contract: docs/HISTORY_AND_TRENDS.md.
+Historical light-context persistence is deferred; no implicit extension of consent.

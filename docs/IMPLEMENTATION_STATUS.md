@@ -1,5 +1,12 @@
 # Capability and acceptance ledger
 
+## History increment (development, not installed)
+Scoped HA raw/history and hourly statistic reads, zone graphs, weekly activity view
+and time-separated reobservation checks implemented. Explicit one-time activity
+import shares existing learning store; schema 6 with migration backup. 105 backend
+and four JS tests pass locally; CI browser/container gate pending. See
+HISTORY_AND_TRENDS.md for consent, retention and limitations. Live remains alpha.11.
+
 ## alpha.11 released and installed
 
 PR #9 merge a1bb95f matches the final tested tree c2a4707. CI 35800786084

@@ -220,6 +220,7 @@ function selectionChanged() {
 
 async function loadSelection(zone) {
   if (selectionBusy) return;
+  if (typeof historyInvalidate === "function") historyInvalidate();
   selectionBusy = true; selectionZone = zone; renderSelection();
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(zone)}`);
@@ -460,6 +461,7 @@ function renderCompactSummary(result) {
 
 async function loadContext() {
   contextData = await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`);
+  if (typeof historyCheckRevision === "function") historyCheckRevision();
   renderLearning();
 }
 function renderLearning() {
@@ -479,6 +481,7 @@ function renderLearning() {
   const sourceIds = cfg.roles.presence || [];
   const sourceName = id => contextData.candidates?.find(i => i.entity_id === id)?.name || id;
   text('learning-sources', `Gespeicherte Präsenzgruppe: ${sourceIds.map(sourceName).join(', ') || 'keine'}. Auswertbare Quellen: ${(contextData.collecting_sources || []).map(sourceName).join(', ') || 'keine'}.`);
+  text('learning-status', byId('learning-status').textContent + ` Davon ${contextData.historical_event_count || 0} historische Belege.`);
   const progress = contextData.progress;
   const timeBasis = contextData.time_basis || 'UTC';
   const dayLabels = {all:'alle Tage', weekday:'Mo–Fr', weekend:'Sa–So'};

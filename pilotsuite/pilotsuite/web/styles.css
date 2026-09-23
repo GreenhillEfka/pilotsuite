@@ -95,3 +95,12 @@ input[type="checkbox"] { width: 1.3rem; height: 1.3rem; accent-color: var(--acce
 
 .role-choices { max-height: 14rem; overflow-y: auto; }
 .role-choices label { display: flex; align-items: center; gap: .5rem; margin: .5rem 0; }
+
+.history-panel { margin: 1rem 0; }
+#history-chart svg { width: 100%; height: auto; min-height: 180px; }
+#history-chart svg text { fill: var(--text); font-size: 11px; }
+.history-grid { stroke: #66737c; stroke-opacity: .35; }
+#history-legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; overflow-wrap: anywhere; }
+#history-table { max-height: 22rem; }
+#history-heatmap td { text-align: center; }
+.history-panel label { display: block; margin: .7rem 0; }

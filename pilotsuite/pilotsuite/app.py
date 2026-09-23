@@ -102,6 +102,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.on_cleanup.append(_cleanup)
     app.router.add_get("/", _index)
     app.router.add_get("/assets/app.js", _javascript)
+    app.router.add_get("/assets/history.js", _history_javascript)
     app.router.add_get("/assets/selections.js", _selection_javascript)
     app.router.add_get("/assets/styles.css", _stylesheet)
     app.router.add_get("/health", _health)
@@ -115,6 +116,8 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post('/api/v1/zones', _save_zone)
     app.router.add_patch('/api/v1/zones/{zone_id}', _save_zone)
     app.router.add_get('/api/v1/entity-catalog', _entity_catalog)
+    app.router.add_post('/api/v1/zones/{zone_id}/history', _history_view)
+    app.router.add_post('/api/v1/zones/{zone_id}/history/import', _history_import)
     app.router.add_get('/api/v1/zones/{zone_id}/context', _context_get)
     app.router.add_patch('/api/v1/zones/{zone_id}/context', _context_patch)
     app.router.add_get('/api/v1/zones/{zone_id}/context/export', _context_export)
@@ -211,6 +214,10 @@ async def _index(_: web.Request) -> web.FileResponse:
 
 async def _javascript(_: web.Request) -> web.FileResponse:
     return web.FileResponse(WEB_DIR / "app.js", headers={"Content-Type": "text/javascript"})
+
+
+async def _history_javascript(_: web.Request) -> web.FileResponse:
+    return web.FileResponse(WEB_DIR / "history.js", headers={"Content-Type": "text/javascript"})
 
 
 async def _stylesheet(_: web.Request) -> web.FileResponse:
@@ -408,6 +415,21 @@ async def _pattern_feedback(request):
         await service.selection_inventory(request.match_info['zone_id'])
         await service.context.feedback(request.match_info['zone_id'], payload['pattern_id'], payload['decision'])
         return web.json_response(await _context_payload(service, request.match_info['zone_id']))
+
+
+async def _history_request(request, importing=False):
+    try: payload = await request.json()
+    except ValueError as exc: raise InvalidSelection('invalid JSON') from exc
+    return web.json_response(await request.app[SERVICE_KEY].history_view(
+        request.match_info['zone_id'],payload,import_learning=importing))
+
+
+async def _history_view(request):
+    return await _history_request(request)
+
+
+async def _history_import(request):
+    return await _history_request(request, True)
 
 
 if __name__ == "__main__":

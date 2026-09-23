@@ -36,6 +36,7 @@ class PilotSuiteService:
         self.zones = ZoneStore(self.selections)
         self.context = ContextStore(self.selections)
         self._learning_sources = {}
+        self._history_lock = asyncio.Lock()
         self._zone_results: list[dict[str, Any]] = []
         self.world = WorldModel()
         self.client = HomeAssistantClient(
@@ -326,3 +327,60 @@ class PilotSuiteService:
                     outcome="degraded",
                     details={"reason": "interval", "error": type(exc).__name__},
                 )
+
+    async def history_view(self, zone_id, payload, *, import_learning=False):
+        import time
+        from pilotsuite.core.history import interval, normalize, activations, trend_view, retrospective, KINDS
+        from pilotsuite.core.context import ROLE_KINDS
+        from pilotsuite.core.selections import SelectionConflict
+        from pilotsuite.ha.client import HomeAssistantError
+        expected = {'start', 'end', 'mode', 'revision'} | ({'consent'} if import_learning else set())
+        if not isinstance(payload, dict) or set(payload) != expected:
+            raise InvalidSelection('History requires start, end, mode and revision')
+        if type(payload['revision']) is not int or payload['mode'] not in ('states','statistics'):
+            raise InvalidSelection('Invalid history mode or revision')
+        if import_learning and (payload['consent'] is not True or payload['mode'] != 'states'):
+            raise InvalidSelection('Explicit historical learning consent and raw states required')
+        now = time.time()
+        start, end = interval(payload['start'], payload['end'], now)
+        if import_learning and (start < now-14*86400-60 or end > now or end-start > 14*86400):
+            raise InvalidSelection('Learning import supports at most the last 14 days')
+        if self._history_lock.locked():
+            raise InvalidSelection('A history request is running; retry after completion')
+        async with self._history_lock:
+            async with self._projection_lock:
+                inventory = await self.selection_inventory(zone_id)
+                cfg = await self.context.get(zone_id)
+                if inventory['revision'] != payload['revision']:
+                    raise SelectionConflict('Zone changed; reload before requesting history')
+                candidates = {i['entity_id']:i for i in inventory['items'] if i['decision']=='relevant'}
+                roles = {kind:[e for e in cfg['roles'].get(kind,[]) if e in candidates and candidates[e]['suggested_role'] in ROLE_KINDS[kind]] for kind in KINDS}
+                if import_learning:
+                    if not inventory['enabled'] or not cfg['learning'] or not roles['presence'] or roles['presence'] != cfg['roles'].get('presence'):
+                        raise InvalidSelection('Active zone, learning consent and complete relevant presence group required')
+                    # Activity-only import. Never infer historical light-context consent.
+                    roles = {'presence':roles['presence']}
+                if payload['mode']=='statistics':
+                    roles = {k:v for k,v in roles.items() if k in ('temperature','humidity','illuminance')}
+                ids = sorted({e for group in roles.values() for e in group})
+                if not ids:
+                    raise InvalidSelection('Save relevant main sensor groups for the requested history type first')
+            try:
+                raw = await self.client.history(ids,start,end,statistics=payload['mode']=='statistics')
+            except (HomeAssistantError, TimeoutError) as exc:
+                raise InvalidSelection('HA history unavailable or too large. Try a shorter interval; no partial import was saved.') from exc
+            series = normalize(raw['records'],roles,start,end,statistics=payload['mode']=='statistics',metadata=raw['metadata'])
+            events = activations(series,roles,start,end) if payload['mode']=='states' else []
+            async with self._projection_lock:
+                if (await self.selections.get(zone_id))['revision'] != payload['revision']:
+                    raise SelectionConflict('Zone changed while history loaded; discard and reload')
+                if import_learning:
+                    receipt = await self.context.import_history(zone_id,payload['revision'],roles,events,start,end)
+                    return {'receipt':receipt,'revision':payload['revision']+1}
+                return {'zone_id':zone_id, 'revision':payload['revision'], 'start':start,'end':end,
+                        'timezone':cfg['detector'].get('timezone','UTC'),
+                        'trends':trend_view(series,roles,start,end,statistics=payload['mode']=='statistics'),
+                        'activity':retrospective(events,cfg['detector'],start,end) if payload['mode']=='states' and cfg['learning'] else None,
+                        'raw_activation_count':len(events) if cfg['learning'] else None,
+                        'selection_basis':'current_saved_main_groups',
+                        'excluded_sources':sorted({e for group in cfg['roles'].values() for e in group}-set(ids))}
