@@ -15,6 +15,21 @@ def review_brief(pattern, report):
     warnings = ['Aktivierungen belegen keine Anwesenheitsdauer oder Schaltursache.',
                 'Bestehende Automationen wurden noch nicht auf Überschneidung geprüft.']
     coverage = report.get('coverage', {})
+    reobservation = report.get('reobservation', {})
+    temporal = next((item for item in reobservation.get('windows', [])
+                     if item['start_hour'] == window['start_hour']
+                     and item['day_group'] == stats['day_group']), None)
+    temporal_check = ({**temporal, **{key: reobservation[key] for key in
+                       ('start', 'end', 'split_at', 'timezone', 'basis', 'limitations')}}
+                      if temporal else None)
+    if temporal_check:
+        warnings.append('Zeitprüfung verwendet frühere 70 % und spätere 30 % des Aufbewahrungsfensters; '
+                        'erneutes Auftreten ist keine Prognosegüte und keine unabhängige Live-Validierung.')
+        if temporal_check['state'] == 'insufficient_earlier_evidence':
+            warnings.append('Im früheren Abschnitt reichen die Belege nicht zur Musterbildung; '
+                            'spätere Belege dürfen diese Schwelle nicht rückwirkend erfüllen.')
+        elif temporal_check['state'] == 'insufficient_later_evidence':
+            warnings.append('Keine späteren Belege im selben Fenster; das kann eine Beobachtungslücke sein.')
     if not coverage.get('sampled_slots'):
         warnings.append('Keine Beobachtbarkeitsstichproben vorhanden.')
     elif coverage.get('impaired_slots') or coverage.get('unobserved_slots_between_checks'):
@@ -36,6 +51,7 @@ def review_brief(pattern, report):
         'algorithm': pattern['algorithm'], 'parameters': pattern['parameters'],
         'sources': pattern['sources'], 'context': context,
         'coverage': coverage, 'coverage_scope': 'whole_zone_retention_window',
+        'temporal_check': temporal_check,
         'evidence_graph': {'nodes': nodes, 'edges': edges}, 'warnings': warnings,
         'next_steps': [
             'Gewünschten Komfort, Zielgeräte und zulässige Werte festlegen.',

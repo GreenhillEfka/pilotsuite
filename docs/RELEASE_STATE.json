@@ -29,11 +29,24 @@
     "offered": "0.1.0-alpha.16",
     "state": "started",
     "update_available": false,
-    "runtime_verified": ["hard_read_only", "ready", "stream_connected", "snapshot_fresh", "zone_resolved"]
+    "runtime_verified": [
+      "hard_read_only",
+      "ready",
+      "stream_connected",
+      "snapshot_fresh",
+      "zone_resolved"
+    ]
   },
   "ingress_acceptance": {
-    "status": "pending",
-    "reason": "no_authenticated_HA_browser_session"
+    "version": "0.1.0-alpha.16",
+    "status": "user_reported_pass",
+    "date": "2026-09-23",
+    "scope": [
+      "zone_guide",
+      "zone_navigation",
+      "pattern_workbench"
+    ],
+    "independent_network_capture": false
   },
-  "next_task": "Read-only authenticated guide/workbench/navigation acceptance; do not reinstall alpha.16."
+  "next_task": "Verify alpha.17 temporal-review candidate, scoped backup, release and deployment; alpha.16 user UI acceptance is complete."
 }

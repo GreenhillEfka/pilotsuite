@@ -139,17 +139,23 @@ def retrospective(events, detector, start, end):
     from zoneinfo import ZoneInfo
     tz = ZoneInfo(detector.get('timezone','UTC'))
     for t, entity in events:
+        if not start <= t < end:
+            continue
         key, day = time_bucket(t, detector)
         groups[key][0 if t < split else 1].append((t,day))
         local = datetime.fromtimestamp(t,tz)
         heat[(local.weekday(),local.hour//2)] += 1
-    checks=[]
+    checks, windows = [], []
     for (group,bucket),(train,test) in sorted(groups.items()):
-        if len(train) < detector['min_events'] or len({d for _,d in train}) < detector['min_days']: continue
-        checks.append({'day_group':group,'start_hour':bucket*2,'training_events':len(train),
-                       'training_days':len({d for _,d in train}), 'later_events':len(test),
-                       'later_days':len({d for _,d in test}),
-                       'state':'reobserved' if test else 'insufficient_later_evidence'})
-    return {'split_at':split,'checks':checks,'timezone':tz.key,
+        qualified = len(train) >= detector['min_events'] and len({d for _,d in train}) >= detector['min_days']
+        item = {'day_group':group,'start_hour':bucket*2,'training_events':len(train),
+                'training_days':len({d for _,d in train}), 'later_events':len(test),
+                'later_days':len({d for _,d in test}),
+                'state': 'insufficient_earlier_evidence' if not qualified else
+                         'reobserved' if test else 'insufficient_later_evidence'}
+        windows.append(item)
+        if qualified:
+            checks.append(dict(item))
+    return {'start':start,'end':end,'split_at':split,'checks':checks,'windows':windows,'timezone':tz.key,
             'heatmap':[{'weekday':d,'start_hour':b*2,'events':n} for (d,b),n in sorted(heat.items())],
             'limitations':'Frühere 70 %: Musterbildung, spätere 30 %: erneutes Auftreten prüfen. Keine Genauigkeitsquote; fehlende Belege können Datenlücken sein. Aktuelle Sensorgruppen rückwirkend angewendet.'}

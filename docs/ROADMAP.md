@@ -8,8 +8,9 @@
 - Ship foundation fixes before claiming live acceptance.
 - Follow RELEASE_RUNBOOK.md for every release; alpha.16 adds the requested zone
   guide to existing setup and optional learning, without another state owner.
-  Alpha.16 is installed after scoped backup and green CI. Next: authenticated
-  guide/workbench acceptance. No actuation or additional collection scope.
+  Alpha.16 is installed and user UI acceptance is confirmed. Alpha.17 extends
+  retained-evidence review with the shared chronological split; next is exact CI,
+  scoped release/deployment and review of already-consented evidence. No actuation.
 
 ## 0.2 — consented read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
@@ -29,7 +30,8 @@ governed execution owner exists; the read-only alpha cannot generate own actions
 
 Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
 Alpha.16 packages the workbench, UI fixes and zone guide and is installed.
-Authenticated user review of the guide/workbench remains separate and pending.
+User UI review of alpha.16 guide/workbench is confirmed. Temporal review remains
+a read-only preparation and never grants action permission.
 Real learning and second-zone acceptance remain prerequisites for actuation.
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.
 - Review existing HA automations before proposing duplicates.
