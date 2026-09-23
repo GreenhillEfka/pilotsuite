@@ -1,5 +1,21 @@
 # Current State
 
+## Release candidate: 0.1.0-alpha.14
+
+Packages PR #23 (76f7665) with the already merged metadata and timeout corrections.
+Main CI 35824185318 passed 122 backend tests, four JS tests, expanded Chromium
+workbench/filter/export regression and amd64 build. This release candidate still
+requires its own CI before publication. User reported the prior diagram renders.
+
+Fresh scoped backup fe09f165 completed at 2026-09-23T05:52:04Z, 53,862,400 bytes,
+HA configuration and database excluded. Requested only PilotSuite app and data;
+archive internals were not inspected and no restore drill was performed. Recovery:
+hassio.restore_partial with slug fe09f165, apps [0d79c5e8_pilotsuite],
+homeassistant false and folders [], returning only PilotSuite to alpha.13.
+Fresh app metadata: alpha.13 installed/offered/started, auto-update enabled.
+Next: exact release CI, store version/commit verification, scoped update, startup
+checks and separate user acceptance of the workbench. No consent or role changes.
+
 ## Development: pattern workbench
 
 The user confirmed on 2026-09-23 that the existing history diagram renders.
