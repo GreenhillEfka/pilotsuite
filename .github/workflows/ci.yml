@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -25,6 +26,19 @@ jobs:
           cache-dependency-path: pilotsuite/requirements.txt
       - name: Validate repository contracts
         run: python scripts/validate.py
+      - name: Validate versioned release source
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          PUBLISHED_SHA="$(python -c 'import json; print(json.load(open("docs/RELEASE_STATE.json"))["release"]["commit"])')"
+          CANDIDATE_VERSION="$(git show "${CANDIDATE_SHA}:VERSION")"
+          PUBLISHED_VERSION="$(git show "${PUBLISHED_SHA}:VERSION")"
+          if [ "$CANDIDATE_VERSION" = "$PUBLISHED_VERSION" ]; then
+            echo "No new release number: source preflight not applicable. This does not authorize delivery."
+          else
+            python scripts/release_preflight.py --candidate "$CANDIDATE_SHA" --published "$PUBLISHED_SHA"
+          fi
       - name: Check frontend syntax and selection model
         run: |
           node --check pilotsuite/pilotsuite/web/app.js

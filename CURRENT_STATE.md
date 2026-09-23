@@ -1,82 +1,77 @@
 # PilotSuite current state
 
-## Review-note development candidate — 2026-09-23
+## Store release candidate — 2026-09-24
 
-Canonical project: `GreenhillEfka/pilotsuite`; app `0d79c5e8_pilotsuite`.
-Continue **draft PR #50**, branch `feat/revision-bound-review-notes`, not a new PR
-or implementation. It adds persistent review notes in the existing PlanStore.
-**Development branch only: not versioned, published, merged or installed.**
-The unchanged alpha.21 version markers are not permission to deliver changed code
-under that release number. Assign a new version before any delivery.
+Canonical repository `GreenhillEfka/pilotsuite`; app `0d79c5e8_pilotsuite`.
+Resume **PR #50**, branch `feat/revision-bound-review-notes`.
+**The existing review-note package is now versioned as 0.1.0-alpha.22 on that
+branch. It is not published, merged or installed.** Do not restart its implementation
+or assign another version merely because the installation has not happened.
 
-The candidate adds three user-authored dispositions, optional bounded text,
-draft/zone/reference/config-fingerprint binding, conservative stale/unverified
-views, explicit reinspection on save, conflict-safe deletion and JSON export.
-Schema 8 adds one bounded table after the existing SQLite migration backup.
-Learning evidence, preference, risk, consent and the denied apply path are unchanged.
-Contract: [docs/REVIEW_NOTES.md](docs/REVIEW_NOTES.md), ADR-030.
+The user explicitly requested the normal Store route. Release preparation changes
+VERSION, app config version, Python package VERSION, Docker BUILD_VERSION, DOCS
+release marker and both changelogs. App identity, options, permissions, runtime
+code and read-only policy are unchanged from the tested feature candidate.
+DOCS adds the user workflow for notes. Historical changelog entries remain intact.
 
-## Validation and delivery gates
+CI now runs the existing read-only release_preflight.py against the exact candidate
+SHA and the last published commit in docs/RELEASE_STATE.json whenever their versions
+differ. The test job fetches full Git history for ancestry verification. Equal
+versions explicitly skip only this new-release check; they do not authorize delivery.
+No HA credentials, install calls, writes to main or permission escalation in CI.
 
-Six local Python validation/projection tests and seven JavaScript state tests pass;
-Python compilation and JavaScript syntax checks pass. Full CI adds seventeen API,
-PlanStore, migration and concurrency regressions plus a browser editor contract.
-The first full run exercised all 215 Python tests: the 23 new cases passed, with
-two legacy expected-schema assertions requiring 7-to-8 updates. All 16 JavaScript
-tests, the existing full-shell Chromium flow and amd64 container passed that run.
-The new standalone browser fixture needed an explicit UTF-8 document/asset charset;
-its original document omitted this while using non-ASCII role names. Those test
-corrections are in commit `26c20103a936379e556def62a079094fa97712df`.
-Read **the latest exact HEAD CI and final receipt in PR #50**; earlier run results
-are not a final green claim. Local synthetic Chromium navigation was environment-
-blocked before execution; no local browser pass is claimed.
+## Evidence and remaining gates
 
-HA-MCP was not exposed by tool discovery in this continuation. No live HA metadata,
-backup, Store refresh, update, Ingress session or household configuration was read
-or changed. This is a current tool-availability observation, **not** a new rejection
-of the known native Store routine and not evidence that HA permissions changed.
-Do not retry the old denied custom bridge or request broader credentials.
+The prior feature HEAD `47ae62ead032c48ecc8c2c56cb2eae124f0a0a54` passed CI
+`35923067713`: 215 Python, 16 JavaScript, full-shell browser, note-editor browser
+and amd64 container. Read the **new exact PR HEAD CI and source-preflight receipt
+in PR #50** for this versioned candidate. An earlier green run is not its final gate.
+No new local full-suite or container success is claimed; direct local Git download
+was unavailable, so source reads and test execution use the authorized GitHub tools.
 
-Because the last verified app setting has auto_update enabled, keep this increment
-off `main` until a fresh PilotSuite-only backup of the current installed release is
-completed and its native details verified. The alpha.18 backup below is not a fresh
-alpha.21 recovery point for this increment. Do not automatically merge this PR.
+Current tool discovery offers no HA-MCP namespace or native ha_manage_app Store
+action. Plugin search returned no matching usable Home Assistant connector.
+This is not a fresh HA authentication failure. No new backup, Store refresh,
+installation, restart or live household read/change occurred. Never repeat the
+previously denied custom bridge or change permissions to compensate.
 
-## Last verified deployed state — previous continuation
+Before publishing, verify a fresh completed PilotSuite-only app/data/options backup
+of the currently installed version. The last observed auto_update setting was true;
+publication could make the candidate eligible for automatic installation. Do not
+publish merely to try to get around the missing live verification. Do not disable
+auto_update. Versioning on the existing unmerged branch is not Store publication.
 
-Alpha.21 was installed and started on 2026-09-23 through the normal Store update.
-Release `1223f96f45053f7bf3d509bd7ad72c85b9f6cab1`, app tree
-`3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77`; release CI `35914643847` passed.
-PR #49 merged the installation handoff at
-`c3e87fb81a24267b8584f2d68df25bd8f9539aba`, the baseline for this development.
-Native `ha_manage_app(action="check_updates")` had refreshed the alpha.21 offer.
-Backup `ae7a3fba` contains the prior alpha.18 app/data/options, 53,964,800 bytes,
-unprotected, no HA configuration/database/folders or failed components.
-Exactly one update was followed by target version/start/hard_read_only/readiness,
-connected stream, fresh snapshot and Golden Zone confirmation. No extra restart.
-These are retained receipts, not live checks performed during this increment.
-Machine-readable last deployment: [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
-Procedure: [docs/RELEASE_RUNBOOK.md](docs/RELEASE_RUNBOOK.md).
+## Last verified deployment — historical, not rechecked today
 
-## Next concrete delivery task
+Alpha.21 was installed/started on 2026-09-23. Release commit
+`1223f96f45053f7bf3d509bd7ad72c85b9f6cab1`, app tree
+`3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77`. Installation handoff PR #49 merged at
+`c3e87fb81a24267b8584f2d68df25bd8f9539aba`; main still matched it before preparing
+this candidate. Prior backup `ae7a3fba` contains alpha.18, not a fresh alpha.21
+recovery point. Keep docs/RELEASE_STATE.json as the last actual deployment receipt.
 
-Resume PR #50 and check its exact latest CI, fixing any remaining regression first.
-When HA-MCP is available, reread current app/source metadata, make and verify the
-fresh scoped backup, then assign the next unused release version, update all release
-markers/changelogs, run release preflight and exact candidate CI. Recheck main/open
-work, merge without force only after these gates, verify exact main CI, refresh the
-Store only if needed and update once. No speculative restart or permission change.
+## Next concrete step
 
-Authenticated live temporal/draft/inspection/review-note UI, existing app
-`automation/config` capability, Recorder coverage and real multi-day evidence remain
-separate acceptance tasks. No automatic collection, real household scan or new
-learning consent is part of development testing. The next concept slice after
-review-note acceptance is a derived compact review summary with explicit missing
-requirements, not another store or an execution permission.
+Obtain fresh installed-version and completed scoped-backup evidence, then recheck
+this candidate's exact source/CI, current main/open work and version uniqueness.
+Only after those gates merge PR #50 without force and verify exact main CI.
+Use the documented native Store refresh only when alpha.22 is not offered, reread
+metadata and perform one normal update if not already installed. Verify runtime;
+no speculative restart. Follow docs/RELEASE_RUNBOOK.md without reinventing the route.
+If no authorized live access exists, report the exact pending step rather than
+claiming either Store publication or installation.
 
-## Preserved history
+Authenticated real Ingress UI and the app's existing automation/config read
+capability remain separate pending acceptance. No new consent or household scan
+for tests. After acceptance, the next concept is a compact derived review summary
+with explicit missing requirements, not another store or execution gate.
 
-[CURRENT_STATE_HISTORY_2026-09-23.md](CURRENT_STATE_HISTORY_2026-09-23.md) contains the
-complete older ledger, unchanged blob `1853f2444eb24315028c1f4a1c27c823afa84f28`.
-Its old installed versions and blockers are historical. The prior compact alpha.21
-handoff remains in baseline commit `c3e87fb81a24267b8584f2d68df25bd8f9539aba`.
+## Contracts and retained history
+
+ADR-030 and docs/REVIEW_NOTES.md define the already implemented notes. PlanStore is
+the single owner, schema 8 backs up before adding its table, review revisions guard
+competing writes/deletion, and all action application remains denied.
+The complete previous candidate handoff is preserved in commit `47ae62e`.
+Older ledgers remain unchanged in CURRENT_STATE_HISTORY_2026-09-23.md and
+ docs/IMPLEMENTATION_HISTORY_2026-09-23.md. Older unversioned-candidate wording is
+superseded by the alpha.22 preparation above, not by a claimed live deployment.

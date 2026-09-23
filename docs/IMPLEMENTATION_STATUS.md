@@ -1,74 +1,77 @@
 # PilotSuite capability and acceptance ledger
 
-## Development candidate — review notes
+## Alpha.22 Store candidate — 2026-09-24
 
-**Draft PR #50**, branch `feat/revision-bound-review-notes`, adds the bounded
-review-note increment (ADR-030). **Not merged, versioned, published or installed.**
-The last deployed alpha.21 receipt is retained in RELEASE_STATE.json; it was not
-refreshed because HA-MCP was unavailable in tool discovery during this continuation.
-No new backup or HA change was performed.
+**PR #50**, branch `feat/revision-bound-review-notes`, is now versioned as
+**0.1.0-alpha.22**. All five release markers and both changelogs are updated.
+**Not merged, published, offered by a verified Store read, or installed.**
+The last actual alpha.21 deployment receipt stays unchanged in RELEASE_STATE.json.
+
+This continuation changes release metadata, adds the note workflow to app DOCS and
+runs the existing read-only source preflight in CI for a changed release version.
+No additional runtime behavior, HA option, permission or architecture change.
+No HA-MCP/native Store action was available in current tool discovery. No fresh
+live HA metadata, backup, Store action or household change occurred.
+
+## Implemented review-note package — unchanged by versioning
 
 | Capability | Candidate implementation | Evidence / remaining gate |
 |---|---|---|
-| Persistent review notes | PlanStore, three user dispositions, text up to 2000 characters, 20 notes per draft | Explicit own assessment, not authenticated individual attribution or action permission |
-| Change detection | Bound draft/zone revisions, reference hash and config fingerprint; conservative stale projection | GET/restart says not_rechecked; fresh inspection describes only last read |
-| Save validation | Existing selected-automation inspection; no network under projection lock; bounded inspection age and atomic SQLite revision/write checks | Synthetic API/store/concurrency tests; live app config-read capability not assumed |
-| Conflict-safe editing | Input preserved on 409/503; reload basis without discarding text; explicit save | Dedicated synthetic browser editor contract plus existing full-shell browser suite |
-| Scoped deletion/export | Explicit note deletion, monotonic tombstone revision, draft-delete review-revision guard, combined JSON export | No HA writes, no evidence deletion, no automatic export |
-| Storage migration | Schema 7 to 8 through existing owner, SQLite backup before additive table | Migration/preservation/idempotence regressions; no live migration yet |
-| Execution boundary | Existing apply remains denied; notes cannot grant permission | API test confirms denial and unchanged evidence/risk |
+| Persistent review notes | PlanStore, three dispositions, text up to 2000 characters, 20 notes per draft | Own assessment, not verified individual attribution or permission |
+| Change detection | Draft/zone revisions, reference hash, config fingerprint and stale projection | GET/restart says not_rechecked; explicit inspection describes only last read |
+| Save validation | Existing selected-automation inspection; no network under projection lock; bounded age and atomic revision/write checks | Synthetic API/store/concurrency tests; live app config-read capability not assumed |
+| Conflict-safe editing | Text survives 409/503 and basis reload; explicit save | Dedicated editor browser contract and existing full-shell browser suite |
+| Deletion/export | Note deletion, monotonic tombstone revision, draft-delete revision guard and JSON export | No HA changes, evidence deletion or automatic exports |
+| Migration | Existing owner migrates schema 7 to 8 after SQLite backup | Preservation/idempotence regressions; no verified live migration yet |
+| Execution boundary | Apply remains denied; notes cannot grant permission | API denial and unchanged evidence/risk tests |
 
-Local evidence: six Python validation/projection tests and seven JavaScript state
-regressions pass; compilation and syntax checks pass. Seventeen additional
-backend/API tests and the browser editor flow are included in repository CI.
-The initial run passed all 23 new Python cases, all 16 JavaScript tests, the existing
-full-shell browser suite and amd64 container. Two legacy schema assertions and the
-standalone browser fixture's missing UTF-8 declaration were corrected afterwards.
-Read the **latest exact HEAD result and final receipt in PR #50**, not an earlier
-run or this paragraph as a final acceptance claim. Local synthetic Chromium
-navigation was blocked before execution; no local browser success is claimed.
-No real household data in tests.
+Feature HEAD `47ae62ead032c48ecc8c2c56cb2eae124f0a0a54` passed complete CI
+`35923067713`: 215 Python, 16 JavaScript, full-shell browser, note-editor browser and
+amd64 container. New source/CI evidence belongs to the **exact alpha.22 PR HEAD**;
+read the final receipt in PR #50, not an earlier run. No new local full-suite pass
+is claimed. The existing focused/CI evidence and old corrections remain in Git/PR
+history. Tests and screenshots are synthetic, not actual household UI acceptance.
 
-## Previously implemented baseline, retained unchanged in purpose
+## Baseline capabilities
 
-| Capability | Implemented boundary | Separate acceptance / limitation |
+| Capability | Boundary | Separate limitation / acceptance |
 |---|---|---|
-| Supervisor app and update routine | Canonical version/tree association, scoped operational backup, native Store refresh | alpha.21 last verified installed; no independent image attestation or restore drill |
-| Ingress UI | Peer-restricted navigation, zone guide, pattern/draft workbench | Full synthetic browser regression; actual current authenticated UI still pending |
-| HA projection / readiness | Snapshot, stream, reconnect/backoff, quality/scope separation | Not physical sensor freshness, not atomic HA snapshot or durable stream replay |
-| Habitus zones / roles | Stable logical zones, multiple areas/extras, confirmed-only source groups | No independent shadow topology or invented sensors |
-| Sensor references | Climate normalization, median/spread, illuminance and saved presence groups | Mapping/coverage must be reviewed in actual zones |
-| Learning / context | Consent-gated bounded activity evidence, coarse ephemeral origin correlation | Counts, confidence, rule strength, preference and risk separate; no causal claim |
-| Targeted history | Transient history/statistics, explicit interval-scoped import into existing evidence owner | No Recorder clone or implied historical coverage |
-| Pattern workbench | Derived explanations and temporal reobservation | No unbiased predictive validation or executable action plan |
-| Routine drafts | User intent/targets, revision guards, explicit source refresh, export/delete | Drafts survive learning reset; schema 7 baseline, 8 only in this candidate |
-| Automation comparison | Explicit bounded transient related-entity review and selected structural inspection | No semantic equivalence/safety verdict, template evaluation or automatic household scan |
-| Multi-user conflict policy | Planned beyond shared revision-protected workspace | No inferred personal identity |
-| Full brain graph / native HA adapter / Assist / LLM / RAG | Planned or optional | No separate semantic owner or direct LLM action path |
-| HomeKit / broad Dev-Wiki UI / presets | Deferred | Inventory and actual provider capability first |
-| Action catalog / governed execution / runtime recovery | Future work; current apply denied | Operational app backups are not the future runtime transaction engine |
+| Supervisor app / update routine | Canonical version/tree association, scoped backup, native Store refresh | alpha.21 last verified installed; no independent image attestation or restore drill |
+| Ingress workspace | Peer-restricted navigation, zone guide, pattern/draft workbench | Synthetic browser tests are not authenticated live acceptance |
+| HA projection / readiness | Snapshot, stream, reconnect/backoff, quality/scope separation | Not physical sensor freshness, atomic snapshot or durable event replay |
+| Habitus zones / roles | Stable logical zones, areas/extras, confirmed-only groups | No shadow topology or invented sensors |
+| Typed references | Climate normalization, median/spread, illuminance and saved presence groups | Actual mapping/coverage review remains |
+| Learning / context | Consent-gated bounded evidence and coarse ephemeral origin correlation | Counts, confidence, preference, strength and risk remain separate |
+| History | Transient history/statistics and explicit interval-scoped evidence import | No Recorder clone or assumed coverage |
+| Pattern workbench | Derived explanations and chronological reobservation | Not unbiased predictive validation or executable plans |
+| Routine drafts | User intent/targets, revisions, source refresh, export/delete | Survive learning reset; schema 8 only in the candidate |
+| Automation comparison | Bounded related-entity review and selected structural inspection | No semantic equivalence/safety verdict, template evaluation or automatic scan |
+| Multi-user policy | Beyond shared revision-protected notes, planned | No inferred personal identity |
+| Full brain graph / HA adapter / Assist / LLM / RAG | Planned or optional | No second semantic owner or direct LLM action path |
+| HomeKit / broad Dev-Wiki UI / presets | Deferred | Inventory and actual capability first |
+| Action catalog / execution / runtime recovery | Future work; apply denied | Operational app backup is not a runtime transaction engine |
 
-## Delivery and live acceptance
+## Publication gate and next step
 
-Current source baseline: PR #49 merge `c3e87fb81a24267b8584f2d68df25bd8f9539aba`.
-Prior alpha.21 release: `1223f96f45053f7bf3d509bd7ad72c85b9f6cab1`, app tree
-`3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77`, CI `35914643847` passed.
-Backup `ae7a3fba` contains alpha.18 and is not a fresh pre-candidate alpha.21 backup.
+Fresh installed-version information and completed PilotSuite-only app/data/options
+backup verification are still required before publication. The last observed
+auto_update setting was true; publishing could make the release eligible for an
+automatic update. Do not change that option or treat the historical alpha.18 backup
+`ae7a3fba` as a new alpha.21 recovery point. Missing tool access does not invalidate
+the documented working Store route.
 
-Before merge/publication, complete fresh live/source checks and PilotSuite-only
-backup verification, assign a new unused release version, update all version
-markers/changelogs, release preflight and exact candidate CI. Then exact main CI,
-one normal update and runtime verification. No auto-merge while those gates remain.
-See RELEASE_RUNBOOK.md; lack of the HA tool does not invalidate its working routine.
-
-Still separate: authenticated assets/API/temporal/draft/inspection/note UI, existing
-app configuration-read rights, real Golden Zone mappings/Recorder coverage,
-reconnect soak, traceable real habit and second unlike zone. No learning/actuation
-consent added by testing. Relative humidity alone never authorizes ventilation.
+Versioning is complete; next verify backup and exact candidate source/CI, main/open
+work and version uniqueness, then merge only with those gates satisfied. Verify main
+CI, use the normal Store refresh if needed, update once and check runtime. No custom
+bridge, speculative restart or weakened permissions. Follow RELEASE_RUNBOOK.md.
+Actual authenticated assets/API/temporal/draft/inspection/note UI, existing app
+read rights, Golden Zone/Recorder coverage, reconnect soak, traceable real habit
+and a second unlike zone remain separately pending. No extra consent in tests.
+Relative humidity alone never authorizes ventilation.
 
 Contracts: REVIEW_NOTES.md, ROUTINE_DRAFTS.md, AUTOMATION_INSPECTION.md,
 AUTOMATION_REVIEW.md, PATTERN_WORKBENCH.md, HISTORY_AND_TRENDS.md,
 OBSERVATION_LEARNING.md, SENSOR_REFERENCES.md and HABITUS_ZONES.md.
-Complete prior ledger: IMPLEMENTATION_HISTORY_2026-09-23.md (unchanged original
-blob c7324a3d73365cc144caedf43fa3d2a6b9682287). Prior compact ledger remains at the
-baseline commit. Historical installed versions are not current live measurements.
+The prior complete candidate ledger is preserved at `47ae62e`; the old full ledger
+stays unchanged in IMPLEMENTATION_HISTORY_2026-09-23.md. Old installed versions and
+unversioned-candidate statements are historical, not current measurements.
