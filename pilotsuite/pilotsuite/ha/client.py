@@ -117,6 +117,8 @@ class HomeAssistantClient:
                             result[entity].extend(rows)
                         request_id += 1
                         cursor = stop
+        except TimeoutError as exc:
+            raise HomeAssistantError('Home Assistant history request timed out') from exc
         except ClientError as exc:
             raise HomeAssistantError('Home Assistant history connection failed') from exc
         return {'records': result, 'metadata': metadata}

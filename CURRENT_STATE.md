@@ -1,5 +1,22 @@
 # Current State
 
+## Candidate: bounded history request timeouts
+
+The next reliability increment maps both the explicit 90-second history budget and
+lower-level WebSocket receive/connect timeouts to the existing typed Home Assistant
+history error. A stalled Recorder request therefore fails in a controlled way instead
+of escaping as a generic HTTP 500. Cancellation remains untouched, and successful
+history/statistics responses, storage schema 6, roles, consent and learning do not
+change.
+
+One synthetic regression covers the timeout boundary. Local repository validation,
+117 backend tests and four JavaScript tests pass. CI browser and amd64-container gates
+remain required before merge. Home Assistant remains unchanged on installed alpha.13.
+
+Next: merge only after exact-candidate CI is green. The separate live acceptance item
+remains a short read-only history request and graph check in an authenticated local HA
+Ingress session; do not enable learning or import history for that test.
+
 ## Merged: bounded statistics metadata validation
 
 The next reliability increment validates Home Assistant Recorder metadata before
