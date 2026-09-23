@@ -1,11 +1,13 @@
 # Changelog
 
-## Unreleased — Bedienungsrevision
+## [0.1.0-alpha.15] - 2026-09-23
 
 - Direkte Bereichsnavigation, konsistente deutsche Begriffe und mobile Formulare.
 - Bearbeitungs- und Feedbackbestätigungen, Importgründe und klare Datumsvalidierung.
 - Keine fremden Lernangaben nach Zonenwechsel; Tastaturfokus besser erhalten.
 - Erweiterte Browserregression für Navigation und drei Bildschirmbreiten.
+- Verspätete Kontextantworten überschreiben keine neueren Anzeigen oder Feedbacks.
+- Konsistente Versionsmarker; verbindlicher Release-Ablauf und lesende Quellprüfung.
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 

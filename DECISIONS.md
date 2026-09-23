@@ -240,3 +240,14 @@ Schema 6 backs up before adding provenance/receipts. Current source mapping appl
 retrospectively is explicit. Chronological 70/30 reobservation checks do not claim
 predictive accuracy or authorize actions. Contract: docs/HISTORY_AND_TRENDS.md.
 Historical light-context persistence is deferred; no implicit extension of consent.
+
+## ADR-026 — Repeatable, source-bound release procedure
+
+Accepted 2026-09-23. `docs/RELEASE_RUNBOOK.md` is required continuation context.
+Every behavioral change after publication gets a new release number before delivery;
+source SHA/tree, CI, installed version and live acceptance are distinct evidence.
+Read-only preflight fails on stale markers, missing changelogs, version reuse or
+non-descendant candidates. It cannot authorize installation. A completed scoped
+app/data/options backup and concrete partial recovery remain mandatory. With
+auto-update enabled, establish that recovery point before publishing the version.
+Known Store access denials are recorded, not bypassed or repeatedly rediscovered.
