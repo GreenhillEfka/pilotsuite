@@ -1,112 +1,103 @@
 # PilotSuite AI Context
 
-This file is the canonical long-term context for humans and AI contributors. If a chat statement conflicts with this repository, the repository is authoritative until an explicit architecture decision changes it.
+Canonical long-term context for humans and AI contributors. The repository is
+authoritative over chat history until an explicit architecture decision changes it.
 
-## Identity
+## Identity and invariants
 
-- Repository: `GreenhillEfka/pilotsuite`
-- Product: PilotSuite
-- Architecture generation: v21
-- Versioning: Semantic Versioning, beginning with `0.1.0-alpha.1`
-- Primary platform: Home Assistant OS / Supervisor Apps
-- Canonical language for code and identifiers: English
-- User-facing documentation: German or bilingual where useful
+- Canonical repository: `GreenhillEfka/pilotsuite`; product PilotSuite, architecture v21.
+- Primary platform: Home Assistant OS / Supervisor App `0d79c5e8_pilotsuite`.
+- Semantic versioning from `0.1.0-alpha.1`; English code, German user-facing UI.
+- HA owns devices, entities, areas, labels, live states and execution. No full shadow database.
+- PilotSuite has one semantic/zone/evidence owner; LLM is optional and outside control.
+- Deterministic policy and explicit bounded approval govern future execution.
+- One mutation path: plan, backup, apply, verify, action-specific recovery.
+- Read-only is the default; autonomy would require visible scope, expiry, revocation and audit.
+- Never overwrite HA configuration; changes must be additive, backed up, validated and reversible.
+- Never persist/log secrets or Supervisor tokens; no central cleartext secret file.
+- Record material decisions in DECISIONS.md and implementation in CURRENT_STATE.md.
+- Erdkeller is the first Golden Zone; validate a second unlike read-only zone before 1.0.
 
-## Non-negotiable rules
+## Current development versus deployed release
 
-1. Home Assistant is the source of truth for devices, entities, areas, labels, and live states.
-2. PilotSuite never mirrors the complete Home Assistant database.
-3. An LLM is optional and is never part of the critical control path.
-4. Deterministic rules and explicit policies decide whether a proposed action is permissible.
-5. Mutations use one path only: plan, backup, apply, verify, rollback.
-6. Read-only is the default. Autonomy must be bounded, time-limited, visible, revocable, and audited.
-7. No Home Assistant configuration file is overwritten. Future file changes must be additive, backed up first, validated, and reversible.
-8. Secrets and Supervisor tokens are never logged or stored by PilotSuite.
-9. Every material decision is recorded in `DECISIONS.md`; every actual implementation state is recorded in `CURRENT_STATE.md`.
-10. The Erdkellerbereich is the first Golden Zone. A second read-only zone must test generality before 1.0; broader actuation remains gated.
+Resume **draft PR #50**, branch `feat/revision-bound-review-notes`.
+The review-note increment (ADR-030, docs/REVIEW_NOTES.md) is implemented on this
+**unversioned development branch, not merged/published/installed**. It extends the
+canonical PlanStore with bounded user-authored assessments and schema 8. Notes bind
+to draft revision, zone/reference basis and a freshly read selected automation
+fingerprint. Edits/reset/expiry make the basis stale; GET/restart never certifies
+current HA configuration. Explicit save reinspects via the existing HA client and
+atomically checks revisions and bounded age before writing. Notes, evidence,
+preference, risk and execution authorization remain separate. Apply stays denied.
+The editor preserves text on conflicts; draft deletion guards the notes revision.
+Shared workspace notes are not verified personal identities.
 
-## Current package and verified deployment
+Local focused tests and syntax/compile checks pass. Full backend/browser/container
+CI must be read on the exact PR head; the final receipt belongs in PR #50.
+The local synthetic browser navigation was environment-blocked, not a test pass.
+All new fixtures are synthetic; no household configuration/evidence was requested.
 
-Alpha.21 was published via PR #47 at `1223f96f45053f7bf3d509bd7ad72c85b9f6cab1`;
-app tree `3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77`. Exact release CI `35914643847`
-and pre-deployment main CI `35915002481` passed. The release records 192 Python,
-nine JavaScript, Chromium and amd64 checks; code tests and live UI acceptance
-are different evidence.
+Last verified deployment remains alpha.21 from the previous continuation, release
+`1223f96f45053f7bf3d509bd7ad72c85b9f6cab1`, app tree
+`3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77`, release CI `35914643847` passed.
+The installation handoff was merged in PR #49 at
+`c3e87fb81a24267b8584f2d68df25bd8f9539aba`, this increment's baseline.
+The native `ha_manage_app(action="check_updates")` works without slug/repository;
+never retry the previously denied custom /store/reload bridge. Backup `ae7a3fba`
+preceded the alpha.18-to-alpha.21 update. It is **not** a fresh alpha.21 backup.
 
-**On 2026-09-23 alpha.21 was installed through the normal Store update path.**
-The first-class `ha_manage_app(action="check_updates")` refreshed the offer from
-alpha.18 to alpha.21 without changed credentials or permissions. Fresh scoped
-backup `ae7a3fba` was verified with native `backup/details`; one app update followed.
-Supervisor reports alpha.21 installed/offered/started, no update pending. Logs
-confirm hard_read_only, ready, connected stream, fresh snapshot and resolved zone.
-Do not repeat the completed update or the old denied custom Store bridge.
-
-Authenticated alpha.21 Ingress/temporal/draft/inspection UI and the app's live
-`automation/config` capability have not been accepted in this continuation. Do not
-invent a browser pass or escalate permissions. Existing alpha.16 user UI acceptance
-and reported history diagram rendering remain historical, separate evidence.
-No production role/consent, HA configuration, automation, actuator or other app was
-changed. Canonical repository/version/app-tree association is not an independent
-Store checkout SHA or installed-image attestation.
+HA-MCP was unavailable in tool discovery during review-note development. No fresh
+live state or HA change is claimed. Do not interpret this as a general permissions
+failure or ask for already granted update/backup authority. Because the last
+verified app setting has auto_update enabled, do not merge/release this candidate
+before fresh scoped backup verification. Version markers intentionally remain at
+the published baseline on this unmerged branch; a new unused version is required
+before delivery. Do not install changed behavior as alpha.21.
 
 ## Resume workflow
 
-Read `CURRENT_STATE.md`, `docs/IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and
-`docs/VISION.md` before working. For release/deployment also read
-`docs/RELEASE_STATE.json` and `docs/RELEASE_RUNBOOK.md` (ADR-026). Recheck live state;
-resume the recorded next step rather than recreating the project or access routine.
-Current-state files are concise snapshots. The complete former release ledgers
-are preserved unchanged in `CURRENT_STATE_HISTORY_2026-09-23.md` and
-`docs/IMPLEMENTATION_HISTORY_2026-09-23.md`; their old next steps and blockers are
-history, not present instructions.
+Read CURRENT_STATE.md, docs/IMPLEMENTATION_STATUS.md, DECISIONS.md and docs/VISION.md.
+For delivery also read docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md (ADR-026).
+First inspect PR #50/CI and current main; preserve work rather than starting another
+repository, another PR for the same increment or duplicating this implementation.
+Recheck live state when the native HA tools are available, complete scoped backup,
+version/validate, exact PR CI, merge without force, exact main CI, one Store update
+and runtime checks. Authenticated UI/config-read acceptance is a separate gate;
+never spoof Ingress or escalate privileges. No automatic re-enabling of a paused
+recurring development task.
 
-The September 2026 review is the accepted target design, not a claim that every
-capability is implemented. Keep source code, successful CI and live Home Assistant
-acceptance separate. Old repositories are pinned reference sources, never runtime
-dependencies. Do not introduce two learning engines or independently owned zone
-stores. Current climate rules are heuristics, not learned habits. Raw history stays
-transient unless a separate scoped import is explicitly consented to, using the
-existing evidence owner. Missing history is not evidence of absent behavior.
-PilotSuite remains read-only and emits no own-action evidence.
-
-## One concrete next development task
-
-Implement user-authored review notes in the existing PlanStore, bound to a routine
-draft revision and selected automation configuration fingerprint (ADR-029).
-Preserve notes but mark them stale on changes; do not portray an unverified or
-unavailable fingerprint as a fresh live check. Add migration, optimistic revision,
-restart/persistence, stale-state, input-validation, export and browser tests.
-
-ADR-029 / `docs/AUTOMATION_INSPECTION.md` already provide selected structural
-inspection, an open review plan, fingerprint comparison and combined export.
-Notes are the next increment, **not implemented yet**. No raw configuration
-persistence, new learning collection, HA write, automatic semantic verdict or
-execution permission follows from recording a note or checking a review item.
+The September 2026 vision is a target, not a claim of implemented capability.
+Older repositories are pinned reference sources only. Do not reintroduce two learning
+engines or independently owned zones. Climate rules remain heuristics. Activity
+patterns, counts, unknown confidence and preference are distinct; correlation is
+not causality. Raw history stays transient unless an explicit scoped historical
+import uses the existing evidence owner. Missing history is not absent behavior.
+Read-only PilotSuite emits no own-action evidence.
 
 ## Conceptual chain
 
 `world/sensors -> neurons -> moods -> synapses -> suggestions -> dialogue/approval -> policy -> transaction -> Home Assistant`
 
-- **Neurons** normalize relevant Home Assistant observations.
-- **Moods** are deterministic, explainable context scores; they are not anthropomorphic truth claims.
-- **Synapses** connect observations and moods to suggestions.
-- **Suggestions** contain evidence, confidence, scope, risk, and a proposed plan.
-- **Policies** are the final deterministic gate.
-- **Transactions** are the only allowed mutation mechanism.
+Neurons normalize relevant observations; moods are explainable deterministic
+context scores, not anthropomorphic truth. Synapses connect context to suggestions.
+A suggestion needs evidence, scope and independently stated confidence/risk.
+Policies remain final gates, transactions the only mutation owner. Derived briefs,
+review notes and graphs are neither execution plans nor a second truth store.
 
-The pattern workbench derives review briefs from canonical evidence and preference;
-a review brief is not an executable action plan. See `docs/PATTERN_WORKBENCH.md`,
-`docs/HISTORY_AND_TRENDS.md` and `docs/EVENT_ATTRIBUTION.md`.
+## Acceptance still pending
 
-## Initial Golden Zone
+Keep historical alpha.16 user guide/navigation/workbench acceptance and reported
+history diagram rendering separate from alpha.21/new-candidate acceptance.
+Actual authenticated temporal/draft/inspection/note UI and the app's existing
+`automation/config` capability remain unverified here. Recorder coverage,
+reconnect soak and multi-day real learning remain separate; no extra consent by
+acceptance testing. After note delivery, the next conceptual slice is a compact
+derived review summary with explicit missing requirements, never an action gate.
 
-The Erdkeller scope validates the full read path with a bounded domain: area resolution, sensor quality, temperature/humidity context, risk detection, explainable suggestions, audit, and UI. Entity IDs must be discovered from Home Assistant area membership and never hard-coded.
+## Deferred and history
 
-## Deferred on purpose
-
-- unrestricted autonomous service calls
-- direct `.storage` or `configuration.yaml` editing
-- a second shadow database of all Home Assistant state
-- mandatory local LLM/Ollama/Open WebUI dependency
-- generated automations without review, validation, backup, and rollback
-- broad multi-room learning before the Golden Zone is accepted
+No unrestricted services, direct HA `.storage` edits, automatic automation creation,
+full Recorder mirror, mandatory Ollama/Open WebUI/LLM or broad unconsented learning.
+Entity IDs are discovered from HA, not invented. Preserve existing configurations.
+Full former receipts remain unchanged in CURRENT_STATE_HISTORY_2026-09-23.md and
+docs/IMPLEMENTATION_HISTORY_2026-09-23.md. Old blockers there are not present state.

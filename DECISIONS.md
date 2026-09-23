@@ -306,3 +306,40 @@ Neither matching structure nor unchanged config establishes safety or equivalenc
 No schema change or second evidence owner. The next separate slice may persist
 user-authored review notes bound to draft revision/fingerprint in PlanStore, never
 an approval to act. Contract: docs/AUTOMATION_INSPECTION.md.
+
+## ADR-030 — Explicit review notes keep assessment, freshness and permission separate
+
+Accepted design continuation of ADR-029 on 2026-09-23; implemented in development
+PR #50, not a deployment or execution authorization. The existing PlanStore owns
+bounded user-authored notes/dispositions for explicitly selected automations. Its
+ReviewNotesMixin and HTTP/UI modules are code organization, not independent stores
+or engines. Shared SQLite schema 8 adds a per-draft note/revision table after the
+existing migration backup. Existing evidence, preference, risk and consent stay
+unchanged; apply remains denied.
+
+Bind each note to the draft/zone revisions, source/target scope fingerprint and
+selected configuration fingerprint. GET, restart and persisted hashes never assert
+current HA configuration: report not_rechecked until an explicit fresh read, and
+only describe matching the last read, not continuous validity. Edits, reset, expiry
+and unavailable targets mark the basis stale without erasing user text. Notes in a
+shared workspace do not establish an authenticated individual author.
+
+Saving reuses the bounded selected-automation inspection and then checks current
+basis, note revision and maximum inspection age atomically with the SQLite write.
+No HA I/O while holding the projection lock, no client-supplied inspection reports,
+raw configuration or private upstream errors. HA and SQLite are not one transaction;
+changes immediately after the HA read remain possible and explicitly unverified.
+
+Separate monotonic review revisions protect competing writers and deletion; keep
+an empty revision row after the last note is deleted to prevent stale revision
+reuse. Deleting the draft also checks the notes revision before removing both.
+The editor preserves text on errors and basis reload, and requires explicit save
+or confirmed deletion. One bounded current note per selected automation, no silent
+eviction or unlimited journal. Export is explicit and may include private user text.
+No note or checkbox closes the derived checklist automatically, raises confidence,
+creates an automation, changes policy, or grants permission to act.
+
+Contract: docs/REVIEW_NOTES.md. PR #50 remains off main until fresh live/source and
+scoped-backup gates, a new release number and exact CI satisfy ADR-026. Last-known
+alpha.21 deployment and its older alpha.18 recovery backup are not fresh evidence
+of the current live system. Resume the existing PR rather than recreating this slice.
