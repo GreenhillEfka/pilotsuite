@@ -1,5 +1,19 @@
 # Current State
 
+## Development: bounded statistics metadata validation
+
+The next reliability increment validates Home Assistant Recorder metadata before
+building the transient statistics projection. A non-list response or an entry
+without a non-empty string `statistic_id` now becomes the existing typed HA history
+error instead of leaking `TypeError` or `KeyError` through a generic HTTP 500.
+Metadata outside the explicitly requested source set is ignored. Successful
+statistics, raw history, SQLite schema 6, roles, consent and learning are unchanged.
+
+Synthetic regression covers five malformed response shapes. The next task after
+merge remains a short read-only history request through an authenticated local HA
+Ingress session to verify Recorder coverage and graph rendering. No learning or
+historical import is required for that acceptance.
+
 ## Released and running: 0.1.0-alpha.13
 
 PR #16 merged the reliability increment as main commit

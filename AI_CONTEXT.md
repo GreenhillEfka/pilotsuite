@@ -39,8 +39,9 @@ Current alpha rules are climate heuristics, not learned habits.
 Alpha.12 adds targeted transient HA history/statistics views and separately
 consented retrospective presence-activity import into the existing evidence owner.
 Do not copy Recorder data or infer missing history as absence of behavior. The
-immediate continuation is transport-error hardening and authenticated Ingress /
-Recorder acceptance. PilotSuite remains read-only and emits no own-action evidence.
+immediate continuation is bounded validation of HA history/statistics responses and
+authenticated Ingress / Recorder acceptance. PilotSuite remains read-only and emits
+no own-action evidence.
 See `docs/HISTORY_AND_TRENDS.md` and `docs/EVENT_ATTRIBUTION.md`.
 
 ## Conceptual chain

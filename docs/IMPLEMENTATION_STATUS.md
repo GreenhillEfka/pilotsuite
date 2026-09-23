@@ -1,5 +1,15 @@
 # Capability and acceptance ledger
 
+## Statistics metadata reliability increment
+
+The candidate validates the shape and identifier type of Recorder statistics
+metadata before projection. Malformed responses become a controlled HA history error
+instead of a generic HTTP 500; unrequested metadata is ignored. One synthetic
+regression exercises five invalid response shapes. Successful history/statistics,
+storage, consent, learning and the hard read-only boundary are unchanged. Live
+remains alpha.13; authenticated Ingress history and actual Recorder coverage remain
+separate acceptance work.
+
 ## alpha.13 released and installed
 
 Release metadata packages the PR #16 history-transport reliability correction.
