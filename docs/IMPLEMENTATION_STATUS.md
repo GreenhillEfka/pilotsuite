@@ -1,5 +1,24 @@
 # Capability and acceptance ledger
 
+## Alpha.16 live receipt — 2026-09-23
+
+Alpha.16 is now installed/offered/started after one normal PilotSuite update.
+Startup confirms hard_read_only, connected stream, fresh snapshot, resolved zone
+and readiness. No runtime change in this receipt. Existing release CI 35838497565
+and pre-update main CI 35842713561 are green: 138 Python, nine JS, Chromium, amd64.
+Canonical release 208b5d3 and pre-update main 33d5676 share app tree
+811de10be4d11acab5ee98a41eb5dc3a93b56f46; Store does not expose a checkout SHA.
+
+Native Core backup/details succeeds without changed credentials. Fresh completed
+95bb73d4 contains exactly PilotSuite alpha.13; no failed components, no HA/DB or
+folders, unprotected. Recovery is app-only restore_partial from that backup,
+including matching data/options. No archive extraction or live restore drill.
+Prior blanket backup-permission blocker was too broad and is superseded.
+
+Only about:blank is present in the available browser. Real authenticated Ingress
+HTML/JS/CSS/API, guide and workbench acceptance remain open. Next: that read-only
+acceptance, without reinstallation or enabling learning/actuation.
+
 ## Deployment gate review — 2026-09-23
 
 Published alpha.16 source 208b5d31532c5f4ad38a6227b51028aeacacc9fd is verified by

@@ -27,8 +27,11 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.16 adds derived zone guidance (docs/ZONE_GUIDE.md); no additional state owner
-or collection. Continue from the newest CURRENT_STATE receipt and RELEASE_RUNBOOK.
+Alpha.16 adds derived zone guidance (docs/ZONE_GUIDE.md) and is installed. No additional
+state owner or collection. Native Core backup/details verifies scoped app backups with
+existing access; a Supervisor gateway denial is not proof this native route is denied.
+Next is authenticated Ingress acceptance, not reinstalling or another Store reload.
+Continue from the newest CURRENT_STATE receipt and RELEASE_RUNBOOK.
 
 ## Continue here — architecture review implementation
 
@@ -47,11 +50,11 @@ Current alpha rules are climate heuristics, not learned habits.
 Alpha.14 adds the pattern workbench on top of targeted transient HA
 history/statistics views and the existing consented evidence owner. Do not copy
 Recorder data or infer missing history as absence of behavior. The immediate live
-continuation is backup-content access and exact alpha.16 source verification,
-scoped deployment and authenticated workbench acceptance. The Store now offers
-alpha.16; do not repeat the old Store-refresh blocker. Backup detail reads are
-currently Unauthorized; autonomous continuation pauses at this gate. Alpha.13 is
-the verified running version. Reliability corrections may continue as separate
+continuation is authenticated alpha.16 guide/workbench acceptance. Alpha.16 is
+installed and started after verified scoped backup 95bb73d4. Native backup/details
+works; the old permission-gate receipt is superseded. Source association uses the
+canonical release and unchanged app tree, not an exposed Store checkout SHA.
+Reliability corrections may continue as separate
 small changes, but must not be represented as deployed. PilotSuite remains
 read-only and emits no own-action evidence. See `docs/HISTORY_AND_TRENDS.md`,
 `docs/EVENT_ATTRIBUTION.md` and `docs/PATTERN_WORKBENCH.md`.

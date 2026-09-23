@@ -78,12 +78,23 @@ Keep the scoped request and completion evidence; distinguish metadata confirmati
 from archive inspection or a restore drill. If necessary details/key availability
 cannot be confirmed, stop before update. Never use snapshot **create/restore**:
 those are full-HA operations, outside the authorization.
-Known detail-read gate (2026-09-23): `ha_call_service` with
+Historical detail-read gate (2026-09-23): `ha_call_service` with
 `ws_command: "hassio/api"`, `data: {endpoint: "/backups/d454e834/info", method: "get"}`
-returned `Unauthorized` even though backup listing works. This does not prove the
-archive is bad; it prevents content/recovery verification. Do not downgrade the
-gate to listing success or keep creating backups that cannot be inspected. Wait
-for authorized access; do not retry other paths to bypass the same restriction.
+returned `Unauthorized` even though backup listing works. This is specific to that
+gateway; it did not establish a general permission failure. The user subsequently
+requested the normal Store/app-backup route. Verified native, admin-authorized
+Core read (same credentials, no permission changes):
+
+```json
+{"ws_command": "backup/details", "data": {"backup_id": "VERIFIED_BACKUP_ID"}}
+```
+
+Use it through ha_call_service. Inspect result.backup.addons for the exact slug and
+previous version, failed_addons/failed_agent_ids/failed_folders for empty lists,
+agents for size/protection, and HA/database/folder exclusion. This succeeded for
+d454e834 and fresh 95bb73d4. It verifies archive metadata, not a restore drill or
+byte-level archive inspection. If this native route denies access, stop; do not
+change credentials or weaken guards. Prefer this scoped read to compact listing.
 The scoped backup can itself stop/start the app. Inspect post-backup startup and
 readiness; report this separately from an explicit restart or a version update.
 
@@ -118,6 +129,12 @@ the deployment step without update/restart. Require the offered version and its
 canonical source commit/app tree to match the candidate with passing CI. Store
 metadata may not expose a commit: a version label alone is not exact-source proof.
 If the mapping cannot be established, explicitly leave this gate open.
+For the user-requested normal Store workflow on 2026-09-23, alpha.16 was associated
+with canonical release 208b5d3 and unchanged app tree 811de10be4d11acab5ee98a41eb5dc3a93b56f46
+through current main 33d5676; both exact CI runs passed. This is repository/version
+association, not independent Store-checkout or installed-image attestation. Record
+that limitation explicitly; never fabricate an exposed SHA or equate a reused
+version with immutable source. Post-update metadata and startup must agree.
 
 Only after all gates pass, use the scoped lifecycle operation
 `ha_manage_app({slug: "0d79c5e8_pilotsuite", action: "update"})` once.
