@@ -9,12 +9,47 @@ zone. Periodic refresh pauses during editing and focused interactive review.
 History import explains its disabled state; custom intervals are validated before
 requesting HA history. No schema, role, consent or algorithm change.
 
-Local verification: 122 backend tests, four JS tests, syntax and repository contracts
+Local verification after merging main 53a17f3: 123 backend tests, four JS tests, syntax and repository contracts
 pass. Chromium could not be downloaded locally; expanded CI browser tests cover
 navigation, editing state, history validation and widths 390/768/1440. CI is pending.
 No HA update or live usability acceptance performed. Latest prior deployment report
 was alpha.13; alpha.14 store refresh was unauthorized. Do not infer installation
 from repository version. See docs/USABILITY_REVIEW.md.
+
+
+## Development: release marker contract
+
+The alpha.14 tree still embedded alpha.13 in the browser footer and first-start
+documentation. The footer is now release-neutral, while a regression requires the
+documented release marker to equal the canonical VERSION/config/Docker markers and
+rejects semantic-version literals in the static web shell. 123 backend tests, four
+JavaScript tests and repository validation pass locally. Browser/container CI remains
+required before merge. This changes no runtime behavior, storage, consent or access.
+
+Live remains alpha.13: the current Supervisor Store still offers alpha.13. Scoped
+backup fe09f165 remains the prepared rollback point; no update or restart occurred.
+Next: merge only after CI, then obtain an authorized Store refresh, verify offered
+alpha.14 and its exact source, deploy once and perform authenticated workbench checks.
+
+## Published alpha.14; live update pending (2026-09-23)
+
+PR #23 delivers the pattern workbench; PR #24 publishes 0.1.0-alpha.14 at
+1644c9b170c861e83582ef9503775a8e913818f0. Release candidate CI 35824319061
+and exact main CI 35824395251 passed: 122 backend tests, four JavaScript tests,
+Chromium workbench/filter/export regression and amd64 container build.
+
+Live verification still reports alpha.13 installed/offered and started. Recent app
+logs confirm readiness, connected stream, fresh snapshot and resolved zone. No update
+or restart was performed. Store reload through the documented Supervisor WebSocket
+API was denied Unauthorized; this access boundary was respected. Backup fe09f165
+and scoped rollback are recorded below. Recheck backup freshness before deployment.
+
+Next: wait for authorized Store refresh, verify offered alpha.14 and exact source,
+then perform scoped update and startup checks. User confirmed the previous history
+diagram renders; the new workbench, JSON download and real Recorder coverage still
+require separate live UI acceptance. No learning consent, roles or actuators changed.
+
+### Earlier preparation record
 
 ## Release candidate: 0.1.0-alpha.14
 

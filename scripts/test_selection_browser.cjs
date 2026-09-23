@@ -264,6 +264,13 @@ const assert = require('node:assert/strict');
     assert.equal(contexts.hz_test.event_count,0);
     assert.deepEqual(contexts.hz_test.patterns,[]);
     assert.equal(await page.locator('#neuron-details').getAttribute('open'),null);
+    // A failed context read must not retain the preceding zone's learning display.
+    await page.route('**/api/v1/zones/example/context', route => route.fulfill({status:503,json:{message:'synthetic unavailable'}}));
+    await page.getByRole('tab', {name:'Example',exact:true}).click();
+    await page.waitForFunction(() => document.getElementById('learning-status').textContent.includes('nicht verfügbar'));
+    assert.equal(await page.locator('#learned-patterns').textContent(), '');
+    assert.equal(await page.locator('#learning-sources').textContent(), '');
+    assert.equal(await page.locator('#learning-export').getAttribute('href'), null);
     assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
     console.log('Browser regression passed: draft, save, conflict, discard, activation, search, mobile, ingress prefix.');

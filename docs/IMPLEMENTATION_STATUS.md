@@ -1,5 +1,38 @@
 # Capability and acceptance ledger
 
+## Release marker reliability increment
+
+The alpha.14 tree no longer exposes a stale alpha.13 literal in its static browser
+shell. The first-start documentation is tied by regression to the canonical version,
+and the static shell is required to stay free of hard-coded alpha numbers. 123 backend
+tests, four JavaScript tests and repository validation pass locally; browser/container
+CI is pending. No persistence, consent, history or execution boundary changes.
+
+Deployment remains separate: Supervisor still reports alpha.13 installed and offered.
+Backup fe09f165 remains available; no app update or restart was performed. The next
+gate is CI, followed by an authorized Store refresh and exact alpha.14 deployment and
+workbench acceptance.
+
+## Published alpha.14; live update pending (2026-09-23)
+
+PR #23 delivers the pattern workbench; PR #24 publishes 0.1.0-alpha.14 at
+1644c9b170c861e83582ef9503775a8e913818f0. Release candidate CI 35824319061
+and exact main CI 35824395251 passed: 122 backend tests, four JavaScript tests,
+Chromium workbench/filter/export regression and amd64 container build.
+
+Live verification still reports alpha.13 installed/offered and started. Recent app
+logs confirm readiness, connected stream, fresh snapshot and resolved zone. No update
+or restart was performed. Store reload through the documented Supervisor WebSocket
+API was denied Unauthorized; this access boundary was respected. Backup fe09f165
+and scoped rollback are recorded below. Recheck backup freshness before deployment.
+
+Next: wait for authorized Store refresh, verify offered alpha.14 and exact source,
+then perform scoped update and startup checks. User confirmed the previous history
+diagram renders; the new workbench, JSON download and real Recorder coverage still
+require separate live UI acceptance. No learning consent, roles or actuators changed.
+
+### Earlier preparation record
+
 ## alpha.14 release candidate
 
 PR #23 / main 76f7665 passed CI 35824185318: 122 backend tests, four JS tests,

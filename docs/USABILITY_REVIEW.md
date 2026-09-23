@@ -21,9 +21,9 @@ Feedback getrennt. Hauptsensoren, Freigaben, Algorithmen und Aufbewahrung unver�
 
 ## Abnahme
 
-- Lokal: 122 Backendtests, vier JavaScript-Modelltests, Syntax- und Vertragsprüfung.
+- Lokal: 123 Backendtests, vier JavaScript-Modelltests, Syntax- und Vertragsprüfung.
 - Erweiterte Chromium-Prüfung: bestehende Speicher-/Konflikt-/Lern-/Exportpfade plus
-  Navigation, Bearbeitungshinweis, Historiengrenzen und Überlauf bei 390/768/1440 px.
+  Navigation, Bearbeitungshinweis, fehlgeschlagenen Zonen-Kontext, Historiengrenzen und Überlauf bei 390/768/1440 px.
 - Lokaler Chromium-Download fehlgeschlagen; Browser und Container via CI ausstehend.
 - Produktive Home-Assistant-Oberfläche und reale Sensordaten sind eine separate Abnahme.
 
