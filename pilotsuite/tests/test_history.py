@@ -189,6 +189,15 @@ class HistoryClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('°C',result['metadata']['sensor.t']['unit_of_measurement'])
         self.assertEqual('hour',socket.sent[2]['period'])
 
+    async def test_malformed_statistics_metadata_is_a_domain_error(self):
+        for metadata in (None, {}, [{}], ['broken'], [{'statistic_id': 12}]):
+            with self.subTest(metadata=metadata):
+                socket=_Socket([{'type':'auth_required'},{'type':'auth_ok'},
+                                {'id':1,'success':True,'result':metadata}])
+                client=HomeAssistantClient('ws://example','token');client._session=_Session(socket)
+                with self.assertRaisesRegex(HomeAssistantError,'Unsupported statistics metadata response'):
+                    await client.history(['sensor.t'],1,100,statistics=True)
+
     async def test_transport_failure_becomes_bounded_history_error(self):
         class FailedConnection:
             async def __aenter__(self):

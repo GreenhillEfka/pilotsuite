@@ -81,7 +81,15 @@ class HomeAssistantClient:
                     if statistics:
                         meta = await self._command(socket, request_id, {
                             'type': 'recorder/get_statistics_metadata', 'statistic_ids': entity_ids})
-                        metadata = {i['statistic_id']: i for i in meta}
+                        if not isinstance(meta, list):
+                            raise HomeAssistantError('Unsupported statistics metadata response')
+                        requested = set(entity_ids)
+                        for item in meta:
+                            statistic_id = item.get('statistic_id') if isinstance(item, dict) else None
+                            if not isinstance(statistic_id, str) or not statistic_id:
+                                raise HomeAssistantError('Unsupported statistics metadata response')
+                            if statistic_id in requested:
+                                metadata[statistic_id] = item
                         request_id += 1
                     while cursor < end:
                         stop = min(end, cursor + 86400)

@@ -41,7 +41,8 @@ Rollen, Zeitzone und Freigaben werden durch Abruf/Import nicht geändert.
   `recorder/statistics_during_period`. Kein SQL gegen die HA-Datenbank.
 - Maximal 100 Quellen und 30 Tage pro Abruf, tageweise Anfragen, maximal 50.000
   Antwortdatensätze, 90 Sekunden Gesamtlimit und nur ein Historienauftrag zugleich.
-  Fehlgeschlagene/zu große Abrufe importieren nichts, Zeitraum verkürzen.
+  Fehlgeschlagene, ungültig strukturierte oder zu große Antworten importieren nichts;
+  Zeitraum verkürzen und HA-Recorder prüfen.
 - Rohdaten bleiben flüchtig. Diagramme haben maximal 481 Abtastzeitpunkte pro Quelle;
   Stundenstatistiken maximal etwa 720. Der Lernpfad nutzt unverdichtete Zustände.
 - Auf Grafiken werden letzte Zustände höchstens eine Stunde fortgeschrieben.
