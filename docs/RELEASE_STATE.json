@@ -9,24 +9,36 @@
     "app_tree": "70879070888a7de8df6b15d1800bdb4bace5f598",
     "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35874744954",
     "ci_conclusion": "success",
-    "source_association": "published_canonical_source_not_yet_offered_by_store",
+    "source_association": "canonical_repository_and_offered_version_match_published_unchanged_app_tree",
     "independent_store_checkout_verified": false
   },
   "backup": {
-    "id": "94355ad1",
-    "date": "2026-09-23T14:28:37.976900+00:00",
+    "id": "fcbbc115",
+    "date": "2026-09-23T15:09:02.254862+00:00",
     "previous_version": "0.1.0-alpha.16",
-    "size_bytes": 53923840,
+    "size_bytes": 53934080,
     "completed": true,
     "native_details_verified": true,
     "only_pilotsuite": true,
     "protected": false,
     "failed_components": [],
-    "restore_drill_performed": false
+    "restore_drill_performed": false,
+    "rollback": {
+      "service": "hassio.restore_partial",
+      "data": {
+        "slug": "fcbbc115",
+        "apps": [
+          "0d79c5e8_pilotsuite"
+        ],
+        "homeassistant": false,
+        "folders": []
+      },
+      "target_version": "0.1.0-alpha.16"
+    }
   },
   "installation": {
-    "installed": "0.1.0-alpha.16",
-    "offered": "0.1.0-alpha.16",
+    "installed": "0.1.0-alpha.17",
+    "offered": "0.1.0-alpha.17",
     "state": "started",
     "update_available": false,
     "runtime_verified": [
@@ -40,9 +52,9 @@
   "ingress_acceptance": {
     "version": "0.1.0-alpha.17",
     "status": "pending",
-    "reason": "release_not_yet_installed"
+    "reason": "no_authenticated_HA_browser_session_available"
   },
-  "next_task": "When alpha.17 is offered, verify source/backup freshness, update once, verify runtime and accept temporal review UI. Alpha.16 user UI acceptance is complete.",
+  "next_task": "Accept the alpha.17 temporal review and JSON export in authenticated HA Ingress, read-only. Do not reinstall. Learning-quality review and second-zone acceptance remain separate and require existing explicit consent.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",

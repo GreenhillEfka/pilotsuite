@@ -31,8 +31,9 @@ The user accepted alpha.16 guide/navigation/workbench on 2026-09-23. This closes
 that user UI gate; it does not prove real learning quality or independent network
 capture. Alpha.17 (PR #37, 8a83932; CI 35874744954 green) adds temporal review of existing retained evidence using
 the shared retrospective logic (docs/PATTERN_WORKBENCH.md). No extra collection,
-state owner or execution permission. HA still runs/offers alpha.16. Next is alpha.17 Store availability and scoped
-deployment, then quality review only within existing explicit learning consent.
+state owner or execution permission. HA now runs/offers alpha.17 after verified scoped backup fcbbc115 and one update.
+Runtime/read-only checks passed. Next is authenticated temporal-view/export acceptance,
+then quality review only within existing explicit learning consent.
 For any release: read docs/RELEASE_STATE.json, the newest CURRENT_STATE receipt and
 docs/RELEASE_RUNBOOK.md first. Resume the recorded next step; do not rediscover the
 procedure or treat historical blockers as current. Check live state before acting.
@@ -54,8 +55,8 @@ Current alpha rules are climate heuristics, not learned habits.
 Alpha.14 adds the pattern workbench on top of targeted transient HA
 history/statistics views and the existing consented evidence owner. Do not copy
 Recorder data or infer missing history as absence of behavior. The immediate live
-continuation is alpha.17 deployment when offered, after user acceptance of alpha.16. Alpha.16 is
-installed and started after verified scoped backup 95bb73d4. Native backup/details
+continuation is alpha.17 temporal-view/export acceptance, after user acceptance of alpha.16.
+Alpha.17 is installed and started after verified scoped backup fcbbc115. Native backup/details
 works; the old permission-gate receipt is superseded. Source association uses the
 canonical release and unchanged app tree, not an exposed Store checkout SHA.
 Reliability corrections may continue as separate
