@@ -257,6 +257,11 @@ const assert = require('node:assert/strict');
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({width,height:900});
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      if (process.env.PILOTSUITE_SCREENSHOTS) {
+        await fs.mkdir(process.env.PILOTSUITE_SCREENSHOTS, {recursive:true});
+        await page.locator('#zone-overview').screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `overview-${width}.png`)});
+        await page.locator('#learning-section').screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `learning-${width}.png`)});
+      }
     }
     await page.setViewportSize({width:390,height:844});
     await page.locator('#learning-reset').click();
