@@ -1,6 +1,6 @@
 FROM ghcr.io/home-assistant/base-python:3.14-alpine3.24-2026.06.1
 
-ARG BUILD_VERSION="0.1.0-alpha.10"
+ARG BUILD_VERSION="0.1.0-alpha.11"
 ARG BUILD_ARCH="unknown"
 
 LABEL \
@@ -18,6 +18,8 @@ LABEL \
 WORKDIR /opt/pilotsuite
 
 COPY requirements.txt ./requirements.txt
+RUN apk add --no-cache tzdata
+RUN python -c "from zoneinfo import ZoneInfo; ZoneInfo('Europe/Berlin')"
 RUN pip install --no-cache-dir --requirement requirements.txt
 
 COPY pilotsuite ./pilotsuite

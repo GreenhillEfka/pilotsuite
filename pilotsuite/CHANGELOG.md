@@ -2,6 +2,16 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.11] - 2026-09-23
+
+- Add per-zone activity thresholds, local IANA timezones and weekday/weekend grouping.
+- Show source details, learning progress and bounded observation checkpoints.
+- Add separately consented light/lux context at activity events, with explicit unknowns.
+- Preserve evidence on parameter edits; bind preference to the detector configuration.
+- Migrate to SQLite schema 5 with a pre-migration database backup; preserve roles and choices.
+- Extend export, reset and retention to the new evidence. Context learning defaults off.
+- No HA actuation. Downgrading requires restoring the matching App-and-data backup.
+
 ## [0.1.0-alpha.10] - 2026-09-23
 
 - Separate activity observation statistics, deterministic rule-threshold ratios,

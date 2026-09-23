@@ -319,10 +319,19 @@ def main() -> None:
 async def _context_payload(service, zone_id, export=False):
     inventory = await service.selection_inventory(zone_id)
     report = await service.context.report(zone_id)
-    if not export: report.pop('evidence', None)
+    if not export:
+        report.pop('evidence', None)
+        report.pop('context_evidence', None)
+        report.pop('coverage_samples', None)
     report['revision'] = inventory['revision']
     report['enabled'] = inventory['enabled']
     report['eligible'] = zone_id in service._learning_sources
+    report['collection_state'] = (
+        'off' if not report['config']['learning'] else
+        'paused' if not report['enabled'] else
+        'disconnected' if not (await service.status())['ready'] else
+        'no_source' if not report['eligible'] else 'collecting')
+    report['collecting_sources'] = service._learning_sources.get(zone_id, [])
     report['candidates'] = [i for i in inventory['items'] if i['decision'] == 'relevant']
     # Surface legacy automatic defaults so opening/saving cannot silently clear them.
     roles = dict(report['config']['roles'])
@@ -332,6 +341,16 @@ async def _context_payload(service, zone_id, export=False):
         if kind not in roles:
             roles[kind] = ids if kind == 'light' or len(ids) == 1 else []
     report['effective_roles'] = roles
+    report['modules'] = [
+        {'id': 'references-v1', 'name': 'Zonenreferenzen', 'kind': 'deterministic',
+         'state': 'active' if report['enabled'] else 'paused', 'configurable': 'Sensorrollen'},
+        {'id': 'activity-v1', 'name': 'Wiederkehrende Aktivierungen', 'kind': 'learning',
+         'state': report['collection_state'], 'configurable': 'Lernfreigabe und Mindestbelege'},
+        {'id': 'activation-context-v1', 'name': 'Lichtkontext bei Aktivierungen', 'kind': 'learning',
+         'state': report['collection_state'] if report['config'].get('context_learning') else 'off',
+         'configurable': 'Zusätzliche Kontextfreigabe; Licht- und Helligkeitsrollen'},
+        {'id': 'action-execution', 'name': 'Freigegebene HA-Aktionen', 'kind': 'planned', 'state': 'blocked'},
+    ]
     return report
 
 
@@ -354,8 +373,14 @@ async def _context_patch(request):
     zone_id = request.match_info['zone_id']
     try: payload = await request.json()
     except ValueError as exc: raise InvalidSelection('invalid JSON') from exc
-    if not isinstance(payload, dict) or set(payload) not in ({'revision', 'roles', 'learning'}, {'revision', 'roles', 'learning', 'reset'}):
-        raise InvalidSelection('revision, roles and learning required')
+    if (not isinstance(payload, dict) or not {'revision', 'roles', 'learning'} <= set(payload)
+            or set(payload) - {'revision', 'roles', 'learning', 'reset', 'detector', 'context_learning'}):
+        raise InvalidSelection('revision, roles and learning required; unknown fields rejected')
+    if 'context_learning' in payload and type(payload['context_learning']) is not bool:
+        raise InvalidSelection('context_learning must be boolean')
+    if 'detector' in payload:
+        from pilotsuite.core.context import validate_detector
+        validate_detector(payload['detector'])
     if not isinstance(payload['roles'], dict): raise InvalidSelection('roles must be a mapping')
     async with service._projection_lock:
         inventory = await service.selection_inventory(zone_id)
@@ -368,7 +393,7 @@ async def _context_patch(request):
                 if entity in previous['roles'].get(role, []) and not payload['learning']: continue
                 if entity not in candidates or candidates[entity]['suggested_role'] not in ROLE_KINDS[role]:
                     raise InvalidSelection('Role source must be a confirmed relevant entity of the matching type')
-        await service.context.configure(zone_id, payload['revision'], payload['roles'], payload['learning'], reset=payload.get('reset', False))
+        await service.context.configure(zone_id, payload['revision'], payload['roles'], payload['learning'], reset=payload.get('reset', False), detector=payload.get('detector'), context_learning=payload.get('context_learning'))
         await service._derive()
         return web.json_response(await _context_payload(service, zone_id))
 

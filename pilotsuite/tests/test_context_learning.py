@@ -96,6 +96,64 @@ class LearningTests(unittest.IsolatedAsyncioTestCase):
                 # Second detector seeing the same activity must not double-count it.
                 self.assertFalse(await self.store.record('a','binary_sensor.b',t+2,'unknown',now=t+2))
 
+    async def test_detector_settings_reassess_without_rewriting_evidence(self):
+        await self.seed()
+        before = await self.store.report('a', now=self.now)
+        await self.store.feedback('a', before['patterns'][0]['id'], 'accepted')
+        revision = (await self.selections.get('a'))['revision']
+        await self.store.configure('a', revision, self.roles, True, detector={'min_events': 10, 'min_days': 5})
+        after = await ContextStore(self.selections).report('a', now=self.now)
+        self.assertEqual(before['evidence'], after['evidence'])
+        self.assertEqual(before['config']['consented_at'], after['config']['consented_at'])
+        self.assertEqual([], after['patterns'])
+        self.assertEqual(4, after['progress']['windows'][0]['missing_events'])
+        self.assertEqual(2, after['progress']['windows'][0]['missing_days'])
+        revision += 1
+        await self.store.configure('a', revision, self.roles, True, detector={'min_events': 6, 'min_days': 3})
+        after = await self.store.report('a', now=self.now)
+        self.assertNotEqual(before['patterns'][0]['id'], after['patterns'][0]['id'])
+        self.assertIsNone(after['patterns'][0]['preference'])
+        self.assertEqual(6, after['patterns'][0]['rule_strength']['minimum_events'])
+        self.assertEqual(1.0, after['patterns'][0]['rule_strength']['event_ratio'])
+        await self.store.configure('a', revision+1, self.roles, False)
+        self.assertEqual({'min_events': 6, 'min_days': 3}, (await self.store.get('a'))['detector'])
+        self.assertEqual({'min_events': 5, 'min_days': 3}, (await self.store.get('other'))['detector'])
+
+    async def test_detector_rejects_invalid_settings_before_mutation(self):
+        revision = (await self.selections.get('a'))['revision']
+        for detector in ({}, {'min_events': True, 'min_days': 3}, {'min_events': 4, 'min_days': 3},
+                         {'min_events': 5, 'min_days': 15}, {'min_events': 5.0, 'min_days': 3},
+                         {'min_events': 5, 'min_days': 3, 'execute': True}):
+            with self.assertRaises(InvalidSelection):
+                await self.store.configure('a', revision, self.roles, False, detector=detector)
+        self.assertEqual(revision, (await self.selections.get('a'))['revision'])
+
+    async def test_progress_empty_and_retention_expiry(self):
+        report = await self.store.report('a', now=self.now)
+        self.assertEqual([], report['progress']['windows'])
+        self.assertIsNone(report['progress']['first_evidence_at'])
+        await self.seed()
+        report = await self.store.report('a', now=self.now)
+        window = report['progress']['windows'][0]
+        self.assertEqual((6, 3, 0, 0), (window['events'], window['days'], window['missing_events'], window['missing_days']))
+        self.assertIsNotNone(report['progress']['first_evidence_at'])
+        report = await self.store.report('a', now=self.now+15*86400)
+        self.assertEqual([], report['progress']['windows'])
+        self.assertIsNone(report['progress']['last_evidence_at'])
+
+    async def test_progress_never_pools_different_time_windows(self):
+        await self.consent()
+        day = datetime.fromtimestamp(self.now, UTC).replace(hour=8, minute=0, second=0, microsecond=0)
+        for d in (4, 3, 2):
+            for hour in (0, 4):
+                t = (day-timedelta(days=d)+timedelta(hours=hour)).timestamp()
+                await self.store.record('a', 'binary_sensor.a', t, 'unknown', now=t)
+        report = await self.store.report('a', now=self.now)
+        self.assertEqual(6, report['event_count'])
+        self.assertEqual([], report['patterns'])
+        self.assertEqual([2, 2], [w['missing_events'] for w in report['progress']['windows']])
+        self.assertEqual([0, 0], [w['missing_days'] for w in report['progress']['windows']])
+
     async def test_no_consent_no_events_duplicate_and_stale_rejection(self):
         self.assertFalse(await self.store.record('a','binary_sensor.a',self.now,'unknown',now=self.now))
         await self.consent()
@@ -171,3 +229,25 @@ class LearningTests(unittest.IsolatedAsyncioTestCase):
         with sqlite3.connect(backups[0]) as db:
             self.assertEqual(3,db.execute('PRAGMA user_version').fetchone()[0])
             self.assertEqual(0,db.execute("SELECT active FROM selection_modes WHERE zone_id='a'").fetchone()[0])
+
+
+class CollectionStateTests(unittest.IsolatedAsyncioTestCase):
+    async def test_collection_status_explains_each_blocker(self):
+        from types import SimpleNamespace
+        from unittest.mock import AsyncMock
+        from pilotsuite.app import _context_payload
+        for learning, enabled, ready, sources, expected in [
+            (False, True, True, [], 'off'),
+            (True, False, True, [], 'paused'),
+            (True, True, False, ['binary_sensor.a'], 'disconnected'),
+            (True, True, True, [], 'no_source'),
+            (True, True, True, ['binary_sensor.a'], 'collecting'),
+        ]:
+            service = SimpleNamespace(
+                selection_inventory=AsyncMock(return_value={'revision': 1, 'enabled': enabled, 'items': []}),
+                context=SimpleNamespace(report=AsyncMock(return_value={'config': {'learning': learning, 'roles': {}}, 'evidence': []})),
+                status=AsyncMock(return_value={'ready': ready}),
+                _learning_sources={'a': sources} if sources else {})
+            report = await _context_payload(service, 'a')
+            self.assertEqual(expected, report['collection_state'])
+            self.assertNotIn('evidence', report)

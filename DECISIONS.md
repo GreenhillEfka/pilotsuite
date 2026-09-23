@@ -1,5 +1,41 @@
 # Architecture Decision Log
 
+## ADR-022 — Local rhythms, sampled observability and separately consented context
+
+Stored UTC events are grouped using a saved IANA timezone and optional weekday /
+weekend separation. UTC defaults preserve legacy behavior and candidate identity.
+DST repetition cannot fabricate extra days. Time grouping participates in identity.
+Observability uses bounded five-minute checkpoint buckets, not inferred uptime or
+physical sensor coverage. New context evidence requires separate consent and uses
+only explicitly saved complete light/lux groups at event processing time. It is
+co-occurrence, not a causal switching sequence or an executable plan. Schema 5
+backs up before adding context/checkpoint tables; reset, retention and source edits
+cover the new evidence. See docs/RHYTHMS_AND_CONTEXT.md for limits and recovery.
+
+
+## ADR-021 — Bounded per-zone learner parameters, separate action authorization
+
+Activity-v1 thresholds are stored in the canonical zone context JSON with backward
+compatible defaults, integer limits and existing revision conflict protection.
+Omitted detector settings preserve the previous values. Parameter changes re-evaluate
+retained evidence without deleting or inflating it. Nondefault configurations have
+distinct candidate identities; feedback remains bound to its original configuration.
+No schema migration, arbitrary algorithm loading or new actuation permission.
+Modules expose implemented/planned/blocked state. Native HA scripts/automations are
+the preferred future delivery for stable rules after inventory review, preview,
+separate plan-bound approval, backup, apply and verification. See LEARNING_AND_ACTIONS.md.
+
+
+## ADR-020 — Explain evidence progress without inventing confidence
+
+The existing activity detector exposes counts and missing requirements per UTC
+window. Totals from different windows must not qualify a candidate. First/last
+retained evidence timestamps are not continuous coverage or a collection start.
+Consent, zone enablement, transport readiness and suitable sources are separate
+collection gates. UI surfaces persisted presence sources and compact source details.
+No new consent, thresholds, storage schema or actuation is introduced.
+
+
 ## ADR-019 — Activity candidates expose independent assessment dimensions
 
 The `activity-v1` candidate contract separates observed statistics, deterministic

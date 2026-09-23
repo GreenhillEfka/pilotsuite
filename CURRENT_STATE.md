@@ -1,5 +1,65 @@
 # Current State
 
+## Release candidate: 0.1.0-alpha.11
+
+PR #9 feature head 0098b30 passed CI 35800363139: 85 backend tests, four JS tests,
+mobile browser flows and amd64 image build. Release metadata is being synchronized
+and must pass its own CI before merge. HA reports alpha.9 started; fresh App-only
+backup must precede publishing because automatic App updates are enabled.
+Schema 5 preserves choices/roles and defaults context consent off. Downgrade
+requires an App-and-data partial restore, never schema-4 code over schema-5 data.
+Fresh App-only backup 1b74df9a was created and confirmed in the completed listing:
+53,739,520 bytes, unprotected, HA configuration/database excluded. Requested scope
+was PilotSuite with its data; archive contents were not inspected and no restore
+drill performed. Recovery is a partial App-and-data restore of this backup.
+No live update or consent changes yet in this release preparation.
+
+
+## Next package: local rhythms and activation context (development)
+
+PR #9 now includes persisted IANA timezone and weekday/weekend grouping, DST-safe
+local-day counts, bounded sampled observability and separately consented light/lux
+context at accepted activity events. Explicit source groups only; unknown values
+stay unknown. Context cards make read-only review suggestions, not HA commands.
+Schema 5 backs up before adding two tables; existing context consent defaults off.
+85 backend tests and repository validation pass locally. Browser test now covers
+new settings and context/coverage rendering; expanded CI remains a required gate.
+The previous df5a77b head passed all CI 35799028200 before this package.
+Verified at package start: PR #9 open, main d48e719, HA alpha.9 started. No production
+consent, role edit, update or HA automation was performed by this increment.
+Contract and recovery: docs/RHYTHMS_AND_CONTEXT.md / ADR-022. Release requires an
+App-and-data backup because schema-4 code cannot open schema 5. Remaining: actual
+HA Ingress acceptance and real multi-day data; temporal light sequences, shadow
+execution and native HA drafts are explicitly deferred.
+
+
+## Development: zone overview and evidence progress
+
+PR #9 now also provides per-zone activity-v1 minimum events (5–100) and days
+(3–14), revision-safe persistence, bounded validation, parameter-specific pattern
+identity and a module status overview. Evidence is retained on parameter edits;
+consent does not change. docs/LEARNING_AND_ACTIONS.md separates implemented learning
+from planned script/automation drafts and governed execution. 70 backend tests,
+four JS tests and validation pass locally. The previous PR head d76b40a passed CI
+35798093744 (backend/browser/container); the expanded head needs its own CI gate.
+Main advanced to alpha.10 via PR #10 during this work. Its structured assessment
+contract is merged and rule-strength ratios use the configured per-zone thresholds.
+No installation or new learning/actuation consent performed in this increment.
+
+
+Extends alpha.9 with expandable source details in reference cards; persisted
+presence-group names; collection-state explanations; consent and first/last retained
+evidence timestamps; per-UTC-window counts and missing candidate requirements.
+No statistical confidence percentage or uninterrupted coverage is implied.
+No schema migration, role rewrite, consent change or HA update in this increment.
+Previous increment: 66 backend tests and four JS tests passed locally; repository validation passed.
+Browser regression extended, but local Chromium is unavailable: CI must verify it.
+Live read-only check confirms alpha.9 started, ready and real Ingress API HTTP 200.
+The user's exact live selection remains uninspected through the protected APIs.
+Next: CI browser/container gate, then release preparation and scoped backup before
+any production update. Real multi-day habits and live interactive acceptance remain open.
+
+
 ## Release candidate: 0.1.0-alpha.10 structured activity evidence
 
 The next bounded change gives `activity-v1` candidates independent observation
