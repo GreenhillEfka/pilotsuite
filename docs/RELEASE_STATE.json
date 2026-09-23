@@ -4,10 +4,10 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.19",
-    "commit": "0101a4152664f3005f51814050477c06d74337fa",
-    "app_tree": "2765acc28f933ee434b568478c0c6eb1d68d2c3f",
-    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35905466915",
+    "version": "0.1.0-alpha.20",
+    "commit": "8be431a133d9694977193947c45de570b280edb6",
+    "app_tree": "12f06b6c99fd3df9fdd5b9f28e11c6420ac21833",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35909475569",
     "ci_conclusion": "success",
     "source_association": "canonical_release_commit_verified_store_offer_pending",
     "independent_store_checkout_verified": false
@@ -48,15 +48,15 @@
       "snapshot_fresh",
       "zone_resolved"
     ],
-    "deployment_status": "alpha19_store_offer_pending_alpha18_unchanged"
+    "deployment_status": "alpha20_store_offer_pending_alpha18_unchanged"
   },
   "ingress_acceptance": {
-    "version": "0.1.0-alpha.19",
+    "version": "0.1.0-alpha.20",
     "status": "pending",
     "reason": "not_installed_and_no_authenticated_HA_browser_session_available",
     "previous_temporal_ui_acceptance": "pending_on_alpha18"
   },
-  "next_task": "Finish alpha.20 exact CI; on matching Store offer recheck source and backup, update once and verify runtime/real Ingress. Next concept: selected automation trigger/condition/action reference inspection, read-only.",
+  "next_task": "When Store offers alpha.20, recheck exact source/CI and backup freshness, update PilotSuite once and verify runtime and authenticated temporal/draft/reference UI. Next concept: read-only trigger/condition/action reference inspection of a selected matching automation; no writes.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
@@ -71,10 +71,5 @@
       ],
       "independent_network_capture": false
     }
-  },
-  "candidate": {
-    "version": "0.1.0-alpha.20",
-    "status": "local_validation_complete_exact_ci_pending",
-    "contract": "docs/AUTOMATION_REVIEW.md"
   }
 }
