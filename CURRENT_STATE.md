@@ -12,8 +12,9 @@ No new persistence, migration, consent or collection. Contract: docs/ZONE_GUIDE.
 
 Validation: 138 Python and nine JavaScript tests passed locally, including eight new
 synthetic guide regressions. Browser regression covers navigation without writes and
-clearing guidance on failed zone loads. Exact candidate Chromium/container CI remains
-pending; the package PR records the eventual candidate and main verification receipts.
+clearing guidance on failed zone loads. Functional candidate 78f0206258a6bbac0b47fd2e5264a40595857d05 passed CI
+35838202517 (138 Python, nine JS, Chromium and amd64 container). PR #34 records
+the final documentation-head and resulting main CI receipts separately.
 
 Installation is separate: alpha.13 still installed/offered/started; no update available.
 Scoped PilotSuite backup d454e834 completed 2026-09-23T08:35:11Z, 53,882,880 bytes,
