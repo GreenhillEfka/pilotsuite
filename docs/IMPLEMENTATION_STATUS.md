@@ -1,5 +1,32 @@
 # Capability and acceptance ledger
 
+## Zone guide / alpha.16 candidate — 2026-09-23
+
+User requested the next coherent package after the release procedure was fixed.
+Based on published alpha.15 (PR #32) and its receipt (PR #33), the zone guide derives
+setup and optional-learning readiness from existing canonical projections. It shows
+one next step, missing relevant sources, paused evaluation, connection readiness,
+presence validity and retained patterns. Nearest-window evidence remains separate;
+no pooling, completion forecast, confidence/preference change or action permission.
+No new persistence, migration, consent or collection. Contract: docs/ZONE_GUIDE.md.
+
+Validation: 138 Python and nine JavaScript tests passed locally, including eight new
+synthetic guide regressions. Browser regression covers navigation without writes and
+clearing guidance on failed zone loads. Exact candidate Chromium/container CI remains
+pending; the package PR records the eventual candidate and main verification receipts.
+
+Installation is separate: alpha.13 still installed/offered/started; no update available.
+Scoped PilotSuite backup d454e834 completed 2026-09-23T08:35:11Z, 53,882,880 bytes,
+unprotected, HA/database excluded. Request selected only PilotSuite and no folders.
+Archive internals not inspected; do not claim verified restore readiness. Concrete
+recovery target is alpha.13 and matching app data/options via restore_partial for
+this app only, after contents verification. No update, restart, learning enablement
+or Store permission retry. Real authenticated guide/workbench acceptance remains open.
+
+Next: pass exact candidate/main CI, then offered-source and backup-content gates;
+install once when available and validate the guide in authenticated HA Ingress.
+The sections below are historical receipts, not new pending work.
+
 ## Published alpha.15; repeatable release procedure — 2026-09-23
 
 The current candidate packages post-alpha.14 UI/ordering fixes as alpha.15, without

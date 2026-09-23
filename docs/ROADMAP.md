@@ -6,9 +6,10 @@
 - Guard Ingress peer; test actual proxy path and browser assets.
 - Distinguish snapshot freshness, stream health and sensor validity.
 - Ship foundation fixes before claiming live acceptance.
-- Follow RELEASE_RUNBOOK.md: alpha.15 packages post-alpha.14 fixes under its own
-  version. Next gate is exact candidate/main CI, then source-bound Store/deployment
-  checks and authenticated navigation/workbench acceptance; no extra feature scope.
+- Follow RELEASE_RUNBOOK.md for every release; alpha.16 adds the requested zone
+  guide to existing setup and optional learning, without another state owner.
+  Next: exact CI, offered-source/backup gates and authenticated guide/workbench
+  acceptance. No actuation or additional collection scope.
 
 ## 0.2 — consented read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
