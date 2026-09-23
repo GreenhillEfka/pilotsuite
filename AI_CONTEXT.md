@@ -27,10 +27,12 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.16 adds derived zone guidance (docs/ZONE_GUIDE.md) and is installed. No additional
-state owner or collection. Native Core backup/details verifies scoped app backups with
-existing access; a Supervisor gateway denial is not proof this native route is denied.
-Next is authenticated Ingress acceptance, not reinstalling or another Store reload.
+The user accepted alpha.16 guide/navigation/workbench on 2026-09-23. This closes
+that user UI gate; it does not prove real learning quality or independent network
+capture. Alpha.17 candidate adds temporal review of existing retained evidence using
+the shared retrospective logic (docs/PATTERN_WORKBENCH.md). No extra collection,
+state owner or execution permission. Continue with candidate CI/release/deployment,
+then real quality review only within existing explicit learning consent.
 For any release: read docs/RELEASE_STATE.json, the newest CURRENT_STATE receipt and
 docs/RELEASE_RUNBOOK.md first. Resume the recorded next step; do not rediscover the
 procedure or treat historical blockers as current. Check live state before acting.
@@ -52,7 +54,7 @@ Current alpha rules are climate heuristics, not learned habits.
 Alpha.14 adds the pattern workbench on top of targeted transient HA
 history/statistics views and the existing consented evidence owner. Do not copy
 Recorder data or infer missing history as absence of behavior. The immediate live
-continuation is authenticated alpha.16 guide/workbench acceptance. Alpha.16 is
+continuation is the alpha.17 temporal-review candidate after user acceptance of alpha.16. Alpha.16 is
 installed and started after verified scoped backup 95bb73d4. Native backup/details
 works; the old permission-gate receipt is superseded. Source association uses the
 canonical release and unchanged app tree, not an exposed Store checkout SHA.

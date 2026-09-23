@@ -610,6 +610,13 @@ function renderLearning() {
         const item = document.createElement('li'); item.textContent = node.label; chain.append(item);
       }
       details.append(chain);
+      const temporal = document.createElement('p'); temporal.className = 'temporal-check';
+      const check = review.temporal_check;
+      const checkLabels = {reobserved:'Später erneut beobachtet', insufficient_earlier_evidence:'Frühere Belege reichen noch nicht', insufficient_later_evidence:'Spätere Belege fehlen'};
+      temporal.textContent = check
+        ? `Zeitlich getrennte Prüfung: ${checkLabels[check.state] || 'Nicht auswertbar'}. Früher: ${check.training_events} Aktivierungen an ${check.training_days} Tagen; später: ${check.later_events} an ${check.later_days} Tagen. Zeitraum ${new Date(check.start * 1000).toLocaleString('de-DE')} bis ${new Date(check.end * 1000).toLocaleString('de-DE')}; Trennung ${new Date(check.split_at * 1000).toLocaleString('de-DE')} (Browserzeit). Gruppierung: ${check.timezone}. Keine Genauigkeitsquote; fehlende Belege können Datenlücken sein.`
+        : 'Zeitlich getrennte Prüfung: noch nicht verfügbar.';
+      details.append(temporal);
       const warnings = document.createElement('p'); warnings.textContent = review.warnings.join(' '); details.append(warnings);
       const ctx = document.createElement('p'); ctx.textContent = review.context
         ? `Kontext im selben Zeitfenster: Licht an ${review.context.light_on}, aus ${review.context.light_off}, unbekannt ${review.context.light_unknown}. Gleichzeitiges Auftreten ist keine Schaltfolge.`

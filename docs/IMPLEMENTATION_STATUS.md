@@ -1,5 +1,30 @@
 # Capability and acceptance ledger
 
+## Temporal pattern review candidate / alpha.17 — 2026-09-23
+
+The user confirmed alpha.16 guide/navigation/workbench works. Record this as
+user-reported UI acceptance, not independent network capture or proof of real
+learning quality. Current HA metadata remains alpha.16 installed/offered/started.
+
+The next bounded slice reuses retrospective() for retained activity evidence.
+Earlier 70% of the fixed rolling 14-day retention window must qualify independently;
+later 30% is checked only for repeat observation in the same local bucket/day group.
+An overall qualifying recent pattern may still lack earlier qualifying evidence.
+No later events train the earlier partition; out-of-period events are excluded.
+Counts/status/period enter the existing review and JSON export. No probability,
+causality or action permission is inferred. No new collection, schema or owner.
+
+Seven synthetic regressions cover partition bounds, missing early/later evidence,
+local day/window separation, two distinct zone profiles, durable feedback isolation,
+revoked consent and detached reports. Local tests/CI receipts are recorded in the PR.
+Browser regression checks temporal text and exported counts. No real learning or
+configuration change has been performed. Alpha.17 is not installed by this commit.
+
+Next: exact candidate CI, fresh verified PilotSuite-only backup, release and scoped
+update, then runtime checks. Live quality review of already-consented evidence in
+Golden Zone and a second unlike zone remains distinct from synthetic tests and UI
+acceptance. Do not create or activate automations from this review.
+
 ## Alpha.16 live receipt — 2026-09-23
 
 Alpha.16 is now installed/offered/started after one normal PilotSuite update.

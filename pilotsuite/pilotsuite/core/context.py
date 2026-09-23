@@ -11,6 +11,7 @@ from datetime import datetime, UTC
 from .learning_views import temporal_settings, time_bucket, coverage_report, context_report
 from .attribution import ALLOWED_ORIGINS
 from .selections import InvalidSelection, SelectionConflict
+from .history import retrospective
 
 ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
               'illuminance': {'illuminance'}, 'light': {'light'},
@@ -213,6 +214,10 @@ class ContextStore:
                                  'origins': origins, 'feedback': feedback.get(pid),
                                  'proposal': 'Prüfen, ob dieses Zeitfenster eine relevante Routine beschreibt. Keine Automation wird erstellt.'})
             return {'config': cfg, 'event_count': len(rows), 'retention_days': 14, 'limit': MAX_EVIDENCE,
+                    'reobservation': {
+                        **retrospective([(t,e) for e,t,_ in rows if e in cfg['roles'].get('presence', [])],
+                                        detector, now-RETENTION, now),
+                        'basis': 'retained_activations_fixed_retention_window_not_continuous_coverage'},
                     'progress': {'required_events': min_events, 'required_days': min_days,
                                  'window_hours': 2, 'windows': windows,
                                  'first_evidence_at': datetime.fromtimestamp(rows[0][1], UTC).isoformat() if rows else None,

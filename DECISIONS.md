@@ -9,6 +9,13 @@ stays explicitly zone-wide. A brief includes no executable actions; acceptance i
 not actuation consent. Exports are explicit user downloads and may contain private
 routine/source information. See docs/PATTERN_WORKBENCH.md.
 
+Alpha.17 reuses the history retrospective function for retained evidence, with a
+fixed rolling retention period split chronologically 70/30. Qualification uses only
+the earlier partition; later evidence checks repeat observation without a confidence
+estimate or predictive-accuracy claim. Day groups, local windows and zones remain
+separate. Parameters may already reflect full-period review, so this is no unbiased
+holdout validation. Existing preference and evidence owners remain unchanged.
+
 ## ADR-023 — Origin hints are consent-gated, ephemeral and non-identifying
 
 Home Assistant context fields are correlation links, not verified human or

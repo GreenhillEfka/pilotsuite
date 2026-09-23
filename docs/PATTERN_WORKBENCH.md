@@ -24,6 +24,32 @@ enthält keine HA-Serviceaktionen, keine erfundenen Zielwerte und keine Schaltfr
 Eine künftige Ausführung benötigt einen eigenständigen, versionsgebundenen Plan mit
 Freigabe, Sicherung und Verifikation. Die heutige Apply-Sperre bleibt bestehen.
 
+## Zeitlich getrennte Prüfung (alpha.17)
+
+Die Werkbank verwendet dieselbe Rückblickfunktion wie die Historienansicht. Für die
+gespeicherten Aktivierungen wird das feste, rollende 14-Tage-Aufbewahrungsfenster
+am Berichtszeitpunkt in frühere 70 % und spätere 30 % geteilt. Im früheren Teil
+müssen Mindestaktivierungen und Mindesttage allein erfüllt sein. Erst dann bedeutet
+mindestens eine spätere Aktivierung im gleichen lokalen Zwei-Stunden-Fenster und
+derselben Tagesgruppe „Später erneut beobachtet“. Spätere Daten trainieren den
+früheren Teil nicht. Unterschiedliche Zonen, Stunden und Tagesgruppen bleiben getrennt.
+
+Auch ein insgesamt qualifiziertes aktuelles Muster kann im frühen Teil noch zu
+wenige Belege haben. Keine späteren Belege sind keine Widerlegung: Ausfälle,
+widerrufenes Lernen und fehlende Daten bleiben mögliche Ursachen. Ein einzelnes
+erneutes Auftreten ist weder Genauigkeitsquote noch unabhängige Live-Validierung.
+Die gewählten Schwellen können bereits anhand des gesamten Zeitraums angepasst
+worden sein; daher wird keine unverzerrte Prognoseleistung behauptet.
+
+API: `reobservation` in der bestehenden Kontextantwort, `temporal_check` im
+abgeleiteten Prüfentwurf. Enthalten sind Zeitraum, Trennzeitpunkt, Zeitzone,
+frühere/spätere Ereignis- und Tageszahlen und der Prüfstatus. Die vorhandenen
+`checks` der Historienantwort enthalten weiterhin nur früh qualifizierte Fenster;
+`windows` ergänzt alle geprüften Fenster. Quellen und historische Anteile bleiben
+im bestehenden Statistikvertrag. Export erfolgt weiterhin nur auf Nutzerklick.
+
 Keine Migration, neue Lernfreigabe oder zusätzliche Sammlung. Tests verwenden nur
-synthetische Muster. Nutzerbestätigung vom 23.09.2026: Das bisherige Diagramm wird
-angezeigt. Dies bestätigt weder vollständige Recorder-Abdeckung noch die neue Werkbank.
+synthetische Muster. Nutzerbestätigung vom 23.09.2026: alpha.16 Zonen-Assistent,
+Zonenwechsel und Werkbank funktionieren. Dies ist Nutzerabnahme der Oberfläche,
+keine unabhängige Netzwerkprüfung und kein Nachweis realer Lernqualität. Die neue
+Zeitprüfung benötigt nach Installation ihre eigene Bedienabnahme.
