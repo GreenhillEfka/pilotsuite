@@ -8,8 +8,8 @@
 - Ship foundation fixes before claiming live acceptance.
 - Follow RELEASE_RUNBOOK.md for every release; alpha.16 adds the requested zone
   guide to existing setup and optional learning, without another state owner.
-  Next: exact CI, offered-source/backup gates and authenticated guide/workbench
-  acceptance. No actuation or additional collection scope.
+  Alpha.16 is installed after scoped backup and green CI. Next: authenticated
+  guide/workbench acceptance. No actuation or additional collection scope.
 
 ## 0.2 — consented read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
@@ -28,9 +28,8 @@ governed execution owner exists; the read-only alpha cannot generate own actions
 ## 0.3 — governed action pilot
 
 Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
-Alpha.15 packages the workbench and subsequent UI fixes (PR #32, main 7fc0abc,
-CI 35837585440 green). It still awaits an authorized Store refresh,
-exact-source deployment and authenticated user review of the workbench.
+Alpha.16 packages the workbench, UI fixes and zone guide and is installed.
+Authenticated user review of the guide/workbench remains separate and pending.
 Real learning and second-zone acceptance remain prerequisites for actuation.
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.
 - Review existing HA automations before proposing duplicates.

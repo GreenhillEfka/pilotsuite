@@ -1,5 +1,36 @@
 # Current State
 
+## Alpha.16 installed; native backup verification — 2026-09-23
+
+The user requested the regular Store/app-backup workflow. Native Core WebSocket
+`backup/details` succeeds with the existing connection; the earlier denial of the
+Supervisor gateway did not establish a general lack of backup-read permission.
+Do not repeat that conclusion or request broader credentials for this working path.
+
+Fresh backup 95bb73d4 completed at 2026-09-23T10:49:56Z, 53,893,120 bytes,
+unprotected. Details confirm exactly PilotSuite alpha.13, no failed apps/agents/
+folders, no HA configuration/database and no extra folders. Standard app backup
+includes app data/options; this is metadata verification, not an archive extraction
+or restore drill. Concrete rollback: hassio.restore_partial, slug 95bb73d4,
+apps [0d79c5e8_pilotsuite], homeassistant false, folders []. No restore performed.
+
+Store offered alpha.16. Release source is 208b5d31532c5f4ad38a6227b51028aeacacc9fd,
+CI 35838497565 green; current main 33d5676 CI 35842713561 also green. Both have app
+tree 811de10be4d11acab5ee98a41eb5dc3a93b56f46. Source association uses canonical
+repository/version and unchanged published app tree, not an independently observed
+Supervisor checkout SHA or cryptographic installed-image attestation.
+
+One normal scoped update succeeded. Supervisor now confirms alpha.16 installed,
+offered and started, update_available false. Startup logs confirm alpha.16,
+hard_read_only, ready, connected stream, fresh snapshot and resolved Golden Zone.
+No separate restart, role/consent edits, history import or actuator call. No Store
+reload was needed. Only an about:blank cloud browser tab is available; no logged-in
+HA session. Actual Ingress HTML/JS/CSS/API and guide/workbench acceptance remain open.
+
+Next: authenticated, read-only guide/workbench/navigation acceptance; do not reinstall
+alpha.16. No runtime code or version change in this documentation receipt.
+Earlier deployment-gate sections below are historical, superseded by this receipt.
+
 ## Deployment gate review — 2026-09-23
 
 Alpha.16 is now offered by the canonical HA Store; alpha.13 is still installed
