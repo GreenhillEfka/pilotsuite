@@ -8,11 +8,12 @@ of leaking a generic HTTP 500. Malformed text frames now become the same typed H
 Assistant protocol error used for other invalid frames. This changes no successful
 response, storage schema, consent, roles or actuation boundary.
 
-Synthetic regression covers both failure paths. Locally, 115 backend tests, four
-JavaScript tests and repository validation pass. Home Assistant remains unchanged on
-alpha.12 and continues to report hard read-only readiness. Exact PR CI is still
-required before merge. After that, the next task remains authenticated Ingress
-loading of a short read-only history interval; no historical import is required.
+Synthetic regression covers both failure paths. PR #16 candidate CI 35810101307
+passed 115 backend tests, four JavaScript tests, Chromium browser regression and the
+amd64 container. Home Assistant remains unchanged on alpha.12 and continues to
+report hard read-only readiness. After merge, the next task remains authenticated
+Ingress loading of a short read-only history interval; no historical import is
+required.
 
 ## Released and running: 0.1.0-alpha.12
 

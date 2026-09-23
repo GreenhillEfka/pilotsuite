@@ -5,9 +5,10 @@
 Connection failures during scoped history/statistics WebSocket requests are mapped
 to the existing user-facing bounded history error; malformed text frames are mapped
 to the typed HA protocol error. Successful reads, storage, consent and learning are
-unchanged. Two synthetic regressions bring the local backend suite to 115 tests;
-four JavaScript tests and repository validation also pass. Merge still requires
-exact PR CI. Live remains alpha.12 with authenticated history interaction pending.
+unchanged. Two synthetic regressions bring the backend suite to 115 tests. PR #16
+candidate CI 35810101307 passed them together with four JavaScript tests, Chromium
+browser regression and the amd64 container. Live remains alpha.12 with authenticated
+history interaction pending.
 
 ## alpha.12 released and installed
 
