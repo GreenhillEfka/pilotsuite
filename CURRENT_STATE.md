@@ -1,5 +1,36 @@
 # Current State
 
+## Release procedure and alpha.15 candidate — 2026-09-23
+
+Baseline main f0989ea17a819a0718f5b980c6f62d0e64804bab, CI 35831435324
+fully green; no open PR at the initial check. Alpha.15 packages the already merged
+UI revision, release-marker correction and context-ordering fix under a new version.
+No new runtime behavior, schema, consent or configuration change in this increment.
+
+ADR-026 and docs/RELEASE_RUNBOOK.md preserve the scoped backup/rollback procedure,
+known Store permission boundary, exact-source CI and separate Ingress acceptance.
+scripts/release_preflight.py emits committed source identities and rejects reused
+versions, marker/changelog drift and unrelated history; it never authorizes deployment.
+Seven synthetic Git regressions pass. Local total: 130 Python and nine JavaScript
+tests, repository contracts and diff checks passed. Candidate CI remains required.
+
+Fresh HA metadata: alpha.13 installed/offered/started, no update available,
+auto-update enabled. Scoped backup 6db4ba91 completed 2026-09-23T08:23:00Z,
+53,882,880 bytes, unprotected, HA/database excluded. The verified service request
+selected only PilotSuite and no folders. Archive internals and restore drill were
+not inspected/performed. Recovery target: alpha.13 app and matching data/options
+using hassio.restore_partial, apps [0d79c5e8_pilotsuite], homeassistant false,
+folders []. Confirm backup contents and source mapping before an actual update.
+No update/restart, Store retry, role/consent edits or Ingress bypass in this increment.
+
+Next: exact alpha.15 candidate/main CI; once offered, verify source mapping and
+backup recovery gate, update once and accept navigation/workbench in authenticated
+Ingress. Existing Store authorization and live UI acceptance remain open; do not
+silently substitute the older published alpha.14 source or invent new feature work.
+
+The sections below are historical receipts; their then-pending CI/merge steps do not
+override this current release handoff.
+
 ## Development: context response ordering — 2026-09-23
 
 Based on main 0359878; no open PR existed at the initial check and its CI

@@ -1,5 +1,22 @@
 # Capability and acceptance ledger
 
+## Release procedure and alpha.15 candidate — 2026-09-23
+
+The current candidate packages post-alpha.14 UI/ordering fixes as alpha.15, without
+additional runtime/schema/consent changes. ADR-026 and RELEASE_RUNBOOK.md retain
+verified scoped service calls, source/CI gates, known permission boundaries and
+separate installation/UI evidence. Read-only release preflight checks immutable
+commit/tree identity, markers, changelogs, increasing version and ancestry.
+Seven new synthetic Git regressions: 130 Python and nine JS tests pass locally;
+exact candidate Chromium/container CI remains required.
+
+Deployment is unchanged: alpha.13 installed/offered/started. Fresh scoped backup
+6db4ba91 completed at 2026-09-23T08:23:00Z; HA/database excluded, PilotSuite-only
+request. Archive contents/restore drill are not independently verified. No update,
+restart or consent change. Next: candidate/main CI, offered version/source and
+backup verification gates, then authenticated navigation/workbench acceptance.
+Older sections below record earlier evidence, not the current pending-CI status.
+
 ## Context response ordering candidate
 
 Read generations prevent late same-zone / revisited-zone responses and obsolete

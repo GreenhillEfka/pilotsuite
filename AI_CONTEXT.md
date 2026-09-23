@@ -29,6 +29,9 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 Read `docs/VISION.md`, `docs/IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, and
 `CURRENT_STATE.md` before working. Do not restart or recreate the project.
+For every release or deployment also follow `docs/RELEASE_RUNBOOK.md` (ADR-026).
+It preserves the verified scoped backup route and known Store access boundary;
+do not rediscover alternate deployment paths or reuse a published version for fixes.
 The September 2026 review is accepted as the target design, not a claim that
 all capabilities are implemented. Keep source code, passing tests, and live
 Home Assistant acceptance as three separate kinds of evidence.
@@ -39,7 +42,7 @@ Current alpha rules are climate heuristics, not learned habits.
 Alpha.14 adds the pattern workbench on top of targeted transient HA
 history/statistics views and the existing consented evidence owner. Do not copy
 Recorder data or infer missing history as absence of behavior. The immediate live
-continuation is an authorized Store refresh, exact alpha.14 source verification,
+continuation is an authorized Store refresh, exact alpha.15 candidate source verification,
 scoped deployment and authenticated workbench acceptance. Until then alpha.13 is
 the verified running version. Reliability corrections may continue as separate
 small changes, but must not be represented as deployed. PilotSuite remains
