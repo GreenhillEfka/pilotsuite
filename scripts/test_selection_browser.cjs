@@ -14,7 +14,7 @@ const assert = require('node:assert/strict');
         {entity_id: 'button.identify', state: null, recommended: false, decision: 'unreviewed'}], missing: []};
     let contexts = {};
     const roleCandidates = [{entity_id:'sensor.lux',name:'Helligkeit',suggested_role:'illuminance',decision:'relevant'},{entity_id:'sensor.temperature',name:'Temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'sensor.second',name:'Second temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'binary_sensor.p',name:'Presence A',suggested_role:'motion',decision:'relevant'},{entity_id:'binary_sensor.q',name:'Presence B',suggested_role:'motion',decision:'relevant'}];
-    let conflict = false; let writes = 0;
+    let conflict = false; let writes = 0; let draftConflict = false;
     let zones = [{zone_id: 'example', name: 'Example', area_ids: ['example'], extra_entity_ids: [], enabled: true, profile: 'cellar', revision: 0}];
     await page.route('http://pilotsuite.test/**', async route => {
       const url = new URL(route.request().url());
@@ -66,6 +66,27 @@ const assert = require('node:assert/strict');
       else if (/api\/v1\/zones\/[^/]+\/feedback$/.test(suffix)) {
         const id=suffix.split('/')[3]; const payload=route.request().postDataJSON();
         contexts[id].patterns[0].preference=payload.decision; data=contexts[id];
+      }
+      else if (/api\/v1\/zones\/[^/]+\/drafts(?:\/[^/]+)?$/.test(suffix)) {
+        const id=suffix.split('/')[3], method=route.request().method(), payload=route.request().postDataJSON();
+        const context=contexts[id]; context.drafts ||= [];
+        if (method==='POST') {
+          assert.equal(payload.zone_revision,context.revision);
+          const existing=context.drafts.find(d=>d.pattern_id===payload.pattern_id);
+          data=existing || {id:'draft1',zone_id:id,pattern_id:payload.pattern_id,source_revision:context.revision,revision:1,
+            fields:{title:'Neue Routine',goal:'',trigger:'',conditions:'',exceptions:'',manual_override:'',target_ids:[]},
+            source_status:'current',state:'incomplete',missing_fields:['goal','trigger','conditions','manual_override','target_ids'],unavailable_targets:[],
+            current_pattern:context.patterns[0],automation_check:'not_checked',risk:'not_assessed',execution:{allowed:false,actions:[]}};
+          if(!existing) context.drafts.push(data);
+        } else if(method==='PATCH') {
+          if(draftConflict) return route.fulfill({status:409,json:{message:'draft conflict'}});
+          const draft=context.drafts.find(d=>d.id===suffix.split('/')[5]);
+          assert.equal(payload.revision,draft.revision); assert.equal(payload.zone_revision,context.revision);
+          Object.assign(draft,{fields:payload.fields,revision:draft.revision+1,state:'ready_for_review',missing_fields:[]});
+          data=draft;
+        } else if(method==='DELETE') {
+          context.drafts=context.drafts.filter(d=>d.id!==suffix.split('/')[5]); data={deleted:true};
+        } else data={items:context.drafts};
       }
       else if (suffix.startsWith('api/v1/zones/') && route.request().method() === 'PATCH') {
         const id = suffix.split('/').pop(); const index = zones.findIndex(z => z.zone_id === id);
@@ -226,6 +247,58 @@ const assert = require('node:assert/strict');
     assert.equal(brief.execution.allowed,false); assert.deepEqual(brief.execution.actions,[]);
     assert.equal(brief.temporal_check.state,'reobserved');
     assert.equal(brief.temporal_check.later_events,1);
+    contexts.hz_test.draft_target_candidates=[{entity_id:'light.synthetic',name:'Synthetic lamp'}];
+    await page.evaluate(()=>loadContext());
+    await page.getByRole('button',{name:'Routine entwerfen',exact:true}).click();
+    await page.locator('#routine-form').waitFor({state:'visible'});
+    assert.equal(await page.locator('#selection-zone').isDisabled(),true);
+    assert.equal(await page.locator('#routine-targets input').isChecked(),false);
+    await page.locator('#routine-title').fill('<script>My routine</script>');
+    await page.locator('#routine-goal').fill('Comfort with manual control');
+    await page.locator('#routine-trigger').fill('Presence in the reviewed window');
+    await page.locator('#routine-conditions').fill('Only when dark');
+    await page.locator('#routine-manual_override').fill('Manual changes always take priority');
+    await page.locator('#routine-targets input').check();
+    await page.evaluate(()=>load());
+    assert.equal(await page.locator('#routine-goal').inputValue(),'Comfort with manual control');
+    for(const width of [390,1440]) {
+      await page.setViewportSize({width,height:900});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      if(process.env.PILOTSUITE_SCREENSHOTS) {
+        await fs.mkdir(process.env.PILOTSUITE_SCREENSHOTS,{recursive:true});
+        await page.locator('#routine-form').screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS,`draft-${width}.png`)});
+      }
+    }
+    await page.setViewportSize({width:390,height:844});
+    await page.locator('#routine-form button[type=submit]').click();
+    await page.locator('#routine-form').waitFor({state:'hidden'});
+    await page.waitForFunction(()=>document.getElementById('routine-list').textContent.includes('My routine'));
+    assert.equal(await page.locator('#routine-list script').count(),0);
+    assert.equal(contexts.hz_test.drafts.length,1);
+    assert.deepEqual(contexts.hz_test.drafts[0].fields.target_ids,['light.synthetic']);
+    assert.equal(contexts.hz_test.event_count,6);
+    await page.getByRole('button',{name:'Entwurf bearbeiten',exact:true}).click();
+    assert.equal(await page.locator('#routine-goal').inputValue(),'Comfort with manual control');
+    draftConflict=true;
+    await page.locator('#routine-goal').fill('Keep my unsaved changes');
+    await page.locator('#routine-form button[type=submit]').click();
+    await page.waitForFunction(()=>document.getElementById('routine-message').textContent.includes('draft conflict'));
+    assert.equal(await page.locator('#routine-goal').inputValue(),'Keep my unsaved changes');
+    assert.equal(await page.locator('#routine-form').isVisible(),true);
+    draftConflict=false;
+    await page.locator('#routine-reload').click();
+    await page.waitForFunction(()=>document.getElementById('routine-goal').value==='Comfort with manual control');
+    await page.locator('#routine-cancel').click();
+    const draftDownloadPromise=page.waitForEvent('download');
+    await page.getByRole('button',{name:'Entwurf exportieren',exact:true}).click();
+    const draftDownload=await draftDownloadPromise;
+    const savedDraft=JSON.parse(await fs.readFile(await draftDownload.path(),'utf8'));
+    assert.equal(savedDraft.schema,'pilotsuite-routine-draft-v1');
+    assert.equal(savedDraft.execution.allowed,false); assert.deepEqual(savedDraft.execution.actions,[]);
+    assert.equal(savedDraft.fields.goal,'Comfort with manual control');
+    contexts.hz_test.drafts[0].source_status='zone_changed'; contexts.hz_test.drafts[0].state='needs_review';
+    await page.evaluate(()=>loadContext());
+    assert.match(await page.locator('#routine-list').innerText(),/Zoneneinstellungen geändert/);
     await page.locator('#pattern-filter').selectOption('accepted');
     assert.match(await page.locator('#learned-patterns').innerText(), /Keine Muster/);
     await page.locator('#pattern-filter').selectOption('open');
@@ -297,6 +370,7 @@ const assert = require('node:assert/strict');
     await page.getByRole('tab', {name:'Example',exact:true}).click();
     await page.waitForFunction(() => document.getElementById('learning-status').textContent.includes('nicht verfügbar'));
     assert.equal(await page.locator('#learned-patterns').textContent(), '');
+    assert.equal(await page.locator('#routine-list').textContent(), '');
     assert.equal(await page.locator('#learning-sources').textContent(), '');
     assert.equal(await page.locator('#learning-export').getAttribute('href'), null);
     assert.equal(await page.locator('#zone-guide-steps').textContent(), '');

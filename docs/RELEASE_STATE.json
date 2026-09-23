@@ -13,10 +13,10 @@
     "independent_store_checkout_verified": false
   },
   "backup": {
-    "id": "b6c90eb0",
-    "date": "2026-09-23T17:52:24.971853+00:00",
-    "previous_version": "0.1.0-alpha.17",
-    "size_bytes": 53944320,
+    "id": "14e86f1c",
+    "date": "2026-09-23T18:46:09.236338+00:00",
+    "previous_version": "0.1.0-alpha.18",
+    "size_bytes": 53954560,
     "completed": true,
     "native_details_verified": true,
     "only_pilotsuite": true,
@@ -26,14 +26,14 @@
     "rollback": {
       "service": "hassio.restore_partial",
       "data": {
-        "slug": "b6c90eb0",
+        "slug": "14e86f1c",
         "apps": [
           "0d79c5e8_pilotsuite"
         ],
         "homeassistant": false,
         "folders": []
       },
-      "target_version": "0.1.0-alpha.17"
+      "target_version": "0.1.0-alpha.18"
     }
   },
   "installation": {
@@ -54,7 +54,7 @@
     "status": "pending",
     "reason": "no_authenticated_HA_browser_session_available"
   },
-  "next_task": "Alpha.18 is installed and runtime-verified; do not reinstall. Complete authenticated read-only Ingress temporal-view/export acceptance. No learning or actuation enablement; learning-quality and second-zone acceptance remain separate.",
+  "next_task": "Finish alpha.19 exact CI and normal Store update when offered; verify runtime and temporal/draft UI separately. Next concept slice: read-only existing-automation comparison.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
@@ -69,5 +69,10 @@
       ],
       "independent_network_capture": false
     }
+  },
+  "candidate": {
+    "version": "0.1.0-alpha.19",
+    "status": "local_validation_complete_exact_ci_pending",
+    "contract": "docs/ROUTINE_DRAFTS.md"
   }
 }

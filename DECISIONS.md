@@ -266,3 +266,16 @@ detail route. A denied Supervisor gateway is not proof all backup access is deni
 The normal Store path records canonical version/commit/app-tree association and
 explicitly distinguishes it from independent checkout/image attestation. No repeated
 install when current, no blanket re-authorization, no new credential or access bypass.
+
+## ADR-027 — User-authored routine drafts in the canonical PlanStore
+
+Accepted 2026-09-23 after the user approved the routine-draft concept. Build the
+first bounded slice: persistent revisioned drafts referencing existing patterns,
+editable declarative intent/targets/manual override, source-change review and JSON
+export. Reuse PlanStore and shared SQLite migration 7; preserve legacy denied
+JSONL plans without duplicating them. Do not persist a second evidence snapshot.
+Learning reset and user-authored draft deletion are separate, explicitly described
+operations. All new learning tests are synthetic. Structural completeness grants
+no approval; automation comparison and risk remain unassessed, apply remains denied.
+The next slice compares existing HA automations read-only; no automation writes or
+broader execution authorization are implied. Contract: docs/ROUTINE_DRAFTS.md.

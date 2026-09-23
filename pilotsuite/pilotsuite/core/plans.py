@@ -5,7 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import sqlite3
+import time
 import uuid
+from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -14,6 +17,11 @@ from pilotsuite import VERSION
 from pilotsuite.domain.policies import evaluate_plan
 
 from .audit import AuditLog, redact
+from .selections import InvalidSelection, SelectionConflict
+
+DRAFT_TEXT_FIELDS = ('title', 'goal', 'trigger', 'conditions', 'exceptions', 'manual_override')
+TARGET_DOMAINS = {'light', 'switch', 'fan', 'climate', 'cover', 'media_player'}
+MAX_DRAFTS = 100
 
 
 class InvalidPlan(ValueError):
@@ -25,11 +33,130 @@ class ReadOnlyRelease(RuntimeError):
 
 
 class PlanStore:
-    def __init__(self, data_dir: Path, audit: AuditLog) -> None:
+    def __init__(self, data_dir: Path, audit: AuditLog, context=None) -> None:
         self._path = data_dir / "plans.jsonl"
         self._audit = audit
         self._lock = asyncio.Lock()
+        self._context = context
         data_dir.mkdir(parents=True, exist_ok=True)
+
+    async def drafts(self, zone_id, inventory):
+        return await asyncio.to_thread(self._drafts, zone_id, inventory)
+
+    def _draft_basis(self, db, zone_id, inventory):
+        if not db.execute('SELECT 1 FROM habitus_zones WHERE zone_id=?', (zone_id,)).fetchone():
+            raise InvalidSelection('Unknown zone')
+        selected = self._context.selections._read(db, zone_id)
+        if selected['revision'] != inventory['revision']:
+            raise SelectionConflict('Zone changed; reload before reviewing drafts')
+        report = self._context._report_in_transaction(db, zone_id, time.time())
+        targets = {i['entity_id'] for i in inventory['items']
+                   if selected['decisions'].get(i['entity_id']) == 'relevant'
+                   and i['entity_id'].split('.')[0] in TARGET_DOMAINS}
+        return selected['revision'], {p['id']: p for p in report['patterns']}, targets
+
+    @staticmethod
+    def _draft_view(row, basis):
+        revision, patterns, targets = basis
+        pattern = patterns.get(row[2])
+        fields = json.loads(row[7])
+        source_status = ('pattern_missing' if pattern is None else
+                         'zone_changed' if row[3] != revision else 'current')
+        missing = [key for key in ('goal', 'trigger', 'conditions', 'manual_override') if not fields[key].strip()]
+        if not fields['target_ids']: missing.append('target_ids')
+        unavailable = sorted(set(fields['target_ids']) - targets)
+        return {'id': row[0], 'zone_id': row[1], 'pattern_id': row[2],
+                'source_revision': row[3], 'revision': row[4], 'created_at': row[5],
+                'updated_at': row[6], 'fields': fields, 'source_status': source_status,
+                'state': 'needs_review' if source_status != 'current' or unavailable else
+                         'incomplete' if missing else 'ready_for_review',
+                'missing_fields': missing, 'unavailable_targets': unavailable,
+                # Derived now, never persisted or treated as an execution plan.
+                'current_pattern': pattern,
+                'automation_check': 'not_checked', 'risk': 'not_assessed',
+                'execution': {'allowed': False, 'reason': 'draft_only', 'actions': []}}
+
+    def _drafts(self, zone_id, inventory):
+        with closing(sqlite3.connect(self._context.path, timeout=10)) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            basis = self._draft_basis(db, zone_id, inventory)
+            rows = db.execute('SELECT * FROM routine_drafts WHERE zone_id=? ORDER BY updated DESC, id', (zone_id,)).fetchall()
+            return [self._draft_view(row, basis) for row in rows]
+
+    async def create_draft(self, zone_id, pattern_id, zone_revision, inventory):
+        if not isinstance(pattern_id, str) or not pattern_id or len(pattern_id) > 128:
+            raise InvalidSelection('Invalid pattern identity')
+        if type(zone_revision) is not int or zone_revision != inventory['revision']:
+            raise SelectionConflict('Zone changed; reload before creating a draft')
+        return await asyncio.to_thread(self._create_draft, zone_id, pattern_id, inventory)
+
+    def _create_draft(self, zone_id, pattern_id, inventory):
+        with closing(sqlite3.connect(self._context.path, timeout=10)) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            basis = self._draft_basis(db, zone_id, inventory)
+            if pattern_id not in basis[1]:
+                raise InvalidSelection('Pattern expired or unknown; reload')
+            existing = db.execute('SELECT * FROM routine_drafts WHERE zone_id=? AND pattern_id=?', (zone_id, pattern_id)).fetchone()
+            if existing: return self._draft_view(existing, basis)
+            if db.execute('SELECT COUNT(*) FROM routine_drafts').fetchone()[0] >= MAX_DRAFTS:
+                raise InvalidSelection('Draft limit reached; remove an unneeded draft first')
+            fields = {key: '' for key in DRAFT_TEXT_FIELDS}
+            fields.update(title='Neue Routine', target_ids=[])
+            stamp = datetime.now(UTC).isoformat()
+            row = (str(uuid.uuid4()), zone_id, pattern_id, basis[0], 1, stamp, stamp, json.dumps(fields))
+            db.execute('INSERT INTO routine_drafts VALUES (?,?,?,?,?,?,?,?)', row)
+            return self._draft_view(row, basis)
+
+    async def save_draft(self, zone_id, draft_id, payload, inventory):
+        if (not isinstance(payload, dict) or set(payload) != {'revision', 'zone_revision', 'fields', 'refresh_source'}
+                or type(payload['revision']) is not int or payload['revision'] < 1
+                or type(payload['refresh_source']) is not bool):
+            raise InvalidSelection('Draft requires revision, zone_revision, fields and refresh_source')
+        if type(payload['zone_revision']) is not int or payload['zone_revision'] != inventory['revision']:
+            raise SelectionConflict('Zone changed; reload before saving the draft')
+        fields = payload['fields']
+        if not isinstance(fields, dict) or set(fields) != set(DRAFT_TEXT_FIELDS) | {'target_ids'}:
+            raise InvalidSelection('Invalid draft fields; executable actions are not supported')
+        if any(not isinstance(fields[key], str) or len(fields[key]) > (120 if key == 'title' else 1000)
+               for key in DRAFT_TEXT_FIELDS) or not fields['title'].strip():
+            raise InvalidSelection('Draft title/text missing or too long')
+        ids = fields['target_ids']
+        if not isinstance(ids, list) or len(ids) > 20 or any(not isinstance(e, str) or len(e) > 255 for e in ids):
+            raise InvalidSelection('Invalid target list')
+        normalized = {key: fields[key].strip() for key in DRAFT_TEXT_FIELDS}
+        normalized['target_ids'] = sorted(set(ids))
+        return await asyncio.to_thread(self._save_draft, zone_id, draft_id, payload['revision'],
+                                       normalized, payload['refresh_source'], inventory)
+
+    def _save_draft(self, zone_id, draft_id, revision, fields, refresh_source, inventory):
+        with closing(sqlite3.connect(self._context.path, timeout=10)) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            basis = self._draft_basis(db, zone_id, inventory)
+            row = db.execute('SELECT * FROM routine_drafts WHERE id=? AND zone_id=?', (draft_id, zone_id)).fetchone()
+            if not row: raise InvalidSelection('Unknown draft in this zone')
+            if row[4] != revision:
+                raise SelectionConflict('Draft changed in another session; reload before saving')
+            old_targets = set(json.loads(row[7])['target_ids'])
+            if set(fields['target_ids']) - old_targets - basis[2]:
+                raise InvalidSelection('New targets must be confirmed relevant entities in this zone')
+            if refresh_source and row[2] not in basis[1]:
+                raise InvalidSelection('Pattern expired; source cannot be refreshed')
+            source_revision = basis[0] if refresh_source else row[3]
+            db.execute('UPDATE routine_drafts SET revision=?, source_revision=?, updated=?, fields=? WHERE id=?',
+                       (revision+1, source_revision, datetime.now(UTC).isoformat(), json.dumps(fields), draft_id))
+            return self._draft_view(db.execute('SELECT * FROM routine_drafts WHERE id=?', (draft_id,)).fetchone(), basis)
+
+    async def delete_draft(self, zone_id, draft_id, revision):
+        if type(revision) is not int or revision < 1: raise InvalidSelection('Invalid draft revision')
+        await asyncio.to_thread(self._delete_draft, zone_id, draft_id, revision)
+
+    def _delete_draft(self, zone_id, draft_id, revision):
+        with closing(sqlite3.connect(self._context.path, timeout=10)) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            row = db.execute('SELECT revision FROM routine_drafts WHERE id=? AND zone_id=?', (draft_id, zone_id)).fetchone()
+            if not row: raise InvalidSelection('Unknown draft in this zone')
+            if row[0] != revision: raise SelectionConflict('Draft changed; reload before removing')
+            db.execute('DELETE FROM routine_drafts WHERE id=?', (draft_id,))
 
     async def create(self, payload: dict[str, Any]) -> dict[str, Any]:
         scope = payload.get("scope", [])
@@ -75,4 +202,3 @@ class PlanStore:
             handle.write(encoded + "\n")
             handle.flush()
             os.fsync(handle.fileno())
-

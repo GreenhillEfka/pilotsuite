@@ -32,10 +32,10 @@ class PilotSuiteService:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self.audit = AuditLog(settings.data_dir, settings.audit_retention)
-        self.plans = PlanStore(settings.data_dir, self.audit)
         self.selections = SelectionStore(settings.data_dir)
         self.zones = ZoneStore(self.selections)
         self.context = ContextStore(self.selections)
+        self.plans = PlanStore(settings.data_dir, self.audit, self.context)
         self.attribution = EventAttribution()
         self._learning_sources = {}
         self._history_lock = asyncio.Lock()

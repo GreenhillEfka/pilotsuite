@@ -238,7 +238,8 @@ async function loadSelection(zone) {
   if (zoneChanged) {
     contextData = null;
     byId('learning-export').removeAttribute('href');
-    for (const id of ['learning-sources','learning-period','learning-progress','learning-coverage','context-observations','learned-patterns','module-overview','pattern-summary','context-message','zone-guide-steps']) byId(id).replaceChildren();
+    for (const id of ['learning-sources','learning-period','learning-progress','learning-coverage','context-observations','learned-patterns','module-overview','pattern-summary','context-message','zone-guide-steps','routine-list','routine-message']) byId(id).replaceChildren();
+    if (typeof closeRoutineEditor === 'function') closeRoutineEditor();
     text('zone-guide-next', 'Zonenstatus wird geladen …');
     text('learning-status', 'Lernstatus wird geladen …');
   }
@@ -529,6 +530,7 @@ function renderZoneGuide() {
   }
 }
 function renderLearning() {
+  renderRoutineDrafts();
   renderZoneGuide();
   if (!contextData?.config) return;
   const cfg = contextData.config;
@@ -601,6 +603,11 @@ function renderLearning() {
     const assessment = document.createElement('p'); assessment.textContent = `Regelstärke: Schwelle erfüllt (Ereignisse ×${pattern.rule_strength?.event_ratio ?? '—'}, Tage ×${pattern.rule_strength?.day_ratio ?? '—'}). Konfidenz: ${pattern.confidence == null ? 'nicht bestimmt' : percent(pattern.confidence)}. Risiko: ${pattern.risk === 'read_only' ? 'nur Prüfung, keine Aktion' : pattern.risk}.`;
     const feedback = document.createElement('p'); feedback.textContent = `Deine Präferenz: ${{accepted:'Passt', rejected:'Nicht hilfreich', later:'Später prüfen'}[pattern.preference] || 'noch offen'}`;
     card.append(title, evidence, assessment, feedback);
+    const draftButton = document.createElement('button'); draftButton.type = 'button';
+    draftButton.textContent = 'Routine entwerfen';
+    draftButton.disabled = selectionBusy || contextEditing || zoneFormOpen || !!selectionDraft?.dirty;
+    draftButton.addEventListener('click', () => createRoutineDraft(pattern.id));
+    card.append(draftButton);
     const review = contextData.reviews?.find(item => item.pattern_id === pattern.id);
     if (review) {
       const details = document.createElement('details');

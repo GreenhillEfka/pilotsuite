@@ -27,24 +27,22 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.18 is published via PR #40 at f3f5a25; exact main CI 35880705662 is green
-(151 Python, nine JS, Chromium, amd64). Feedback validation/save now share a SQLite
-transaction. Existing HTTP serialization is distinct from the store-level race tests.
-HA now runs/offers alpha.18 after one successful normal Store update. Fresh verified
-backup b6c90eb0 holds alpha.17 app/data/options for scoped rollback. Runtime checks
-passed. Next: authenticated temporal UI/export acceptance, without reinstallation.
-No learning enabled. The Store already offered alpha.18; no refresh was performed.
+Alpha.19 candidate implements user-approved durable routine drafts (ADR-027,
+docs/ROUTINE_DRAFTS.md). Existing PlanStore owns CRUD/revisions; shared SQLite schema
+7 backs up before migration. No copied evidence or execution. Statistics, confidence,
+rule strength, risk and preference stay separate. Automation comparison and risk
+remain unassessed. Baseline main ae21e54 / CI 35898937373 is green.
 
-The user accepted alpha.16 guide/navigation/workbench on 2026-09-23. This closes
-that user UI gate; it does not prove real learning quality or independent network
-capture. Alpha.17 (PR #37, 8a83932; CI 35874744954 green) adds temporal review of existing retained evidence using
-the shared retrospective logic (docs/PATTERN_WORKBENCH.md). No extra collection,
-state owner or execution permission. Alpha.18 includes that temporal view and is installed.
-Runtime/read-only checks passed. Next is authenticated temporal-view/export acceptance,
-then quality review only within existing explicit learning consent.
-For any release: read docs/RELEASE_STATE.json, the newest CURRENT_STATE receipt and
-docs/RELEASE_RUNBOOK.md first. Resume the recorded next step; do not rediscover the
-procedure or treat historical blockers as current. Check live state before acting.
+HA freshly runs/offers alpha.18; release f3f5a25 / CI 35880705662. User confirmation
+of availability is not temporal UI acceptance. Fresh scoped backup 14e86f1c holds
+alpha.18 app/data/options before publishing alpha.19. Candidate CI/deployment pending.
+Next: exact CI and release routine; then read-only existing-automation comparison.
+Authenticated temporal/draft UI and real learning-quality/second-zone gates remain
+separate. Alpha.16 guide/navigation/workbench user acceptance is preserved.
+
+For release/deployment read docs/RELEASE_STATE.json, newest CURRENT_STATE receipt and
+docs/RELEASE_RUNBOOK.md. Resume the recorded next step after live checks; do not
+rediscover the procedure or treat historical blockers as current.
 
 ## Continue here — architecture review implementation
 
@@ -64,7 +62,7 @@ Alpha.14 adds the pattern workbench on top of targeted transient HA
 history/statistics views and the existing consented evidence owner. Do not copy
 Recorder data or infer missing history as absence of behavior. The immediate live
 continuation is alpha.17 temporal-view/export acceptance, after user acceptance of alpha.16.
-Alpha.18 is installed and started after verified scoped backup b6c90eb0. Native backup/details
+Alpha.18 is installed and started; newest pre-alpha.19 recovery point is 14e86f1c. Native backup/details
 works; the old permission-gate receipt is superseded. Source association uses the
 canonical release and unchanged app tree, not an exposed Store checkout SHA.
 Reliability corrections may continue as separate

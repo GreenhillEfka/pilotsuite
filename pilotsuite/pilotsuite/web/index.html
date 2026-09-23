@@ -240,6 +240,21 @@
         <label>Muster anzeigen<select id="pattern-filter"><option value="all">Alle</option><option value="open">Offen</option><option value="accepted">Passt</option><option value="later">Später</option><option value="rejected">Nicht hilfreich</option></select></label>
         <p id="pattern-summary" role="status"></p>
         <p id="context-message" role="status"></p><div id="learned-patterns"></div>
+        <h3 id="routine-drafts">Routinen-Entwürfe</h3>
+        <p>Aus einem Muster mit „Routine entwerfen“ öffnen. Deine Eingaben werden dauerhaft in PilotSuite gespeichert. Bestehende Automationen sind noch ungeprüft; es wird nichts geschaltet oder in HA angelegt. Lerndaten-Reset entfernt die Belege, nicht deine eigenen Entwürfe.</p>
+        <p id="routine-message" role="status"></p><div id="routine-list"></div>
+        <form id="routine-form" hidden><fieldset id="routine-fields"><legend>Routine bearbeiten</legend>
+          <p id="routine-source"></p>
+          <label>Titel<input id="routine-title" maxlength="120" required></label>
+          <label>Komfortziel<textarea id="routine-goal" maxlength="1000" placeholder="Was soll im Alltag besser werden?"></textarea></label>
+          <fieldset><legend>Zielgeräte</legend><p>Nur bestätigte Geräte dieser Zone. Die Auswahl ist keine Schaltfreigabe.</p><div id="routine-targets" class="role-choices"></div></fieldset>
+          <label>Auslöser<textarea id="routine-trigger" maxlength="1000" placeholder="Welches Ereignis soll die Routine später auslösen?"></textarea></label>
+          <label>Bedingungen<textarea id="routine-conditions" maxlength="1000" placeholder="Wann und unter welchen Bedingungen soll sie gelten?"></textarea></label>
+          <label>Ausnahmen (optional)<textarea id="routine-exceptions" maxlength="1000"></textarea></label>
+          <label>Vorrang manueller Bedienung<textarea id="routine-manual_override" maxlength="1000" placeholder="Wie soll eine bewusste Bedienung berücksichtigt werden?"></textarea></label>
+          <label><input id="routine-refresh-source" type="checkbox"> Den angezeigten aktuellen Musterbezug übernehmen. Dies bestätigt weder Lernqualität noch eine Ausführung.</label>
+          <div class="selection-tools"><button type="submit">Entwurf speichern</button><button id="routine-cancel" type="button">Schließen</button><button id="routine-reload" type="button">Gespeicherten Stand neu laden</button></div>
+        </fieldset></form>
       </section>
       <p id="error" class="error" role="alert" hidden></p>
     </main>
@@ -247,6 +262,7 @@
     <footer><a href="#zone-overview">Zur Zonenübersicht</a> · PilotSuite steuert keine Geräte. Deine Auswahl und Freigaben werden gespeichert.</footer>
     <script src="assets/selections.js" defer></script>
     <script src="assets/app.js" defer></script>
+    <script src="assets/drafts.js" defer></script>
     <script src="assets/history.js" defer></script>
   </body>
 </html>

@@ -246,6 +246,7 @@ class CollectionStateTests(unittest.IsolatedAsyncioTestCase):
             service = SimpleNamespace(
                 selection_inventory=AsyncMock(return_value={'revision': 1, 'enabled': enabled, 'items': [], 'missing': [], 'resolved': True}),
                 context=SimpleNamespace(report=AsyncMock(return_value={'config': {'learning': learning, 'roles': {}}, 'evidence': []})),
+                plans=SimpleNamespace(drafts=AsyncMock(return_value=[])),
                 status=AsyncMock(return_value={'ready': ready}),
                 _learning_sources={'a': sources} if sources else {}, _zone_results=[])
             report = await _context_payload(service, 'a')

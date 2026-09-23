@@ -1,11 +1,11 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Immediate reliability slice: alpha.18 makes current-pattern validation and feedback
-  persistence atomic with reset/configuration/retention. Six synthetic regressions;
-  PR #40 and exact main CI 35880705662 are green. Alpha.18 is installed/offered;
-  runtime checks passed after scoped backup b6c90eb0. Next is authenticated
-  temporal-view/export acceptance, not another installation.
+- Current slice: alpha.19 candidate adds persistent revisioned routine drafts to
+  existing PlanStore (ADR-027). No execution or copied evidence. Next: exact CI,
+  normal Store update after verified scoped backup, then read-only comparison
+  with existing HA automations. Temporal/draft UI and real learning/second-zone
+  acceptance remain separate. Alpha.18 atomic feedback is already installed.
 - Preserve canonical repository and read-only boundary.
 - Normalize units, explicit missing evidence, stable suggestion identity.
 - Guard Ingress peer; test actual proxy path and browser assets.
