@@ -1,5 +1,22 @@
 # Current State
 
+## Usability revision candidate — 2026-09-23
+
+Based on main 1644c9b (alpha.14). A dedicated revision improves navigation,
+German labels, shared form styles, responsive layout and feedback. Zone changes
+clear stale learning content; delayed context responses cannot overwrite a different
+zone. Periodic refresh pauses during editing and focused interactive review.
+History import explains its disabled state; custom intervals are validated before
+requesting HA history. No schema, role, consent or algorithm change.
+
+Local verification after merging main 53a17f3: 123 backend tests, four JS tests, syntax and repository contracts
+pass. Chromium could not be downloaded locally; expanded CI browser tests cover
+navigation, editing state, history validation and widths 390/768/1440. CI is pending.
+No HA update or live usability acceptance performed. Latest prior deployment report
+was alpha.13; alpha.14 store refresh was unauthorized. Do not infer installation
+from repository version. See docs/USABILITY_REVIEW.md.
+
+
 ## Development: release marker contract
 
 The alpha.14 tree still embedded alpha.13 in the browser footer and first-start

@@ -91,6 +91,11 @@ const assert = require('node:assert/strict');
     await page.goto('http://pilotsuite.test/ingress/test/');
     await page.waitForFunction(() => document.getElementById('learning-progress').textContent.includes('Noch mindestens 2 Aktivierungen'));
     assert.match(await page.locator('#learning-period').innerText(), /noch keine/);
+    assert.equal(await page.locator('.section-nav a').count(), 5);
+    await page.locator('.section-nav a[href="#history-section"]').click();
+    assert.equal(new URL(page.url()).hash, '#history-section');
+    assert.equal(await page.locator('#zone-tabs [tabindex="0"]').count(), 1);
+    assert.doesNotMatch(await page.locator('footer').innerText(), /alpha\./);
     await page.locator('#entity-details summary').click();
     const first = page.locator('#selection-rows input').first();
     await first.waitFor();
@@ -99,6 +104,8 @@ const assert = require('node:assert/strict');
     assert.equal(await first.isChecked(), true);
     assert.equal(writes, 0);
     assert.equal(await page.locator('#selection-zone').isDisabled(), true);
+    assert.match(await page.locator('#edit-status').innerText(), /Ungespeicherte/);
+    assert.equal(await page.locator('#refresh').isDisabled(), true);
     await page.evaluate(() => load()); // dashboard polling must preserve draft
     assert.equal(await first.isChecked(), true);
     await page.locator('#selection-save').click();
@@ -198,6 +205,7 @@ const assert = require('node:assert/strict');
     contexts.hz_test.patterns=[{id:'p1',title:'Activity pattern',sources:['binary_sensor.p','binary_sensor.q'],statistics:{activation_count:6,distinct_day_count:3,observed_zone_activations:6,origins:{parented_service_context:4,unknown:2}},confidence:null,confidence_basis:'not_estimated',rule_strength:{rule_id:'activity-v1',threshold_met:true,event_ratio:1.2,day_ratio:1},risk:'read_only',proposal:'Check routine',preference:null}];
     await page.evaluate(() => load());
     await page.waitForFunction(() => document.getElementById('context-observations').textContent.includes('25 lx Median'));
+    await page.locator('#learning-details summary').click();
     assert.match(await page.locator('#learning-coverage').innerText(), /2 mit Einschränkungen/);
     assert.match(await page.locator('#learned-patterns').innerText(), /mögliche Automation/);
     assert.doesNotMatch(await page.locator('#learned-patterns').innerText(), /bewiesene Automation/);
@@ -241,14 +249,35 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('#history-basis').innerText(),/Stundenmittel/);
     await page.locator('#history-consent').check();
     assert.equal(await page.locator('#history-import').isDisabled(),true);
+    assert.match(await page.locator('#history-import-help').innerText(), /Stundenmittel/);
     await page.locator('#history-range').selectOption('custom');
     assert.equal(await page.locator('#history-start').isVisible(),true);
     assert.equal(await page.locator('#history-display').isVisible(),false);
+    await page.locator('#history-load').click();
+    await page.waitForFunction(() => document.getElementById('history-message').textContent.includes('vollständig eingeben'));
+    await page.locator('#learning-details summary').click();
+    for (const width of [390, 768, 1440]) {
+      await page.setViewportSize({width,height:900});
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      if (process.env.PILOTSUITE_SCREENSHOTS) {
+        await fs.mkdir(process.env.PILOTSUITE_SCREENSHOTS, {recursive:true});
+        await page.locator('#zone-overview').screenshot({style:'.section-nav, .skip-link { visibility: hidden !important; }',path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `overview-${width}.png`)});
+        await page.locator('#learning-section').screenshot({style:'.section-nav, .skip-link { visibility: hidden !important; }',path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `learning-${width}.png`)});
+      }
+    }
+    await page.setViewportSize({width:390,height:844});
     await page.locator('#learning-reset').click();
     await page.waitForFunction(() => document.getElementById('learning-status').textContent.includes('Lernen ausgeschaltet'));
     assert.equal(contexts.hz_test.event_count,0);
     assert.deepEqual(contexts.hz_test.patterns,[]);
     assert.equal(await page.locator('#neuron-details').getAttribute('open'),null);
+    // A failed context read must not retain the preceding zone's learning display.
+    await page.route('**/api/v1/zones/example/context', route => route.fulfill({status:503,json:{message:'synthetic unavailable'}}));
+    await page.getByRole('tab', {name:'Example',exact:true}).click();
+    await page.waitForFunction(() => document.getElementById('learning-status').textContent.includes('nicht verfügbar'));
+    assert.equal(await page.locator('#learned-patterns').textContent(), '');
+    assert.equal(await page.locator('#learning-sources').textContent(), '');
+    assert.equal(await page.locator('#learning-export').getAttribute('href'), null);
     assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
     console.log('Browser regression passed: draft, save, conflict, discard, activation, search, mobile, ingress prefix.');

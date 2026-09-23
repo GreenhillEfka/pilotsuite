@@ -3,25 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="color-scheme" content="dark light">
+    <meta name="color-scheme" content="dark">
     <title>PilotSuite</title>
     <link rel="stylesheet" href="assets/styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#zone-overview">Zur ausgewählten Zone</a>
     <header class="topbar">
       <div>
-        <p class="eyebrow">HABITUS ARCHITECTURE v21</p>
+        <p class="eyebrow">DEIN ZUHAUSE IM BLICK</p>
         <h1>PilotSuite</h1>
       </div>
-      <div class="mode"><span class="dot"></span> Hard read-only</div>
+      <div class="mode"><span class="dot"></span> Beobachten · keine Steuerung</div>
     </header>
 
     <main>
       <section class="hero">
         <div>
           <p class="eyebrow">DEINE HABITUS-ZONEN</p>
-          <h2>Dein Zuhause verstehen, bevor irgendetwas handelt.</h2>
-          <p class="lede">Home Assistant bleibt die Wahrheit. PilotSuite ordnet Beobachtungen ein, zeigt Belege und schlägt nachvollziehbare nächste Schritte vor.</p>
+          <h2>Deine Zonen, Werte und Gewohnheiten.</h2>
+          <p class="lede">Zone wählen, Quellen prüfen, Zusammenhänge verstehen. PilotSuite nutzt deine Home-Assistant-Daten. Lernen aktivierst du je Zone selbst.</p>
         </div>
         <button id="refresh" type="button">Jetzt abgleichen</button>
       </section>
@@ -33,23 +34,27 @@
           <small id="ha-detail"></small>
         </article>
         <article class="card">
-          <span>Golden Zone</span>
+          <span>Referenzzone · Systemprüfung</span>
           <strong id="zone-state">Wird aufgelöst …</strong>
           <small id="zone-detail"></small>
         </article>
         <article class="card">
-          <span>Habitus</span>
+          <span>Auswertung · gesamt</span>
           <strong id="habitus-state">—</strong>
           <small id="habitus-detail"></small>
         </article>
         <article class="card">
-          <span>Release</span>
+          <span>Installierte Version</span>
           <strong id="release-state">—</strong>
-          <small>Architecture v21</small>
+          <small>Keine automatische Steuerung</small>
         </article>
       </section>
 
-      <section class="panel zone-navigation" aria-label="Habitus-Zonen">
+      <nav class="section-nav" aria-label="Bereiche dieser Seite">
+        <a href="#zone-overview">Übersicht</a><a href="#zone-setup">Einrichtung</a><a href="#history-section">Verläufe</a><a href="#learning-section">Lernen</a><a href="#pattern-workbench">Muster</a>
+      </nav>
+      <p id="edit-status" class="edit-status" role="status" hidden></p>
+      <section id="zone-overview" tabindex="-1" class="panel zone-navigation" aria-label="Habitus-Zonen">
         <div class="selection-tools"><h2>Habitus-Zonen</h2><button id="zone-new" type="button">+ Neue Zone</button></div>
         <div id="zone-tabs" role="tablist" aria-label="Zone auswählen"></div>
         <div id="zone-heading" class="selection-tools">
@@ -61,7 +66,10 @@
         <div id="zone-summary" class="grid status-grid"></div>
         <p id="zone-state-message" role="status" aria-live="polite"></p>
       </section>
-      <section class="panel selection-panel" aria-labelledby="selection-title">
+      <section id="zone-setup" class="panel selection-panel" aria-labelledby="selection-title">
+        <h2>Zone einrichten</h2>
+        <p>1. Bereiche festlegen → 2. Entitäten bestätigen → 3. Hauptsensoren zuordnen. Danach kannst du die Auswertung starten und optional Lernen freigeben.</p>
+        <a href="#learning-section">Zu Hauptsensoren und Lernfreigabe</a>
         <details id="zone-editor">
           <summary>Zoneneinstellungen und Export</summary>
           <p>Bereiche liefern Kandidaten. Zusätzliche Entitäten können aus anderen Bereichen stammen. Neue Zonen starten deaktiviert und mit bestätigter Auswahl.</p>
@@ -105,7 +113,7 @@
           <button id="selection-save" type="button" disabled>Auswahl speichern</button>
           <button id="selection-discard" type="button" disabled>Verwerfen / neu laden</button>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0" aria-label="Datentabelle, horizontal scrollbar">
           <table><thead><tr><th>Relevant</th><th>Entität</th><th>Rollen-Vorschlag</th><th>Zustand</th><th>Prüfstatus</th></tr></thead>
             <tbody id="selection-rows"></tbody>
           </table>
@@ -120,7 +128,7 @@
               <p class="eyebrow">KONTEXT</p>
               <h2>Bewertung dieser Zone</h2>
             </div>
-            <span class="tag">deterministisch</span>
+            <span class="tag">Feste Regeln</span>
           </div>
           <div id="moods" class="mood-list"></div>
         </article>
@@ -129,7 +137,7 @@
           <div class="panel-title">
             <div>
               <p class="eyebrow">ERKLÄRBAR</p>
-              <h2>Vorschläge</h2>
+              <h2>Hinweise aus festen Regeln</h2>
             </div>
             <span id="suggestion-count" class="tag">0</span>
           </div>
@@ -137,7 +145,7 @@
         </article>
       </section>
 
-      <section class="panel"><details id="neuron-details"><summary>Einzelne Neuronen und Messwerte</summary>
+      <section class="panel"><details id="neuron-details"><summary>Messwerte und Datenqualität im Detail</summary>
         <div class="panel-title">
           <div>
             <p class="eyebrow">QUELLE</p>
@@ -145,7 +153,7 @@
           </div>
           <span id="observation-count" class="tag">0</span>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0" aria-label="Datentabelle, horizontal scrollbar">
           <table>
             <thead>
               <tr><th>Entität</th><th>Typ</th><th>Wert</th><th>Qualität</th></tr>
@@ -155,7 +163,7 @@
         </div>
       </details></section>
 
-      <section class="panel history-panel" aria-labelledby="history-title">
+      <section id="history-section" class="panel history-panel" aria-labelledby="history-title">
         <h2 id="history-title">Verläufe und historische Muster</h2>
         <p>Gespeicherte Hauptsensorgruppen dieser Zone. Quellen werden mit der heutigen Zuordnung rückwirkend betrachtet. Die tatsächlich verfügbare Historie kann kürzer sein als der gewählte Zeitraum.</p>
         <div class="selection-tools">
@@ -165,40 +173,43 @@
           <label>Datenbasis<select id="history-mode"><option value="states">Genaue Zustandsverläufe</option><option value="statistics">Langzeitstatistik – Stundenmittel</option></select></label>
           <button id="history-load" type="button">Verläufe laden</button>
         </div>
-        <p id="history-message" role="status">Noch keine Historie geladen.</p>
+        <p id="history-message" role="status">Zeitraum wählen und „Verläufe laden“ anklicken.</p>
         <div id="history-display" hidden>
           <label>Anzeige<select id="history-kind"><option value="temperature">Temperatur</option><option value="humidity">Feuchte</option><option value="illuminance">Helligkeit</option><option value="activity">Präsenz + Licht</option><option value="presence">Präsenz</option><option value="light">Lichtzustand</option></select></label>
           <label><input id="history-sources" type="checkbox"> Einzelne Hauptquellen zusätzlich zeigen</label>
-          <p id="history-basis"></p><div id="history-chart"></div><div id="history-legend"></div>
+          <p id="history-basis"></p><div id="history-chart" tabindex="0" aria-label="Verlaufsgrafik, auf kleinen Bildschirmen horizontal scrollbar"></div><div id="history-legend"></div>
           <details><summary>Messpunkte und Quellen prüfen</summary><div id="history-table" class="table-wrap"></div></details>
           <h3>Aktivierungen im Wochenverlauf</h3><div id="history-heatmap" class="table-wrap"></div>
           <h3>Später erneut beobachtet?</h3><div id="history-validation"></div>
           <p>Der Abruf speichert keine Rohhistorie in PilotSuite. Historische Musterprüfung setzt die bestehende Lernfreigabe voraus. Fehlende Aktivierungen sind kein Beleg für Abwesenheit.</p>
           <label><input id="history-consent" type="checkbox"> Ich gebe einmalig die Aktivierungsbelege dieses Zeitraums für das Lernen frei. Nur die gespeicherte Präsenzgruppe, höchstens die letzten 14 Tage. Keine Lichtkontextbelege.</label>
           <button id="history-import" type="button" disabled>Historische Aktivierungen übernehmen</button>
+          <p id="history-import-help" role="status"></p>
         </div>
       </section>
 
-      <section class="panel learning-panel">
+      <section id="learning-section" class="panel learning-panel">
         <h2>Sensorrollen, Module und Lernen</h2>
-        <div id="module-overview" class="grid"></div>
+        <details><summary>Module und Entwicklungsstand</summary><div id="module-overview" class="grid"></div></details>
         <p id="learning-status" role="status"></p>
+        <div class="selection-tools"><button id="context-edit" type="button">Hauptsensoren und Lernen bearbeiten</button><a id="learning-export" download>Belege exportieren</a><button id="learning-reset" class="danger-button" type="button">Lerndaten löschen</button></div>
         <p id="learning-sources"></p>
         <p id="learning-period"></p>
         <div id="learning-progress"></div>
+        <details id="learning-details"><summary>Datenabdeckung, Lichtkontext und Grenzen</summary>
         <h3>Beobachtbarkeit</h3><p id="learning-coverage"></p>
         <h3>Lichtkontext bei Aktivierungen</h3><div id="context-observations"></div>
         <p>Belege sind beobachtete Aktivierungen, keine bestätigten Besuche. Datenlücken bedeuten keine Abwesenheit. Die Mindestzahlen sind keine statistische Sicherheit.</p>
         <p>Erkennt wiederkehrende Aktivierungen bestätigter Präsenz-/Bewegungssensoren. Keine Anwesenheitsdauer, Personenidentifikation oder automatische Steuerung. Zeitfenster verwenden die gespeicherte Zeitzone; bestehende Zonen behalten UTC, bis du sie umstellst.</p>
-        <div class="selection-tools"><button id="context-edit" type="button">Rollen / Lernfreigabe bearbeiten</button><a id="learning-export" download>Belege exportieren</a><button id="learning-reset" type="button">Lerndaten löschen</button></div>
+        </details>
         <form id="context-form" hidden><fieldset id="context-fields"><legend>Sensorrollen</legend>
           <div class="selection-tools">
-            <label>Hauptsensoren Temperatur<div id="role-temperature" class="role-choices"></div></label>
-            <label>Hauptsensoren Feuchte<div id="role-humidity" class="role-choices"></div></label>
-            <label>Hauptsensoren Präsenz / Bewegung (Anzeige und Lernen)<div id="role-presence" class="role-choices"></div></label>
-            <label>Hauptsensoren Helligkeit<div id="role-illuminance" class="role-choices"></div></label>
-            <label>Hauptquellen Lichtzustand<div id="role-light" class="role-choices"></div></label>
-            <label>Externe Vergleichstemperatur (optional)<div id="role-reference_temperature" class="role-choices"></div></label>
+            <fieldset class="role-group"><legend>Hauptsensoren Temperatur</legend><div id="role-temperature" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Hauptsensoren Feuchte</legend><div id="role-humidity" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Hauptsensoren Präsenz / Bewegung (Anzeige und Lernen)</legend><div id="role-presence" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Hauptsensoren Helligkeit</legend><div id="role-illuminance" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Hauptquellen Lichtzustand</legend><div id="role-light" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Externe Vergleichstemperatur (optional)</legend><div id="role-reference_temperature" class="role-choices"></div></fieldset>
           </div>
           <p id="role-preview" role="status"></p><p>Aus den Hauptsensoren entsteht automatisch ein virtueller Zonen-Referenzwert. Keine weitere Referenzauswahl nötig. Sensorgruppen anhaken. Temperatur/Feuchte/Helligkeit: Median mit Min/Max; Präsenz: mindestens ein aktiver Sensor. Externe Vergleichstemperaturen werden nicht mitgemittelt. Präsenz und Lernen verwenden dieselbe Hauptsensorgruppe; Lernen benötigt zusätzlich deine Freigabe. Abgewählte Hauptsensoren werden nicht ersatzweise herangezogen. Ein Wechsel der Lernquellen löscht deren bisherige Belege und das Musterfeedback dieser Zone.</p>
           <details><summary>Lernalgorithmus einstellen</summary>
@@ -218,7 +229,7 @@
           <div class="selection-tools"><button type="submit">Rollen / Freigabe speichern</button><button id="context-cancel" type="button">Abbrechen</button></div>
         </fieldset></form>
         <details><summary>Wie wird aus einem Muster eine Umsetzung?</summary><p>„Passt“ bestätigt nur, dass ein Muster hilfreich ist. Es erteilt keine Schaltfreigabe. Geplant: vorhandene HA-Automationen prüfen, konkreten Skript-/Automationsentwurf mit Bedingungen und Rückweg zeigen, separat freigeben, gesichert anwenden und Ergebnis prüfen. Die Ausführung ist in dieser Version gesperrt.</p></details>
-        <h3>Muster-Werkbank</h3>
+        <h3 id="pattern-workbench">Muster-Werkbank</h3>
         <p>Belege prüfen, Routine bewerten und die nächsten Schritte vorbereiten. „Passt“ ist keine Schaltfreigabe.</p>
         <label>Muster anzeigen<select id="pattern-filter"><option value="all">Alle</option><option value="open">Offen</option><option value="accepted">Passt</option><option value="later">Später</option><option value="rejected">Nicht hilfreich</option></select></label>
         <p id="pattern-summary" role="status"></p>
@@ -227,7 +238,7 @@
       <p id="error" class="error" role="alert" hidden></p>
     </main>
 
-    <footer>Keine Aktion verlässt diese Oberfläche in dieser Hard-read-only-Version.</footer>
+    <footer><a href="#zone-overview">Zur Zonenübersicht</a> · PilotSuite steuert keine Geräte. Deine Auswahl und Freigaben werden gespeichert.</footer>
     <script src="assets/selections.js" defer></script>
     <script src="assets/app.js" defer></script>
     <script src="assets/history.js" defer></script>

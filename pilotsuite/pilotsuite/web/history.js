@@ -13,7 +13,9 @@ function historyCheckRevision() {
   if (historyData && (historyData.zone_id !== selectionZone || historyData.revision !== contextData?.revision)) historyInvalidate();
 }
 function historyImportEnabled() {
-  byId('history-import').disabled = historyBusy || !historyData || !byId('history-consent').checked || !contextData?.config.learning || !contextData?.enabled || historyRequest?.mode !== 'states' || historyData.end-historyData.start > 14*86400 || historyData.start < Date.now()/1000-14*86400-60;
+  const reason = historyBusy ? 'Abruf oder Import läuft.' : !historyData ? 'Zuerst Verläufe laden.' : !contextData?.enabled ? 'Zuerst die Auswertung dieser Zone starten.' : !contextData?.config.learning ? 'Zuerst Lernen für diese Zone freigeben.' : historyRequest?.mode !== 'states' ? 'Import benötigt genaue Zustandsverläufe; Stundenmittel reichen nicht aus.' : historyData.end-historyData.start > 14*86400 || historyData.start < Date.now()/1000-14*86400-60 ? 'Import ist nur für einen Zeitraum innerhalb der letzten 14 Tage möglich.' : !byId('history-consent').checked ? 'Für den Import die einmalige Zeitraumfreigabe anhaken.' : '';
+  byId('history-import').disabled = !!reason;
+  text('history-import-help', reason || 'Bereit zur Übernahme. Wiederholte Importe zählen Belege nicht doppelt.');
 }
 byId('history-range').addEventListener('change', () => {
   const custom=byId('history-range').value==='custom';
@@ -24,13 +26,18 @@ for (const id of ['history-mode','history-start','history-end']) byId(id).addEve
 for (const id of ['history-kind','history-sources']) byId(id).addEventListener('change',renderHistoryChart);
 byId('history-consent').addEventListener('change',historyImportEnabled);
 byId('history-load').addEventListener('click',async () => {
-  if (historyBusy || selectionBusy || contextEditing || selectionDraft?.dirty) { text('history-message','Offene Änderungen zuerst speichern oder verwerfen.'); return; }
+  if (historyBusy || selectionBusy || contextEditing || zoneFormOpen || selectionDraft?.dirty) { text('history-message','Offene Änderungen zuerst speichern oder verwerfen.'); return; }
+  if (!selectionZone) { text('history-message', 'Zuerst eine Zone anlegen und Hauptsensoren auswählen.'); return; }
   historyInvalidate(); const generation=historyGeneration, zone=selectionZone;
   historyBusy=true; byId('history-load').disabled=true; text('history-message','Lade ausgewählte HA-Quellen …');
   try {
     await loadContext();
     const end = byId('history-range').value==='custom' ? new Date(byId('history-end').value) : new Date(Date.now()-5000);
     const start = byId('history-range').value==='custom' ? new Date(byId('history-start').value) : new Date(+end-Number(byId('history-range').value)*86400000);
+    if (!Number.isFinite(+start) || !Number.isFinite(+end)) throw new Error('Bitte Anfang und Ende des Zeitraums vollständig eingeben.');
+    if (+start >= +end) throw new Error('Der Anfang muss vor dem Ende liegen.');
+    if (+end > Date.now()) throw new Error('Das Ende darf nicht in der Zukunft liegen.');
+    if (+end - +start > 30*86400000 || +start < Date.now()-30*86400000-60000) throw new Error('Bitte einen Zeitraum innerhalb der letzten 30 Tage wählen.');
     const payload={start:start.toISOString(),end:end.toISOString(),mode:byId('history-mode').value,revision:contextData.revision};
     const result=await json(`api/v1/zones/${encodeURIComponent(zone)}/history`,{method:'POST',body:JSON.stringify(payload)});
     if (generation!==historyGeneration || zone!==selectionZone) return;
@@ -132,5 +139,5 @@ function renderHistoryActivity() {
   root.append(table);
   const note=document.createElement('p');note.textContent=`${activity.timezone}. ${activity.limitations}`;check.append(note);
   if(!activity.checks.length) {const p=document.createElement('p');p.textContent='Noch kein Zeitfenster mit ausreichenden Belegen im früheren Abschnitt.';check.append(p);}
-  for(const c of activity.checks) {const p=document.createElement('p');p.textContent=`${c.start_hour}–${c.start_hour+2} Uhr (${c.day_group}): früher ${c.training_events} Aktivierungen an ${c.training_days} Tagen; später ${c.later_events} an ${c.later_days} Tagen. ${c.state==='reobserved'?'Erneut beobachtet, noch keine bestätigte Regel.':'Spätere Belege fehlen; Ergebnis offen.'}`;check.append(p);}
+  for(const c of activity.checks) {const p=document.createElement('p');p.textContent=`${c.start_hour}–${c.start_hour+2} Uhr (${{all:'alle Tage',weekday:'Mo–Fr',weekend:'Sa–So'}[c.day_group] || c.day_group}): früher ${c.training_events} Aktivierungen an ${c.training_days} Tagen; später ${c.later_events} an ${c.later_days} Tagen. ${c.state==='reobserved'?'Erneut beobachtet, noch keine bestätigte Regel.':'Spätere Belege fehlen; Ergebnis offen.'}`;check.append(p);}
 }
