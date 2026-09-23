@@ -1,59 +1,73 @@
 {
   "schema": "pilotsuite-release-receipt-v1",
-  "verified_date": "2026-09-23",
+  "verified_date": "2026-09-24",
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.21",
-    "commit": "1223f96f45053f7bf3d509bd7ad72c85b9f6cab1",
-    "app_tree": "3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77",
-    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35914643847",
+    "version": "0.1.0-alpha.22",
+    "commit": "7990f5a3225aec53548dd8cb5bc79e74707b9fd9",
+    "tree": "a73c3ada0695becd5823d1e0c386a06151cd5279",
+    "app_tree": "0d427053cdf246e63e044a11c15494f18dbeab08",
+    "pull_request": 50,
+    "candidate_commit": "ca6ba76f90c706cd3f7158aa07eec1605c81089a",
+    "candidate_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35928225010",
+    "candidate_ci_conclusion": "success",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35929637405",
     "ci_conclusion": "success",
     "source_association": "canonical_repository_offered_version_and_unchanged_tested_app_tree",
     "independent_store_checkout_verified": false,
-    "pre_deployment_main_commit": "da0754e8d6b4689548d38a5a26c2755ea000aa1c",
-    "pre_deployment_main_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35915002481",
+    "pre_deployment_main_commit": "7990f5a3225aec53548dd8cb5bc79e74707b9fd9",
+    "pre_deployment_main_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35929637405",
     "pre_deployment_main_ci_conclusion": "success"
   },
   "store_refresh": {
     "tool": "ha_manage_app",
     "arguments": {"action": "check_updates"},
     "success": true,
-    "offered_before": "0.1.0-alpha.18",
-    "offered_after": "0.1.0-alpha.21",
+    "offered_before": "0.1.0-alpha.21",
+    "offered_after": "0.1.0-alpha.22",
     "credentials_or_permissions_changed": false,
     "previously_denied_custom_bridge_retried": false
   },
   "backup": {
-    "id": "ae7a3fba",
-    "date": "2026-09-23T20:41:17.662809+00:00",
-    "previous_version": "0.1.0-alpha.18",
-    "size_bytes": 53964800,
+    "id": "33908293",
+    "date": "2026-09-23T22:36:25.821711+00:00",
+    "previous_version": "0.1.0-alpha.21",
+    "size_bytes": 54005760,
     "completed": true,
+    "completed_before_publication": true,
     "native_details_verified": true,
     "only_pilotsuite": true,
+    "homeassistant_included": false,
+    "database_included": false,
+    "folders": [],
     "protected": false,
     "failed_components": [],
     "restore_drill_performed": false,
     "rollback": {
       "service": "hassio.restore_partial",
       "data": {
-        "slug": "ae7a3fba",
+        "slug": "33908293",
         "apps": ["0d79c5e8_pilotsuite"],
         "homeassistant": false,
         "folders": []
       },
-      "target_version": "0.1.0-alpha.18"
+      "target_version": "0.1.0-alpha.21"
     }
   },
   "installation": {
-    "installed": "0.1.0-alpha.21",
-    "offered": "0.1.0-alpha.21",
+    "installed": "0.1.0-alpha.22",
+    "offered": "0.1.0-alpha.22",
     "state": "started",
     "update_available": false,
     "update_calls_in_continuation": 1,
     "additional_restart_requested": false,
     "options_unchanged_by_metadata_comparison": true,
+    "auto_update_observed": true,
+    "auto_update_changed": false,
+    "other_apps_updated": false,
+    "ha_configuration_changed": false,
+    "learning_consents_changed": false,
     "runtime_verified": [
       "target_version_in_startup_log",
       "hard_read_only",
@@ -62,16 +76,17 @@
       "snapshot_fresh",
       "zone_resolved"
     ],
-    "deployment_status": "alpha21_installed_runtime_verified_browser_acceptance_pending"
+    "deployment_status": "alpha22_installed_runtime_verified_browser_acceptance_pending"
   },
   "ingress_acceptance": {
-    "version": "0.1.0-alpha.21",
+    "version": "0.1.0-alpha.22",
     "status": "pending",
     "reason": "authenticated_live_browser_acceptance_not_performed_in_this_continuation",
     "previous_temporal_ui_acceptance": "pending_on_alpha18",
-    "config_read_capability": "not_verified_on_live_addon_admin_required_no_escalation"
+    "config_read_capability": "not_verified_on_live_addon_admin_required_no_escalation",
+    "independent_live_migration_inspection": "not_performed"
   },
-  "next_task": "Implement explicit user-authored PlanStore review notes bound to draft revision and selected automation config fingerprint, stale on change and never authorizing execution. Keep authenticated alpha.21 UI and existing app config-read capability acceptance separate and pending; do not repeat the completed installation.",
+  "next_task": "Do not repeat the completed Alpha.22 installation, backup, rebuild or restart. Keep authenticated live Alpha.22 UI, existing app config-read capability and independent migration/data-preservation acceptance separate and pending, without new consent or rights escalation. A future bounded derived review-requirements summary requires a separate development slice and never grants execution permission. Do not automatically resume a paused recurring task.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
