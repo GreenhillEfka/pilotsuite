@@ -4,12 +4,12 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.18",
-    "commit": "f3f5a25c344304b881ba858d253271450d3fc1db",
-    "app_tree": "431ab2e2f2810315b98680459c0b5448da2f598c",
-    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35880705662",
+    "version": "0.1.0-alpha.19",
+    "commit": "0101a4152664f3005f51814050477c06d74337fa",
+    "app_tree": "2765acc28f933ee434b568478c0c6eb1d68d2c3f",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35905466915",
     "ci_conclusion": "success",
-    "source_association": "canonical_repository_and_offered_version_match_published_unchanged_app_tree",
+    "source_association": "canonical_release_commit_verified_store_offer_pending",
     "independent_store_checkout_verified": false
   },
   "backup": {
@@ -47,14 +47,16 @@
       "stream_connected",
       "snapshot_fresh",
       "zone_resolved"
-    ]
+    ],
+    "deployment_status": "alpha19_store_offer_pending_alpha18_unchanged"
   },
   "ingress_acceptance": {
-    "version": "0.1.0-alpha.18",
+    "version": "0.1.0-alpha.19",
     "status": "pending",
-    "reason": "no_authenticated_HA_browser_session_available"
+    "reason": "not_installed_and_no_authenticated_HA_browser_session_available",
+    "previous_temporal_ui_acceptance": "pending_on_alpha18"
   },
-  "next_task": "Finish alpha.19 exact CI and normal Store update when offered; verify runtime and temporal/draft UI separately. Next concept slice: read-only existing-automation comparison.",
+  "next_task": "When Store offers alpha.19, recheck exact source/CI and backup freshness, update PilotSuite once and verify runtime plus authenticated temporal/draft UI. Next concept slice: read-only existing-automation comparison; no automation writes.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
@@ -69,10 +71,5 @@
       ],
       "independent_network_capture": false
     }
-  },
-  "candidate": {
-    "version": "0.1.0-alpha.19",
-    "status": "local_validation_complete_exact_ci_pending",
-    "contract": "docs/ROUTINE_DRAFTS.md"
   }
 }

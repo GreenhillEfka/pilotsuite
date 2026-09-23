@@ -27,18 +27,19 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.19 candidate implements user-approved durable routine drafts (ADR-027,
-docs/ROUTINE_DRAFTS.md). Existing PlanStore owns CRUD/revisions; shared SQLite schema
-7 backs up before migration. No copied evidence or execution. Statistics, confidence,
-rule strength, risk and preference stay separate. Automation comparison and risk
-remain unassessed. Baseline main ae21e54 / CI 35898937373 is green.
+Alpha.19 routine drafts are published via PR #43 at 0101a4152664f3005f51814050477c06d74337fa;
+app tree 2765acc28f933ee434b568478c0c6eb1d68d2c3f, main CI 35905466915 green
+(163 Python, nine JS, Chromium, amd64). ADR-027 and docs/ROUTINE_DRAFTS.md define
+the implemented slice: existing PlanStore, persistent editable intent, revisions,
+source-change review and JSON export; schema 7 with pre-migration backup. No copied
+learning evidence, new collection or execution. Risk/comparison remain unassessed.
 
-HA freshly runs/offers alpha.18; release f3f5a25 / CI 35880705662. User confirmation
-of availability is not temporal UI acceptance. Fresh scoped backup 14e86f1c holds
-alpha.18 app/data/options before publishing alpha.19. Candidate CI/deployment pending.
-Next: exact CI and release routine; then read-only existing-automation comparison.
-Authenticated temporal/draft UI and real learning-quality/second-zone gates remain
-separate. Alpha.16 guide/navigation/workbench user acceptance is preserved.
+HA still runs/offers alpha.18. Fresh completed scoped backup 14e86f1c contains
+alpha.18 app/data/options for rollback. Next delivery action is one normal Store
+update once alpha.19 is offered, after live source/backup checks. No reinstall of
+alpha.18. Authenticated temporal/draft UI and real learning/second-zone acceptance
+remain separate; only about:blank is available. Alpha.16 user UI acceptance stands.
+Next concept slice: read-only comparison with existing HA automations; no writes.
 
 For release/deployment read docs/RELEASE_STATE.json, newest CURRENT_STATE receipt and
 docs/RELEASE_RUNBOOK.md. Resume the recorded next step after live checks; do not

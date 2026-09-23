@@ -1,5 +1,35 @@
 # Capability and acceptance ledger
 
+## Alpha.19 published; Store offer pending — 2026-09-23
+
+PR #43 merged at 0101a4152664f3005f51814050477c06d74337fa, app tree
+2765acc28f933ee434b568478c0c6eb1d68d2c3f. Exact PR CI 35905305381 and main CI
+35905466915 passed: 163 Python tests, nine JavaScript tests, Chromium and amd64.
+Release preflight passed. Browser regression verifies create/edit, conflict input
+preservation, reload, escaped text, JSON export, zone isolation and mobile/desktop
+overflow checks. Synthetic CI screenshots exist; separate visual inspection was
+not completed because artifact download was denied. No real UI pass is claimed.
+
+Fresh scoped backup 14e86f1c completed 2026-09-23T18:46:09Z (53,954,560 bytes,
+unprotected). Native backup/details confirms only PilotSuite alpha.18, app data/
+options included by standard app backup, no failures or HA/database/folders.
+Recovery: hassio.restore_partial, slug 14e86f1c, apps [0d79c5e8_pilotsuite],
+homeassistant false, folders []; no restore drill.
+
+Latest HA check remains alpha.18 installed/offered/started, no update available.
+Post-backup logs show ready, connected stream, fresh snapshot and resolved zone.
+No install, independent restart, learning/configuration/automation or actuator
+mutation. No household evidence exported. Previously denied Store bridge was not
+retried; availability remains distinct from working app-update permission.
+The browser has only about:blank; real authenticated temporal/draft Ingress
+HTML/JS/CSS/API acceptance remains open. Alpha.16 user UI acceptance is preserved.
+
+Next delivery step: when Store offers alpha.19, recheck source/backup freshness,
+update PilotSuite once, verify version/start/read-only/connection/zone and real
+Ingress where authorized. Next concept slice: read-only existing-automation
+comparison with explicit uncertainty, no automation writes. Earlier candidate/
+release receipts below are historical. Final receipt CI stays in its PR.
+
 ## Routine drafts / alpha.19 candidate — 2026-09-23
 
 The user approved implementing durable routine drafts. The existing PlanStore owns
