@@ -1,16 +1,17 @@
 # Capability and acceptance ledger
 
-## Candidate history-timeout reliability increment
+## Merged history-timeout reliability increment
 
 The candidate converts the bounded 90-second history budget and underlying WebSocket
 timeouts into a controlled HA history error instead of a generic HTTP 500. Cancellation
-and all successful Recorder reads are unchanged. One synthetic regression brings the
-local backend suite to 117 tests; four JavaScript tests and repository validation also
-pass. Browser and amd64-container CI remain required. No release or Home Assistant
-update has been performed; alpha.13 remains installed and hard read-only.
+and all successful Recorder reads are unchanged. PR #21 merged as main commit e77b80c;
+final main CI 35822148371 passed 117 backend tests, four JavaScript tests, Chromium
+browser regression and the amd64 container. No release or Home Assistant update has
+been performed; alpha.13 remains installed and hard read-only.
 
-Next after candidate CI: merge the bounded correction, then retain authenticated local
-Ingress history/graph rendering as a distinct live acceptance gate.
+Authenticated local Ingress history/graph rendering remains a distinct live acceptance
+gate. A later release candidate still requires exact-version CI and a fresh scoped
+App-and-data backup before installation.
 
 ## Merged statistics metadata reliability increment
 
