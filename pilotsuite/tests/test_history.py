@@ -211,3 +211,17 @@ class HistoryClientTests(unittest.IsolatedAsyncioTestCase):
         client=HomeAssistantClient('ws://example','token');client._session=FailedSession()
         with self.assertRaisesRegex(HomeAssistantError,'history connection failed'):
             await client.history([P],1,100)
+
+    async def test_timeout_becomes_bounded_history_error(self):
+        class TimedOutConnection:
+            async def __aenter__(self):
+                raise TimeoutError
+            async def __aexit__(self, *_):
+                return None
+        class TimedOutSession:
+            closed = False
+            def ws_connect(self, *_args, **_kwargs):
+                return TimedOutConnection()
+        client=HomeAssistantClient('ws://example','token');client._session=TimedOutSession()
+        with self.assertRaisesRegex(HomeAssistantError,'history request timed out'):
+            await client.history([P],1,100)

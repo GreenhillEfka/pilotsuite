@@ -1,5 +1,17 @@
 # Capability and acceptance ledger
 
+## Candidate history-timeout reliability increment
+
+The candidate converts the bounded 90-second history budget and underlying WebSocket
+timeouts into a controlled HA history error instead of a generic HTTP 500. Cancellation
+and all successful Recorder reads are unchanged. One synthetic regression brings the
+local backend suite to 117 tests; four JavaScript tests and repository validation also
+pass. Browser and amd64-container CI remain required. No release or Home Assistant
+update has been performed; alpha.13 remains installed and hard read-only.
+
+Next after candidate CI: merge the bounded correction, then retain authenticated local
+Ingress history/graph rendering as a distinct live acceptance gate.
+
 ## Merged statistics metadata reliability increment
 
 The candidate validates the shape and identifier type of Recorder statistics
