@@ -38,7 +38,9 @@ class HistoryProjectionTests(unittest.TestCase):
         self.assertEqual([(150,P),(450,P)],activations(series,roles,100,600))
 
     def test_statistics_epoch_milliseconds_units_no_activity(self):
-        now=time.time(); start=now-7200
+        # Keep the millisecond round-trip away from a floating wall-clock boundary:
+        # start * 1000 / 1000 can otherwise compare a fraction below start.
+        now=1728007200; start=now-7200
         roles={'temperature':['sensor.t']}
         series=normalize({'sensor.t':[{'start':start*1000,'mean':68}]},roles,start,now,statistics=True,metadata={'sensor.t':{'unit_of_measurement':'°F'}})
         self.assertEqual(20,series['sensor.t']['points'][0][1])
