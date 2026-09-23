@@ -29,6 +29,20 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(201, response.status)
         return await response.json()
 
+    async def test_guide_is_derived_per_zone_without_mutating_configuration(self):
+        zone = await self.create()
+        path = f"/api/v1/zones/{zone['zone_id']}/context"
+        before = await self.service.context.get(zone['zone_id'])
+        response = await self.client.get(path)
+        self.assertEqual(200, response.status)
+        data = await response.json()
+        self.assertEqual('selection', data['guide']['next_step']['id'])
+        self.assertFalse(data['guide']['execution_allowed'])
+        self.assertEqual(before, await self.service.context.get(zone['zone_id']))
+        self.assertEqual(zone['revision'], data['revision'])
+        self.assertEqual(0, data['event_count'])
+        self.assertEqual(400, (await self.client.get('/api/v1/zones/unknown/context')).status)
+
     async def test_create_compose_rename_conflicts_and_disable(self):
         zone = await self.create()
         zone_id = zone['zone_id']

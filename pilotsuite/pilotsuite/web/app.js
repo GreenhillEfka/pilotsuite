@@ -238,7 +238,8 @@ async function loadSelection(zone) {
   if (zoneChanged) {
     contextData = null;
     byId('learning-export').removeAttribute('href');
-    for (const id of ['learning-sources','learning-period','learning-progress','learning-coverage','context-observations','learned-patterns','module-overview','pattern-summary','context-message']) byId(id).replaceChildren();
+    for (const id of ['learning-sources','learning-period','learning-progress','learning-coverage','context-observations','learned-patterns','module-overview','pattern-summary','context-message','zone-guide-steps']) byId(id).replaceChildren();
+    text('zone-guide-next', 'Zonenstatus wird geladen …');
     text('learning-status', 'Lernstatus wird geladen …');
   }
   renderSelection();
@@ -250,7 +251,10 @@ async function loadSelection(zone) {
   } catch (error) {
     // Do not display one zone's data under another zone's label.
     if (selectionDraft?.inventory.zone_id !== zone) selectionDraft = null;
-    if (!contextData) text('learning-status', 'Lernstatus nicht verfügbar. Auswahl neu laden, um es erneut zu versuchen.');
+    if (!contextData) {
+      text('learning-status', 'Lernstatus nicht verfügbar. Auswahl neu laden, um es erneut zu versuchen.');
+      text('zone-guide-next', 'Zonenstatus nicht verfügbar. Auswahl neu laden.');
+    }
     text('selection-message', `Laden fehlgeschlagen: ${error.message}. Neu laden zum Wiederholen.`);
   } finally { selectionBusy = false; renderSelection(); renderZoneView(); }
 }
@@ -499,7 +503,33 @@ async function loadContext() {
   renderLearning();
   return true;
 }
+function renderZoneGuide() {
+  const guide = contextData?.guide;
+  const root = byId('zone-guide-steps'); root.replaceChildren();
+  const next = byId('zone-guide-next'); next.replaceChildren();
+  if (!guide) { next.textContent = 'Einrichtungshinweise derzeit nicht verfügbar.'; return; }
+  const labels = {complete:'Erfüllt', attention:'Prüfen', paused:'Pausiert', optional:'Optional', waiting:'Belege abwarten', review:'Zur Prüfung'};
+  const targets = new Set(['zone-setup','entity-details','zone-overview','learning-section','pattern-workbench']);
+  function link(step) {
+    const a = document.createElement('a'); a.textContent = step.title;
+    if (targets.has(step.target)) {
+      a.href = '#' + step.target;
+      a.addEventListener('click', () => {
+        const target = byId(step.target);
+        if (target?.tagName === 'DETAILS') target.open = true;
+      });
+    }
+    return a;
+  }
+  next.append(link(guide.next_step), document.createTextNode(' · ' + guide.next_step.detail));
+  for (const step of guide.steps) {
+    const li = document.createElement('li');
+    li.append(link(step), document.createTextNode(` — ${labels[step.state] || step.state}. ${step.detail}`));
+    root.append(li);
+  }
+}
 function renderLearning() {
+  renderZoneGuide();
   if (!contextData?.config) return;
   const cfg = contextData.config;
   const moduleRoot = byId('module-overview'); moduleRoot.replaceChildren();

@@ -2,6 +2,13 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.16] - 2026-09-23
+
+- Zonen-Assistent mit konkretem nächsten Schritt und aufklappbarer Einrichtungsprüfung.
+- Unterscheidet fehlende Quellen, pausierte Auswertung, Verbindung und freiwillige Lernfreigabe.
+- Zeigt fehlende Belege je Zeitfenster ohne Zeitfenster zu vermischen oder Fertigdatum vorherzusagen.
+- Direkte Navigation zu bestehenden Einstellungen; keine automatische Aktivierung oder neue Datensammlung.
+
 ## [0.1.0-alpha.15] - 2026-09-23
 
 - Direct navigation, consistent German labels, responsive forms and editing feedback.

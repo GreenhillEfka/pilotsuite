@@ -25,6 +25,11 @@ This file is the canonical long-term context for humans and AI contributors. If 
 9. Every material decision is recorded in `DECISIONS.md`; every actual implementation state is recorded in `CURRENT_STATE.md`.
 10. The Erdkellerbereich is the first Golden Zone. A second read-only zone must test generality before 1.0; broader actuation remains gated.
 
+## Current package
+
+Alpha.16 adds derived zone guidance (docs/ZONE_GUIDE.md); no additional state owner
+or collection. Continue from the newest CURRENT_STATE receipt and RELEASE_RUNBOOK.
+
 ## Continue here — architecture review implementation
 
 Read `docs/VISION.md`, `docs/IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, and

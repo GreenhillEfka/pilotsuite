@@ -47,7 +47,7 @@ const assert = require('node:assert/strict');
           contexts[id] = {...contexts[id], revision:contexts[id].revision+1,config:{roles:payload.roles,learning:payload.learning,detector:payload.detector || contexts[id].config.detector,context_learning:!!payload.context_learning},eligible:payload.learning};
           if (payload.reset) contexts[id] = {...contexts[id], event_count:0, patterns:[],context_windows:[],coverage:{sampled_slots:0}};
         }
-        data=contexts[id];
+        data={...contexts[id], guide:{next_step:{title:'Bewusste Auswahl', detail:'Nur bestätigte Quellen zählen.', target:'entity-details'},steps:[{title:'Bewusste Auswahl',detail:'Nur bestätigte Quellen zählen.',target:'entity-details',state:'attention'}]}};
       }
       else if (/api\/v1\/zones\/[^/]+\/history(?:\/import)?$/.test(suffix)) {
         const id=suffix.split('/')[3], payload=route.request().postDataJSON();
@@ -96,7 +96,9 @@ const assert = require('node:assert/strict');
     assert.equal(new URL(page.url()).hash, '#history-section');
     assert.equal(await page.locator('#zone-tabs [tabindex="0"]').count(), 1);
     assert.doesNotMatch(await page.locator('footer').innerText(), /alpha\./);
-    await page.locator('#entity-details summary').click();
+    await page.locator('#zone-guide-next a').click();
+    assert.equal(await page.locator('#entity-details').getAttribute('open'), '');
+    assert.equal(writes, 0);
     const first = page.locator('#selection-rows input').first();
     await first.waitFor();
     assert.equal(await first.evaluate(el => el.indeterminate), true);
@@ -292,6 +294,8 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('#learned-patterns').textContent(), '');
     assert.equal(await page.locator('#learning-sources').textContent(), '');
     assert.equal(await page.locator('#learning-export').getAttribute('href'), null);
+    assert.equal(await page.locator('#zone-guide-steps').textContent(), '');
+    assert.match(await page.locator('#zone-guide-next').textContent(), /nicht verfügbar/);
     assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
     console.log('Browser regression passed: draft, save, conflict, discard, activation, search, mobile, ingress prefix.');

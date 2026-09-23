@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.16] - 2026-09-23
+
+- Zonen-Assistent mit konkretem nächsten Schritt und aufklappbarer Einrichtungsprüfung.
+- Unterscheidet fehlende Quellen, pausierte Auswertung, Verbindung und freiwillige Lernfreigabe.
+- Zeigt fehlende Belege je Zeitfenster ohne Zeitfenster zu vermischen oder Fertigdatum vorherzusagen.
+- Direkte Navigation zu bestehenden Einstellungen; keine automatische Aktivierung oder neue Datensammlung.
+
 ## [0.1.0-alpha.15] - 2026-09-23
 
 - Direkte Bereichsnavigation, konsistente deutsche Begriffe und mobile Formulare.
