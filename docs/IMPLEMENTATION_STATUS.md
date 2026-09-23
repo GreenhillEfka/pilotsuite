@@ -1,17 +1,28 @@
 # Capability and acceptance ledger
 
-## Release marker reliability increment
+## Merged usability revision
+
+PR #27 merged as main commit `3b931613fe168e58cbd6cbc7ed84253fc02a7df6`.
+Exact main CI 35827305684 passed 123 backend tests, four JavaScript tests, expanded
+Chromium navigation/editing/history/responsive regression and the amd64 container.
+The UI improves navigation, error feedback, zone-switch isolation and mobile layout
+without changing schema, roles, learning consent, algorithms or read-only policy.
+Live remains separately verified on alpha.13; Store metadata still offers alpha.13.
+
+## Merged release marker reliability increment
 
 The alpha.14 tree no longer exposes a stale alpha.13 literal in its static browser
 shell. The first-start documentation is tied by regression to the canonical version,
-and the static shell is required to stay free of hard-coded alpha numbers. 123 backend
-tests, four JavaScript tests and repository validation pass locally; browser/container
-CI is pending. No persistence, consent, history or execution boundary changes.
+and the static shell is required to stay free of hard-coded alpha numbers. PR #26
+merged as main commit `53a17f37f7b3e00032df9553910038ba5b8947d3`.
+Exact main CI 35826763429 passed 123 backend tests, four JavaScript tests, Chromium
+browser regression and the amd64 container. No persistence, consent, history or
+execution boundary changes.
 
 Deployment remains separate: Supervisor still reports alpha.13 installed and offered.
 Backup fe09f165 remains available; no app update or restart was performed. The next
-gate is CI, followed by an authorized Store refresh and exact alpha.14 deployment and
-workbench acceptance.
+gate is an authorized Store refresh followed by exact alpha.14 deployment and
+usability/workbench acceptance.
 
 ## Published alpha.14; live update pending (2026-09-23)
 

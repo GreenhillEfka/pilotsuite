@@ -1,6 +1,6 @@
 # Current State
 
-## Usability revision candidate — 2026-09-23
+## Merged usability revision — 2026-09-23
 
 Based on main 1644c9b (alpha.14). A dedicated revision improves navigation,
 German labels, shared form styles, responsive layout and feedback. Zone changes
@@ -9,27 +9,28 @@ zone. Periodic refresh pauses during editing and focused interactive review.
 History import explains its disabled state; custom intervals are validated before
 requesting HA history. No schema, role, consent or algorithm change.
 
-Local verification after merging main 53a17f3: 123 backend tests, four JS tests, syntax and repository contracts
-pass. Chromium could not be downloaded locally; expanded CI browser tests cover
-navigation, editing state, history validation and widths 390/768/1440. CI is pending.
-No HA update or live usability acceptance performed. Latest prior deployment report
-was alpha.13; alpha.14 store refresh was unauthorized. Do not infer installation
-from repository version. See docs/USABILITY_REVIEW.md.
+PR #27 merged as main commit `3b931613fe168e58cbd6cbc7ed84253fc02a7df6`.
+Exact main CI 35827305684 passed 123 backend tests, four JavaScript tests, expanded
+Chromium navigation/editing/history/390–1440 px regression and the amd64 container.
+No HA update or live usability acceptance was performed. Fresh Supervisor metadata
+still reports alpha.13 installed and offered. Do not infer installation from the
+repository version. See docs/USABILITY_REVIEW.md.
 
 
-## Development: release marker contract
+## Merged: release marker contract
 
 The alpha.14 tree still embedded alpha.13 in the browser footer and first-start
 documentation. The footer is now release-neutral, while a regression requires the
 documented release marker to equal the canonical VERSION/config/Docker markers and
-rejects semantic-version literals in the static web shell. 123 backend tests, four
-JavaScript tests and repository validation pass locally. Browser/container CI remains
-required before merge. This changes no runtime behavior, storage, consent or access.
+rejects semantic-version literals in the static web shell. PR #26 merged as main
+commit `53a17f37f7b3e00032df9553910038ba5b8947d3`. Exact main CI 35826763429
+passed 123 backend tests, four JavaScript tests, Chromium browser regression and the
+amd64 container. This changes no runtime behavior, storage, consent or access.
 
 Live remains alpha.13: the current Supervisor Store still offers alpha.13. Scoped
 backup fe09f165 remains the prepared rollback point; no update or restart occurred.
-Next: merge only after CI, then obtain an authorized Store refresh, verify offered
-alpha.14 and its exact source, deploy once and perform authenticated workbench checks.
+Next: obtain an authorized Store refresh, verify offered alpha.14 and its exact
+source, deploy once and perform authenticated usability/workbench checks.
 
 ## Published alpha.14; live update pending (2026-09-23)
 
