@@ -1,8 +1,12 @@
 # Current State
 
-## Development: consent-gated coarse event attribution
+## Merged, not released: consent-gated coarse event attribution
 
-Based on released main `ebadf12` / installed `0.1.0-alpha.11`. The event stream now
+PR #11 merged as `203fb512dcad1d652aa38eb37e07092855a6edb7`; its tree exactly
+matches tested candidate `00773dc3c23ad9274c29608ce1f535689b3afa58`.
+Main CI [35802574356](https://github.com/GreenhillEfka/pilotsuite/actions/runs/35802574356)
+passed 93 backend tests, four JS tests, Chromium browser regression and amd64
+container. Based on installed `0.1.0-alpha.11`, the event stream now
 subscribes separately to `state_changed` and `call_service`. When at least one zone
 has active learning consent and an eligible source, a bounded in-memory correlator
 keeps opaque HA context links for at most 120 seconds / 2,048 entries. Disconnect,
@@ -17,14 +21,13 @@ PilotSuite remains read-only and therefore produces no own-action evidence.
 
 Synthetic regression covers dual subscriptions, interleaved dispatch, consent
 gating, expiry/limit/disconnect clearing, identifier non-disclosure and independent
-origin persistence. 93 backend tests, four JS tests, repository validation and
-Python compilation pass locally. Browser and amd64 container CI remain required;
-this increment is not released or installed. HA remains unchanged on alpha.11.
+origin persistence. This increment is merged but not versioned, released or
+installed. HA remains unchanged on alpha.11; no production consent was changed.
 
-Next: exact-commit CI and review this bounded attribution contract. If green, merge
-without enabling learning, then prepare a separately versioned release with an
-App-and-data backup and explicit recovery to alpha.11. Live attribution acceptance
-requires already-consented real learning; do not enable it merely for a test.
+Next: prepare a separately versioned release candidate without enabling learning,
+then require final exact-commit CI, a fresh App-and-data backup and an explicit
+recovery target to alpha.11 before deployment. Live attribution acceptance requires
+already-consented real learning; do not enable it merely for a test.
 
 ## Released and running: 0.1.0-alpha.11
 

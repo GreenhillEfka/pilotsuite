@@ -1,6 +1,11 @@
 # Capability and acceptance ledger
 
-## Development after alpha.11: bounded origin hints
+## Merged after alpha.11: bounded origin hints
+
+PR #11 merged as 203fb51 with the exact tree tested at 00773dc. Main CI
+35802574356 passed 93 backend tests, four JS tests, Chromium browser regression
+and amd64 container. The code is merged but not versioned, released or installed;
+HA remains on alpha.11 and production learning consent is unchanged.
 
 The next small slice subscribes to HA `call_service` and correlates its context
 with activity state changes for 120 seconds in bounded memory. Correlation only
@@ -10,9 +15,8 @@ categories, never HA user/context IDs or service payloads. Parented service cont
 is displayed as a possible automation/script chain, not as causal proof. PilotSuite
 is read-only and emits no own-action evidence.
 
-Local evidence: 93 backend tests, four JS tests, repository validation and Python
-compilation pass. Browser/container CI and live acceptance are separate and still
-open. No version bump, HA update, role change or production consent change.
+Live origin acceptance remains separate and may use only already-consented
+learning. No version bump, HA update, role change or production consent change.
 
 ## alpha.11 released and installed
 
