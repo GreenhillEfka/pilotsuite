@@ -1,6 +1,6 @@
 # Current State
 
-## Development: bounded statistics metadata validation
+## Merged: bounded statistics metadata validation
 
 The next reliability increment validates Home Assistant Recorder metadata before
 building the transient statistics projection. A non-list response or an entry
@@ -9,10 +9,15 @@ error instead of leaking `TypeError` or `KeyError` through a generic HTTP 500.
 Metadata outside the explicitly requested source set is ignored. Successful
 statistics, raw history, SQLite schema 6, roles, consent and learning are unchanged.
 
-Synthetic regression covers five malformed response shapes. The next task after
-merge remains a short read-only history request through an authenticated local HA
-Ingress session to verify Recorder coverage and graph rendering. No learning or
-historical import is required for that acceptance.
+Synthetic regression covers five malformed response shapes. PR #19 merged the
+increment as main commit `af41ee3883bf0b05975933b8d15884cd4df6e274`.
+Final main CI 35818141260 passed 116 backend tests, four JavaScript tests, Chromium
+browser regression and the amd64 container. Home Assistant remains unchanged on
+alpha.13, started and hard read-only.
+
+The next task remains a short read-only history request through an authenticated
+local HA Ingress session to verify Recorder coverage and graph rendering. No
+learning or historical import is required for that acceptance.
 
 ## Released and running: 0.1.0-alpha.13
 
