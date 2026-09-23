@@ -27,7 +27,8 @@ governed execution owner exists; the read-only alpha cannot generate own actions
 ## 0.3 — governed action pilot
 
 Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
-Alpha.14 is published and backed up but still awaits an authorized Store refresh,
+Alpha.15 packages the workbench and subsequent UI fixes (PR #32, main 7fc0abc,
+CI 35837585440 green). It still awaits an authorized Store refresh,
 exact-source deployment and authenticated user review of the workbench.
 Real learning and second-zone acceptance remain prerequisites for actuation.
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.

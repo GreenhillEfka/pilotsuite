@@ -1,6 +1,6 @@
 # Capability and acceptance ledger
 
-## Release procedure and alpha.15 candidate — 2026-09-23
+## Published alpha.15; repeatable release procedure — 2026-09-23
 
 The current candidate packages post-alpha.14 UI/ordering fixes as alpha.15, without
 additional runtime/schema/consent changes. ADR-026 and RELEASE_RUNBOOK.md retain
@@ -9,12 +9,15 @@ separate installation/UI evidence. Read-only release preflight checks immutable
 commit/tree identity, markers, changelogs, increasing version and ancestry.
 Seven new synthetic Git regressions: 130 Python and nine JS tests pass locally.
 Functional candidate d9f7ab7 passed CI 35837285851 including Chromium and amd64;
-PR #32 retains the final documentation-head/main CI receipts separately.
+PR #32 merged at 7fc0abc6c62bc15446c39b6d6da03990519fc919. Final head CI
+35837490073 and exact main CI 35837585440 passed tests, Chromium and amd64.
 
 Deployment is unchanged: alpha.13 installed/offered/started. Fresh scoped backup
 6db4ba91 completed at 2026-09-23T08:23:00Z; HA/database excluded, PilotSuite-only
 request. Archive contents/restore drill are not independently verified. No update,
-restart or consent change. Next: final main CI receipt in PR #32, offered version/source and
+explicit restart command or consent change. Backup-related alpha.13 startup is
+visible in logs; readiness, stream, snapshot, zone and hard_read_only are confirmed.
+Next: offered version/source and
 backup verification gates, then authenticated navigation/workbench acceptance.
 Older sections below record earlier evidence, not the current pending-CI status.
 
