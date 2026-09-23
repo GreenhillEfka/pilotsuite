@@ -1,5 +1,20 @@
 # Current State
 
+## Release candidate: 0.1.0-alpha.11
+
+PR #9 feature head 0098b30 passed CI 35800363139: 85 backend tests, four JS tests,
+mobile browser flows and amd64 image build. Release metadata is being synchronized
+and must pass its own CI before merge. HA reports alpha.9 started; fresh App-only
+backup must precede publishing because automatic App updates are enabled.
+Schema 5 preserves choices/roles and defaults context consent off. Downgrade
+requires an App-and-data partial restore, never schema-4 code over schema-5 data.
+Fresh App-only backup 1b74df9a was created and confirmed in the completed listing:
+53,739,520 bytes, unprotected, HA configuration/database excluded. Requested scope
+was PilotSuite with its data; archive contents were not inspected and no restore
+drill performed. Recovery is a partial App-and-data restore of this backup.
+No live update or consent changes yet in this release preparation.
+
+
 ## Next package: local rhythms and activation context (development)
 
 PR #9 now includes persisted IANA timezone and weekday/weekend grouping, DST-safe

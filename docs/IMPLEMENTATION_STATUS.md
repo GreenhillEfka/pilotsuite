@@ -1,5 +1,15 @@
 # Capability and acceptance ledger
 
+## alpha.11 release candidate
+
+Feature head 0098b30 passed CI 35800363139 (85 backend tests, four JS tests,
+browser and amd64 container). Per-zone thresholds/timezone/day grouping, source
+and progress views, sampled observability and separately consented light context
+are implemented. Schema 5 migration backs up and preserves choices. Fresh App-only
+backup 1b74df9a is confirmed. Final metadata CI and live update/start verification
+are pending. No actuation or new production learning consent is introduced.
+
+
 ## alpha.10 release candidate
 
 The next candidate separates activity observation statistics, deterministic rule
