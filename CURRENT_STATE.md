@@ -9,8 +9,10 @@ weekly activity raster and chronological reobservation checks. One-time explicit
 consent imports only presence activations into the existing bounded activity-v1
 store, deduplicated against live/imported evidence. Schema 6 migration backs up
 schema 5 and preserves settings. Contract: docs/HISTORY_AND_TRENDS.md / ADR-024.
-113 backend tests, four JS tests and repository validation pass locally. Browser
-regression extended; local Chromium missing, so CI browser/container remain gates.
+CI 35802932782 for candidate 31f04a68577a5afbfa9df4d9dfa150659900953c passed
+113 backend tests, four JS tests, extended Chromium browser flows and amd64
+container. Local repository validation also passed. Implementation is in PR #13.
+The following documentation-only commit records that verified candidate.
 HA read-only metadata confirms alpha.11 started. No release, update, role/consent
 change or live historical import performed. Actual Recorder coverage and Ingress
 acceptance remain open. Release requires scoped App-and-data backup first.
