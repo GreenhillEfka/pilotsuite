@@ -1,5 +1,35 @@
 # Current State
 
+## Alpha.17 published; Store offer pending — 2026-09-23
+
+PR #37 merged temporal review at 8a8393249ef43c9f85dbfc6ec759889827319de3.
+Exact PR CI 35874564312 and main CI 35874744954 passed 145 Python tests, nine JS
+tests, Chromium (including temporal text/JSON export) and amd64 container. Source
+preflight passed; app tree 70879070888a7de8df6b15d1800bdb4bace5f598 matches the candidate.
+
+The user confirmed alpha.16 guide, zone navigation and workbench operate correctly.
+That UI acceptance is complete as user-reported evidence, not independent network
+capture or proof of learning quality. The new alpha.17 temporal view remains pending
+installation and its own UI acceptance. Synthetic two-zone tests are not live
+second-zone acceptance; no real learning was enabled or household evidence exported.
+
+Pre-publication backup 94355ad1 completed 2026-09-23T14:28:37Z, 53,923,840 bytes,
+unprotected. Native backup/details confirms only PilotSuite alpha.16, no failed
+apps/agents/folders, HA configuration/database and folders excluded. Scoped recovery
+is hassio.restore_partial with that slug, apps [0d79c5e8_pilotsuite], homeassistant
+false, folders []; no restore drill. Post-backup logs confirm readiness, connected
+stream, fresh snapshot and resolved zone.
+
+Fresh Store metadata still reports alpha.16 installed/offered/started, no update
+available. No same-version installation, explicit restart or denied Store-route
+retry was performed. Backup access is working, not a blocker.
+
+Next: once Store offers alpha.17, recheck source association/CI and backup freshness,
+update once and verify startup/read-only/connection/zone; then accept the temporal
+view. Repository development is complete for this slice. Do not add artificial
+features to fill Store waiting time. Real learning-quality review stays bounded to
+already explicitly consented evidence; actuation remains disabled.
+
 ## Temporal pattern review candidate / alpha.17 — 2026-09-23
 
 The user confirmed alpha.16 guide/navigation/workbench works. Record this as
