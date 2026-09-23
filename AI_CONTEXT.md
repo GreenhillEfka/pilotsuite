@@ -27,12 +27,12 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.18 candidate fixes a reproducible feedback/reset race using one SQLite
-transaction and the existing report projection. Six synthetic regressions added;
-151 Python and nine JS tests pass locally. Exact candidate/main CI and Store-based
-deployment are next; backup 92e7a465 verifies the current alpha.17 app/data/options.
-Alpha.17 remains installed. Its temporal UI/export acceptance stays separately open.
-See newest CURRENT_STATE receipt; no learning or actuation was enabled.
+Alpha.18 is published via PR #40 at f3f5a25; exact main CI 35880705662 is green
+(151 Python, nine JS, Chromium, amd64). Feedback validation/save now share a SQLite
+transaction. Existing HTTP serialization is distinct from the store-level race tests.
+HA still runs/offers alpha.17. Verified backup 92e7a465 holds that app/data/options.
+Next: alpha.18 Store availability, source/backup recheck, scoped update and runtime
+checks. Temporal UI/export acceptance remains separately open. No learning enabled.
 
 The user accepted alpha.16 guide/navigation/workbench on 2026-09-23. This closes
 that user UI gate; it does not prove real learning quality or independent network
