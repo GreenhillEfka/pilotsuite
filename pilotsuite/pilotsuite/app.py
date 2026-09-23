@@ -128,6 +128,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_patch('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
     app.router.add_delete('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
     app.router.add_post('/api/v1/zones/{zone_id}/drafts/{draft_id}/automation-review', _automation_review)
+    app.router.add_post('/api/v1/zones/{zone_id}/drafts/{draft_id}/automation-inspection', _automation_review)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
     app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
@@ -467,7 +468,8 @@ async def _automation_review(request):
     except ValueError as exc: raise InvalidSelection('Invalid JSON') from exc
     try:
         result = await request.app[SERVICE_KEY].compare_automations(
-            request.match_info['zone_id'], request.match_info['draft_id'], payload)
+            request.match_info['zone_id'], request.match_info['draft_id'], payload,
+            inspection=request.path.endswith('/automation-inspection'))
     except HomeAssistantError:
         # Do not echo upstream errors, credentials or partial household results.
         return web.json_response({'error': 'automation_review_unavailable',

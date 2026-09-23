@@ -1,13 +1,15 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Alpha.20 is published (PR #45, main CI 35909475569 green: 175 Python, nine JS,
-  Chromium, amd64). Explicit transient HA automation reference review is complete
-  for its limited scope (ADR-028); no semantic duplicate/safety verdict or writes.
-  HA remains alpha.18 installed/offered. Next delivery: matching Store offer, source/
-  backup recheck, update once and real acceptance. Next concept: trigger/condition/
-  action reference inspection of a selected matching automation, marking unsupported/
-  template behavior unknown. Live learning/second-zone gates remain separate.
+- Alpha.21 candidate completes three read-only review packages: selected automation
+  structure, an open source/target review plan, and change-aware combined export
+  (ADR-029). Local 192 Python/nine JS pass; exact CI/publication pending.
+  HA remains alpha.18 installed/offered; fresh scoped backup 697876b6 is verified.
+  Next delivery: exact CI, matching Store offer, source/backup recheck, one update
+  and real runtime/Ingress/capability acceptance. Next concept: explicit authored
+  review notes/dispositions in PlanStore, tied to draft revision/config fingerprint
+  and stale after changes. No action approval. Live learning/second-zone gates stay
+  separate.
 - Preserve canonical repository and read-only boundary.
 - Normalize units, explicit missing evidence, stable suggestion identity.
 - Guard Ingress peer; test actual proxy path and browser assets.

@@ -129,6 +129,60 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
         response=await self.client.post(self.url+'/'+draft['id']+'/automation-review',json={'revision':2,'zone_revision':2})
         self.assertEqual(409,response.status)
 
+    async def test_selected_automation_details_are_scoped_sanitized_and_transient(self):
+        draft=await self.review_draft();before=await self.service.context.report('a')
+        self.service.client.related_automations=AsyncMock(return_value={'light.synthetic':['automation.synthetic']})
+        self.service.client.automation_config=AsyncMock(return_value={'alias':'PRIVATE_CANARY',
+            'actions':[{'action':'light.turn_off','target':{'entity_id':'light.synthetic'},'data':{'secret':'PRIVATE_CANARY'}}]})
+        payload={'revision':2,'zone_revision':2,'automation_id':'automation.synthetic','previous_fingerprint':None}
+        url=self.url+'/'+draft['id']+'/automation-inspection'
+        response=await self.client.post(url,json=payload)
+        self.assertEqual(200,response.status,await response.text());report=await response.json()
+        self.assertNotIn('PRIVATE_CANARY',json.dumps(report));self.assertEqual('no-store',response.headers['Cache-Control'])
+        self.assertEqual('first_read',report['inspection']['change_status'])
+        payload['previous_fingerprint']=report['inspection']['config_fingerprint']
+        again=await (await self.client.post(url,json=payload)).json()
+        self.assertEqual('unchanged',again['inspection']['change_status'])
+        self.service.client.automation_config.return_value['actions'][0]['action']='light.turn_on'
+        changed=await (await self.client.post(url,json=payload)).json()
+        self.assertEqual('changed',changed['inspection']['change_status'])
+        self.assertEqual(before,await self.service.context.report('a'))
+        self.assertEqual(2,(await (await self.client.get(self.url)).json())['items'][0]['revision'])
+        for path in self.path.glob('*'):
+            if path.is_file(): self.assertNotIn(b'PRIVATE_CANARY',path.read_bytes())
+
+    async def test_details_cannot_fetch_unrelated_or_malformed_automation(self):
+        draft=await self.review_draft()
+        self.service.client.related_automations=AsyncMock(return_value={'light.synthetic':['automation.synthetic']})
+        self.service.client.automation_config=AsyncMock()
+        url=self.url+'/'+draft['id']+'/automation-inspection'
+        base={'revision':2,'zone_revision':2,'automation_id':'automation.other','previous_fingerprint':None}
+        self.assertEqual(409,(await self.client.post(url,json=base)).status)
+        self.assertEqual(400,(await self.client.post(url,json=dict(base,previous_fingerprint='bad'))).status)
+        self.assertEqual(400,(await self.client.post(url,json=dict(base,automation_id='light.synthetic'))).status)
+        self.service.client.automation_config.assert_not_awaited()
+
+    async def test_details_recheck_revision_after_config_read(self):
+        draft=await self.review_draft()
+        self.service.client.related_automations=AsyncMock(return_value={'light.synthetic':['automation.synthetic']})
+        async def mutate(entity):
+            self.assertFalse(self.service._projection_lock.locked())
+            await self.store.save_draft('a',draft['id'],self.edit(draft,goal='Changed during request'),await self.service.selection_inventory('a'))
+            return {'actions':[]}
+        self.service.client.automation_config=mutate
+        response=await self.client.post(self.url+'/'+draft['id']+'/automation-inspection',json={
+            'revision':2,'zone_revision':2,'automation_id':'automation.synthetic','previous_fingerprint':None})
+        self.assertEqual(409,response.status)
+
+    async def test_details_permission_failure_stays_controlled_and_read_only(self):
+        draft=await self.review_draft()
+        self.service.client.related_automations=AsyncMock(return_value={'light.synthetic':['automation.synthetic']})
+        self.service.client.automation_config=AsyncMock(side_effect=HomeAssistantError('unauthorized PRIVATE_CANARY'))
+        response=await self.client.post(self.url+'/'+draft['id']+'/automation-inspection',json={
+            'revision':2,'zone_revision':2,'automation_id':'automation.synthetic','previous_fingerprint':None})
+        self.assertEqual(503,response.status);self.assertNotIn('PRIVATE_CANARY',await response.text())
+        self.assertEqual(409,(await self.client.post('/api/v1/transactions/'+draft['id']+'/apply')).status)
+
     async def test_create_is_explicit_idempotent_and_persists_without_copying_evidence(self):
         self.assertEqual([], (await (await self.client.get(self.url)).json())['items'])
         before = await self.service.context.report('a')

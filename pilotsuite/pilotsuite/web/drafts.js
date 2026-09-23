@@ -1,4 +1,4 @@
-// User-authored drafts only. No executable actions, HA calls or automatic saves.
+// User-authored drafts and explicit read-only review. No execution or automatic saves.
 let routineEditor = null;
 let routineDirty = false;
 let routineComparison = null;
@@ -25,18 +25,56 @@ function appendComparison(card, draft) {
     const row = document.createElement('p');
     row.textContent = `${item.entity_id} · Zielbezüge: ${item.target_references.join(', ') || 'keine'} · Quellenbezüge: ${item.source_references.join(', ') || 'keine'} · Aktivierungsstatus ungeprüft`;
     panel.append(row);
+    const inspect = document.createElement('button'); inspect.type = 'button';
+    inspect.textContent = `Details prüfen: ${item.entity_id}`;
+    inspect.disabled = selectionBusy || contextEditing || zoneFormOpen || !!selectionDraft?.dirty;
+    inspect.addEventListener('click', () => compareRoutine(draft, item.entity_id)); panel.append(inspect);
   }
+  if (result.inspection) appendInspection(panel, result.inspection, draft);
   card.append(panel);
 }
 
-async function compareRoutine(draft) {
+function appendInspection(panel, inspection, draft) {
+  const root = document.createElement('section'); root.className = 'automation-inspection';
+  const h = document.createElement('h5'); h.textContent = `Detailprüfung · ${inspection.entity_id}`;
+  const changes = {first_read:'Erste Detailprüfung.',unchanged:'Konfiguration seit der letzten Detailprüfung unverändert.',changed:'Konfiguration seit der letzten Detailprüfung geändert – erneut fachlich prüfen.'};
+  const note = document.createElement('p'); note.textContent = `${changes[inspection.change_status]} Nur Aufbau und direkte Bezüge geprüft. Werte, Nachrichten und Templates werden nicht ausgewertet oder angezeigt. Keine Aussage über tatsächliche Ausführung, Gleichwertigkeit oder Sicherheit.`;
+  root.append(h,note);
+  const kinds = {state:'Zustand',numeric_state:'Zahlenwert',time:'Zeit',time_pattern:'Zeitraster',sun:'Sonne',event:'Ereignis',homeassistant:'HA-Start/Stopp',zone:'Zone',template:'Template',device:'Gerät',mqtt:'MQTT',calendar:'Kalender',webhook:'Webhook',tag:'Tag',geo_location:'Standort',trigger:'Auslöserbezug',and:'Alle Bedingungen',or:'Mindestens eine Bedingung',not:'Verneinung',service_call:'Dienstaufruf',choose:'Verzweigung',if:'Wenn/Dann',repeat:'Wiederholung',parallel:'Parallel',sequence:'Abfolge',delay:'Verzögerung',wait_template:'Template abwarten',wait_for_trigger:'Ereignis abwarten',variables:'Variablen',stop:'Abbruch',unsupported:'Nicht aufgeschlüsselt'};
+  for (const [key,title] of [['triggers','Auslöser'],['conditions','Bedingungen'],['actions','Aktionen']]) {
+    const heading = document.createElement('h6'); heading.textContent = title; root.append(heading);
+    const list = document.createElement('ul');
+    for (const step of inspection.sections[key]) {
+      const row = document.createElement('li');
+      row.textContent = `${kinds[step.kind] || 'Unbekannt'}${step.service ? ' · '+step.service : ''} · Quellen: ${step.source_references.join(', ') || 'keine direkten'} · Ziele: ${step.target_references.join(', ') || 'keine direkten'}${step.other_reference_count ? ' · weitere Bezüge: '+step.other_reference_count : ''}${step.limitations.length ? ' · offen/nicht vollständig ausgewertet' : ''}`;
+      list.append(row);
+    }
+    if (!list.children.length) { const li=document.createElement('li');li.textContent='Keine aufgeschlüsselten Einträge.';list.append(li); }
+    root.append(list);
+  }
+  const warnings = document.createElement('p');
+  warnings.textContent = inspection.limitations.length ? 'Offene Grenzen: '+inspection.limitations.map(k=>({templates_not_evaluated:'Templates nicht ausgewertet',blueprint_not_expanded:'Blueprint nicht aufgelöst',unsupported_structure:'Unbekannter Aufbau',dynamic_or_invalid_entity_reference:'Dynamischer/unbekannter Entitätsbezug',indirect_target_not_resolved:'Geräte-/Bereichs-/Labelziel nicht aufgelöst',indirect_call_not_expanded:'Indirekter Aufruf nicht aufgelöst',unsupported_step:'Unbekannter Schritt',disabled_step:'Deaktivierter Schritt enthalten',dynamic_enablement:'Aktivierung dynamisch',ambiguous_section_aliases:'Mehrdeutige Abschnittsangaben'})[k] || 'Unbekanntes Verhalten').join('; ') : 'Keine zusätzlichen Strukturgrenzen erkannt. Verhalten und Risiko bleiben ungeprüft.';
+  root.append(warnings);
+  const alignment=document.createElement('p');alignment.textContent=`Musterquellen in Auslösern: ${inspection.alignment.source_trigger_references.join(', ') || 'keine direkten erkannt'}. Zielgeräte in Dienstaufrufen: ${inspection.alignment.target_action_references.join(', ') || 'keine direkten erkannt'}. Dies bewertet die Bezüge, nicht die Wirkung oder Gleichwertigkeit.`;root.append(alignment);
+  const heading=document.createElement('h6');heading.textContent='Dein Prüfplan';root.append(heading);
+  const labels={source_gap:'Musterquellen ohne direkten Auslöserbezug prüfen',target_gap:'Zielgeräte ohne direkten Dienstaufruf prüfen; indirekte Wirkung bleibt möglich',unknowns:'Unbekannte/dynamische Abläufe in HA klären',intent:'Komfortziel mit bestehendem Verhalten vergleichen',timing:'Zeitfenster, Auslöserwerte und Bedingungen in HA prüfen',manual_override:'Ausnahmen und Vorrang manueller Bedienung nachweisen',enabled:'Aktuellen Aktivierungsstatus in HA prüfen',risk:'Auswirkungen und Rückweg gesondert bewerten'};
+  const plan=document.createElement('ol');
+  for(const item of inspection.checklist) {const li=document.createElement('li');li.textContent=(labels[item.id] || 'Fachlich prüfen')+' · offen';plan.append(li);}
+  const intent=document.createElement('p');intent.textContent=`Deine Angaben: Komfortziel ${draft.fields.goal ? 'vorhanden' : 'fehlt'}, manueller Vorrang ${draft.fields.manual_override ? 'vorhanden' : 'fehlt'}. Eigene Angaben sind noch kein Nachweis, dass die bestehende Automation sie erfüllt.`;
+  root.append(plan,intent);panel.append(root);
+}
+
+async function compareRoutine(draft, automationId = null) {
   if (selectionBusy || contextEditing || zoneFormOpen || selectionDraft?.dirty) return;
   const zone = selectionZone, zoneRevision = contextData.revision;
+  const previous = comparisonFor(draft)?.inspection;
+  const payload = {revision:draft.revision,zone_revision:zoneRevision};
+  if (automationId) Object.assign(payload,{automation_id:automationId,previous_fingerprint:previous?.entity_id===automationId ? previous.config_fingerprint : null});
   routineComparison = null; selectionBusy = true; contextGeneration++;
   renderSelection(); renderLearning(); text('routine-message', 'Bestehende Automationen werden ausschließlich lesend auf Entitätsbezüge geprüft …');
   try {
-    const result = await json(`api/v1/zones/${encodeURIComponent(zone)}/drafts/${encodeURIComponent(draft.id)}/automation-review`,
-      {method:'POST',body:JSON.stringify({revision:draft.revision,zone_revision:zoneRevision})});
+    const result = await json(`api/v1/zones/${encodeURIComponent(zone)}/drafts/${encodeURIComponent(draft.id)}/${automationId ? 'automation-inspection' : 'automation-review'}`,
+      {method:'POST',body:JSON.stringify(payload)});
     if (zone !== selectionZone) return;
     if (!await loadContext()) return;
     routineComparison = result;
@@ -174,7 +212,7 @@ async function deleteRoutine(draft) {
 function exportRoutine(draft) {
   const review = comparisonFor(draft);
   const url = URL.createObjectURL(new Blob([JSON.stringify({schema:'pilotsuite-routine-draft-v1', ...draft,
-    automation_check:review ? 'limited_reference_review' : 'not_checked', automation_review:review}, null, 2)], {type:'application/json'}));
+    automation_check:review?.inspection ? 'structural_review' : review ? 'limited_reference_review' : 'not_checked', automation_review:review}, null, 2)], {type:'application/json'}));
   const link = document.createElement('a'); link.href = url; link.download = 'pilotsuite-routine-draft.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

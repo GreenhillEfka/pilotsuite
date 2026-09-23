@@ -15,6 +15,7 @@ const assert = require('node:assert/strict');
     let contexts = {};
     const roleCandidates = [{entity_id:'sensor.lux',name:'Helligkeit',suggested_role:'illuminance',decision:'relevant'},{entity_id:'sensor.temperature',name:'Temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'sensor.second',name:'Second temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'binary_sensor.p',name:'Presence A',suggested_role:'motion',decision:'relevant'},{entity_id:'binary_sensor.q',name:'Presence B',suggested_role:'motion',decision:'relevant'}];
     let conflict = false; let writes = 0; let draftConflict = false; let reviewFailure = false; let reviewEmpty = false;
+    let configFingerprint = 'a'.repeat(64);
     let zones = [{zone_id: 'example', name: 'Example', area_ids: ['example'], extra_entity_ids: [], enabled: true, profile: 'cellar', revision: 0}];
     await page.route('http://pilotsuite.test/**', async route => {
       const url = new URL(route.request().url());
@@ -67,7 +68,7 @@ const assert = require('node:assert/strict');
         const id=suffix.split('/')[3]; const payload=route.request().postDataJSON();
         contexts[id].patterns[0].preference=payload.decision; data=contexts[id];
       }
-      else if (suffix.endsWith('/automation-review')) {
+      else if (suffix.endsWith('/automation-review') || suffix.endsWith('/automation-inspection')) {
         if(reviewFailure) return route.fulfill({status:503,json:{message:'synthetic review unavailable'}});
         const id=suffix.split('/')[3],draft=contexts[id].drafts[0],payload=route.request().postDataJSON();
         assert.equal(payload.revision,draft.revision);assert.equal(payload.zone_revision,contexts[id].revision);
@@ -76,6 +77,16 @@ const assert = require('node:assert/strict');
           checked_entities:[...draft.current_pattern.sources,...draft.fields.target_ids],coverage:'limited',duplicate_assessment:'not_determined',
           items:reviewEmpty?[]:[{entity_id:'automation.synthetic',target_references:draft.fields.target_ids,source_references:draft.current_pattern.sources}],
           execution:{allowed:false,actions:[]}};
+        if(suffix.endsWith('/automation-inspection')) {
+          assert.equal(payload.automation_id,'automation.synthetic');
+          const step=(kind,service=null)=>({kind,service,source_references:[],target_references:[],other_reference_count:0,limitations:[]});
+          data.inspection={schema:'pilotsuite-automation-inspection-v1',entity_id:payload.automation_id,
+            config_fingerprint:configFingerprint,change_status:payload.previous_fingerprint===null?'first_read':payload.previous_fingerprint===configFingerprint?'unchanged':'changed',
+            sections:{triggers:[{...step('state'),source_references:draft.current_pattern.sources}],conditions:[step('template')],actions:[{...step('service_call','light.turn_on'),target_references:draft.fields.target_ids}]},
+            limitations:['templates_not_evaluated'],alignment:{source_trigger_references:draft.current_pattern.sources,target_action_references:draft.fields.target_ids,targets_without_direct_action_reference:[],semantic_equivalence:'not_determined'},
+            checklist:['unknowns','intent','timing','manual_override','enabled','risk'].map(id=>({id,state:'open'})),
+            coverage:'structural_only',risk:'not_assessed',execution:{allowed:false,actions:[]}};
+        }
       }
       else if (/api\/v1\/zones\/[^/]+\/drafts(?:\/[^/]+)?$/.test(suffix)) {
         const id=suffix.split('/')[3], method=route.request().method(), payload=route.request().postDataJSON();
@@ -303,6 +314,16 @@ const assert = require('node:assert/strict');
     await page.waitForFunction(()=>document.querySelector('.routine-comparison')?.textContent.includes('automation.synthetic'));
     assert.match(await page.locator('.routine-comparison').innerText(),/beweisen keine doppelte Automation/);
     assert.match(await page.locator('.routine-comparison').innerText(),/Aktivierungsstatus ungeprüft/);
+    await page.getByRole('button',{name:'Details prüfen: automation.synthetic',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.automation-inspection')?.textContent.includes('Erste Detailprüfung'));
+    for(const name of ['Auslöser','Bedingungen','Aktionen','Dein Prüfplan']) assert.equal(await page.locator('.automation-inspection').getByRole('heading',{name,exact:true}).count(),1);
+    assert.match(await page.locator('.automation-inspection').innerText(),/Templates nicht ausgewertet/);
+    assert.match(await page.locator('.automation-inspection').innerText(),/Vorrang manueller Bedienung nachweisen · offen/);
+    await page.getByRole('button',{name:'Details prüfen: automation.synthetic',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.automation-inspection')?.textContent.includes('Detailprüfung unverändert'));
+    configFingerprint='b'.repeat(64);
+    await page.getByRole('button',{name:'Details prüfen: automation.synthetic',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.automation-inspection')?.textContent.includes('Detailprüfung geändert'));
     for(const width of [390,1440]) {
       await page.setViewportSize({width,height:900});
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -316,10 +337,14 @@ const assert = require('node:assert/strict');
     assert.equal(savedDraft.schema,'pilotsuite-routine-draft-v1');
     assert.equal(savedDraft.execution.allowed,false); assert.deepEqual(savedDraft.execution.actions,[]);
     assert.equal(savedDraft.fields.goal,'Comfort with manual control');
-    assert.equal(savedDraft.automation_check,'limited_reference_review');
+    assert.equal(savedDraft.automation_check,'structural_review');
     assert.equal(savedDraft.automation_review.duplicate_assessment,'not_determined');
+    assert.equal(savedDraft.automation_review.inspection.config_fingerprint,configFingerprint);
+    assert.equal(savedDraft.automation_review.inspection.change_status,'changed');
+    assert.equal(savedDraft.automation_review.inspection.checklist.every(item=>item.state==='open'),true);
+    assert.equal(savedDraft.automation_review.inspection.execution.allowed,false);
     reviewFailure=true;
-    await page.getByRole('button',{name:'Bestehende Automationen prüfen',exact:true}).click();
+    await page.getByRole('button',{name:'Details prüfen: automation.synthetic',exact:true}).click();
     await page.waitForFunction(()=>document.getElementById('routine-message').textContent.includes('Vergleich nicht bestätigt'));
     assert.equal(await page.locator('.routine-comparison').count(),0);
     reviewFailure=false;reviewEmpty=true;

@@ -56,7 +56,8 @@ races and reset during lookup. Chromium covers positive/empty/error results, sta
 result suppression, export and responsive layout. No household scan is performed
 for development; authenticated live UI/HA capability acceptance stays separate.
 
-Next bounded concept slice: inspect explicitly selected matching automation
-definitions read-only, distinguish trigger/condition/action references and mark
-unsupported/template behavior unknown. Never infer causality from an entity match
-or create/modify an automation as part of comparison.
+Alpha.21 adds a separate explicitly selected detail request after this reference
+lookup: see AUTOMATION_INSPECTION.md. It reads one matched definition and separates
+trigger/condition/action structures, unknowns, an open review plan and change-aware
+export. The reference-only path described above still reads no config. Neither path
+infers causality or creates/modifies an automation.
