@@ -1,5 +1,30 @@
 # Current State
 
+## Deployment gate review — 2026-09-23
+
+Alpha.16 is now offered by the canonical HA Store; alpha.13 is still installed
+and started, update_available true. No Store reload is needed. No open PR existed
+at this check. Published source 208b5d31532c5f4ad38a6227b51028aeacacc9fd passed
+exact main CI 35838497565 (138 Python, nine JS, Chromium and amd64). Read-only
+release preflight passed; app tree 811de10be4d11acab5ee98a41eb5dc3a93b56f46.
+Store metadata exposes the offered version/repository, not a checkout commit;
+the exact Store checkout-to-source mapping is not independently verified.
+
+Backup d454e834 remains listed as completed (2026-09-23T08:35:11Z,
+53,882,880 bytes, unprotected, HA/database excluded). Its content details were
+requested via hassio/api GET /backups/d454e834/info and denied Unauthorized.
+The listing alone cannot confirm the saved app version and data/options. The
+required verified recovery gate is therefore still closed. No alternate access
+route was attempted, no redundant backup created, no update/restart performed.
+
+Further feature work is deferred to the requested live acceptance priority.
+Autonomous continuation is paused at the permission gate, not marked complete.
+Next: restore authorized read access to the backup details, verify PilotSuite
+alpha.13 plus matching data/options and the offered alpha.16 source mapping;
+then refresh the scoped backup if needed, update once and check runtime plus
+authenticated Ingress. Do not enable learning, change roles or weaken access guards.
+This is a documentation-only status increment; no new regression tests or release.
+
 ## Zone guide / alpha.16 candidate — 2026-09-23
 
 User requested the next coherent package after the release procedure was fixed.
