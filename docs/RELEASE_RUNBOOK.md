@@ -14,7 +14,7 @@ main, open PRs/branches, rules and Actions. Preserve other work.
 |---|---|
 | Installed equals target | Do not update, rebuild, restart or create another pre-update backup; perform only pending acceptance |
 | Target offered, different installed version | Skip Store refresh; verify source/CI and scoped backup |
-| Target not offered | Use documented authorized Store refresh if available; reread metadata, never install an unrelated version |
+| Target not offered | Use the native ha_manage_app(action="check_updates") when available; reread metadata, never install an unrelated version |
 | Backup request accepted but not yet listed | Check completion; do not replay creation |
 | Update outcome unknown | Read durable app state and logs/jobs before doing anything else |
 | Endpoint returns Unauthorized | Stop that route; do not infer all HA operations are denied or alter permissions |
@@ -50,7 +50,7 @@ Source association for the normal Store workflow:
   independently verified checkout SHA or installed-image attestation.
 
 Store metadata alone is not a cryptographic source proof. Do not invent one.
-Alpha.16's concrete association and limitation are in RELEASE_STATE.json.
+Alpha.16's concrete association and limitation remain in Git history.
 
 ## 3. Scoped backup: create, then verify through the native API
 
@@ -99,10 +99,24 @@ A backup may itself stop/start PilotSuite; verify health afterwards.
 
 ## 4. Store and update once
 
-If target is already offered, do not refresh the Store. If refresh is needed,
-the Supervisor operation is POST /store/reload, using an already authorized supported
-capability/session. A denied bridge call is not permission to try variants or weaken
-security. If refresh is unavailable, leave installation pending.
+If target is already offered, do not refresh the Store. If a refresh is needed,
+prefer the first-class HA-MCP action, verified working on 2026-09-23:
+
+```json
+{"action":"check_updates"}
+```
+
+Call this through ha_manage_app **without slug or repository**. It reloads Store
+metadata and installs nothing. Then reread ha_get_app(slug="0d79c5e8_pilotsuite"):
+compare installed `version` and offered `version_latest`; a successful refresh
+alone does not prove the target is offered or installed. Ignore unrelated pending
+app updates. If the native action returns an error, stop that route and record it.
+
+The underlying Supervisor operation is POST /store/reload. The old custom bridge
+was denied; the successful native action does not authorize retrying that bridge,
+trying path variants, spoofing headers or changing permissions. If the native action
+is unavailable, leave installation pending unless another already authorized,
+documented supported session exists. Do not ask again for already granted scope.
 
 After source/CI and backup gates, reread installed/offered versions. If target is
 already installed, skip. Otherwise use exactly:
@@ -143,10 +157,23 @@ do not undo a healthy installation merely because browser access is unavailable.
 Update RELEASE_STATE.json, CURRENT_STATE and IMPLEMENTATION_STATUS with source/CI,
 backup, installation, runtime and browser results separately. Record one concrete
 next task. Keep final PR/main CI receipts in the PR; avoid creating another
-documentation PR solely to record a documentation CI run.
+documentation PR solely to record a documentation CI run. Keep current handoffs
+concise; preserve historical ledgers separately and link them rather than repeatedly
+prepending obsolete live versions and blockers.
 
 ## Verified operational facts (2026-09-23)
 
+- Alpha.21: the native ha_manage_app(action="check_updates") succeeded and moved the
+  offered version from alpha.18 to alpha.21. Fresh backup ae7a3fba completed and
+  native backup/details verified only alpha.18 app/data/options, no failed components,
+  no HA/database/folders, 53,964,800 bytes and no encryption-key requirement.
+  Release CI 35914643847 and current-main CI 35915002481 passed; app tree remained
+  3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77. One normal update completed; Supervisor
+  and startup/readiness logs verified alpha.21 started and hard_read_only, ready,
+  connected, fresh and zone-resolved. Options matched before/after. No extra restart,
+  permissions change, other-app update, role/consent change or actor call occurred.
+  Authenticated live browser and app automation/config capability acceptance remain
+  pending. This is the latest receipt and supersedes older Store-offer blockers.
 - Alpha.18 update repeated the working routine: ha_get_app offered alpha.18 while
   alpha.17 ran; fresh hassio.backup_partial with apps [0d79c5e8_pilotsuite]; list
   completion; native backup/details verified b6c90eb0 and alpha.17 app/data/options;
@@ -155,9 +182,8 @@ documentation PR solely to record a documentation CI run.
   connected stream, fresh snapshot and resolved zone. No separate restart needed.
 - Store availability and installation permission are different gates. Alpha.18 was
   already offered at the successful deployment check; no Store refresh was needed
-  or performed. This success does not prove the previously denied /store/reload
-  bridge is authorized. Never describe an unavailable Store offer as a general
-  inability to install; resume the working update path as soon as the offer matches.
+  or performed then. Alpha.21 now verifies the native refresh action, not the
+  previously denied custom /store/reload bridge.
 - Keep the live outcome and exact next action in RELEASE_STATE.json. Do not ask for
   already-granted update/backup authorization or recreate this routine each turn.
 - Native backup/details worked for d454e834 and 95bb73d4 with existing credentials.

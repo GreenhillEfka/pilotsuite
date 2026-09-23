@@ -25,59 +25,65 @@ This file is the canonical long-term context for humans and AI contributors. If 
 9. Every material decision is recorded in `DECISIONS.md`; every actual implementation state is recorded in `CURRENT_STATE.md`.
 10. The Erdkellerbereich is the first Golden Zone. A second read-only zone must test generality before 1.0; broader actuation remains gated.
 
-## Current package
+## Current package and verified deployment
 
-Alpha.21 is published via PR #47 at 1223f96f45053f7bf3d509bd7ad72c85b9f6cab1;
-app tree 3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77, exact main CI 35914643847
-passed (192 Python, nine JS, Chromium, amd64). ADR-029 and
-AUTOMATION_INSPECTION.md define the three packages: selected structural inspection,
-open review plan, fingerprint change detection and combined export. No raw config
-persistence, new learning collection, HA write, semantic verdict or execution.
+Alpha.21 was published via PR #47 at `1223f96f45053f7bf3d509bd7ad72c85b9f6cab1`;
+app tree `3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77`. Exact release CI `35914643847`
+and pre-deployment main CI `35915002481` passed. The release records 192 Python,
+nine JavaScript, Chromium and amd64 checks; code tests and live UI acceptance
+are different evidence.
 
-HA remains alpha.18 installed/offered/started; post-backup health/read-only checks
-passed. Verified scoped backup 697876b6 contains alpha.18 app/data/options with
-concrete partial rollback. No installation performed. Next: matching alpha.21 Store
-offer, source/backup recheck, update once, runtime and authenticated Ingress/config
-read capability acceptance. Only about:blank is available; alpha.16 user UI
-acceptance stays separate. No household automation scan was performed.
-Next concept: explicit user-authored review notes bound to draft revision/config
-fingerprint in PlanStore, stale after changes and never granting action permission.
+**On 2026-09-23 alpha.21 was installed through the normal Store update path.**
+The first-class `ha_manage_app(action="check_updates")` refreshed the offer from
+alpha.18 to alpha.21 without changed credentials or permissions. Fresh scoped
+backup `ae7a3fba` was verified with native `backup/details`; one app update followed.
+Supervisor reports alpha.21 installed/offered/started, no update pending. Logs
+confirm hard_read_only, ready, connected stream, fresh snapshot and resolved zone.
+Do not repeat the completed update or the old denied custom Store bridge.
 
-For release/deployment read docs/RELEASE_STATE.json, newest CURRENT_STATE receipt and
-docs/RELEASE_RUNBOOK.md. Resume recorded next steps after live checks; do not
-rediscover the routine or treat historical blockers as current.
+Authenticated alpha.21 Ingress/temporal/draft/inspection UI and the app's live
+`automation/config` capability have not been accepted in this continuation. Do not
+invent a browser pass or escalate permissions. Existing alpha.16 user UI acceptance
+and reported history diagram rendering remain historical, separate evidence.
+No production role/consent, HA configuration, automation, actuator or other app was
+changed. Canonical repository/version/app-tree association is not an independent
+Store checkout SHA or installed-image attestation.
 
-## Continue here — architecture review implementation
+## Resume workflow
 
-Read `docs/VISION.md`, `docs/IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, and
-`CURRENT_STATE.md` before working. Do not restart or recreate the project.
-For every release or deployment also follow `docs/RELEASE_RUNBOOK.md` (ADR-026).
-It preserves the verified scoped backup route and known Store access boundary;
-do not rediscover alternate deployment paths or reuse a published version for fixes.
-The September 2026 review is accepted as the target design, not a claim that
-all capabilities are implemented. Keep source code, passing tests, and live
-Home Assistant acceptance as three separate kinds of evidence.
-Old repositories are pinned reference sources, never runtime dependencies.
-Do not reintroduce two learning engines or independently owned zone stores.
-Current alpha rules are climate heuristics, not learned habits.
+Read `CURRENT_STATE.md`, `docs/IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and
+`docs/VISION.md` before working. For release/deployment also read
+`docs/RELEASE_STATE.json` and `docs/RELEASE_RUNBOOK.md` (ADR-026). Recheck live state;
+resume the recorded next step rather than recreating the project or access routine.
+Current-state files are concise snapshots. The complete former release ledgers
+are preserved unchanged in `CURRENT_STATE_HISTORY_2026-09-23.md` and
+`docs/IMPLEMENTATION_HISTORY_2026-09-23.md`; their old next steps and blockers are
+history, not present instructions.
 
-Alpha.14 adds the pattern workbench on top of targeted transient HA
-history/statistics views and the existing consented evidence owner. Do not copy
-Recorder data or infer missing history as absence of behavior. The immediate live
-continuation is alpha.17 temporal-view/export acceptance, after user acceptance of alpha.16.
-Alpha.18 is installed and started; newest pre-alpha.20 recovery point is c8347e4a. Native backup/details
-works; the old permission-gate receipt is superseded. Source association uses the
-canonical release and unchanged app tree, not an exposed Store checkout SHA.
-Reliability corrections may continue as separate
-small changes, but must not be represented as deployed. PilotSuite remains
-read-only and emits no own-action evidence. See `docs/HISTORY_AND_TRENDS.md`,
-`docs/EVENT_ATTRIBUTION.md` and `docs/PATTERN_WORKBENCH.md`.
+The September 2026 review is the accepted target design, not a claim that every
+capability is implemented. Keep source code, successful CI and live Home Assistant
+acceptance separate. Old repositories are pinned reference sources, never runtime
+dependencies. Do not introduce two learning engines or independently owned zone
+stores. Current climate rules are heuristics, not learned habits. Raw history stays
+transient unless a separate scoped import is explicitly consented to, using the
+existing evidence owner. Missing history is not evidence of absent behavior.
+PilotSuite remains read-only and emits no own-action evidence.
+
+## One concrete next development task
+
+Implement user-authored review notes in the existing PlanStore, bound to a routine
+draft revision and selected automation configuration fingerprint (ADR-029).
+Preserve notes but mark them stale on changes; do not portray an unverified or
+unavailable fingerprint as a fresh live check. Add migration, optimistic revision,
+restart/persistence, stale-state, input-validation, export and browser tests.
+
+ADR-029 / `docs/AUTOMATION_INSPECTION.md` already provide selected structural
+inspection, an open review plan, fingerprint comparison and combined export.
+Notes are the next increment, **not implemented yet**. No raw configuration
+persistence, new learning collection, HA write, automatic semantic verdict or
+execution permission follows from recording a note or checking a review item.
 
 ## Conceptual chain
-
-The user confirmed history diagram rendering on 2026-09-23. Recorder coverage is
-still separate. The pattern-workbench candidate derives review briefs from canonical
-evidence and preference; it is not an execution plan. See docs/PATTERN_WORKBENCH.md.
 
 `world/sensors -> neurons -> moods -> synapses -> suggestions -> dialogue/approval -> policy -> transaction -> Home Assistant`
 
@@ -87,6 +93,10 @@ evidence and preference; it is not an execution plan. See docs/PATTERN_WORKBENCH
 - **Suggestions** contain evidence, confidence, scope, risk, and a proposed plan.
 - **Policies** are the final deterministic gate.
 - **Transactions** are the only allowed mutation mechanism.
+
+The pattern workbench derives review briefs from canonical evidence and preference;
+a review brief is not an executable action plan. See `docs/PATTERN_WORKBENCH.md`,
+`docs/HISTORY_AND_TRENDS.md` and `docs/EVENT_ATTRIBUTION.md`.
 
 ## Initial Golden Zone
 
