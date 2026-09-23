@@ -123,6 +123,42 @@ class HomeAssistantClient:
             raise HomeAssistantError('Home Assistant history connection failed') from exc
         return {'records': result, 'metadata': metadata}
 
+    async def related_automations(self, entity_ids):
+        """Explicit bounded reference lookup, never configuration or service calls."""
+        import re
+        if (not isinstance(entity_ids, list) or not 1 <= len(entity_ids) <= 40
+                or any(not isinstance(e, str) or len(e) > 255
+                       or not re.fullmatch(r'[a-z_]+\.[a-z0-9_]+', e) for e in entity_ids)):
+            raise HomeAssistantError('Automation lookup requires 1–40 entity references')
+        await self.start()
+        results = {}
+        seen_automations = set()
+        try:
+            async with asyncio.timeout(30):
+                async with self._session.ws_connect(self._ws_url, heartbeat=30,
+                                                    max_msg_size=1024*1024) as socket:
+                    await self._authenticate(socket)
+                    for request_id, entity in enumerate(sorted(set(entity_ids)), 1):
+                        related = await self._command(socket, request_id, {
+                            'type': 'search/related', 'item_type': 'entity', 'item_id': entity})
+                        if not isinstance(related, dict):
+                            raise HomeAssistantError('Invalid automation relation response')
+                        automations = related.get('automation', [])
+                        if (not isinstance(automations, list) or len(automations) > 200
+                                or any(not isinstance(e, str) or len(e) > 255
+                                       or not re.fullmatch(r'automation\.[a-z0-9_]+', e) for e in automations)):
+                            raise HomeAssistantError('Invalid automation relation response')
+                        results[entity] = sorted(set(automations))
+                        seen_automations.update(automations)
+                        if len(seen_automations) > 200:
+                            raise HomeAssistantError('Automation lookup exceeds 200 related automations')
+        except TimeoutError as exc:
+            raise HomeAssistantError('Automation lookup timed out') from exc
+        except ClientError as exc:
+            raise HomeAssistantError('Automation lookup connection failed') from exc
+        # Discard every partial result on failure; never imply a clean comparison.
+        return results
+
     async def listen(
         self, callback: StateCallback, stop_event: asyncio.Event,
         connection_callback: Callable[[bool], Awaitable[None]] | None = None,

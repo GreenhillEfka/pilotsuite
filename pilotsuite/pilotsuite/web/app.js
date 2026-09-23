@@ -238,6 +238,7 @@ async function loadSelection(zone) {
   if (zoneChanged) {
     contextData = null;
     byId('learning-export').removeAttribute('href');
+    routineComparison = null;
     for (const id of ['learning-sources','learning-period','learning-progress','learning-coverage','context-observations','learned-patterns','module-overview','pattern-summary','context-message','zone-guide-steps','routine-list','routine-message']) byId(id).replaceChildren();
     if (typeof closeRoutineEditor === 'function') closeRoutineEditor();
     text('zone-guide-next', 'Zonenstatus wird geladen …');

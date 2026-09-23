@@ -279,3 +279,16 @@ operations. All new learning tests are synthetic. Structural completeness grants
 no approval; automation comparison and risk remain unassessed, apply remains denied.
 The next slice compares existing HA automations read-only; no automation writes or
 broader execution authorization are implied. Contract: docs/ROUTINE_DRAFTS.md.
+
+## ADR-028 — Bounded, transient existing-automation reference review
+
+Accepted 2026-09-23 as the next read-only comparison slice in ADR-027. Reuse the
+HA client and canonical PlanStore draft; query search/related only on explicit
+request for saved confirmed targets/current pattern sources. Report source/target
+reference overlap, not equivalence, causality, enabled status or safety. Show
+unsupported indirect/dynamic references even for empty results. Keep results out
+of SQLite/audit/learning; bind the transient view/export to revisions and sources.
+Bound time, inputs and responses; reject failures without partial-clean claims.
+No new consent, configuration collection or execution. Detailed semantics of an
+explicitly selected existing automation are the next separate slice. Contract:
+docs/AUTOMATION_REVIEW.md.

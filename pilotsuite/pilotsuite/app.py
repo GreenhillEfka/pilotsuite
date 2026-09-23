@@ -127,6 +127,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post('/api/v1/zones/{zone_id}/drafts', _routine_drafts)
     app.router.add_patch('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
     app.router.add_delete('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
+    app.router.add_post('/api/v1/zones/{zone_id}/drafts/{draft_id}/automation-review', _automation_review)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
     app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
@@ -458,6 +459,21 @@ async def _routine_drafts(request):
         if set(payload) != {'revision'}: raise InvalidSelection('revision required')
         await service.plans.delete_draft(zone_id, request.match_info['draft_id'], payload['revision'])
         return web.json_response({'deleted': True})
+
+
+async def _automation_review(request):
+    from pilotsuite.ha.client import HomeAssistantError
+    try: payload = await request.json()
+    except ValueError as exc: raise InvalidSelection('Invalid JSON') from exc
+    try:
+        result = await request.app[SERVICE_KEY].compare_automations(
+            request.match_info['zone_id'], request.match_info['draft_id'], payload)
+    except HomeAssistantError:
+        # Do not echo upstream errors, credentials or partial household results.
+        return web.json_response({'error': 'automation_review_unavailable',
+            'message': 'Automationsvergleich derzeit nicht verfügbar. Erneut versuchen.'}, status=503,
+            headers={'Cache-Control': 'no-store'})
+    return web.json_response(result, headers={'Cache-Control': 'no-store'})
 
 
 async def _history_request(request, importing=False):

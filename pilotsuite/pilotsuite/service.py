@@ -12,7 +12,7 @@ from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
 from pilotsuite.core.audit import AuditLog
 from pilotsuite.core.plans import PlanStore
 from pilotsuite.core.settings import Settings
-from pilotsuite.core.selections import SelectionStore, InvalidSelection
+from pilotsuite.core.selections import SelectionStore, InvalidSelection, SelectionConflict
 from pilotsuite.core.zones import ZoneStore
 from pilotsuite.core.context import ContextStore
 from pilotsuite.core.attribution import EventAttribution
@@ -21,7 +21,7 @@ from pilotsuite.domain.models import Mood, Neuron, Suggestion
 from pilotsuite.domain.moods import calculate_moods
 from pilotsuite.domain.neurons import build_neurons
 from pilotsuite.domain.synapses import RULESET_VERSION, build_suggestions
-from pilotsuite.ha.client import HomeAssistantClient
+from pilotsuite.ha.client import HomeAssistantClient, HomeAssistantError
 from pilotsuite.ha.world import WorldModel
 
 
@@ -39,6 +39,7 @@ class PilotSuiteService:
         self.attribution = EventAttribution()
         self._learning_sources = {}
         self._history_lock = asyncio.Lock()
+        self._automation_review_lock = asyncio.Lock()
         self._zone_results: list[dict[str, Any]] = []
         self.world = WorldModel()
         self.client = HomeAssistantClient(
@@ -57,6 +58,36 @@ class PilotSuiteService:
         self._neurons: list[Neuron] = []
         self._moods: list[Mood] = []
         self._suggestions: list[Suggestion] = []
+
+    async def compare_automations(self, zone_id, draft_id, payload):
+        from pilotsuite.domain.automation_review import reference_review
+        if (not isinstance(payload, dict) or set(payload) != {'revision', 'zone_revision'}
+                or any(type(payload[k]) is not int for k in payload)):
+            raise InvalidSelection('Draft revision and zone_revision required')
+        if self._automation_review_lock.locked():
+            raise HomeAssistantError('An automation lookup is already running')
+        async with self._automation_review_lock:
+            async def basis():
+                inventory = await self.selection_inventory(zone_id)
+                drafts = await self.plans.drafts(zone_id, inventory)
+                draft = next((d for d in drafts if d['id'] == draft_id), None)
+                if not draft: raise InvalidSelection('Unknown draft in this zone')
+                if draft['revision'] != payload['revision'] or inventory['revision'] != payload['zone_revision']:
+                    raise SelectionConflict('Draft or zone changed; reload before comparison')
+                if (draft['source_status'] != 'current' or draft['unavailable_targets']
+                        or not draft['fields']['target_ids']):
+                    raise InvalidSelection('Review current pattern and confirmed targets first')
+                return draft
+            async with self._projection_lock:
+                draft = await basis()
+            entities = sorted(set(draft['fields']['target_ids']) | set(draft['current_pattern']['sources']))
+            # Network I/O never blocks the projection/learning lock.
+            relations = await self.client.related_automations(entities)
+            async with self._projection_lock:
+                current = await basis()
+                if current['current_pattern']['sources'] != draft['current_pattern']['sources']:
+                    raise SelectionConflict('Pattern sources changed during comparison; retry')
+                return reference_review(current, payload['zone_revision'], relations)
 
     async def start(self) -> None:
         await self.selections.initialize()

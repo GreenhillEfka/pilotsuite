@@ -7,7 +7,8 @@ import tempfile
 import unittest
 from datetime import datetime, UTC
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
+from pilotsuite.ha.client import HomeAssistantError
 
 from aiohttp.test_utils import TestClient, TestServer
 from pilotsuite.app import create_app, SERVICE_KEY
@@ -54,6 +55,79 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
     def edit(self, draft, **changes):
         fields = copy.deepcopy(draft['fields']); fields.update(changes)
         return {'revision':draft['revision'],'zone_revision':2,'fields':fields,'refresh_source':False}
+
+    async def review_draft(self):
+        draft = await self.create()
+        response = await self.client.patch(self.url+'/'+draft['id'], json=self.edit(draft,target_ids=['light.synthetic']))
+        return await response.json()
+
+    async def test_automation_review_is_transient_scoped_and_not_a_duplicate_verdict(self):
+        draft = await self.review_draft()
+        before = await self.service.context.report('a')
+        self.service.client.related_automations = AsyncMock(return_value={
+            'light.synthetic':['automation.shared'],
+            'binary_sensor.synthetic':['automation.shared','automation.source_only']})
+        response = await self.client.post(self.url+'/'+draft['id']+'/automation-review',json={'revision':2,'zone_revision':2})
+        self.assertEqual(200,response.status,await response.text())
+        review = await response.json()
+        self.assertEqual('no-store',response.headers['Cache-Control'])
+        self.assertEqual('references_found',review['state'])
+        self.assertEqual('not_determined',review['duplicate_assessment'])
+        self.assertEqual('limited',review['coverage']);self.assertFalse(review['execution']['allowed'])
+        self.assertEqual(['light.synthetic'],review['items'][0]['target_references'])
+        self.assertEqual(['binary_sensor.synthetic'],review['items'][0]['source_references'])
+        self.service.client.related_automations.assert_awaited_once_with(['binary_sensor.synthetic','light.synthetic'])
+        self.assertEqual(before,await self.service.context.report('a'))
+        saved=(await (await self.client.get(self.url)).json())['items'][0]
+        self.assertEqual('not_checked',saved['automation_check']);self.assertEqual(2,saved['revision'])
+        for path in self.path.glob('*'):
+            if path.is_file(): self.assertNotIn(b'automation.shared',path.read_bytes())
+
+    async def test_review_empty_and_failed_results_never_mean_safe(self):
+        draft=await self.review_draft();url=self.url+'/'+draft['id']+'/automation-review'
+        self.service.client.related_automations=AsyncMock(return_value={'binary_sensor.synthetic':[],'light.synthetic':[]})
+        report=await (await self.client.post(url,json={'revision':2,'zone_revision':2})).json()
+        self.assertEqual('no_references_found',report['state']);self.assertEqual('not_assessed',report['risk'])
+        self.assertIn('dynamic_templates',report['limitations'])
+        self.service.client.related_automations.side_effect=HomeAssistantError('private upstream detail')
+        response=await self.client.post(url,json={'revision':2,'zone_revision':2})
+        self.assertEqual(503,response.status);self.assertNotIn('private',await response.text())
+        self.assertNotIn('items',await response.json())
+
+    async def test_review_rejects_stale_foreign_unscoped_requests_before_network(self):
+        draft=await self.create();self.service.client.related_automations=AsyncMock()
+        url=self.url+'/'+draft['id']+'/automation-review'
+        for payload,status in [({'revision':1,'zone_revision':2},400),
+                               ({'revision':0,'zone_revision':2},409),
+                               ({'revision':1,'zone_revision':2,'entities':['light.other']},400),
+                               ({'revision':True,'zone_revision':2},400)]:
+            self.assertEqual(status,(await self.client.post(url,json=payload)).status)
+        self.assertEqual(400,(await self.client.post(url.replace('/zones/a/','/zones/b/'),json={'revision':1,'zone_revision':0})).status)
+        self.service.client.related_automations.assert_not_awaited()
+
+    async def test_review_does_not_hold_projection_lock_and_rechecks_concurrent_changes(self):
+        draft=await self.review_draft();entered=asyncio.Event();release=asyncio.Event()
+        async def delayed(entities):
+            entered.set();await release.wait();return {e:[] for e in entities}
+        self.service.client.related_automations=delayed
+        task=asyncio.create_task(self.service.compare_automations('a',draft['id'],{'revision':2,'zone_revision':2}))
+        await entered.wait()
+        self.assertFalse(self.service._projection_lock.locked())
+        with self.assertRaises(HomeAssistantError):
+            await self.service.compare_automations('a',draft['id'],{'revision':2,'zone_revision':2})
+        async with self.service._projection_lock:
+            await self.store.save_draft('a',draft['id'],self.edit(draft,goal='New intent'),await self.service.selection_inventory('a'))
+        release.set()
+        with self.assertRaises(SelectionConflict): await task
+
+    async def test_reset_during_review_cannot_return_old_basis(self):
+        draft=await self.review_draft()
+        async def reset(entities):
+            await self.service.context.configure('a',2,{},False,reset=True)
+            return {e:[] for e in entities}
+        self.service.client.related_automations=reset
+        response=await self.client.post(self.url+'/'+draft['id']+'/automation-review',json={'revision':2,'zone_revision':2})
+        self.assertEqual(409,response.status)
 
     async def test_create_is_explicit_idempotent_and_persists_without_copying_evidence(self):
         self.assertEqual([], (await (await self.client.get(self.url)).json())['items'])

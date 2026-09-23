@@ -1,13 +1,60 @@
 // User-authored drafts only. No executable actions, HA calls or automatic saves.
 let routineEditor = null;
 let routineDirty = false;
+let routineComparison = null;
+
+function comparisonFor(draft) {
+  const result = routineComparison;
+  if (!result || result.zone_id !== selectionZone || result.draft_id !== draft.id
+      || result.draft_revision !== draft.revision || result.zone_revision !== contextData?.revision
+      || draft.source_status !== 'current' || draft.unavailable_targets.length
+      || JSON.stringify(result.basis.source_ids) !== JSON.stringify([...(draft.current_pattern?.sources || [])].sort())) return null;
+  return result;
+}
+
+function appendComparison(card, draft) {
+  const result = comparisonFor(draft);
+  if (!result) return;
+  const panel = document.createElement('div'); panel.className = 'routine-comparison';
+  const heading = document.createElement('h5');
+  heading.textContent = result.items.length ? 'Mögliche Überschneidungen' : 'Keine direkten Entitätsbezüge gefunden';
+  const detail = document.createElement('p');
+  detail.textContent = `Momentaufnahme ${new Date(result.checked_at).toLocaleString()}. ${result.checked_entities.length} Entitäten geprüft. Gleiche Bezüge beweisen keine doppelte Automation; kein Treffer beweist keine Konfliktfreiheit. Geräte-/Bereichs-/Label-Ziele, dynamische Templates und indirekte Aufrufe sind nicht vollständig erfasst. Bedingungen, Aktionen, Zeitverhalten und Aktivierungsstatus sind ungeprüft. Risiko und Ausführung bleiben ungeprüft bzw. gesperrt.`;
+  panel.append(heading, detail);
+  for (const item of result.items) {
+    const row = document.createElement('p');
+    row.textContent = `${item.entity_id} · Zielbezüge: ${item.target_references.join(', ') || 'keine'} · Quellenbezüge: ${item.source_references.join(', ') || 'keine'} · Aktivierungsstatus ungeprüft`;
+    panel.append(row);
+  }
+  card.append(panel);
+}
+
+async function compareRoutine(draft) {
+  if (selectionBusy || contextEditing || zoneFormOpen || selectionDraft?.dirty) return;
+  const zone = selectionZone, zoneRevision = contextData.revision;
+  routineComparison = null; selectionBusy = true; contextGeneration++;
+  renderSelection(); renderLearning(); text('routine-message', 'Bestehende Automationen werden ausschließlich lesend auf Entitätsbezüge geprüft …');
+  try {
+    const result = await json(`api/v1/zones/${encodeURIComponent(zone)}/drafts/${encodeURIComponent(draft.id)}/automation-review`,
+      {method:'POST',body:JSON.stringify({revision:draft.revision,zone_revision:zoneRevision})});
+    if (zone !== selectionZone) return;
+    if (!await loadContext()) return;
+    routineComparison = result;
+    const current = contextData?.drafts?.find(d => d.id === draft.id);
+    if (!current || !comparisonFor(current)) {
+      routineComparison = null; text('routine-message', 'Entwurf oder Bezug inzwischen geändert. Vergleich erneut starten.'); return;
+    }
+    text('routine-message', 'Bezugsprüfung abgeschlossen. Fachliche Prüfung bleibt offen; nichts verändert.');
+  } catch(error) { if (zone === selectionZone) text('routine-message', `Vergleich nicht bestätigt: ${error.message}. Kein Ergebnis als konfliktfrei gewertet.`); }
+  finally { selectionBusy = false; renderSelection(); renderLearning(); }
+}
 const routineKeys = ['title', 'goal', 'trigger', 'conditions', 'exceptions', 'manual_override'];
 const routineLabels = {goal:'Komfortziel', trigger:'Auslöser', conditions:'Bedingungen', manual_override:'Vorrang manueller Bedienung', target_ids:'Zielgeräte'};
 
 function routineStatus(draft) {
   const source = {current:'Musterbezug aktuell', zone_changed:'Zoneneinstellungen geändert – Bezug erneut prüfen', pattern_missing:'Muster nicht mehr belegt – Entwurf bleibt erhalten'};
   const state = {incomplete:'Unvollständig', needs_review:'Erneut prüfen', ready_for_review:'Angaben vollständig – fachliche Prüfung offen'};
-  return `${state[draft.state]}. ${source[draft.source_status]}. Fehlend: ${draft.missing_fields.map(k => routineLabels[k] || k).join(', ') || 'keine Pflichtangaben'}${draft.unavailable_targets.length ? '. Nicht mehr bestätigte/verfügbare Ziele: ' + draft.unavailable_targets.join(', ') : ''}. Automationsvergleich und Ausführungsrisiko: ungeprüft.`;
+  return `${state[draft.state]}. ${source[draft.source_status]}. Fehlend: ${draft.missing_fields.map(k => routineLabels[k] || k).join(', ') || 'keine Pflichtangaben'}${draft.unavailable_targets.length ? '. Nicht mehr bestätigte/verfügbare Ziele: ' + draft.unavailable_targets.join(', ') : ''}. ${comparisonFor(draft) ? 'Entitätsbezüge geprüft; fachlicher Automationsvergleich' : 'Automationsvergleich'} und Ausführungsrisiko: ungeprüft.`;
 }
 
 function renderRoutineDrafts() {
@@ -20,11 +67,13 @@ function renderRoutineDrafts() {
     const detail = document.createElement('p'); detail.textContent = `${routineStatus(draft)} Revision ${draft.revision}.`;
     card.append(title, detail);
     for (const [label, handler] of [['Entwurf bearbeiten', () => openRoutineEditor(draft)],
-      ['Entwurf exportieren', () => exportRoutine(draft)], ['Entwurf löschen', () => deleteRoutine(draft)]]) {
+      ['Entwurf exportieren', () => exportRoutine(draft)], ['Bestehende Automationen prüfen', () => compareRoutine(draft)], ['Entwurf löschen', () => deleteRoutine(draft)]]) {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
       button.disabled = contextEditing || selectionBusy || zoneFormOpen || !!selectionDraft?.dirty;
+      if (label === 'Bestehende Automationen prüfen') button.disabled ||= draft.source_status !== 'current' || !!draft.unavailable_targets.length || !draft.fields.target_ids.length;
       button.addEventListener('click', handler); card.append(button);
     }
+    appendComparison(card, draft);
     root.append(card);
   }
 }
@@ -123,7 +172,9 @@ async function deleteRoutine(draft) {
 }
 
 function exportRoutine(draft) {
-  const url = URL.createObjectURL(new Blob([JSON.stringify({schema:'pilotsuite-routine-draft-v1', ...draft}, null, 2)], {type:'application/json'}));
+  const review = comparisonFor(draft);
+  const url = URL.createObjectURL(new Blob([JSON.stringify({schema:'pilotsuite-routine-draft-v1', ...draft,
+    automation_check:review ? 'limited_reference_review' : 'not_checked', automation_review:review}, null, 2)], {type:'application/json'}));
   const link = document.createElement('a'); link.href = url; link.download = 'pilotsuite-routine-draft.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
