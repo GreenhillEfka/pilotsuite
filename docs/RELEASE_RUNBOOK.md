@@ -1,59 +1,64 @@
-# PilotSuite release and deployment runbook
+# PilotSuite release routine
 
-Authoritative continuation procedure, adopted 2026-09-23 (ADR-026).
-Read this before every release; do not rediscover an alternate deployment path.
-Release publication, automated tests, installation and browser acceptance are
-four separate outcomes. A successful source check authorizes none of the others.
+Required entry point for every release/deployment (ADR-026). Read AI_CONTEXT.md,
+CURRENT_STATE.md and docs/RELEASE_STATE.json first, then this procedure.
+Latest receipts supersede older blockers. Never restart project discovery from chat.
+One canonical repository, one app: GreenhillEfka/pilotsuite / 0d79c5e8_pilotsuite.
 
-## 1. Establish the actual baseline
+## 1. Resume, do not repeat
 
-- Read AI_CONTEXT, CURRENT_STATE, DECISIONS, VISION, IMPLEMENTATION_STATUS and ROADMAP.
-- Fetch canonical `GreenhillEfka/pilotsuite` main, branches, open PRs, branch rules
-  and Actions. Preserve unrelated changes; use a dedicated branch/worktree.
-- Read `ha_get_app({slug: "0d79c5e8_pilotsuite"})`. Keep only version,
-  version_latest, update_available, state, auto_update and canonical repository
-  identity in the receipt. Never publish options, credentials or household data.
-- Find the last **published** release commit, not merely the installed version.
-  Alpha.14 was first published at `1644c9b170c861e83582ef9503775a8e913818f0`.
-  Later UI fixes on main still bore alpha.14; alpha.15 packages them explicitly.
-- If the candidate is already installed, do not reinstall or restart it.
+Read live metadata using ha_get_app with slug 0d79c5e8_pilotsuite. Fetch canonical
+main, open PRs/branches, rules and Actions. Preserve other work.
 
-## 2. Prepare one identifiable candidate
+| Fresh result | Next action |
+|---|---|
+| Installed equals target | Do not update, rebuild, restart or create another pre-update backup; perform only pending acceptance |
+| Target offered, different installed version | Skip Store refresh; verify source/CI and scoped backup |
+| Target not offered | Use documented authorized Store refresh if available; reread metadata, never install an unrelated version |
+| Backup request accepted but not yet listed | Check completion; do not replay creation |
+| Update outcome unknown | Read durable app state and logs/jobs before doing anything else |
+| Endpoint returns Unauthorized | Stop that route; do not infer all HA operations are denied or alter permissions |
 
-Increment VERSION, config.yaml, package VERSION, Dockerfile BUILD_VERSION and
-the DOCS release marker together. Add matching entries to both changelogs.
-Changes to shipped behavior after publication require a new version; prepare
-them on a branch until ready. Do not keep adding runtime fixes under a released
-number. Documentation-only receipts need no version bump.
+Already authorized: PilotSuite update/start/stop/restart, necessary Store refresh,
+PilotSuite-only backup and regression recovery. Do not repeatedly ask for the same
+authorization. This does not authorize other apps, HA Core/Supervisor/host changes,
+config/automation edits, actor calls or enabling learning/autonomy.
 
-Run local contracts, Python and JavaScript tests. Commit the candidate, then:
+## 2. Candidate and exact source evidence
+
+Behavioral changes require a new version across VERSION, config.yaml, package
+VERSION, Dockerfile BUILD_VERSION and DOCS release marker; update both changelogs.
+Documentation-only receipts do not require another release.
+
+Run repository contracts, Python and JS tests; commit; then run:
 
 ```sh
-python scripts/release_preflight.py --candidate HEAD --published 1644c9b170c861e83582ef9503775a8e913818f0
+python scripts/release_preflight.py --candidate CANDIDATE_SHA --published PREVIOUS_PUBLISHED_SHA
 ```
 
-The example baseline applies to alpha.15 only; use the last published commit for
-subsequent releases. The read-only command resolves commits once, verifies all
-markers/changelogs, increasing alpha version and ancestry, and emits full commit,
-repository-tree and app-tree identities. Uncommitted files are deliberately not
-certified. It neither talks to HA nor claims CI/backup/deployment success.
+Replace placeholders with resolved commits, not the installed version. This is a
+read-only source check, not an installer. Record commit, repository tree and app tree.
+Wait for exact PR CI: Python/JS, Chromium and amd64 container. Recheck base/open PRs,
+merge without force, then verify exact main CI. An earlier green run is insufficient.
 
-Open a small PR; wait for all exact-candidate CI jobs: Python/JS, Chromium and
-amd64 container. Record SHA, run URL and job conclusions. Recheck main/open PRs
-before merge; if the base changed, reconcile and re-run. Never force-push.
-After merge, verify the resulting source identity and exact main CI again.
-An old green run or version string alone is insufficient.
+Source association for the normal Store workflow:
+- canonical repository identity and offered version must match the tested release;
+- resolve the published release commit and compare the app tree through current main;
+- do not reuse a version for a changed app tree; ambiguity stops the update;
+- if Supervisor exposes a checkout SHA, compare it;
+- if it does not, record repository/version/app-tree association explicitly, not an
+  independently verified checkout SHA or installed-image attestation.
 
-## 3. Backup and rollback gate
+Store metadata alone is not a cryptographic source proof. Do not invent one.
+Alpha.16's concrete association and limitation are in RELEASE_STATE.json.
 
-Auto-update was enabled at the 2026-09-23 check. Do not change that option without
-authority. Prepare a fresh completed scoped backup **before publishing** a new
-version; auto-update could otherwise install it before the manual update step.
-Recheck freshness, installed version and completion immediately before deployment.
+## 3. Scoped backup: create, then verify through the native API
 
-Verified HA-MCP route (2026-09-23): first inspect current service fields with
-`ha_list_services({domain: "hassio", query: "partial", detail_level: "full"})`.
-Then use `ha_call_service` with the following payload:
+With auto_update enabled, complete a scoped backup before publishing a new version;
+automatic installation could otherwise precede the manual step. Do not change that
+option. Immediately before deployment, recheck installed version and backup freshness.
+
+Read current hassio partial-service fields. Through ha_call_service:
 
 ```json
 {
@@ -70,96 +75,87 @@ Then use `ha_call_service` with the following payload:
 }
 ```
 
-A successful service response is not completion. Confirm the resulting archive
-with `ha_manage_backup({scope: "snapshot", action: "list", limit: 5})`, including
-ID, date, nonzero size, protection status, HA/database exclusion. Inspect available
-backup details to confirm PilotSuite version, app data/options and no other apps.
-Keep the scoped request and completion evidence; distinguish metadata confirmation
-from archive inspection or a restore drill. If necessary details/key availability
-cannot be confirmed, stop before update. Never use snapshot **create/restore**:
-those are full-HA operations, outside the authorization.
-Historical detail-read gate (2026-09-23): `ha_call_service` with
-`ws_command: "hassio/api"`, `data: {endpoint: "/backups/d454e834/info", method: "get"}`
-returned `Unauthorized` even though backup listing works. This is specific to that
-gateway; it did not establish a general permission failure. The user subsequently
-requested the normal Store/app-backup route. Verified native, admin-authorized
-Core read (same credentials, no permission changes):
+Find the matching completed backup using ha_manage_backup:
+`{"scope":"snapshot","action":"list","limit":5}`.
+A successful service response is not completion. Do not use snapshot create/restore,
+which are full-HA operations.
+
+**Verified detail read**, through ha_call_service with the same configured credentials:
 
 ```json
-{"ws_command": "backup/details", "data": {"backup_id": "VERIFIED_BACKUP_ID"}}
+{"ws_command":"backup/details","data":{"backup_id":"COMPLETED_BACKUP_ID"}}
 ```
 
-Use it through ha_call_service. Inspect result.backup.addons for the exact slug and
-previous version, failed_addons/failed_agent_ids/failed_folders for empty lists,
-agents for size/protection, and HA/database/folder exclusion. This succeeded for
-d454e834 and fresh 95bb73d4. It verifies archive metadata, not a restore drill or
-byte-level archive inspection. If this native route denies access, stop; do not
-change credentials or weaken guards. Prefer this scoped read to compact listing.
-The scoped backup can itself stop/start the app. Inspect post-backup startup and
-readiness; report this separately from an explicit restart or a version update.
+Require result.agent_errors empty and result.backup:
+- addons contains exactly PilotSuite's slug and the installed previous version;
+- failed_addons, failed_agent_ids and failed_folders are empty;
+- homeassistant_included and database_included false; folders empty;
+- expected date and nonzero agents size; unprotected, or an available approved key.
 
-Concrete rollback is `ha_call_service` / `hassio.restore_partial` with:
+Standard app backup covers the app and its data/options. This is metadata
+verification, not archive extraction or a live restore drill. Missing confirmation
+stops deployment. Never publish options, household data, tokens or backup archives.
+A backup may itself stop/start PilotSuite; verify health afterwards.
+
+## 4. Store and update once
+
+If target is already offered, do not refresh the Store. If refresh is needed,
+the Supervisor operation is POST /store/reload, using an already authorized supported
+capability/session. A denied bridge call is not permission to try variants or weaken
+security. If refresh is unavailable, leave installation pending.
+
+After source/CI and backup gates, reread installed/offered versions. If target is
+already installed, skip. Otherwise use exactly:
 
 ```json
-{"slug": "VERIFIED_BACKUP_ID", "apps": ["0d79c5e8_pilotsuite"], "homeassistant": false, "folders": []}
+{"slug":"0d79c5e8_pilotsuite","action":"update"}
 ```
 
-The backup must include the previous app and its matching data/options, not just
-a database export or older Git source. Protected archives require an available
-key through the approved secret path, never in GitHub. Do not perform a test
-restore against the live system. Actual recovery is only for a regression and
-only this app; verify restored version/data/health. No HA Core, Supervisor or
-host restart; no full restore, other apps or configuration edits.
+through ha_manage_app. Do not add a speculative restart. On timeout, inspect version,
+state and logs before any retry. Preserve all options, roles, consents and automations.
 
-## 4. Store, source and one update
+## 5. Runtime acceptance and scoped recovery
 
-Use the supported app management/store capability and its current schema. The
-documented Supervisor operation is `POST /store/reload`, not a Core/Supervisor
-upgrade. Previous Store reload through the HA WebSocket bridge was denied
-`Unauthorized`. This is a known limited permission failure, not loss of HA or
-GitHub access. Do not retry speculative endpoint/action variants, change tokens,
-disable guards or alter permissions. Retry only after a relevant access/state
-change; a normal Store refresh through an already authorized session is acceptable.
-At the later 2026-09-23 check the Store already offered alpha.16: the stale Store
-offer was no longer the blocker, and no reload was attempted. Backup detail access
-and independent exact-source mapping remained separate open gates.
+Read ha_get_app and ha_get_logs(source=supervisor, slug=0d79c5e8_pilotsuite).
+Require target installed/started, target in startup log, hard_read_only, connected
+stream, fresh snapshot, readiness and resolved Golden Zone. Allow initial connection
+setup to finish; do not misclassify its first not-ready line as a regression.
 
-Read app metadata again. If offered version still equals installed version, stop
-the deployment step without update/restart. Require the offered version and its
-canonical source commit/app tree to match the candidate with passing CI. Store
-metadata may not expose a commit: a version label alone is not exact-source proof.
-If the mapping cannot be established, explicitly leave this gate open.
-For the user-requested normal Store workflow on 2026-09-23, alpha.16 was associated
-with canonical release 208b5d3 and unchanged app tree 811de10be4d11acab5ee98a41eb5dc3a93b56f46
-through current main 33d5676; both exact CI runs passed. This is repository/version
-association, not independent Store-checkout or installed-image attestation. Record
-that limitation explicitly; never fabricate an exposed SHA or equate a reused
-version with immutable source. Post-update metadata and startup must agree.
+If a regression requires recovery, restore only the pre-update PilotSuite app/data
+using ha_call_service with domain hassio, service restore_partial and:
 
-Only after all gates pass, use the scoped lifecycle operation
-`ha_manage_app({slug: "0d79c5e8_pilotsuite", action: "update"})` once.
-On timeout/unknown outcome, query durable app state and jobs/logs before retrying;
-never blindly replay an update or restart. Existing consents, roles, options,
-automations and actors remain untouched. Do not enable learning to test a release.
+```json
+{"slug":"VERIFIED_BACKUP_ID","apps":["0d79c5e8_pilotsuite"],"homeassistant":false,"folders":[]}
+```
 
-## 5. Verify and leave a usable handoff
+This overwrites PilotSuite data since that backup; never do a live test restore.
+No full restore, other app, HA/Core/Supervisor/host restart. Verify previous
+version/data/health afterwards. If safe recovery cannot be established, stop and report.
 
-- Read installed/offered version and state; inspect latest startup/logs for errors.
-- Verify HA stream connected, snapshot fresh, ready, Golden Zone resolved and
-  `hard_read_only`. Runtime evidence is not browser acceptance.
-- In an already authenticated real HA Ingress session, check HTML, JS, CSS, API
-  requests, navigation and workbench rendering. Read a short history only within
-  existing authorization; no import, consent, feedback/role edits or actuator calls.
-- A direct/internal HTTP 200 does not prove Ingress. Expected 403 is not a reason
-  to spoof headers, expose a port or weaken authentication. If no authorized
-  session is available, leave this acceptance explicitly open.
-- On regression stop rollout and use the verified scoped rollback when safe.
-- Update CURRENT_STATE and IMPLEMENTATION_STATUS with code SHA/PR, exact CI URL,
-  backup completion/scope limitations, installed/offered versions, live checks,
-  open gates and one concrete next task. Keep historical sections historical.
+## 6. Browser acceptance and durable handoff
 
-Official API reference checked 2026-09-23:
-[Supervisor endpoints](https://developers.home-assistant.io/docs/api/supervisor/endpoints/).
-Current instance service schemas take precedence over copied examples. In particular,
-HA services currently expose `apps`; the Supervisor HTTP API documents `addons`.
-Do not interchange these payloads without checking their respective schema.
+In an authenticated real HA Ingress session, verify HTML, JS, CSS and APIs plus
+navigation, guide and workbench. No role/consent/feedback edits, imports or actuator
+calls for acceptance. An internal HTTP 200 is not browser acceptance. Never spoof
+Ingress headers, expose a port or weaken access. With no session, mark UI pending;
+do not undo a healthy installation merely because browser access is unavailable.
+
+Update RELEASE_STATE.json, CURRENT_STATE and IMPLEMENTATION_STATUS with source/CI,
+backup, installation, runtime and browser results separately. Record one concrete
+next task. Keep final PR/main CI receipts in the PR; avoid creating another
+documentation PR solely to record a documentation CI run.
+
+## Verified operational facts (2026-09-23)
+
+- Native backup/details worked for d454e834 and 95bb73d4 with existing credentials.
+- The earlier hassio/api backup-info call was denied. That gateway result did not
+  establish a general backup permission failure. Do not repeat the old blocker.
+- Store already offered alpha.16; no refresh was necessary.
+- Fresh scoped backup followed by one ha_manage_app update succeeded.
+- No automatic re-enabling of a paused recurring task is part of a release.
+
+References: [HA partial backup](https://www.home-assistant.io/actions/hassio.backup_partial/),
+[partial restore](https://www.home-assistant.io/actions/hassio.restore_partial/),
+[native backup WebSocket handlers](https://github.com/home-assistant/core/blob/dev/homeassistant/components/backup/websocket.py).
+Instance service schemas take precedence over examples; HA services use apps,
+while some Supervisor HTTP schemas use addons.

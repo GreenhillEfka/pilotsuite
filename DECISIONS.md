@@ -251,3 +251,11 @@ non-descendant candidates. It cannot authorize installation. A completed scoped
 app/data/options backup and concrete partial recovery remain mandatory. With
 auto-update enabled, establish that recovery point before publishing the version.
 Known Store access denials are recorded, not bypassed or repeatedly rediscovered.
+
+Operational clarification 2026-09-23, requested by the user: RELEASE_RUNBOOK is the
+single procedure; RELEASE_STATE.json is the compact last verified receipt, never
+a replacement for live checks. Native Core backup/details is the working authorized
+detail route. A denied Supervisor gateway is not proof all backup access is denied.
+The normal Store path records canonical version/commit/app-tree association and
+explicitly distinguishes it from independent checkout/image attestation. No repeated
+install when current, no blanket re-authorization, no new credential or access bypass.

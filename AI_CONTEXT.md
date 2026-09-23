@@ -31,7 +31,9 @@ Alpha.16 adds derived zone guidance (docs/ZONE_GUIDE.md) and is installed. No ad
 state owner or collection. Native Core backup/details verifies scoped app backups with
 existing access; a Supervisor gateway denial is not proof this native route is denied.
 Next is authenticated Ingress acceptance, not reinstalling or another Store reload.
-Continue from the newest CURRENT_STATE receipt and RELEASE_RUNBOOK.
+For any release: read docs/RELEASE_STATE.json, the newest CURRENT_STATE receipt and
+docs/RELEASE_RUNBOOK.md first. Resume the recorded next step; do not rediscover the
+procedure or treat historical blockers as current. Check live state before acting.
 
 ## Continue here — architecture review implementation
 

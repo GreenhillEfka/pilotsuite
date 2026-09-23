@@ -1,0 +1,39 @@
+{
+  "schema": "pilotsuite-release-receipt-v1",
+  "verified_date": "2026-09-23",
+  "repository": "GreenhillEfka/pilotsuite",
+  "app_slug": "0d79c5e8_pilotsuite",
+  "release": {
+    "version": "0.1.0-alpha.16",
+    "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
+    "app_tree": "811de10be4d11acab5ee98a41eb5dc3a93b56f46",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35838497565",
+    "ci_conclusion": "success",
+    "source_association": "canonical_repository_version_and_unchanged_app_tree",
+    "independent_store_checkout_verified": false
+  },
+  "backup": {
+    "id": "95bb73d4",
+    "date": "2026-09-23T10:49:56.900592+00:00",
+    "previous_version": "0.1.0-alpha.13",
+    "size_bytes": 53893120,
+    "completed": true,
+    "native_details_verified": true,
+    "only_pilotsuite": true,
+    "protected": false,
+    "failed_components": [],
+    "restore_drill_performed": false
+  },
+  "installation": {
+    "installed": "0.1.0-alpha.16",
+    "offered": "0.1.0-alpha.16",
+    "state": "started",
+    "update_available": false,
+    "runtime_verified": ["hard_read_only", "ready", "stream_connected", "snapshot_fresh", "zone_resolved"]
+  },
+  "ingress_acceptance": {
+    "status": "pending",
+    "reason": "no_authenticated_HA_browser_session"
+  },
+  "next_task": "Read-only authenticated guide/workbench/navigation acceptance; do not reinstall alpha.16."
+}
