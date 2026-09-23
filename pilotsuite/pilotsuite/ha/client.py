@@ -63,6 +63,53 @@ class HomeAssistantClient:
                 request_id += 1
             return result
 
+    async def history(self, entity_ids, start, end, *, statistics=False):
+        """Bounded read-only requests; never opens the Recorder database."""
+        from datetime import datetime, UTC
+        if not entity_ids or len(entity_ids) > 100:
+            raise HomeAssistantError("History requires 1–100 selected sources")
+        await self.start()
+        result = {entity: [] for entity in entity_ids}
+        count = 0
+        async with asyncio.timeout(90):
+            async with self._session.ws_connect(self._ws_url, heartbeat=30,
+                                                max_msg_size=MAX_WS_MESSAGE_BYTES) as socket:
+                await self._authenticate(socket)
+                request_id, cursor = 1, start
+                metadata = {}
+                if statistics:
+                    meta = await self._command(socket, request_id, {
+                        'type': 'recorder/get_statistics_metadata', 'statistic_ids': entity_ids})
+                    metadata = {i['statistic_id']: i for i in meta}
+                    request_id += 1
+                while cursor < end:
+                    stop = min(end, cursor + 86400)
+                    command = {'type': 'history/history_during_period',
+                               'start_time': datetime.fromtimestamp(cursor, UTC).isoformat(),
+                               'end_time': datetime.fromtimestamp(stop, UTC).isoformat(),
+                               'entity_ids': entity_ids, 'include_start_time_state': True,
+                               'significant_changes_only': False, 'minimal_response': False,
+                               'no_attributes': False}
+                    if statistics:
+                        command = {'type': 'recorder/statistics_during_period',
+                                   'start_time': command['start_time'], 'end_time': command['end_time'],
+                                   'statistic_ids': entity_ids, 'period': 'hour',
+                                   'types': ['mean', 'min', 'max']}
+                    chunk = await self._command(socket, request_id, command)
+                    if not isinstance(chunk, dict):
+                        raise HomeAssistantError('Unsupported history response')
+                    for entity in entity_ids:
+                        rows = chunk.get(entity, [])
+                        if not isinstance(rows, list):
+                            raise HomeAssistantError('Unsupported history rows')
+                        count += len(rows)
+                        if count > 50000:
+                            raise HomeAssistantError('History exceeds 50,000 records; choose a shorter period')
+                        result[entity].extend(rows)
+                    request_id += 1
+                    cursor = stop
+        return {'records': result, 'metadata': metadata}
+
     async def listen(
         self, callback: StateCallback, stop_event: asyncio.Event,
         connection_callback: Callable[[bool], Awaitable[None]] | None = None,

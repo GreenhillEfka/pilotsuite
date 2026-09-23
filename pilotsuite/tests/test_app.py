@@ -57,6 +57,24 @@ class AppSmokeTests(unittest.IsolatedAsyncioTestCase):
         body = await response.json()
         self.assertEqual("read_only_release", body["error"])
 
+    async def test_history_routes_and_asset_preserve_ingress_boundary(self):
+        from unittest.mock import AsyncMock
+        from pilotsuite.app import SERVICE_KEY
+        from pilotsuite.core.selections import SelectionConflict
+        service=self.client.server.app[SERVICE_KEY]
+        service.history_view=AsyncMock(return_value={'zone_id':'a','trends':{}})
+        response=await self.client.post('/api/v1/zones/a/history',json={'start':'x'})
+        self.assertEqual(200,response.status)
+        service.history_view.assert_awaited_once_with('a',{'start':'x'},import_learning=False)
+        service.history_view.side_effect=SelectionConflict('changed')
+        response=await self.client.post('/api/v1/zones/a/history/import',json={'consent':True})
+        self.assertEqual(409,response.status)
+        response=await self.client.get('/assets/history.js')
+        self.assertEqual(200,response.status)
+        self.assertIn('renderHistoryChart',await response.text())
+        response=await self.client.post('/api/v1/zones/a/history',data='{broken')
+        self.assertEqual(400,response.status)
+
 
 if __name__ == "__main__":
     unittest.main()

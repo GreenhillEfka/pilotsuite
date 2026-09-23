@@ -1,5 +1,13 @@
 # Capability and acceptance ledger
 
+## History increment (development, not installed)
+Scoped HA raw/history and hourly statistic reads, zone graphs, weekly activity view
+and time-separated reobservation checks implemented. Explicit one-time activity
+import shares existing learning store; schema 6 with migration backup. 113 backend
+and four JS tests pass; CI 35802932782 also passed Chromium browser and container
+for candidate 31f04a6 (PR #13). See
+HISTORY_AND_TRENDS.md for consent, retention and limitations. Live remains alpha.11.
+
 ## Merged after alpha.11: bounded origin hints
 
 PR #11 merged as 203fb51 with the exact tree tested at 00773dc. Main CI

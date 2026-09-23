@@ -220,6 +220,7 @@ function selectionChanged() {
 
 async function loadSelection(zone) {
   if (selectionBusy) return;
+  if (typeof historyInvalidate === "function") historyInvalidate();
   selectionBusy = true; selectionZone = zone; renderSelection();
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(zone)}`);
@@ -460,6 +461,7 @@ function renderCompactSummary(result) {
 
 async function loadContext() {
   contextData = await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`);
+  if (typeof historyCheckRevision === "function") historyCheckRevision();
   renderLearning();
 }
 function renderLearning() {
@@ -479,6 +481,7 @@ function renderLearning() {
   const sourceIds = cfg.roles.presence || [];
   const sourceName = id => contextData.candidates?.find(i => i.entity_id === id)?.name || id;
   text('learning-sources', `Gespeicherte Präsenzgruppe: ${sourceIds.map(sourceName).join(', ') || 'keine'}. Auswertbare Quellen: ${(contextData.collecting_sources || []).map(sourceName).join(', ') || 'keine'}.`);
+  text('learning-status', byId('learning-status').textContent + ` Davon ${contextData.historical_event_count || 0} historische Belege.`);
   const progress = contextData.progress;
   const timeBasis = contextData.time_basis || 'UTC';
   const dayLabels = {all:'alle Tage', weekday:'Mo–Fr', weekend:'Sa–So'};
@@ -523,7 +526,7 @@ function renderLearning() {
     const stats = pattern.statistics || {};
     const originLabels = {user_context:'Nutzerkontext',parented_service_context:'verketteter Serviceaufruf (mögliche Automation / mögliches Skript)',service_context:'Serviceaufruf ohne belegten Auslöser',derived_context:'abgeleiteter Kontext ohne beobachteten Service',unknown:'unbekannt'};
     const origins = Object.entries(stats.origins || {}).map(([key,count]) => `${originLabels[key] || key}: ${count}`).join(', ') || 'noch keine Herkunftshinweise';
-    const evidence = document.createElement('p'); evidence.textContent = `${stats.activation_count ?? 0} Aktivierungen an ${stats.distinct_day_count ?? 0} Tagen; insgesamt ${stats.observed_zone_activations ?? 0} erfasst. Quelle: ${(pattern.sources || []).join(', ')}. Herkunftshinweise: ${origins}. Keine Anwesenheitswahrscheinlichkeit; Kontextverkettung beweist weder eine konkrete Automation noch manuelle Bedienung. ${pattern.proposal}`;
+    const evidence = document.createElement('p'); evidence.textContent = `${stats.activation_count ?? 0} Aktivierungen (davon ${stats.historical_activation_count || 0} historisch) an ${stats.distinct_day_count ?? 0} Tagen; insgesamt ${stats.observed_zone_activations ?? 0} erfasst. Quelle: ${(pattern.sources || []).join(', ')}. Herkunftshinweise: ${origins}. Keine Anwesenheitswahrscheinlichkeit; Kontextverkettung beweist weder eine konkrete Automation noch manuelle Bedienung. ${pattern.proposal}`;
     const assessment = document.createElement('p'); assessment.textContent = `Regelstärke: Schwelle erfüllt (Ereignisse ×${pattern.rule_strength?.event_ratio ?? '—'}, Tage ×${pattern.rule_strength?.day_ratio ?? '—'}). Konfidenz: ${pattern.confidence == null ? 'nicht bestimmt' : percent(pattern.confidence)}. Risiko: ${pattern.risk === 'read_only' ? 'nur Prüfung, keine Aktion' : pattern.risk}.`;
     const feedback = document.createElement('p'); feedback.textContent = `Deine Präferenz: ${{accepted:'Passt', rejected:'Nicht hilfreich', later:'Später prüfen'}[pattern.preference] || 'noch offen'}`;
     card.append(title, evidence, assessment, feedback);

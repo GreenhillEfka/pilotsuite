@@ -155,6 +155,30 @@
         </div>
       </details></section>
 
+      <section class="panel history-panel" aria-labelledby="history-title">
+        <h2 id="history-title">Verläufe und historische Muster</h2>
+        <p>Gespeicherte Hauptsensorgruppen dieser Zone. Quellen werden mit der heutigen Zuordnung rückwirkend betrachtet. Die tatsächlich verfügbare Historie kann kürzer sein als der gewählte Zeitraum.</p>
+        <div class="selection-tools">
+          <label>Zeitraum<select id="history-range"><option value="1">24 Stunden</option><option value="7" selected>7 Tage</option><option value="14">14 Tage</option><option value="30">30 Tage</option><option value="custom">Eigener Zeitraum</option></select></label>
+          <label id="history-start-label" hidden>Von (Browser-Ortszeit)<input id="history-start" type="datetime-local"></label>
+          <label id="history-end-label" hidden>Bis (Browser-Ortszeit)<input id="history-end" type="datetime-local"></label>
+          <label>Datenbasis<select id="history-mode"><option value="states">Genaue Zustandsverläufe</option><option value="statistics">Langzeitstatistik – Stundenmittel</option></select></label>
+          <button id="history-load" type="button">Verläufe laden</button>
+        </div>
+        <p id="history-message" role="status">Noch keine Historie geladen.</p>
+        <div id="history-display" hidden>
+          <label>Anzeige<select id="history-kind"><option value="temperature">Temperatur</option><option value="humidity">Feuchte</option><option value="illuminance">Helligkeit</option><option value="activity">Präsenz + Licht</option><option value="presence">Präsenz</option><option value="light">Lichtzustand</option></select></label>
+          <label><input id="history-sources" type="checkbox"> Einzelne Hauptquellen zusätzlich zeigen</label>
+          <p id="history-basis"></p><div id="history-chart"></div><div id="history-legend"></div>
+          <details><summary>Messpunkte und Quellen prüfen</summary><div id="history-table" class="table-wrap"></div></details>
+          <h3>Aktivierungen im Wochenverlauf</h3><div id="history-heatmap" class="table-wrap"></div>
+          <h3>Später erneut beobachtet?</h3><div id="history-validation"></div>
+          <p>Der Abruf speichert keine Rohhistorie in PilotSuite. Historische Musterprüfung setzt die bestehende Lernfreigabe voraus. Fehlende Aktivierungen sind kein Beleg für Abwesenheit.</p>
+          <label><input id="history-consent" type="checkbox"> Ich gebe einmalig die Aktivierungsbelege dieses Zeitraums für das Lernen frei. Nur die gespeicherte Präsenzgruppe, höchstens die letzten 14 Tage. Keine Lichtkontextbelege.</label>
+          <button id="history-import" type="button" disabled>Historische Aktivierungen übernehmen</button>
+        </div>
+      </section>
+
       <section class="panel learning-panel">
         <h2>Sensorrollen, Module und Lernen</h2>
         <div id="module-overview" class="grid"></div>
@@ -202,5 +226,6 @@
     <footer>Keine Aktion verlässt diese Oberfläche in 0.1.0-alpha.11.</footer>
     <script src="assets/selections.js" defer></script>
     <script src="assets/app.js" defer></script>
+    <script src="assets/history.js" defer></script>
   </body>
 </html>
