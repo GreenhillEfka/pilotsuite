@@ -112,6 +112,7 @@ function renderRoutineDrafts() {
       button.addEventListener('click', handler); card.append(button);
     }
     appendComparison(card, draft);
+    if (typeof appendReviewNotes === 'function') appendReviewNotes(card, draft);
     root.append(card);
   }
 }
@@ -200,10 +201,10 @@ byId('routine-reload').addEventListener('click', async () => {
 });
 
 async function deleteRoutine(draft) {
-  if (selectionBusy || contextEditing || !confirm('Diesen eigenen Entwurf dauerhaft löschen? Musterbelege und HA bleiben unverändert.')) return;
+  if (selectionBusy || contextEditing || !confirm('Diesen eigenen Entwurf samt Bewertungen dauerhaft löschen? Musterbelege und HA bleiben unverändert.')) return;
   const zone = selectionZone; selectionBusy = true; contextGeneration++; renderSelection(); renderLearning();
   try {
-    await json(`api/v1/zones/${encodeURIComponent(zone)}/drafts/${encodeURIComponent(draft.id)}`, {method:'DELETE', body:JSON.stringify({revision:draft.revision})});
+    await json(`api/v1/zones/${encodeURIComponent(zone)}/drafts/${encodeURIComponent(draft.id)}`, {method:'DELETE', body:JSON.stringify({revision:draft.revision, review_revision:draft.review_notes?.revision || 0})});
     if (zone === selectionZone) { await loadContext(); text('routine-message', 'Entwurf gelöscht.'); }
   } catch (error) { if (zone === selectionZone) text('routine-message', `Löschen nicht bestätigt: ${error.message}`); }
   finally { selectionBusy = false; renderSelection(); renderLearning(); }
@@ -212,7 +213,14 @@ async function deleteRoutine(draft) {
 function exportRoutine(draft) {
   const review = comparisonFor(draft);
   const url = URL.createObjectURL(new Blob([JSON.stringify({schema:'pilotsuite-routine-draft-v1', ...draft,
+    review_notes:typeof projectReviewNotes === 'function' ? projectReviewNotes(draft) : draft.review_notes,
     automation_check:review?.inspection ? 'structural_review' : review ? 'limited_reference_review' : 'not_checked', automation_review:review}, null, 2)], {type:'application/json'}));
   const link = document.createElement('a'); link.href = url; link.download = 'pilotsuite-routine-draft.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+// Separate same-origin module; existing Ingress/CSP protection remains unchanged.
+const reviewNotesScript = document.createElement('script');
+reviewNotesScript.src = endpoint('assets/review_notes.js');
+reviewNotesScript.addEventListener('error', () => text('routine-message', 'Prüfnotizen konnten nicht geladen werden. Ansicht neu laden.'));
+document.head.append(reviewNotesScript);

@@ -30,6 +30,7 @@ jobs:
           node --check pilotsuite/pilotsuite/web/app.js
           node --check pilotsuite/pilotsuite/web/history.js
           node --check pilotsuite/pilotsuite/web/drafts.js
+          node --check pilotsuite/pilotsuite/web/review_notes.js
           node --check pilotsuite/pilotsuite/web/selections.js
           node --test pilotsuite/tests/*.test.cjs
       - name: Install runtime dependencies
@@ -76,6 +77,10 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_selection_browser.cjs
+      - name: Exercise review-note editor
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_review_notes_browser.cjs
       - name: Save synthetic UI review screenshots
         uses: actions/upload-artifact@v4
         with:

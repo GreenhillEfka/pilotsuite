@@ -1,0 +1,10 @@
+.review-notes, .review-note-form, .review-note { min-width: 0; overflow-wrap: anywhere; }
+.review-notes { border-top: 1px solid currentColor; margin-top: 1rem; padding-top: .5rem; }
+.review-note { margin: 1rem 0; }
+.review-note small { display: block; }
+.review-note-text { white-space: pre-wrap; }
+.review-note-form fieldset { min-inline-size: 0; margin: 1rem 0; }
+.review-note-form label { display: block; margin-top: .75rem; }
+.review-note-form textarea, .review-note-form select { display: block; box-sizing: border-box; width: 100%; max-width: 100%; }
+.review-note-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+.review-note-actions button { white-space: normal; overflow-wrap: anywhere; }

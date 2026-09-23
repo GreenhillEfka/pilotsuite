@@ -41,9 +41,9 @@ class SelectionStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(sqlite3.connect(self.path)) as db, db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 7:
+            if version > 8:
                 raise RuntimeError("Selection database schema is newer than this release")
-            if version == 7:
+            if version == 8:
                 return
             if version:
                 backup = self.path.with_name(f"selections.v{version}.{uuid.uuid4().hex}.bak")
@@ -72,7 +72,8 @@ class SelectionStore:
             db.execute('CREATE TABLE IF NOT EXISTS history_imports (id TEXT PRIMARY KEY, zone_id TEXT NOT NULL, created REAL NOT NULL, payload TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS history_provenance (zone_id TEXT NOT NULL, entity_id TEXT NOT NULL, occurred REAL NOT NULL, import_id TEXT NOT NULL, PRIMARY KEY(zone_id, entity_id, occurred))')
             db.execute('CREATE TABLE IF NOT EXISTS routine_drafts (id TEXT PRIMARY KEY, zone_id TEXT NOT NULL, pattern_id TEXT NOT NULL, source_revision INTEGER NOT NULL, revision INTEGER NOT NULL, created TEXT NOT NULL, updated TEXT NOT NULL, fields TEXT NOT NULL, UNIQUE(zone_id, pattern_id))')
-            db.execute('PRAGMA user_version=7')
+            db.execute('CREATE TABLE IF NOT EXISTS routine_review_notes (draft_id TEXT PRIMARY KEY, revision INTEGER NOT NULL CHECK(revision > 0), records TEXT NOT NULL)')
+            db.execute('PRAGMA user_version=8')
 
     @staticmethod
     def _zone(zone_id: str) -> None:
