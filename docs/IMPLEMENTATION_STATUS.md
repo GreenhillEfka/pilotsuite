@@ -1,5 +1,39 @@
 # Capability and acceptance ledger
 
+## Alpha.21 published; installation pending Store offer — 2026-09-23
+
+PR #47 merged at 1223f96f45053f7bf3d509bd7ad72c85b9f6cab1, app tree
+3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77. Exact PR CI 35914519415 and main CI
+35914643847 passed: 192 Python tests, nine JavaScript tests, Chromium and amd64.
+Release source preflight passed on the exact merge. The three packages are selected
+trigger/condition/action inspection, an open review plan, and fingerprint change
+detection with combined export (ADR-029). Browser checks cover first/unchanged/
+changed reads, checklist, export, failed retries and mobile/desktop overflow.
+All fixtures are synthetic. This is no semantic equivalence/safety verdict.
+
+Scoped backup 697876b6 completed 2026-09-23T20:11:00Z, 53,964,800 bytes,
+unprotected. Native backup/details confirms only PilotSuite alpha.18 app/data/options,
+no failures, no HA configuration/database/folders. Concrete recovery remains
+hassio.restore_partial with slug 697876b6, apps [0d79c5e8_pilotsuite],
+homeassistant false, folders []; no live restore drill.
+
+After publication Supervisor still reports alpha.18 installed/offered/started.
+Post-backup startup/readiness logs confirm hard_read_only, connected stream, fresh
+snapshot and resolved Golden Zone. No installation or independent restart, actor/
+automation/configuration/role/consent change. No denied Store route retried/bypassed.
+The available browser has only about:blank. Authenticated temporal/draft/reference/
+inspection Ingress HTML/JS/CSS/API and actual automation/config capability acceptance
+remain open; required HA admin capability is not presumed or escalated. No household
+config was fetched for development. Alpha.16 user UI acceptance stays separate.
+
+Next delivery: when Store offers alpha.21, recheck exact source/CI and backup
+freshness, update PilotSuite once, verify runtime and real Ingress where authorized.
+Next concept: explicit user-authored review notes/dispositions in canonical PlanStore,
+bound to draft revision and inspected fingerprint; changes require renewed review.
+This must not alter evidence statistics, confidence, rule strength, risk or grant
+execution permission. Final documentation CI receipts stay in the documentation PR.
+Older sections below are historical.
+
 ## Automation inspection packages / alpha.21 candidate — 2026-09-23
 
 Continues ADR-028 with three bounded review packages (ADR-029): explicitly selected

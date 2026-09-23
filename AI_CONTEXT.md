@@ -27,20 +27,21 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.21 candidate implements selected automation structure, an open review plan,
-and fingerprint change detection with combined export (ADR-029,
-docs/AUTOMATION_INSPECTION.md). All fixtures are synthetic; no raw HA configuration
-is persisted/exported, no new learning or execution. Local 192 Python/nine JS pass;
-exact CI and release publication remain pending. Prior release alpha.20 is
-8be431a133d9694977193947c45de570b280edb6, main CI 35909475569 green.
+Alpha.21 is published via PR #47 at 1223f96f45053f7bf3d509bd7ad72c85b9f6cab1;
+app tree 3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77, exact main CI 35914643847
+passed (192 Python, nine JS, Chromium, amd64). ADR-029 and
+AUTOMATION_INSPECTION.md define the three packages: selected structural inspection,
+open review plan, fingerprint change detection and combined export. No raw config
+persistence, new learning collection, HA write, semantic verdict or execution.
 
-HA remains alpha.18 installed/offered. Fresh scoped backup 697876b6 contains
-alpha.18 app/data/options and has a documented partial rollback. Next: exact CI,
-publication, matching alpha.21 Store offer, source/backup recheck and one update,
-then runtime and authenticated Ingress/capability acceptance. Alpha.16 user UI
-acceptance remains separate. No household automation scan was performed.
-Next concept: user-authored review notes tied to draft revision/config fingerprint,
-using the canonical PlanStore and never granting execution permission.
+HA remains alpha.18 installed/offered/started; post-backup health/read-only checks
+passed. Verified scoped backup 697876b6 contains alpha.18 app/data/options with
+concrete partial rollback. No installation performed. Next: matching alpha.21 Store
+offer, source/backup recheck, update once, runtime and authenticated Ingress/config
+read capability acceptance. Only about:blank is available; alpha.16 user UI
+acceptance stays separate. No household automation scan was performed.
+Next concept: explicit user-authored review notes bound to draft revision/config
+fingerprint in PlanStore, stale after changes and never granting action permission.
 
 For release/deployment read docs/RELEASE_STATE.json, newest CURRENT_STATE receipt and
 docs/RELEASE_RUNBOOK.md. Resume recorded next steps after live checks; do not
