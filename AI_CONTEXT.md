@@ -27,19 +27,20 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.20 candidate adds explicit transient entity-reference checks for saved routine
-drafts (ADR-028, docs/AUTOMATION_REVIEW.md). Reuses existing HA client and PlanStore;
-source/target matches are review hints, not duplicates, causality or action approval.
-No copied configs, schema change, learning or execution. Local 175 Python/nine JS
-tests pass; exact CI still pending. Baseline main 86e6f80 / CI 35905774722 is green.
+Alpha.20 is published via PR #45 at 8be431a133d9694977193947c45de570b280edb6;
+app tree 12f06b6c99fd3df9fdd5b9f28e11c6420ac21833, exact main CI 35909475569 green
+(175 Python, nine JS, Chromium, amd64). ADR-028 / docs/AUTOMATION_REVIEW.md define
+the bounded transient check: saved targets/current pattern sources, HA search/related,
+separate source/target matches. No semantic duplicate/safety verdict, persisted
+automation data, new collection/schema or execution. Empty matches retain warnings.
 
-HA freshly runs/offers alpha.18. Alpha.19 release 0101a41 / CI 35905466915 is green
-but not yet offered. Fresh verified scoped backup c8347e4a holds alpha.18 app/data/
-options before alpha.20 publication. No installation in this slice yet. Resume the
-normal Store update when a tested release is offered, with source/backup recheck.
-Temporal/draft/reference UI acceptance remains open; alpha.16 user acceptance stands.
-Next concept: inspect a selected matching automation's trigger/condition/action
-references read-only, showing unsupported/template semantics as unknown.
+HA still runs/offers alpha.18; no update performed. Fresh verified scoped backup
+c8347e4a contains alpha.18 app/data/options. Next delivery: exact source/backup
+recheck and one normal Store update when alpha.20 is offered, then runtime and
+authenticated temporal/draft/reference UI acceptance. Only about:blank is available;
+alpha.16 user UI acceptance stands. No real automation scan/learning was performed.
+Next concept: inspect one explicitly selected matching automation's trigger/condition/
+action references read-only; templates/unsupported semantics remain unknown.
 
 For release/deployment read docs/RELEASE_STATE.json, newest CURRENT_STATE receipt and
 docs/RELEASE_RUNBOOK.md. Resume recorded next steps after live checks; do not

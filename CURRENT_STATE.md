@@ -1,5 +1,36 @@
 # Current State
 
+## Alpha.20 published; installation pending Store offer — 2026-09-23
+
+PR #45 merged at 8be431a133d9694977193947c45de570b280edb6, app tree
+12f06b6c99fd3df9fdd5b9f28e11c6420ac21833. Exact PR CI 35909368171 and main CI
+35909475569 passed: 175 Python tests, nine JS, Chromium and amd64. Source preflight
+passed. Browser checks include reference matches/empty results/errors, revision
+invalidation, JSON export and mobile/desktop overflow checks. This is synthetic
+acceptance, not a live household automation comparison or semantic duplicate proof.
+
+Scoped backup c8347e4a completed 2026-09-23T19:23:44Z, 53,954,560 bytes,
+unprotected. Native backup/details confirms exactly PilotSuite alpha.18, no failures,
+HA configuration/database/folders excluded. Standard app backup includes data/
+options. Concrete recovery: hassio.restore_partial, slug c8347e4a, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no restore drill.
+
+Latest Supervisor check still reports alpha.18 installed/offered/started. Post-backup
+logs confirm ready, stream connected, fresh snapshot and resolved Golden Zone.
+No install, independent restart, automation/actor/configuration or consent change.
+Store bridge denial was not retried or bypassed. No real reference scan or household
+evidence exported. Only about:blank is available; authenticated temporal/draft/
+reference-review Ingress HTML/JS/CSS/API acceptance remains open. Alpha.16 user UI
+acceptance is preserved separately.
+
+Next delivery: when alpha.20 is offered, verify exact source/CI and backup freshness,
+update PilotSuite once, then runtime and real Ingress acceptance where authorized.
+If an older intermediate version is offered, do not describe it as alpha.20 or
+install it as this package. Next concept slice: read-only trigger/condition/action
+inspection of one explicitly selected matching automation, with unsupported/
+template semantics left unknown. Final documentation CI receipts remain in its PR.
+Older sections below are historical.
+
 ## Automation reference review / alpha.20 candidate — 2026-09-23
 
 Continues ADR-027 with a bounded read-only entity-reference comparison (ADR-028,

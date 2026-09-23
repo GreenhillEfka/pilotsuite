@@ -1,13 +1,13 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Current slice: alpha.20 candidate provides explicit transient reference checks
-  against existing HA automations (ADR-028). Twelve synthetic regressions; no
-  duplicate/safety verdict, persistence, new learning or execution. Next delivery:
-  exact CI and matching Store offer with verified scoped backup. HA remains alpha.18.
-  Next concept: inspect a selected matching automation's trigger/condition/action
-  references read-only, marking unsupported/template behavior unknown. Real UI and
-  learning/second-zone acceptance remain separate.
+- Alpha.20 is published (PR #45, main CI 35909475569 green: 175 Python, nine JS,
+  Chromium, amd64). Explicit transient HA automation reference review is complete
+  for its limited scope (ADR-028); no semantic duplicate/safety verdict or writes.
+  HA remains alpha.18 installed/offered. Next delivery: matching Store offer, source/
+  backup recheck, update once and real acceptance. Next concept: trigger/condition/
+  action reference inspection of a selected matching automation, marking unsupported/
+  template behavior unknown. Live learning/second-zone gates remain separate.
 - Preserve canonical repository and read-only boundary.
 - Normalize units, explicit missing evidence, stable suggestion identity.
 - Guard Ingress peer; test actual proxy path and browser assets.
