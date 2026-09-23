@@ -36,14 +36,15 @@ Old repositories are pinned reference sources, never runtime dependencies.
 Do not reintroduce two learning engines or independently owned zone stores.
 Current alpha rules are climate heuristics, not learned habits.
 
-Alpha.12 adds targeted transient HA history/statistics views and separately
-consented retrospective presence-activity import into the existing evidence owner.
-Do not copy Recorder data or infer missing history as absence of behavior. The
-immediate continuation is bounded validation of HA history/statistics responses and
-authenticated Ingress / Recorder acceptance. Transport failures, malformed metadata
-and request timeouts must become controlled history errors rather than generic HTTP 500
-responses. PilotSuite remains read-only and emits no own-action evidence.
-See `docs/HISTORY_AND_TRENDS.md` and `docs/EVENT_ATTRIBUTION.md`.
+Alpha.14 adds the pattern workbench on top of targeted transient HA
+history/statistics views and the existing consented evidence owner. Do not copy
+Recorder data or infer missing history as absence of behavior. The immediate live
+continuation is an authorized Store refresh, exact alpha.14 source verification,
+scoped deployment and authenticated workbench acceptance. Until then alpha.13 is
+the verified running version. Reliability corrections may continue as separate
+small changes, but must not be represented as deployed. PilotSuite remains
+read-only and emits no own-action evidence. See `docs/HISTORY_AND_TRENDS.md`,
+`docs/EVENT_ATTRIBUTION.md` and `docs/PATTERN_WORKBENCH.md`.
 
 ## Conceptual chain
 
