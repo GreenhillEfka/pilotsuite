@@ -1,5 +1,8 @@
 # Persistent routine drafts
 
+Alpha.20 adds an explicit transient reference review; see AUTOMATION_REVIEW.md.
+Semantic duplicate assessment and execution remain unapproved.
+
 Alpha.19 implements the user-approved first proposal-authoring slice. A pattern
 card offers **Routine entwerfen**. It creates one explicit user-authored draft per
 zone/pattern, never an automation. Repeating the request returns that same draft.

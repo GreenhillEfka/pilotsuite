@@ -1,5 +1,33 @@
 # Current State
 
+## Automation reference review / alpha.20 candidate — 2026-09-23
+
+Continues ADR-027 with a bounded read-only entity-reference comparison (ADR-028,
+docs/AUTOMATION_REVIEW.md). Explicit requests use saved draft targets/current
+pattern sources and the existing HA client search/related. Transient results
+separate source/target overlap; they do not establish duplicate behavior, causality,
+enabled status or safety. Empty matches retain all coverage warnings. No new
+collection/schema/owner; no automation writes, activation or household evidence.
+
+Twelve new synthetic cases cover commands/scope, limits, failures, timeout,
+cancellation, no persistence and concurrent changes/reset. Local suite: 175 Python
+and nine JS passed. Chromium regression now covers matching/empty/error results,
+stale-result suppression, JSON export and mobile/desktop layout. Exact CI pending.
+
+HA freshly remains alpha.18 installed/offered/started; alpha.19 is published but
+not yet offered. Fresh scoped backup c8347e4a completed 2026-09-23T19:23:44Z,
+53,954,560 bytes, unprotected; native backup/details confirms exactly PilotSuite
+alpha.18 and no failed components, HA configuration/database/folders excluded.
+Standard app backup includes data/options. Recovery only via hassio.restore_partial,
+slug c8347e4a, apps [0d79c5e8_pilotsuite], homeassistant false, folders [].
+No restore drill or installation performed.
+
+Next delivery: exact candidate/main CI, then matching Store offer, normal update
+after source/backup recheck and runtime/Ingress acceptance. Next concept slice:
+read-only trigger/condition/action inspection of an explicitly selected matching
+automation; templates/unsupported behavior remain unknown. Older receipts below
+are historical; code, installed version and live acceptance are separate.
+
 ## Alpha.19 published; Store offer pending — 2026-09-23
 
 PR #43 merged at 0101a4152664f3005f51814050477c06d74337fa, app tree

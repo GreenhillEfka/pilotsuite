@@ -13,8 +13,8 @@
     "independent_store_checkout_verified": false
   },
   "backup": {
-    "id": "14e86f1c",
-    "date": "2026-09-23T18:46:09.236338+00:00",
+    "id": "c8347e4a",
+    "date": "2026-09-23T19:23:44.242328+00:00",
     "previous_version": "0.1.0-alpha.18",
     "size_bytes": 53954560,
     "completed": true,
@@ -26,7 +26,7 @@
     "rollback": {
       "service": "hassio.restore_partial",
       "data": {
-        "slug": "14e86f1c",
+        "slug": "c8347e4a",
         "apps": [
           "0d79c5e8_pilotsuite"
         ],
@@ -56,7 +56,7 @@
     "reason": "not_installed_and_no_authenticated_HA_browser_session_available",
     "previous_temporal_ui_acceptance": "pending_on_alpha18"
   },
-  "next_task": "When Store offers alpha.19, recheck exact source/CI and backup freshness, update PilotSuite once and verify runtime plus authenticated temporal/draft UI. Next concept slice: read-only existing-automation comparison; no automation writes.",
+  "next_task": "Finish alpha.20 exact CI; on matching Store offer recheck source and backup, update once and verify runtime/real Ingress. Next concept: selected automation trigger/condition/action reference inspection, read-only.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
@@ -71,5 +71,10 @@
       ],
       "independent_network_capture": false
     }
+  },
+  "candidate": {
+    "version": "0.1.0-alpha.20",
+    "status": "local_validation_complete_exact_ci_pending",
+    "contract": "docs/AUTOMATION_REVIEW.md"
   }
 }

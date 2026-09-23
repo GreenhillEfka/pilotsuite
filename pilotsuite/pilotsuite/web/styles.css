@@ -143,6 +143,9 @@ input[type="number"], input[type="datetime-local"] { width: 100%; min-width: 0; 
 #routine-form label { display: block; margin-block: 1rem; }
 #routine-form textarea { width: 100%; min-height: 5rem; padding: .7rem; font: inherit; color: var(--text); background: var(--panel-soft); border: 1px solid var(--line); border-radius: .5rem; resize: vertical; }
 #routine-list { display: grid; gap: 1rem; }
+#routine-list button { margin: .4rem .4rem 0 0; }
+.routine-comparison { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid var(--line); }
+.routine-comparison p + p { margin-top: .6rem; }
 
 #learning-section > .selection-tools > button { flex: 0 1 auto; }
 #learning-section > .selection-tools { align-items: center; }

@@ -27,23 +27,23 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.19 routine drafts are published via PR #43 at 0101a4152664f3005f51814050477c06d74337fa;
-app tree 2765acc28f933ee434b568478c0c6eb1d68d2c3f, main CI 35905466915 green
-(163 Python, nine JS, Chromium, amd64). ADR-027 and docs/ROUTINE_DRAFTS.md define
-the implemented slice: existing PlanStore, persistent editable intent, revisions,
-source-change review and JSON export; schema 7 with pre-migration backup. No copied
-learning evidence, new collection or execution. Risk/comparison remain unassessed.
+Alpha.20 candidate adds explicit transient entity-reference checks for saved routine
+drafts (ADR-028, docs/AUTOMATION_REVIEW.md). Reuses existing HA client and PlanStore;
+source/target matches are review hints, not duplicates, causality or action approval.
+No copied configs, schema change, learning or execution. Local 175 Python/nine JS
+tests pass; exact CI still pending. Baseline main 86e6f80 / CI 35905774722 is green.
 
-HA still runs/offers alpha.18. Fresh completed scoped backup 14e86f1c contains
-alpha.18 app/data/options for rollback. Next delivery action is one normal Store
-update once alpha.19 is offered, after live source/backup checks. No reinstall of
-alpha.18. Authenticated temporal/draft UI and real learning/second-zone acceptance
-remain separate; only about:blank is available. Alpha.16 user UI acceptance stands.
-Next concept slice: read-only comparison with existing HA automations; no writes.
+HA freshly runs/offers alpha.18. Alpha.19 release 0101a41 / CI 35905466915 is green
+but not yet offered. Fresh verified scoped backup c8347e4a holds alpha.18 app/data/
+options before alpha.20 publication. No installation in this slice yet. Resume the
+normal Store update when a tested release is offered, with source/backup recheck.
+Temporal/draft/reference UI acceptance remains open; alpha.16 user acceptance stands.
+Next concept: inspect a selected matching automation's trigger/condition/action
+references read-only, showing unsupported/template semantics as unknown.
 
 For release/deployment read docs/RELEASE_STATE.json, newest CURRENT_STATE receipt and
-docs/RELEASE_RUNBOOK.md. Resume the recorded next step after live checks; do not
-rediscover the procedure or treat historical blockers as current.
+docs/RELEASE_RUNBOOK.md. Resume recorded next steps after live checks; do not
+rediscover the routine or treat historical blockers as current.
 
 ## Continue here — architecture review implementation
 
@@ -63,7 +63,7 @@ Alpha.14 adds the pattern workbench on top of targeted transient HA
 history/statistics views and the existing consented evidence owner. Do not copy
 Recorder data or infer missing history as absence of behavior. The immediate live
 continuation is alpha.17 temporal-view/export acceptance, after user acceptance of alpha.16.
-Alpha.18 is installed and started; newest pre-alpha.19 recovery point is 14e86f1c. Native backup/details
+Alpha.18 is installed and started; newest pre-alpha.20 recovery point is c8347e4a. Native backup/details
 works; the old permission-gate receipt is superseded. Source association uses the
 canonical release and unchanged app tree, not an exposed Store checkout SHA.
 Reliability corrections may continue as separate

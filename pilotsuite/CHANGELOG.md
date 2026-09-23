@@ -2,6 +2,14 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.20] - 2026-09-23
+
+- Gespeicherte Routine-Entwürfe auf Klick mit Entitätsbezügen bestehender HA-Automationen vergleichen.
+- Quellen- und Zielbezüge getrennt anzeigen; Grenzen bei Templates, indirekten Aufrufen und Geräte-/Bereichszielen ausdrücklich sichtbar.
+- Kein Treffer bedeutet keine Entwarnung: Duplikate, Aktivierungsstatus, Verhalten und Risiko bleiben fachlich ungeprüft.
+- Begrenzte rein lesende Abfrage, Revisionsprüfung vor/nach dem Abruf und kontrollierte Fehler; keine neue Sammlung, Persistenz oder Ausführung.
+- Zeitgestempeltes Prüfergebnis optional im vorhandenen JSON-Export.
+
 ## [0.1.0-alpha.19] - 2026-09-23
 
 - Routine-Entwürfe aus Mustern anlegen, dauerhaft bearbeiten, exportieren und gezielt löschen.

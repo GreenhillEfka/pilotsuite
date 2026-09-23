@@ -14,7 +14,7 @@ const assert = require('node:assert/strict');
         {entity_id: 'button.identify', state: null, recommended: false, decision: 'unreviewed'}], missing: []};
     let contexts = {};
     const roleCandidates = [{entity_id:'sensor.lux',name:'Helligkeit',suggested_role:'illuminance',decision:'relevant'},{entity_id:'sensor.temperature',name:'Temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'sensor.second',name:'Second temperature',suggested_role:'temperature',decision:'relevant'},{entity_id:'binary_sensor.p',name:'Presence A',suggested_role:'motion',decision:'relevant'},{entity_id:'binary_sensor.q',name:'Presence B',suggested_role:'motion',decision:'relevant'}];
-    let conflict = false; let writes = 0; let draftConflict = false;
+    let conflict = false; let writes = 0; let draftConflict = false; let reviewFailure = false; let reviewEmpty = false;
     let zones = [{zone_id: 'example', name: 'Example', area_ids: ['example'], extra_entity_ids: [], enabled: true, profile: 'cellar', revision: 0}];
     await page.route('http://pilotsuite.test/**', async route => {
       const url = new URL(route.request().url());
@@ -66,6 +66,16 @@ const assert = require('node:assert/strict');
       else if (/api\/v1\/zones\/[^/]+\/feedback$/.test(suffix)) {
         const id=suffix.split('/')[3]; const payload=route.request().postDataJSON();
         contexts[id].patterns[0].preference=payload.decision; data=contexts[id];
+      }
+      else if (suffix.endsWith('/automation-review')) {
+        if(reviewFailure) return route.fulfill({status:503,json:{message:'synthetic review unavailable'}});
+        const id=suffix.split('/')[3],draft=contexts[id].drafts[0],payload=route.request().postDataJSON();
+        assert.equal(payload.revision,draft.revision);assert.equal(payload.zone_revision,contexts[id].revision);
+        data={draft_id:draft.id,draft_revision:draft.revision,zone_id:id,zone_revision:contexts[id].revision,
+          checked_at:'2026-09-23T12:00:00Z',basis:{source_ids:[...draft.current_pattern.sources].sort(),target_ids:draft.fields.target_ids},
+          checked_entities:[...draft.current_pattern.sources,...draft.fields.target_ids],coverage:'limited',duplicate_assessment:'not_determined',
+          items:reviewEmpty?[]:[{entity_id:'automation.synthetic',target_references:draft.fields.target_ids,source_references:draft.current_pattern.sources}],
+          execution:{allowed:false,actions:[]}};
       }
       else if (/api\/v1\/zones\/[^/]+\/drafts(?:\/[^/]+)?$/.test(suffix)) {
         const id=suffix.split('/')[3], method=route.request().method(), payload=route.request().postDataJSON();
@@ -289,6 +299,16 @@ const assert = require('node:assert/strict');
     await page.locator('#routine-reload').click();
     await page.waitForFunction(()=>document.getElementById('routine-goal').value==='Comfort with manual control');
     await page.locator('#routine-cancel').click();
+    await page.getByRole('button',{name:'Bestehende Automationen prüfen',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.routine-comparison')?.textContent.includes('automation.synthetic'));
+    assert.match(await page.locator('.routine-comparison').innerText(),/beweisen keine doppelte Automation/);
+    assert.match(await page.locator('.routine-comparison').innerText(),/Aktivierungsstatus ungeprüft/);
+    for(const width of [390,1440]) {
+      await page.setViewportSize({width,height:900});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      if(process.env.PILOTSUITE_SCREENSHOTS) await page.locator('#routine-list').screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS,`comparison-${width}.png`)});
+    }
+    await page.setViewportSize({width:390,height:844});
     const draftDownloadPromise=page.waitForEvent('download');
     await page.getByRole('button',{name:'Entwurf exportieren',exact:true}).click();
     const draftDownload=await draftDownloadPromise;
@@ -296,9 +316,21 @@ const assert = require('node:assert/strict');
     assert.equal(savedDraft.schema,'pilotsuite-routine-draft-v1');
     assert.equal(savedDraft.execution.allowed,false); assert.deepEqual(savedDraft.execution.actions,[]);
     assert.equal(savedDraft.fields.goal,'Comfort with manual control');
+    assert.equal(savedDraft.automation_check,'limited_reference_review');
+    assert.equal(savedDraft.automation_review.duplicate_assessment,'not_determined');
+    reviewFailure=true;
+    await page.getByRole('button',{name:'Bestehende Automationen prüfen',exact:true}).click();
+    await page.waitForFunction(()=>document.getElementById('routine-message').textContent.includes('Vergleich nicht bestätigt'));
+    assert.equal(await page.locator('.routine-comparison').count(),0);
+    reviewFailure=false;reviewEmpty=true;
+    await page.getByRole('button',{name:'Bestehende Automationen prüfen',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.routine-comparison')?.textContent.includes('Keine direkten Entitätsbezüge'));
+    assert.match(await page.locator('.routine-comparison').innerText(),/kein Treffer beweist keine Konfliktfreiheit/);
     contexts.hz_test.drafts[0].source_status='zone_changed'; contexts.hz_test.drafts[0].state='needs_review';
     await page.evaluate(()=>loadContext());
     assert.match(await page.locator('#routine-list').innerText(),/Zoneneinstellungen geändert/);
+    assert.equal(await page.locator('.routine-comparison').count(),0);
+    assert.equal(await page.getByRole('button',{name:'Bestehende Automationen prüfen',exact:true}).isDisabled(),true);
     await page.locator('#pattern-filter').selectOption('accepted');
     assert.match(await page.locator('#learned-patterns').innerText(), /Keine Muster/);
     await page.locator('#pattern-filter').selectOption('open');
