@@ -2,6 +2,14 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.13] - 2026-09-23
+
+- Convert Home Assistant connection failures during scoped history and statistics
+  requests into the existing bounded history error instead of a generic HTTP 500.
+- Treat malformed Home Assistant WebSocket text frames as typed protocol errors.
+- Preserve successful history responses, SQLite schema 6, consent, roles and the
+  hard read-only boundary.
+
 ## [0.1.0-alpha.12] - 2026-09-23
 
 - Add consent-gated, memory-only correlation between Home Assistant service and

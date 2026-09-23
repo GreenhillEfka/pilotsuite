@@ -19,7 +19,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Policy mode: hard read-only
-- Release: `0.1.0-alpha.12`
+- Release: `0.1.0-alpha.13`
 
 ## Habitus zones and entity selection
 

@@ -1,5 +1,17 @@
 # Capability and acceptance ledger
 
+## alpha.13 release candidate
+
+Release metadata packages the PR #16 history-transport reliability correction.
+Connection failures and malformed WebSocket text frames become controlled typed
+history errors without changing successful reads, SQLite schema 6, roles, consent,
+learning evidence or the hard read-only boundary. Final main CI 35810366587 passed
+115 backend tests, four JavaScript tests, Chromium browser regression and the amd64
+container. The release candidate still requires its own exact-commit CI and a fresh
+completed PilotSuite App-and-data backup with targeted recovery to alpha.12 before
+publication or installation. Live remains alpha.12; authenticated history interaction
+and actual Recorder coverage are still separate acceptance work.
+
 ## History transport reliability increment
 
 Connection failures during scoped history/statistics WebSocket requests are mapped
@@ -7,8 +19,8 @@ to the existing user-facing bounded history error; malformed text frames are map
 to the typed HA protocol error. Successful reads, storage, consent and learning are
 unchanged. Two synthetic regressions bring the backend suite to 115 tests. PR #16
 candidate CI 35810101307 passed them together with four JavaScript tests, Chromium
-browser regression and the amd64 container. Live remains alpha.12 with authenticated
-history interaction pending.
+browser regression and the amd64 container; final main CI 35810366587 is also green.
+Live remains alpha.12 with authenticated history interaction pending.
 
 ## alpha.12 released and installed
 

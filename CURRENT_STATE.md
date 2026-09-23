@@ -1,19 +1,25 @@
 # Current State
 
-## Development: bounded HA history transport failures
+## Release candidate: 0.1.0-alpha.13
 
-The next reliability increment converts `aiohttp` connection failures during a
-history/statistics WebSocket request into the existing bounded history error instead
-of leaking a generic HTTP 500. Malformed text frames now become the same typed Home
-Assistant protocol error used for other invalid frames. This changes no successful
-response, storage schema, consent, roles or actuation boundary.
+PR #16 merged the reliability increment as main commit
+`734a1e5c272433d37405470918ea93b983e1fdf9`. It converts `aiohttp`
+connection failures during a history/statistics WebSocket request into the existing
+bounded history error instead of leaking a generic HTTP 500. Malformed text frames
+now become the same typed Home Assistant protocol error used for other invalid
+frames. This changes no successful response, storage schema, consent, roles or
+actuation boundary.
 
-Synthetic regression covers both failure paths. PR #16 candidate CI 35810101307
-passed 115 backend tests, four JavaScript tests, Chromium browser regression and the
-amd64 container. Home Assistant remains unchanged on alpha.12 and continues to
-report hard read-only readiness. After merge, the next task remains authenticated
-Ingress loading of a short read-only history interval; no historical import is
-required.
+Synthetic regression covers both failure paths. Final main CI 35810366587 passed
+115 backend tests, four JavaScript tests, Chromium browser regression and the amd64
+container. This release candidate only advances version and release metadata.
+Home Assistant remains unchanged on alpha.12 and continues to report hard read-only
+readiness. Before publication require exact candidate CI, a fresh completed
+PilotSuite App-and-data backup, and a targeted partial-restore path back to alpha.12.
+After installation, verify version, startup, connected event stream, readiness,
+resolved Golden Zone and the read-only boundary. Authenticated Ingress loading of a
+short read-only history interval remains separate live acceptance; no historical
+import is required.
 
 ## Released and running: 0.1.0-alpha.12
 
