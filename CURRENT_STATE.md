@@ -1,6 +1,29 @@
 # PilotSuite current state
 
-## Store release candidate — 2026-09-24
+## Current increment — review-note usability hardening, 2026-09-24
+
+Continue the existing **PR #50**, branch `feat/revision-bound-review-notes`.
+Alpha.22 remains an unpublished candidate: no merge, Store offer or installation.
+The current increment improves its existing editor rather than recreating notes:
+independent assessment/freshness counts, direct selected-automation recheck, open
+selection after changed basis, and a visible saved-text comparison on conflicts.
+Stored notes are never automatically rewritten. Backend/schema/policy stay unchanged.
+Contract and limitations: [docs/REVIEW_NOTES_USABILITY.md](docs/REVIEW_NOTES_USABILITY.md).
+
+Twelve new JavaScript tests pass locally; syntax checks pass. The existing browser
+editor test is extended for this workflow. Read the exact newest full CI receipt in
+PR #50 before claiming whole-suite acceptance; no local browser/container pass is
+claimed. This increment is based on candidate `465795fa7ca95b3d631732b5ef9825f1f206f3b1`.
+No new release number: alpha.22 was not previously published.
+
+Fresh HA tool discovery still exposed no HA-MCP action. PR comments and available
+context did not supply a new completed backup receipt. No current HA version was
+read, no new backup/update/restart or household change occurred. Deployment remains
+pending the existing live-version and scoped-backup gates; the next action is to
+deliver this same PR after those gates, not to reconstruct access or this feature.
+The previous Store-preparation receipt below remains historical evidence.
+
+## Previous Store release preparation — 2026-09-24
 
 Canonical repository `GreenhillEfka/pilotsuite`; app `0d79c5e8_pilotsuite`.
 Resume **PR #50**, branch `feat/revision-bound-review-notes`.
@@ -63,8 +86,8 @@ claiming either Store publication or installation.
 
 Authenticated real Ingress UI and the app's existing automation/config read
 capability remain separate pending acceptance. No new consent or household scan
-for tests. After acceptance, the next concept is a compact derived review summary
-with explicit missing requirements, not another store or execution gate.
+for tests. A future derived review-requirements summary is distinct from the new
+presentation-only note counters; neither adds a store or execution gate.
 
 ## Contracts and retained history
 

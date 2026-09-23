@@ -1,12 +1,41 @@
 // Review notes are explicit user assessments. This module never executes HA actions.
 function reviewNoteState(note, draft, comparison, zoneRevision) {
-  if (note.stale || note.draft_revision !== draft.revision || note.zone_revision !== zoneRevision)
+  if (note.stale || note.draft_revision !== draft.revision || note.zone_revision !== zoneRevision
+      || (draft.source_status && draft.source_status !== 'current') || draft.unavailable_targets?.length)
     return 'stale';
   const detail = comparison?.inspection;
   if (!detail || comparison.draft_id !== draft.id || comparison.zone_id !== draft.zone_id
       || comparison.draft_revision !== draft.revision || comparison.zone_revision !== zoneRevision
-      || detail.entity_id !== note.automation_id) return 'not_rechecked';
+      || detail.entity_id !== note.automation_id
+      || typeof detail.config_fingerprint !== 'string' || !detail.config_fingerprint
+      || typeof note.config_fingerprint !== 'string' || !note.config_fingerprint) return 'not_rechecked';
   return detail.config_fingerprint === note.config_fingerprint ? 'matches_last_read' : 'config_changed';
+}
+
+// Presentation counts only: no overall "approved" state, score or new stored owner.
+function summarizeReviewNotes(notes) {
+  const summary = {total:0, open:0, needs_change:0, reviewed:0,
+    stale:0, config_changed:0, not_rechecked:0, matches_last_read:0};
+  for (const note of notes.items || []) {
+    summary.total++;
+    const disposition = ['open','needs_change','reviewed'].includes(note.disposition) ? note.disposition : 'open';
+    const status = ['stale','config_changed','not_rechecked','matches_last_read'].includes(note.view_status)
+      ? note.view_status : 'not_rechecked';
+    summary[disposition]++; summary[status]++;
+  }
+  return summary;
+}
+
+function reviewNoteInitialDisposition(note, draft, comparison, zoneRevision) {
+  if (!note || reviewNoteState(note, draft, comparison, zoneRevision) !== 'matches_last_read') return 'open';
+  return ['open','needs_change','reviewed'].includes(note.disposition) ? note.disposition : 'open';
+}
+
+function reviewNoteBasisKey(draft, comparison, zoneRevision) {
+  // Canonical ordering; changing counts/scores must not discard an authored assessment.
+  return JSON.stringify([draft.id, draft.zone_id, draft.revision, zoneRevision,
+    [...(draft.current_pattern?.sources || [])].sort(), [...(draft.fields?.target_ids || [])].sort(),
+    comparison.inspection?.entity_id, comparison.inspection?.config_fingerprint]);
 }
 
 const reviewNoteLabels = {
@@ -32,13 +61,23 @@ function appendReviewNotes(card, draft) {
   const section = document.createElement('section'); section.className = 'review-notes';
   const heading = document.createElement('h5'); heading.textContent = 'Prüfzentrale · Bewertungen';
   const notes = projectReviewNotes(draft);
+  const summary = summarizeReviewNotes(notes);
+  const assessment = document.createElement('p'); assessment.className = 'review-note-summary';
+  assessment.textContent = `Deine Bewertungen: ${summary.open} offen · ${summary.needs_change} mit Änderungsbedarf · ${summary.reviewed} manuell geprüft. Keine Ausführungsfreigaben.`;
+  const freshness = document.createElement('p'); freshness.className = 'review-note-freshness';
+  freshness.textContent = `Prüfgrundlagen: ${summary.stale + summary.config_changed} veraltet/geändert · ${summary.not_rechecked} nicht erneut gelesen · ${summary.matches_last_read} passend zum letzten Lesen. Risiko und fachliche Prüfpunkte bleiben gesondert offen.`;
   const comparison = comparisonFor(draft);
   const inspection = comparison?.inspection;
   const guidance = document.createElement('p');
-  guidance.textContent = inspection
-    ? 'Nächster Schritt: eigene Bewertung zur Detailprüfung speichern. Die fachlichen Prüfpunkte bleiben offen; eine Bewertung erteilt keine Ausführungsfreigabe.'
-    : 'Nächster Schritt: bestehende Automationen vergleichen und einen Treffer im Detail prüfen. Gespeicherte Bewertungen bleiben bis dahin ungeprüfte alte Prüfstände.';
-  section.append(heading, guidance);
+  const sourceBlocked = draft.source_status !== 'current' || !!draft.unavailable_targets.length || !draft.fields.target_ids.length;
+  guidance.textContent = sourceBlocked
+    ? 'Nächster Schritt: Entwurfsgrundlage und bestätigte Zielgeräte prüfen. Alte Bewertungen bleiben erhalten; erneutes Lesen ist erst mit gültigem Bezug möglich.'
+    : inspection
+      ? 'Nächster Schritt: eigene Bewertung zur Detailprüfung festhalten oder bearbeiten. Die fachlichen Prüfpunkte bleiben offen; eine Bewertung erteilt keine Ausführungsfreigabe.'
+      : notes.items.length
+        ? 'Nächster Schritt: eine gespeicherte Automation direkt erneut prüfen. Es wird nur diese Auswahl gelesen, nichts automatisch bewertet oder gespeichert.'
+        : 'Nächster Schritt: bestehende Automationen vergleichen und einen Treffer im Detail prüfen. Ohne Treffer ist Konfliktfreiheit nicht nachgewiesen.';
+  section.append(heading, assessment, freshness, guidance);
   if (inspection) {
     const button = document.createElement('button'); button.type = 'button';
     button.textContent = 'Bewertung festhalten';
@@ -56,10 +95,14 @@ function appendReviewNotes(card, draft) {
     const textNode = document.createElement('p'); textNode.className = 'review-note-text'; textNode.textContent = note.text || 'Keine zusätzliche Notiz.';
     const basis = document.createElement('small');
     basis.textContent = `Entwurfsversion ${note.draft_revision} · zuletzt beim Speichern gelesen: ${new Date(note.checked_at).toLocaleString()}. Keine laufende Überwachung.`;
+    const recheck = document.createElement('button'); recheck.type = 'button';
+    recheck.textContent = `Erneut prüfen: ${note.automation_id}`;
+    recheck.disabled = sourceBlocked || selectionBusy || contextEditing || zoneFormOpen || !!selectionDraft?.dirty;
+    recheck.addEventListener('click', () => compareRoutine(draft, note.automation_id));
     const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = `Bewertung löschen: ${note.automation_id}`;
     remove.disabled = selectionBusy || contextEditing || zoneFormOpen || !!selectionDraft?.dirty;
     remove.addEventListener('click', () => deleteReviewNote(draft, note));
-    item.append(title, state, textNode, basis, remove); section.append(item);
+    item.append(title, state, textNode, basis, recheck, remove); section.append(item);
   }
   card.append(section);
 }
@@ -71,6 +114,7 @@ function reviewForm() {
   const fieldset = document.createElement('fieldset'); fieldset.id = 'review-note-fields';
   const legend = document.createElement('legend'); legend.textContent = 'Eigene Bewertung – keine Ausführungsfreigabe';
   const basis = document.createElement('p'); basis.id = 'review-note-basis';
+  const stored = document.createElement('details'); stored.id = 'review-note-stored';
   const label = document.createElement('label'); label.htmlFor = 'review-note-disposition'; label.textContent = 'Deine Bewertung';
   const select = document.createElement('select'); select.id = 'review-note-disposition';
   for (const value of ['open','needs_change','reviewed']) {
@@ -91,7 +135,7 @@ function reviewForm() {
     closeReviewNote(); renderSelection(); renderLearning();
   });
   actions.append(save, reload, cancel);
-  fieldset.append(legend, basis, label, select, noteLabel, textarea, explanation, actions);
+  fieldset.append(legend, basis, stored, label, select, noteLabel, textarea, explanation, actions);
   form.append(fieldset, message);
   form.addEventListener('input', () => { reviewNoteDirty = true; });
   form.addEventListener('change', () => { reviewNoteDirty = true; });
@@ -102,8 +146,17 @@ function reviewForm() {
 
 function setReviewNoteBasis(draft, comparison) {
   reviewNoteEditor = {zone:selectionZone, draft, zoneRevision:contextData.revision,
-    reviewRevision:draft.review_notes?.revision || 0, inspection:comparison.inspection};
+    reviewRevision:draft.review_notes?.revision || 0, inspection:comparison.inspection,
+    basisKey:reviewNoteBasisKey(draft, comparison, contextData.revision)};
   text('review-note-basis', `${comparison.inspection.entity_id} · Entwurfsversion ${draft.revision} · Detailprüfung ${new Date(comparison.checked_at).toLocaleString()}. Die Bewertung wird ausdrücklich an diesen Stand gebunden.`);
+  const stored = byId('review-note-stored'); stored.replaceChildren();
+  const heading = document.createElement('summary'); heading.textContent = 'Zuletzt gespeicherte Bewertung zum Vergleich';
+  const detail = document.createElement('p'); detail.className = 'review-note-saved-copy';
+  const note = draft.review_notes?.items.find(item => item.automation_id === comparison.inspection.entity_id);
+  detail.textContent = note
+    ? `${reviewNoteLabels[note.disposition] || 'Offen'} · Entwurfsversion ${note.draft_revision}\n${note.text || 'Keine zusätzliche Notiz.'}`
+    : 'Keine gespeicherte Bewertung für diese Automation. Dein Text wird nicht automatisch gespeichert.';
+  stored.append(heading, detail);
 }
 
 function openReviewNote(draft) {
@@ -114,8 +167,9 @@ function openReviewNote(draft) {
   setReviewNoteBasis(draft, comparison);
   const existing = draft.review_notes?.items.find(note => note.automation_id === comparison.inspection.entity_id);
   byId('review-note-text').value = existing?.text || '';
-  byId('review-note-disposition').value = existing?.disposition || 'open';
-  text('review-note-message', '');
+  byId('review-note-disposition').value = reviewNoteInitialDisposition(existing, draft, comparison, contextData.revision);
+  const changed = existing && reviewNoteState(existing, draft, comparison, contextData.revision) !== 'matches_last_read';
+  text('review-note-message', changed ? 'Gespeicherte Bewertung gehört zu einem anderen oder ungeprüften Stand. Text übernommen, Bewertung auf Offen gesetzt. Erneut beurteilen; noch nichts gespeichert.' : '');
   reviewNoteDirty = false; contextEditing = true; contextGeneration++;
   form.hidden = false; renderSelection(); renderLearning();
   form.scrollIntoView({block:'start'}); byId('review-note-text').focus();
@@ -173,8 +227,15 @@ async function reloadReviewNoteBasis() {
     if (editor.zone !== selectionZone) return;
     routineComparison = report;
     if (!comparisonFor(draft)) { routineComparison = null; throw new Error('Prüfgrundlage inzwischen geändert'); }
+    const changed = editor.basisKey !== reviewNoteBasisKey(draft, report, contextData.revision)
+      || editor.reviewRevision !== (draft.review_notes?.revision || 0);
     setReviewNoteBasis(draft, report);
-    text('review-note-message', 'Prüfstand neu geladen; dein Text wurde beibehalten. Die oben gezeigte Detailprüfung erneut beurteilen, dann ausdrücklich speichern. Eine zwischenzeitliche fremde Bewertung wird erst durch dein Speichern ersetzt.');
+    if (changed) {
+      byId('review-note-disposition').value = 'open';
+      reviewNoteDirty = true; // Programmatic field changes must also protect unsaved work.
+      byId('review-note-stored').open = true;
+    }
+    text('review-note-message', `Prüfstand neu geladen; dein Text wurde beibehalten. ${changed ? 'Grundlage oder gespeicherte Bewertungen geändert: Auswahl auf Offen gesetzt. ' : ''}Detailprüfung und zuletzt gespeicherte Bewertung vergleichen, dann ausdrücklich speichern. Keine automatische Übernahme oder Zusammenführung.`);
   } catch (error) {
     if (editor.zone === selectionZone) text('review-note-message', `Prüfstand nicht bestätigt: ${error.message}. Text bleibt erhalten; keine Bewertung gespeichert.`);
   } finally {
@@ -199,7 +260,8 @@ async function deleteReviewNote(draft, note) {
   } finally { selectionBusy = false; renderSelection(); renderLearning(); }
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = {reviewNoteState};
+if (typeof module !== 'undefined' && module.exports)
+  module.exports = {reviewNoteState, summarizeReviewNotes, reviewNoteInitialDisposition, reviewNoteBasisKey};
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', event => {
     if (reviewNoteDirty || (reviewNoteEditor && selectionBusy)) { event.preventDefault(); event.returnValue = ''; }

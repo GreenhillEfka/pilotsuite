@@ -1,26 +1,39 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.22 Store candidate — 2026-09-24
+## Current candidate refinement — 2026-09-24
+
+PR #50 now also contains review-note presentation counts, direct selected recheck,
+conservative editor defaults after a changed inspection basis, and saved-text
+comparison for concurrent edits. See REVIEW_NOTES_USABILITY.md. This is a bounded
+UI refinement of ADR-030, not a new backend summary owner or action approval.
+Backend, schema 8, release number alpha.22 and the publication gates are unchanged.
+Twelve additional JavaScript cases pass locally; syntax checks pass. The existing
+browser-editor contract is extended. Exact complete CI evidence belongs to the
+latest PR #50 HEAD, not an earlier successful run. No local browser pass is claimed.
+No HA-MCP action or fresh backup receipt was available; no live read/write or update.
+
+## Previous Alpha.22 Store versioning — 2026-09-24
 
 **PR #50**, branch `feat/revision-bound-review-notes`, is now versioned as
 **0.1.0-alpha.22**. All five release markers and both changelogs are updated.
 **Not merged, published, offered by a verified Store read, or installed.**
 The last actual alpha.21 deployment receipt stays unchanged in RELEASE_STATE.json.
 
-This continuation changes release metadata, adds the note workflow to app DOCS and
-runs the existing read-only source preflight in CI for a changed release version.
-No additional runtime behavior, HA option, permission or architecture change.
-No HA-MCP/native Store action was available in current tool discovery. No fresh
-live HA metadata, backup, Store action or household change occurred.
+That previous continuation changed release metadata, added the note workflow to app
+DOCS and ran the existing read-only source preflight in CI for a changed release
+version. No additional runtime behavior, HA option, permission or architecture
+change was part of versioning. No HA-MCP/native Store action was available in that
+tool discovery. No fresh live HA metadata, backup, Store action or household change.
 
-## Implemented review-note package — unchanged by versioning
+## Implemented review-note package
 
 | Capability | Candidate implementation | Evidence / remaining gate |
 |---|---|---|
 | Persistent review notes | PlanStore, three dispositions, text up to 2000 characters, 20 notes per draft | Own assessment, not verified individual attribution or permission |
 | Change detection | Draft/zone revisions, reference hash, config fingerprint and stale projection | GET/restart says not_rechecked; explicit inspection describes only last read |
 | Save validation | Existing selected-automation inspection; no network under projection lock; bounded age and atomic revision/write checks | Synthetic API/store/concurrency tests; live app config-read capability not assumed |
-| Conflict-safe editing | Text survives 409/503 and basis reload; explicit save | Dedicated editor browser contract and existing full-shell browser suite |
+| Conflict-safe editing | Text survives 409/503 and basis reload; changed basis resets editor selection to open; saved-text comparison | Dedicated editor browser contract and existing full-shell browser suite |
+| Note overview | Independent assessment/freshness counts and explicit per-note recheck | Presentation only; no autosave, global verdict or additional collection |
 | Deletion/export | Note deletion, monotonic tombstone revision, draft-delete revision guard and JSON export | No HA changes, evidence deletion or automatic exports |
 | Migration | Existing owner migrates schema 7 to 8 after SQLite backup | Preservation/idempotence regressions; no verified live migration yet |
 | Execution boundary | Apply remains denied; notes cannot grant permission | API denial and unchanged evidence/risk tests |
@@ -69,9 +82,9 @@ read rights, Golden Zone/Recorder coverage, reconnect soak, traceable real habit
 and a second unlike zone remain separately pending. No extra consent in tests.
 Relative humidity alone never authorizes ventilation.
 
-Contracts: REVIEW_NOTES.md, ROUTINE_DRAFTS.md, AUTOMATION_INSPECTION.md,
-AUTOMATION_REVIEW.md, PATTERN_WORKBENCH.md, HISTORY_AND_TRENDS.md,
-OBSERVATION_LEARNING.md, SENSOR_REFERENCES.md and HABITUS_ZONES.md.
+Contracts: REVIEW_NOTES.md, REVIEW_NOTES_USABILITY.md, ROUTINE_DRAFTS.md,
+AUTOMATION_INSPECTION.md, AUTOMATION_REVIEW.md, PATTERN_WORKBENCH.md,
+HISTORY_AND_TRENDS.md, OBSERVATION_LEARNING.md, SENSOR_REFERENCES.md and HABITUS_ZONES.md.
 The prior complete candidate ledger is preserved at `47ae62e`; the old full ledger
 stays unchanged in IMPLEMENTATION_HISTORY_2026-09-23.md. Old installed versions and
 unversioned-candidate statements are historical, not current measurements.

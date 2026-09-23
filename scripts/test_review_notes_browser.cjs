@@ -10,7 +10,7 @@ const assert = require('node:assert/strict');
     const page = await browser.newPage({viewport:{width:390,height:844}});
     const errors=[]; page.on('pageerror',error=>errors.push(error.message));
     page.on('dialog',dialog=>dialog.accept());
-    let fail=false, conflict=false, fingerprint='a'.repeat(64);
+    let fail=false, conflict=false, fingerprint='a'.repeat(64), inspections=0;
     let saved={revision:0,items:[],limit:20,execution:{allowed:false,actions:[]}};
     const draft=()=>({id:'d',zone_id:'z',revision:2,source_status:'current',unavailable_targets:[],
       fields:{target_ids:['light.synthetic']},current_pattern:{sources:['binary_sensor.synthetic']},review_notes:saved});
@@ -30,6 +30,13 @@ const assert = require('node:assert/strict');
         const r=routineComparison;
         return r && r.zone_id===selectionZone && r.draft_id===draft.id &&
           r.draft_revision===draft.revision && r.zone_revision===contextData.revision ? r : null;
+      }
+      // Minimal adapter stub; production compareRoutine is exercised in the full-shell suite.
+      async function compareRoutine(draft,automationId) {
+        routineComparison=await json('api/v1/zones/'+selectionZone+'/drafts/'+draft.id+'/automation-inspection',
+          {method:'POST',body:JSON.stringify({revision:draft.revision,zone_revision:contextData.revision,
+            automation_id:automationId,previous_fingerprint:null})});
+        renderLearning();
       }
       function renderSelection() {}
       function renderLearning() {
@@ -53,6 +60,9 @@ const assert = require('node:assert/strict');
       }
       if(suffix.endsWith('/context')) return route.fulfill({json:{revision:3,drafts:suffix.includes('/z/')?[draft()]:[]}});
       if(suffix.endsWith('/automation-inspection')) {
+        inspections++;
+        const payload=route.request().postDataJSON();
+        assert.equal(payload.automation_id,'automation.synthetic');assert.equal(payload.revision,2);assert.equal(payload.zone_revision,3);
         if(fail)return route.fulfill({status:503,json:{message:'synthetic offline'}});
         return route.fulfill({json:comparison()});
       }
@@ -76,6 +86,7 @@ const assert = require('node:assert/strict');
     assert.equal(await page.evaluate(()=>document.characterSet),'UTF-8');
     await page.evaluate(async()=>{await loadContext();});
     await page.addScriptTag({url:'http://pilotsuite.test/ingress/test/assets/review_notes.js'});
+    assert.equal(inspections,0);assert.equal(saved.revision,0);
     await page.evaluate(report=>{routineComparison=report;renderLearning();},comparison());
     await page.getByRole('button',{name:'Bewertung festhalten',exact:true}).click();
     const unsafe='<img src=x onerror="window.canary=true">';
@@ -87,30 +98,61 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('.review-note img').count(),0);
     assert.equal(await page.evaluate(()=>window.canary),undefined);
     assert.match(await page.locator('.review-note').textContent(),/Passt zum zuletzt gelesenen/);
+    assert.match(await page.locator('.review-note-summary').textContent(),/1 manuell geprüft/);
     await page.evaluate(async()=>{routineComparison=null;await loadContext();});
     assert.match(await page.locator('.review-note').textContent(),/noch nicht erneut geprüft/);
-    await page.evaluate(report=>{routineComparison=report;renderLearning();},comparison());
+    assert.match(await page.locator('.review-note-freshness').textContent(),/1 nicht erneut gelesen/);
+    assert.equal(inspections,0);assert.equal(saved.revision,1);
+    await page.getByRole('button',{name:'Erneut prüfen: automation.synthetic',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.review-note').textContent.includes('Passt zum zuletzt gelesenen'));
+    assert.equal(inspections,1);assert.equal(saved.revision,1);
+    fingerprint='b'.repeat(64);
+    await page.getByRole('button',{name:'Erneut prüfen: automation.synthetic',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.review-note').textContent.includes('Automation geändert'));
+    assert.equal(inspections,2);assert.equal(saved.revision,1);
+    await page.getByRole('button',{name:'Bewertung festhalten',exact:true}).click();
+    assert.equal(await page.locator('#review-note-disposition').inputValue(),'open');
+    assert.equal(await page.locator('#review-note-text').inputValue(),unsafe);
+    assert.equal(saved.items[0].disposition,'reviewed');
+    assert.equal(await page.locator('#review-note-stored img').count(),0);
+    await page.locator('#review-note-cancel').click();
+    assert.equal(saved.revision,1);
     await page.getByRole('button',{name:'Bewertung festhalten',exact:true}).click();
     await page.locator('#review-note-text').fill('Mein unverlorener Entwurf');
+    await page.locator('#review-note-disposition').selectOption('reviewed');
     conflict=true;
     await page.getByRole('button',{name:'Bewertung für diesen Prüfstand speichern',exact:true}).click();
     await page.waitForFunction(()=>byId('review-note-message').textContent.includes('Speichern nicht bestätigt'));
     assert.equal(await page.locator('#review-note-text').inputValue(),'Mein unverlorener Entwurf');
     assert.equal(await page.locator('#review-note-form').isVisible(),true);
     assert.match(await page.locator('.review-note').textContent(),/noch nicht erneut geprüft/);
-    conflict=false;fingerprint='b'.repeat(64);
+    conflict=false;fingerprint='c'.repeat(64);
     await page.locator('#review-note-reload').click();
     await page.waitForFunction(()=>byId('review-note-message').textContent.startsWith('Prüfstand neu geladen'));
     assert.equal(await page.locator('#review-note-text').inputValue(),'Mein unverlorener Entwurf');
+    assert.equal(await page.locator('#review-note-disposition').inputValue(),'open');
+    assert.equal(await page.evaluate(()=>reviewNoteDirty),true);
     assert.match(await page.locator('.review-note').textContent(),/Automation geändert/);
+    assert.equal(saved.revision,1);
+    // Another session's replacement is visible before the user may explicitly overwrite it.
+    saved={...saved,revision:2,items:[{...saved.items[0],config_fingerprint:fingerprint,
+      disposition:'needs_change',text:'Zwischenzeitliche Bewertung aus anderer Sitzung'}]};
+    await page.locator('#review-note-disposition').selectOption('reviewed');
+    await page.locator('#review-note-reload').click();
+    await page.waitForFunction(()=>!selectionBusy);
+    assert.equal(await page.locator('#review-note-disposition').inputValue(),'open');
+    assert.match(await page.locator('#review-note-stored').textContent(),/Zwischenzeitliche Bewertung/);
+    assert.equal(await page.locator('#review-note-text').inputValue(),'Mein unverlorener Entwurf');
     fail=true;
     await page.getByRole('button',{name:'Bewertung für diesen Prüfstand speichern',exact:true}).click();
     await page.waitForFunction(()=>byId('review-note-message').textContent.includes('synthetic offline'));
     assert.equal(await page.locator('#review-note-text').inputValue(),'Mein unverlorener Entwurf');
-    assert.equal(saved.items[0].text,unsafe);
+    assert.equal(saved.items[0].text,'Zwischenzeitliche Bewertung aus anderer Sitzung');
     fail=false;
+    await page.locator('#review-note-disposition').selectOption('needs_change');
     await page.locator('#review-note-reload').click();
     await page.waitForFunction(()=>byId('review-note-message').textContent.startsWith('Prüfstand neu geladen'));
+    assert.equal(await page.locator('#review-note-disposition').inputValue(),'needs_change');
     for(const width of [390,1280]) {
       await page.setViewportSize({width,height:900});
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'horizontal overflow '+width);
@@ -119,17 +161,22 @@ const assert = require('node:assert/strict');
         await page.screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS,`review-notes-${width}.png`),fullPage:true});
       }
     }
+    await page.locator('#review-note-disposition').selectOption('reviewed');
     await page.getByRole('button',{name:'Bewertung für diesen Prüfstand speichern',exact:true}).click();
     await page.waitForFunction(()=>byId('review-note-form').hidden);
-    assert.equal(saved.items[0].text,'Mein unverlorener Entwurf');
+    assert.equal(saved.items[0].text,'Mein unverlorener Entwurf');assert.equal(saved.items[0].disposition,'reviewed');
     const exported=await page.evaluate(()=>projectReviewNotes(contextData.drafts[0]));
     assert.equal(exported.items[0].view_status,'matches_last_read');assert.equal(exported.execution.allowed,false);
+    await page.evaluate(()=>{contextData.drafts[0].source_status='pattern_missing';renderLearning();});
+    assert.equal(await page.getByRole('button',{name:'Erneut prüfen: automation.synthetic',exact:true}).isDisabled(),true);
+    assert.match(await page.locator('.review-note-freshness').textContent(),/1 veraltet/);
+    await page.evaluate(()=>{contextData.drafts[0].source_status='current';renderLearning();});
     await page.getByRole('button',{name:'Bewertung löschen: automation.synthetic',exact:true}).click();
     await page.waitForFunction(()=>byId('cards').textContent.includes('Noch keine eigene Bewertung'));
-    assert.equal(saved.items.length,0);assert.equal(saved.revision,3);
+    assert.equal(saved.items.length,0);assert.equal(saved.revision,4);
     await page.evaluate(async()=>{selectionZone='other';routineComparison=null;await loadContext();});
     assert.equal(await page.locator('.review-note').count(),0);
     assert.deepEqual(errors,[]);
-    console.log('Review-note browser: save, reload, conflicts, failures, text preservation, XSS, export, delete, zone isolation and mobile/desktop passed.');
+    console.log('Review-note browser passed: summary, selected recheck, stale selection reset, competing note preview, no autosave, errors, text preservation, XSS, export, delete, zone isolation and mobile/desktop.');
   } finally {await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
