@@ -46,10 +46,10 @@ const assert = require('node:assert/strict');
     `;
     await page.route('http://pilotsuite.test/**',async route=>{
       const suffix=new URL(route.request().url()).pathname.replace('/ingress/test/','');
-      if (!suffix) return route.fulfill({contentType:'text/html',body:`<!doctype html><html lang="de"><head><meta name="viewport" content="width=device-width"></head><body><main><div id="cards"></div><form id="routine-form" hidden></form><p id="routine-message" role="status"></p></main><script>${harness}</script></body></html>`});
+      if (!suffix) return route.fulfill({contentType:'text/html; charset=utf-8',body:`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head><body><main><div id="cards"></div><form id="routine-form" hidden></form><p id="routine-message" role="status"></p></main><script>${harness}</script></body></html>`});
       if(suffix.startsWith('assets/')) {
         const name=suffix.slice(7);
-        return route.fulfill({body:await fs.readFile(path.join(__dirname,'../pilotsuite/pilotsuite/web',name)),contentType:name.endsWith('.js')?'text/javascript':'text/css'});
+        return route.fulfill({body:await fs.readFile(path.join(__dirname,'../pilotsuite/pilotsuite/web',name)),contentType:name.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8'});
       }
       if(suffix.endsWith('/context')) return route.fulfill({json:{revision:3,drafts:suffix.includes('/z/')?[draft()]:[]}});
       if(suffix.endsWith('/automation-inspection')) {
@@ -73,6 +73,7 @@ const assert = require('node:assert/strict');
       return route.fulfill({json:{review_notes:saved,automation_review:comparison()}});
     });
     await page.goto('http://pilotsuite.test/ingress/test/');
+    assert.equal(await page.evaluate(()=>document.characterSet),'UTF-8');
     await page.evaluate(async()=>{await loadContext();});
     await page.addScriptTag({url:'http://pilotsuite.test/ingress/test/assets/review_notes.js'});
     await page.evaluate(report=>{routineComparison=report;renderLearning();},comparison());

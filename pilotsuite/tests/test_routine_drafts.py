@@ -306,7 +306,7 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(db.execute("SELECT name FROM sqlite_master WHERE name='routine_drafts'").fetchone())
         await self.service.selections.initialize(); self.assertEqual(1,len(list(self.path.glob('selections.v6.*.bak'))))
         with sqlite3.connect(self.service.selections.path) as db:
-            self.assertEqual(7,db.execute('PRAGMA user_version').fetchone()[0])
+            self.assertEqual(8,db.execute('PRAGMA user_version').fetchone()[0])
         self.assertEqual(legacy,(self.path/'plans.jsonl').read_bytes())
         self.assertEqual(before['evidence'],(await self.service.context.report('a'))['evidence'])
 
