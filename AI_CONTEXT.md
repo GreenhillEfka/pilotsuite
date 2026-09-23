@@ -36,11 +36,12 @@ Old repositories are pinned reference sources, never runtime dependencies.
 Do not reintroduce two learning engines or independently owned zone stores.
 Current alpha rules are climate heuristics, not learned habits.
 
-The current continuation slice adds consent-gated, memory-only correlation of
-Home Assistant `call_service` and `state_changed` contexts. Persist and export only
-coarse origin categories, never user/context IDs. A parented service context is a
-possible automation/script chain, not proof of either. PilotSuite is read-only, so
-it currently emits no own-action evidence. See `docs/EVENT_ATTRIBUTION.md`.
+Alpha.12 adds targeted transient HA history/statistics views and separately
+consented retrospective presence-activity import into the existing evidence owner.
+Do not copy Recorder data or infer missing history as absence of behavior. The
+immediate continuation is transport-error hardening and authenticated Ingress /
+Recorder acceptance. PilotSuite remains read-only and emits no own-action evidence.
+See `docs/HISTORY_AND_TRENDS.md` and `docs/EVENT_ATTRIBUTION.md`.
 
 ## Conceptual chain
 

@@ -1,5 +1,15 @@
 # Capability and acceptance ledger
 
+## History transport reliability increment
+
+Connection failures during scoped history/statistics WebSocket requests are mapped
+to the existing user-facing bounded history error; malformed text frames are mapped
+to the typed HA protocol error. Successful reads, storage, consent and learning are
+unchanged. Two synthetic regressions bring the backend suite to 115 tests. PR #16
+candidate CI 35810101307 passed them together with four JavaScript tests, Chromium
+browser regression and the amd64 container. Live remains alpha.12 with authenticated
+history interaction pending.
+
 ## alpha.12 released and installed
 
 PR #14 released main commit 52bc972; CI 35805983743 passed 113 backend

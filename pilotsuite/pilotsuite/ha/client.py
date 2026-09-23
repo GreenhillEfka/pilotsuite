@@ -9,7 +9,7 @@ from collections.abc import Awaitable, Callable
 from time import monotonic
 from typing import Any
 
-from aiohttp import ClientSession, ClientTimeout, WSMsgType
+from aiohttp import ClientError, ClientSession, ClientTimeout, WSMsgType
 
 
 LOGGER = logging.getLogger(__name__)
@@ -71,43 +71,46 @@ class HomeAssistantClient:
         await self.start()
         result = {entity: [] for entity in entity_ids}
         count = 0
-        async with asyncio.timeout(90):
-            async with self._session.ws_connect(self._ws_url, heartbeat=30,
-                                                max_msg_size=MAX_WS_MESSAGE_BYTES) as socket:
-                await self._authenticate(socket)
-                request_id, cursor = 1, start
-                metadata = {}
-                if statistics:
-                    meta = await self._command(socket, request_id, {
-                        'type': 'recorder/get_statistics_metadata', 'statistic_ids': entity_ids})
-                    metadata = {i['statistic_id']: i for i in meta}
-                    request_id += 1
-                while cursor < end:
-                    stop = min(end, cursor + 86400)
-                    command = {'type': 'history/history_during_period',
-                               'start_time': datetime.fromtimestamp(cursor, UTC).isoformat(),
-                               'end_time': datetime.fromtimestamp(stop, UTC).isoformat(),
-                               'entity_ids': entity_ids, 'include_start_time_state': True,
-                               'significant_changes_only': False, 'minimal_response': False,
-                               'no_attributes': False}
+        try:
+            async with asyncio.timeout(90):
+                async with self._session.ws_connect(self._ws_url, heartbeat=30,
+                                                    max_msg_size=MAX_WS_MESSAGE_BYTES) as socket:
+                    await self._authenticate(socket)
+                    request_id, cursor = 1, start
+                    metadata = {}
                     if statistics:
-                        command = {'type': 'recorder/statistics_during_period',
-                                   'start_time': command['start_time'], 'end_time': command['end_time'],
-                                   'statistic_ids': entity_ids, 'period': 'hour',
-                                   'types': ['mean', 'min', 'max']}
-                    chunk = await self._command(socket, request_id, command)
-                    if not isinstance(chunk, dict):
-                        raise HomeAssistantError('Unsupported history response')
-                    for entity in entity_ids:
-                        rows = chunk.get(entity, [])
-                        if not isinstance(rows, list):
-                            raise HomeAssistantError('Unsupported history rows')
-                        count += len(rows)
-                        if count > 50000:
-                            raise HomeAssistantError('History exceeds 50,000 records; choose a shorter period')
-                        result[entity].extend(rows)
-                    request_id += 1
-                    cursor = stop
+                        meta = await self._command(socket, request_id, {
+                            'type': 'recorder/get_statistics_metadata', 'statistic_ids': entity_ids})
+                        metadata = {i['statistic_id']: i for i in meta}
+                        request_id += 1
+                    while cursor < end:
+                        stop = min(end, cursor + 86400)
+                        command = {'type': 'history/history_during_period',
+                                   'start_time': datetime.fromtimestamp(cursor, UTC).isoformat(),
+                                   'end_time': datetime.fromtimestamp(stop, UTC).isoformat(),
+                                   'entity_ids': entity_ids, 'include_start_time_state': True,
+                                   'significant_changes_only': False, 'minimal_response': False,
+                                   'no_attributes': False}
+                        if statistics:
+                            command = {'type': 'recorder/statistics_during_period',
+                                       'start_time': command['start_time'], 'end_time': command['end_time'],
+                                       'statistic_ids': entity_ids, 'period': 'hour',
+                                       'types': ['mean', 'min', 'max']}
+                        chunk = await self._command(socket, request_id, command)
+                        if not isinstance(chunk, dict):
+                            raise HomeAssistantError('Unsupported history response')
+                        for entity in entity_ids:
+                            rows = chunk.get(entity, [])
+                            if not isinstance(rows, list):
+                                raise HomeAssistantError('Unsupported history rows')
+                            count += len(rows)
+                            if count > 50000:
+                                raise HomeAssistantError('History exceeds 50,000 records; choose a shorter period')
+                            result[entity].extend(rows)
+                        request_id += 1
+                        cursor = stop
+        except ClientError as exc:
+            raise HomeAssistantError('Home Assistant history connection failed') from exc
         return {'records': result, 'metadata': metadata}
 
     async def listen(
@@ -249,7 +252,10 @@ class HomeAssistantClient:
             raise HomeAssistantError(
                 f"Home Assistant WebSocket returned {message.type.name}{suffix}"
             )
-        value = json.loads(message.data)
+        try:
+            value = json.loads(message.data)
+        except (json.JSONDecodeError, TypeError) as exc:
+            raise HomeAssistantError("invalid Home Assistant WebSocket response") from exc
         if not isinstance(value, dict):
             raise HomeAssistantError("invalid Home Assistant WebSocket response")
         return value

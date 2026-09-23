@@ -5,13 +5,15 @@
 `VISION.md` and ADR-009 through ADR-013 refine this architecture. There is one
 modular add-on and optionally a thin native HA adapter, never two semantic owners.
 `IMPLEMENTATION_STATUS.md` distinguishes current code from the target below.
-Current JSONL persistence is not the planned SQLite store. Current climate rules
-are not habit learning. Action-specific recovery replaces any universal rollback
-promise; no action execution exists in alpha.3.
+SQLite is the single owner for zones, selections, bounded learning evidence,
+feedback and history-import provenance; audit and dry-run plans remain JSONL.
+Current climate rules are not habit learning. Action-specific recovery replaces any
+universal rollback promise; no action execution exists in the read-only alpha.
 
 Severity, evidence quality, statistical confidence, preference and risk are
 separate concepts. Unknown confidence is null. Scope identity must not change
-with the measurement. Read-only learning is the next milestone, before actuation.
+with the measurement. Read-only learning is implemented in bounded form and must be
+accepted on a second unlike zone before any actuation milestone.
 
 ## Design goal
 
