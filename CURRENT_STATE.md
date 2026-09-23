@@ -1,19 +1,37 @@
 # Current State
 
-## Release candidate: 0.1.0-alpha.11
+## Released and running: 0.1.0-alpha.11
 
-PR #9 feature head 0098b30 passed CI 35800363139: 85 backend tests, four JS tests,
-mobile browser flows and amd64 image build. Release metadata is being synchronized
-and must pass its own CI before merge. HA reports alpha.9 started; fresh App-only
-backup must precede publishing because automatic App updates are enabled.
-Schema 5 preserves choices/roles and defaults context consent off. Downgrade
-requires an App-and-data partial restore, never schema-4 code over schema-5 data.
-Fresh App-only backup 1b74df9a was created and confirmed in the completed listing:
-53,739,520 bytes, unprotected, HA configuration/database excluded. Requested scope
-was PilotSuite with its data; archive contents were not inspected and no restore
-drill performed. Recovery is a partial App-and-data restore of this backup.
-No live update or consent changes yet in this release preparation.
+PR #9 merged as a1bb95f7a6c045ece234ad70e8e9ee3c855129d0. The merge tree
+c2a47079e11c89885fd418cec21afdb1505d651c exactly matches candidate 258a116.
+Final CI 35800786084 passed 85 backend tests, four JS tests, extended mobile
+browser flows and amd64 container including IANA timezone availability.
 
+Fresh App-only backup 1b74df9a was created before publication because auto-updates
+are enabled, and confirmed in the completed listing: 53,739,520 bytes, unprotected,
+HA configuration/database excluded. Requested scope was PilotSuite and its data;
+archive contents were not inspected and no restore drill was performed. Recovery
+is a partial App-and-data restore of this backup, not schema-4 code over schema 5.
+
+Supervisor update completed; metadata confirms alpha.11 started with unchanged
+options. Startup at log timestamp 2026-09-23T02:10:59Z reports hard_read_only;
+02:11:00Z reports ready=True, stream=True, snapshot_fresh=True, zone_resolved=True.
+Startup necessarily completed database initialization; migration copies were not
+independently inspected on the host. Migration preservation is covered by tests.
+Real iPhone Ingress requests after startup (02:11:10–16Z) returned HTTP 200 for
+context, selections, zones and status; root/assets also returned 200. This is not
+proof of interactive acceptance of every control or the user's exact live roles.
+
+This release includes configured activity thresholds, local time/day groups,
+source/progress/module views, sampled observability and separately consented
+light/lux context. No production role, timezone or consent was changed by this
+release operation; new context consent defaults off. HA actuation stays blocked.
+Next: actual zone UI acceptance, explicit learning choices and real multi-day
+observations. Physical sensor coverage is not guaranteed; presence/light were
+partial at startup. Temporal switching sequences and HA draft execution remain
+future work. Contracts: docs/RHYTHMS_AND_CONTEXT.md and LEARNING_AND_ACTIONS.md.
+
+## Historical development notes
 
 ## Next package: local rhythms and activation context (development)
 

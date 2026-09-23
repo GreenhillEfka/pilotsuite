@@ -1,14 +1,15 @@
 # Capability and acceptance ledger
 
-## alpha.11 release candidate
+## alpha.11 released and installed
 
-Feature head 0098b30 passed CI 35800363139 (85 backend tests, four JS tests,
-browser and amd64 container). Per-zone thresholds/timezone/day grouping, source
-and progress views, sampled observability and separately consented light context
-are implemented. Schema 5 migration backs up and preserves choices. Fresh App-only
-backup 1b74df9a is confirmed. Final metadata CI and live update/start verification
-are pending. No actuation or new production learning consent is introduced.
-
+PR #9 merge a1bb95f matches the final tested tree c2a4707. CI 35800786084
+passed 85 backend tests, four JS tests, browser and amd64 container. Backup
+1b74df9a created/confirmed before publication; Supervisor update/start successful.
+Runtime confirms alpha.11 read-only, ready, connected and freshly reconciled.
+Post-start real Ingress context/selections/zones/status requests return HTTP 200.
+Schema-5 initialization completed during startup; migration copy files were not
+independently inspected. No production role or consent change was performed.
+Interactive live UI acceptance and real multi-day learning remain pending.
 
 ## alpha.10 release candidate
 
