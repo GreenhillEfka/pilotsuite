@@ -31,7 +31,7 @@ byId('history-load').addEventListener('click',async () => {
   historyInvalidate(); const generation=historyGeneration, zone=selectionZone;
   historyBusy=true; byId('history-load').disabled=true; text('history-message','Lade ausgewählte HA-Quellen …');
   try {
-    await loadContext();
+    if (!await loadContext()) return;
     const end = byId('history-range').value==='custom' ? new Date(byId('history-end').value) : new Date(Date.now()-5000);
     const start = byId('history-range').value==='custom' ? new Date(byId('history-start').value) : new Date(+end-Number(byId('history-range').value)*86400000);
     if (!Number.isFinite(+start) || !Number.isFinite(+end)) throw new Error('Bitte Anfang und Ende des Zeitraums vollständig eingeben.');
