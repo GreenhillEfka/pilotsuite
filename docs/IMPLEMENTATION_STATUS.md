@@ -1,27 +1,30 @@
 # Capability and acceptance ledger
 
-## alpha.12 release candidate
+## alpha.12 released and installed
 
-Release metadata combines merged PR #13 with the previously merged bounded origin
-hints. The code reads only saved relevant main groups through supported Home
-Assistant APIs, keeps raw history transient, and imports historical activations only
-after an additional interval-scoped consent. Event-origin identifiers remain
-memory-only and are persisted only as coarse categories. Schema 6 creates a
-pre-migration backup and shares the existing activity-v1 evidence owner.
+PR #14 released main commit 52bc972; CI 35805983743 passed 113 backend
+tests, four JavaScript tests, Chromium browser flows and the amd64 container.
+Scoped pre-update App-and-data backup f803e957 is complete and excludes Home
+Assistant configuration/database. Supervisor reports alpha.12 installed, offered
+and started. Runtime reports hard read-only, connected event stream, fresh snapshot,
+resolved Golden Zone and readiness. The protected non-Ingress proxy continues to
+reject API access with HTTP 403, as designed.
 
-The candidate is not installed. HA remains on alpha.11, with all production
-learning/import choices unchanged. Exact candidate CI and a fresh, confirmed
-PilotSuite App-and-data backup are required before publication because automatic
-App updates are enabled. Live migration, history availability and Ingress behavior
-are not implied by synthetic/browser CI.
+The code reads only saved relevant main groups through supported Home Assistant
+APIs, keeps raw history transient, and imports historical activations only after an
+additional interval-scoped consent. Event-origin identifiers remain memory-only and
+are persisted only as coarse categories. Schema 6 creates a pre-migration backup and
+shares the existing activity-v1 evidence owner. The update changed no production
+role, learning/import consent, automation or actuator. Authenticated Ingress assets,
+APIs, chart interaction and actual Recorder coverage remain live acceptance work.
 
-## History increment (development, not installed)
+## History increment (included in alpha.12)
 Scoped HA raw/history and hourly statistic reads, zone graphs, weekly activity view
 and time-separated reobservation checks implemented. Explicit one-time activity
 import shares existing learning store; schema 6 with migration backup. 113 backend
-and four JS tests pass; CI 35802932782 also passed Chromium browser and container
-for candidate 31f04a6 (PR #13). See
-HISTORY_AND_TRENDS.md for consent, retention and limitations. Live remains alpha.11.
+and four JS tests pass; final release CI 35805983743 also passed Chromium browser
+and container. See HISTORY_AND_TRENDS.md for consent, retention and limitations.
+Live acceptance remains separate from test coverage.
 
 ## Merged after alpha.11: bounded origin hints
 
@@ -84,15 +87,15 @@ and real multi-day activity candidates still need live acceptance; consent stays
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
-| Add-on packaging | Implemented | alpha.8 installed and started after app-only backup 89e963d5 |
-| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed; interactive alpha.8 role/learning acceptance in actual HA session still pending |
+| Add-on packaging | Implemented | alpha.12 installed and started after scoped App-and-data backup f803e957 |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed and live direct proxy rejects with 403; authenticated alpha.12 root/assets/APIs/charts remain pending |
 | HA snapshot and event stream | Integrated reconnect correction retained | Short-stream exponential backoff and stable-stream recovery tested; live soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Plural roles, separate references and source spread implemented; live mapping review pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Climate heuristics plus separate activity candidates with independent feedback; not causal habits |
 | Habitus zones and roles | Logical zones and entity selection implemented | Stable IDs, multiple areas, extras, editor; role groups with climate median/min/max, separate references and presence-any implemented |
-| Learning and consent | Bounded activity candidates; coarse consent-gated origin hints in development | Live event replay tests, role groups, opt-in, retention/export/reset; exact automation/manual attribution is intentionally not claimed; extended HA learning acceptance pending |
-| SQLite / migrations | Schema 4 for zones, roles, consent, evidence and feedback; migration tests pass | Pre-migration backup, shared revisions, export, bounded selection journal; audit/plans remain JSONL |
+| Learning and consent | Bounded activity candidates and coarse consent-gated origin hints implemented | Live event replay tests, role groups, opt-in, retention/export/reset; exact automation/manual attribution is intentionally not claimed; extended HA learning acceptance pending |
+| SQLite / migrations | Schema 6 for zones, roles, consent, evidence, feedback and history provenance; migration tests pass | Pre-migration backup, shared revisions, export, bounded selection journal; audit/plans remain JSONL |
 | Multi-user preferences | Planned | Separate preference from evidence; conflict rules required |
 | Brain graph | Planned | Derived explanation graph, not a separate truth store |
 | Native HA adapter / Assist | Optional, planned | No current custom integration in canonical repository |
@@ -106,7 +109,7 @@ and real multi-day activity candidates still need live acceptance; consent stays
 
 ## Next acceptance gates
 
-1. Real HA Ingress loads root, JS, CSS and API without 404; no unintended peer access.
+1. Authenticated alpha.12 HA Ingress loads root, JS, CSS and API without 404; a short read-only history request renders graphs and no unintended peer access exists.
 2. Real Golden Zone role mapping is reviewed; missing/conflicting data remains explicit.
 3. HA restart/disconnect does not falsely report readiness; reconnect restores projection.
 4. One consented read-only habit produces a traceable proposal and durable feedback.

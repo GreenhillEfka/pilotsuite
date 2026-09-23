@@ -1,22 +1,35 @@
 # Current State
 
-## Release candidate: 0.1.0-alpha.12
+## Released and running: 0.1.0-alpha.12
 
 PR #13 is merged as `13e1b03791d93d2bedb3e022b08743a1d61649b9`.
-Its final head CI 35803025273 passed 113 backend tests, four JavaScript tests,
-extended Chromium browser flows and the amd64 container. The alpha.12 release
-branch combines consent-gated coarse event-origin hints with targeted Home
-Assistant history/statistics views and separately consented retrospective activity
-imports. It remains hard read-only; no learning consent or import is enabled by
-the update. SQLite schema 6 backs up schema 5 before migration.
+PR #14 released it on main as `52bc972b834aa533575db3e874970f5312c2d513`.
+Final main CI 35805983743 passed 113 backend tests, four JavaScript tests,
+extended Chromium browser flows and the amd64 container. The release combines
+consent-gated coarse event-origin hints with targeted Home Assistant
+history/statistics views and separately consented retrospective activity imports.
+It remains hard read-only; no learning consent or import is enabled by the update.
+SQLite schema 6 backs up schema 5 before migration.
 
-This candidate is not yet published or installed. Home Assistant still runs
-alpha.11. Before merge/publication, require exact release-candidate CI plus a fresh,
-confirmed PilotSuite App-and-data backup. Recovery is restoration of that scoped
-alpha.11 backup, not running alpha.11 code against schema 6. After installation,
-verify startup, migration, connected event stream, readiness, Erdkeller resolution,
-read-only boundary and real Ingress asset/API requests. Actual role choices,
-Recorder coverage and user interaction remain separate live acceptance items.
+Before publication, scoped App-and-data backup `f803e957` completed at
+2026-09-23T01:21:28Z. Its listing reports 53,811,200 bytes and excludes Home
+Assistant configuration and database. Recovery is a partial restore of PilotSuite
+and its data from that backup; archive contents were not inspected and no restore
+drill was performed.
+
+Supervisor Store refresh identified alpha.12 and the update completed. Metadata
+confirms alpha.12 installed, offered and started. Startup at 2026-09-23T03:25:47Z
+reports `hard_read_only`; at 03:25:48Z it reports `ready=True`, connected event
+stream, fresh snapshot and resolved Golden Zone. The protected direct proxy
+correctly returns HTTP 403 `Ingress access required`; it was not weakened for
+testing. No authenticated HA browser tab was available, so real Ingress root,
+asset, API and chart interaction remain unverified for this release. Actual role
+choices and Recorder coverage also remain separate live acceptance items. No role,
+learning-consent, history-import, automation or actuator state was changed.
+
+Next: in an authenticated HA Ingress session, verify root/JS/CSS/API loading and
+load a short read-only history interval to confirm Recorder coverage and graph
+rendering. Do not enable learning or import history merely for acceptance.
 
 ## Merged implementation: targeted history and zone trends
 
