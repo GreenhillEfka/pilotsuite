@@ -1,6 +1,7 @@
 # Historie, Verläufe und rückwirkendes Lernen
 
-Release-Kandidat für alpha.12, noch nicht auf Home Assistant installiert.
+Seit alpha.12 enthalten und auf Home Assistant installiert. Authentifizierte
+Ingress-Bedienung und tatsächliche Recorder-Abdeckung bleiben separat abzunehmen.
 
 ## Bedienung
 

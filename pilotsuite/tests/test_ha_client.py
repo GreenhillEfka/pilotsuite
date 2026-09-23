@@ -55,6 +55,16 @@ class _Session:
 
 
 class HomeAssistantClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_malformed_text_frame_is_a_domain_error(self):
+        class MalformedSocket:
+            async def receive(self, timeout):
+                self.timeout = timeout
+                return SimpleNamespace(type=WSMsgType.TEXT, data='{broken')
+        socket=MalformedSocket()
+        with self.assertRaisesRegex(HomeAssistantError,'invalid Home Assistant WebSocket response'):
+            await HomeAssistantClient._receive_json(socket)
+        self.assertEqual(20,socket.timeout)
+
     async def test_listen_subscribes_to_both_event_types_and_preserves_service_context(self):
         stop = asyncio.Event()
         service_event = {

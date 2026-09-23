@@ -6,6 +6,7 @@ import time
 import unittest
 from pathlib import Path
 from unittest.mock import AsyncMock
+from aiohttp import ClientConnectionError
 from pilotsuite.core.history import normalize, activations, trend_view, retrospective, interval, at
 from pilotsuite.core.context import ContextStore
 from pilotsuite.core.selections import SelectionStore, InvalidSelection, SelectionConflict
@@ -187,3 +188,17 @@ class HistoryClientTests(unittest.IsolatedAsyncioTestCase):
         result=await client.history(['sensor.t'],1,100,statistics=True)
         self.assertEqual('°C',result['metadata']['sensor.t']['unit_of_measurement'])
         self.assertEqual('hour',socket.sent[2]['period'])
+
+    async def test_transport_failure_becomes_bounded_history_error(self):
+        class FailedConnection:
+            async def __aenter__(self):
+                raise ClientConnectionError('offline')
+            async def __aexit__(self, *_):
+                return None
+        class FailedSession:
+            closed = False
+            def ws_connect(self, *_args, **_kwargs):
+                return FailedConnection()
+        client=HomeAssistantClient('ws://example','token');client._session=FailedSession()
+        with self.assertRaisesRegex(HomeAssistantError,'history connection failed'):
+            await client.history([P],1,100)
