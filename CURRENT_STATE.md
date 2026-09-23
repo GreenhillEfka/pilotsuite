@@ -1,18 +1,19 @@
 # Current State
 
-## Development: release marker contract
+## Merged: release marker contract
 
 The alpha.14 tree still embedded alpha.13 in the browser footer and first-start
 documentation. The footer is now release-neutral, while a regression requires the
 documented release marker to equal the canonical VERSION/config/Docker markers and
-rejects semantic-version literals in the static web shell. 123 backend tests, four
-JavaScript tests and repository validation pass locally. Browser/container CI remains
-required before merge. This changes no runtime behavior, storage, consent or access.
+rejects semantic-version literals in the static web shell. PR #26 merged as main
+commit `53a17f37f7b3e00032df9553910038ba5b8947d3`. Exact main CI 35826763429
+passed 123 backend tests, four JavaScript tests, Chromium browser regression and the
+amd64 container. This changes no runtime behavior, storage, consent or access.
 
 Live remains alpha.13: the current Supervisor Store still offers alpha.13. Scoped
 backup fe09f165 remains the prepared rollback point; no update or restart occurred.
-Next: merge only after CI, then obtain an authorized Store refresh, verify offered
-alpha.14 and its exact source, deploy once and perform authenticated workbench checks.
+Next: obtain an authorized Store refresh, verify offered alpha.14 and its exact
+source, deploy once and perform authenticated workbench checks.
 
 ## Published alpha.14; live update pending (2026-09-23)
 

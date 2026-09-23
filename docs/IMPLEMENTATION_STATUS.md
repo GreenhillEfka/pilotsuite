@@ -1,12 +1,14 @@
 # Capability and acceptance ledger
 
-## Release marker reliability increment
+## Merged release marker reliability increment
 
 The alpha.14 tree no longer exposes a stale alpha.13 literal in its static browser
 shell. The first-start documentation is tied by regression to the canonical version,
-and the static shell is required to stay free of hard-coded alpha numbers. 123 backend
-tests, four JavaScript tests and repository validation pass locally; browser/container
-CI is pending. No persistence, consent, history or execution boundary changes.
+and the static shell is required to stay free of hard-coded alpha numbers. PR #26
+merged as main commit `53a17f37f7b3e00032df9553910038ba5b8947d3`.
+Exact main CI 35826763429 passed 123 backend tests, four JavaScript tests, Chromium
+browser regression and the amd64 container. No persistence, consent, history or
+execution boundary changes.
 
 Deployment remains separate: Supervisor still reports alpha.13 installed and offered.
 Backup fe09f165 remains available; no app update or restart was performed. The next
