@@ -4,19 +4,19 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.16",
-    "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
-    "app_tree": "811de10be4d11acab5ee98a41eb5dc3a93b56f46",
-    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35838497565",
+    "version": "0.1.0-alpha.17",
+    "commit": "8a8393249ef43c9f85dbfc6ec759889827319de3",
+    "app_tree": "70879070888a7de8df6b15d1800bdb4bace5f598",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35874744954",
     "ci_conclusion": "success",
-    "source_association": "canonical_repository_version_and_unchanged_app_tree",
+    "source_association": "published_canonical_source_not_yet_offered_by_store",
     "independent_store_checkout_verified": false
   },
   "backup": {
-    "id": "95bb73d4",
-    "date": "2026-09-23T10:49:56.900592+00:00",
-    "previous_version": "0.1.0-alpha.13",
-    "size_bytes": 53893120,
+    "id": "94355ad1",
+    "date": "2026-09-23T14:28:37.976900+00:00",
+    "previous_version": "0.1.0-alpha.16",
+    "size_bytes": 53923840,
     "completed": true,
     "native_details_verified": true,
     "only_pilotsuite": true,
@@ -38,15 +38,24 @@
     ]
   },
   "ingress_acceptance": {
-    "version": "0.1.0-alpha.16",
-    "status": "user_reported_pass",
-    "date": "2026-09-23",
-    "scope": [
-      "zone_guide",
-      "zone_navigation",
-      "pattern_workbench"
-    ],
-    "independent_network_capture": false
+    "version": "0.1.0-alpha.17",
+    "status": "pending",
+    "reason": "release_not_yet_installed"
   },
-  "next_task": "Verify alpha.17 temporal-review candidate, scoped backup, release and deployment; alpha.16 user UI acceptance is complete."
+  "next_task": "When alpha.17 is offered, verify source/backup freshness, update once, verify runtime and accept temporal review UI. Alpha.16 user UI acceptance is complete.",
+  "previous_user_accepted_release": {
+    "version": "0.1.0-alpha.16",
+    "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
+    "ui_acceptance": {
+      "version": "0.1.0-alpha.16",
+      "status": "user_reported_pass",
+      "date": "2026-09-23",
+      "scope": [
+        "zone_guide",
+        "zone_navigation",
+        "pattern_workbench"
+      ],
+      "independent_network_capture": false
+    }
+  }
 }

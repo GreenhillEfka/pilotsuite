@@ -9,8 +9,9 @@
 - Follow RELEASE_RUNBOOK.md for every release; alpha.16 adds the requested zone
   guide to existing setup and optional learning, without another state owner.
   Alpha.16 is installed and user UI acceptance is confirmed. Alpha.17 extends
-  retained-evidence review with the shared chronological split; next is exact CI,
-  scoped release/deployment and review of already-consented evidence. No actuation.
+  retained-evidence review with the shared chronological split; PR #37/main CI
+  35874744954 are green. Next is Store availability, scoped deployment and review of
+  already-consented evidence. No actuation.
 
 ## 0.2 — consented read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
