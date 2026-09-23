@@ -1,5 +1,33 @@
 # Current State
 
+## Development: context response ordering — 2026-09-23
+
+Based on main 0359878; no open PR existed at the initial check and its CI
+35827610130 was green. UI context reads previously guarded only the zone ID:
+overlapping reads of the same zone, or leaving and returning to a zone, could
+replace a newer display with an older response. Feedback saves could likewise
+be visually undone by an already pending read (persisted feedback was unaffected).
+
+A monotonically increasing read generation now rejects stale successes and stale
+errors. Selection reloads and context mutations invalidate pending reads. Current
+errors still propagate; an obsolete prerequisite read cannot continue a history
+request. No schema, algorithm, evidence, consent or actuator change.
+
+Five deterministic Node regressions exercise the actual UI function. Four failed
+before the fix and all five pass after it. Local totals: 123 backend tests, nine
+JavaScript tests, syntax and repository contracts passed. Browser regression now
+freezes an old GET while saving feedback. PR #31 functional candidate 2823517
+passed CI 35831207187: backend/JS, expanded Chromium and amd64 container. The
+following documentation-only commit records that verified result.
+
+Fresh HA metadata still reports alpha.13 installed/offered/started, with no update
+available. Readiness logs report connected stream, fresh snapshot and resolved zone.
+No HA write, installation, restart, data collection or bypass of Ingress occurred.
+Known Store/interactive UI acceptance constraints remain separate from this fix.
+Next: exact candidate CI and merge; then a separately verified release and scoped
+backup before deployment, only when the Store offers the correct source/version.
+Authenticated workbench/navigation acceptance and real learning remain open.
+
 ## Usability revision candidate — 2026-09-23
 
 Based on main 1644c9b (alpha.14). A dedicated revision improves navigation,

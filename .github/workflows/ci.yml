@@ -30,7 +30,7 @@ jobs:
           node --check pilotsuite/pilotsuite/web/app.js
           node --check pilotsuite/pilotsuite/web/history.js
           node --check pilotsuite/pilotsuite/web/selections.js
-          node --test pilotsuite/tests/selection_draft.test.cjs
+          node --test pilotsuite/tests/*.test.cjs
       - name: Install runtime dependencies
         run: python -m pip install --disable-pip-version-check --requirement pilotsuite/requirements.txt
       - name: Compile Python

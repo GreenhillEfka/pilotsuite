@@ -222,9 +222,23 @@ const assert = require('node:assert/strict');
     await page.locator('#pattern-filter').selectOption('accepted');
     assert.match(await page.locator('#learned-patterns').innerText(), /Keine Muster/);
     await page.locator('#pattern-filter').selectOption('open');
+    // Freeze an older read while the actual feedback handler saves a newer result.
+    let releaseOlderRead;
+    let markOlderReadCaptured;
+    const olderReadCaptured = new Promise(resolve => { markOlderReadCaptured = resolve; });
+    await page.route('**/api/v1/zones/hz_test/context', async route => {
+      const oldSnapshot = JSON.parse(JSON.stringify(contexts.hz_test));
+      await new Promise(resolve => { releaseOlderRead = resolve; markOlderReadCaptured(); });
+      await route.fulfill({json:oldSnapshot});
+    }, {times:1});
+    await page.evaluate(() => { window.pendingOlderContextRead = loadContext(); });
+    await olderReadCaptured;
     await page.getByRole('button',{name:'Passt',exact:true}).click();
     await page.locator('#pattern-filter').selectOption('accepted');
     await page.waitForFunction(() => document.getElementById('learned-patterns').textContent.includes('Deine Präferenz: Passt'));
+    releaseOlderRead();
+    await page.evaluate(() => window.pendingOlderContextRead);
+    assert.match(await page.locator('#learned-patterns').innerText(), /Deine Präferenz: Passt/);
     assert.equal(contexts.hz_test.event_count,6);
     await page.locator('#context-edit').click();
     conflict=true;

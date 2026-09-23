@@ -1,5 +1,18 @@
 # Capability and acceptance ledger
 
+## Context response ordering candidate
+
+Read generations prevent late same-zone / revisited-zone responses and obsolete
+errors from superseding newer context. Feedback/configuration/reset and selection
+reloads invalidate pending reads; this changes UI ordering only, not persisted
+evidence or preference. Five synthetic ordering tests (four reproduced failures on
+the preceding code) pass alongside four selection JS tests and 123 backend tests.
+The browser regression holds an older GET across a real UI feedback save. Exact
+candidate 2823517 passed CI 35831207187, including Chromium and amd64 container
+(PR #31). No deployment was performed.
+Live metadata still reports alpha.13 installed/offered/started. Next gate: candidate
+CI, followed by separately verified release/backup and authorized live acceptance.
+
 ## Release marker reliability increment
 
 The alpha.14 tree no longer exposes a stale alpha.13 literal in its static browser

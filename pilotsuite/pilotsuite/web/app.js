@@ -160,6 +160,7 @@ let dashboardSuggestions = [];
 let zoneToggleBusy = false;
 let contextEditing = false;
 let contextData = null;
+let contextGeneration = 0;
 let zoneExtraSelection = new Set();
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
@@ -230,6 +231,7 @@ function selectionChanged() {
 
 async function loadSelection(zone) {
   if (selectionBusy) return;
+  contextGeneration++;
   if (typeof historyInvalidate === "function") historyInvalidate();
   const zoneChanged = selectionZone !== zone;
   selectionBusy = true; selectionZone = zone;
@@ -483,11 +485,19 @@ function renderCompactSummary(result) {
 
 async function loadContext() {
   const zone = selectionZone;
-  const result = await json(`api/v1/zones/${encodeURIComponent(zone)}/context`);
-  if (zone !== selectionZone) return;
+  const generation = ++contextGeneration;
+  let result;
+  try { result = await json(`api/v1/zones/${encodeURIComponent(zone)}/context`); }
+  catch (error) {
+    if (zone !== selectionZone || generation !== contextGeneration) return false;
+    throw error;
+  }
+  // A zone can be revisited, and overlapping reads can finish out of order.
+  if (zone !== selectionZone || generation !== contextGeneration) return false;
   contextData = result;
   if (typeof historyCheckRevision === "function") historyCheckRevision();
   renderLearning();
+  return true;
 }
 function renderLearning() {
   if (!contextData?.config) return;
@@ -592,6 +602,7 @@ function renderLearning() {
       button.disabled = selectionBusy || contextEditing;
       button.addEventListener('click', async () => {
         const zone = selectionZone;
+        contextGeneration++;
         selectionBusy = true; renderSelection(); renderLearning();
         try { contextData = await json(`api/v1/zones/${encodeURIComponent(zone)}/feedback`, {method:'POST', body:JSON.stringify({pattern_id:pattern.id, decision})}); text('context-message', `Bewertung „${label}“ gespeichert. Keine Automation aktiviert.`); }
         catch(error) { text('context-message', `Feedback nicht bestätigt: ${error.message}`); }
@@ -616,7 +627,7 @@ byId('context-edit').addEventListener('click', async () => {
   if (selectionBusy || contextEditing || zoneFormOpen || selectionDraft?.dirty) return;
   contextEditing = true; renderSelection();
   try {
-    await loadContext();
+    if (!await loadContext()) return;
     for (const [role, kinds] of Object.entries(roleKinds)) {
       const select = byId(`role-${role}`); select.replaceChildren();
       const current = (contextData.effective_roles || contextData.config.roles)[role] || [];
@@ -659,6 +670,7 @@ byId('context-form').addEventListener('submit', async event => {
   const sourceChanged=JSON.stringify(roles.presence || []) !== JSON.stringify(contextData.config.roles.presence || []);
   if (sourceChanged && contextData.event_count && !window.confirm('Lernquelle wechseln? Vorhandene Lernbelege und Musterfeedback dieser Zone werden gelöscht.')) return;
   if (learning && (!contextData.config.learning || sourceChanged) && !window.confirm(`Lernen für ${roles.presence || 'keine ausgewählte Quelle'} freigeben? Bis 14 Tage Aktivierungen speichern, Zeitfenster in ${detector.timezone}, höchstens 5.000 Belege insgesamt. Keine Aktorsteuerung.`)) return;
+  contextGeneration++;
   selectionBusy=true; byId('context-fields').disabled=true; renderSelection();
   try {
     contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles,learning,detector,context_learning})});
@@ -672,7 +684,8 @@ byId('learning-reset').addEventListener('click', async () => {
   if (selectionBusy || contextEditing || selectionDraft?.dirty || !window.confirm('Lernbelege und Musterfeedback dieser Zone löschen und Lernen ausschalten? Die Entitätenauswahl bleibt erhalten.')) return;
   selectionBusy=true; renderSelection();
   try {
-    await loadContext();
+    if (!await loadContext()) return;
+    contextGeneration++;
     contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles:contextData.config.roles,learning:false,reset:true})});
     text('context-message','Lernbelege und Feedback gelöscht. Lernen ausgeschaltet.');
     selectionBusy=false; await loadSelection(selectionZone); await load();
