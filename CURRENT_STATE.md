@@ -1,5 +1,31 @@
 # Current State
 
+## Development: consent-gated coarse event attribution
+
+Based on released main `ebadf12` / installed `0.1.0-alpha.11`. The event stream now
+subscribes separately to `state_changed` and `call_service`. When at least one zone
+has active learning consent and an eligible source, a bounded in-memory correlator
+keeps opaque HA context links for at most 120 seconds / 2,048 entries. Disconnect,
+loss of all eligible learning sources or process restart clears them. No service
+payload, user ID or context ID is written to SQLite, exports, logs or the UI.
+
+Persisted activity evidence can distinguish direct user context, correlated
+parented service context, correlated unparented service context, uncorrelated
+derived context and unknown. These are hints, not proof of manual operation or a
+specific automation/script. The candidate UI makes that limitation explicit.
+PilotSuite remains read-only and therefore produces no own-action evidence.
+
+Synthetic regression covers dual subscriptions, interleaved dispatch, consent
+gating, expiry/limit/disconnect clearing, identifier non-disclosure and independent
+origin persistence. 93 backend tests, four JS tests, repository validation and
+Python compilation pass locally. Browser and amd64 container CI remain required;
+this increment is not released or installed. HA remains unchanged on alpha.11.
+
+Next: exact-commit CI and review this bounded attribution contract. If green, merge
+without enabling learning, then prepare a separately versioned release with an
+App-and-data backup and explicit recovery to alpha.11. Live attribution acceptance
+requires already-consented real learning; do not enable it merely for a test.
+
 ## Released and running: 0.1.0-alpha.11
 
 PR #9 merged as a1bb95f7a6c045ece234ad70e8e9ee3c855129d0. The merge tree

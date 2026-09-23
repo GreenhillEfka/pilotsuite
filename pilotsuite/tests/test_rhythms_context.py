@@ -90,6 +90,21 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(1, report['context_windows'][0]['light_on'])
         self.assertEqual([], (await self.store.report('other',now=self.now+302))['context_evidence'])
 
+    async def test_bounded_origin_categories_persist_but_identifiers_do_not(self):
+        await self.configure()
+        origins = ('parented_service_context', 'service_context', 'derived_context', 'invalid-private-id')
+        for index, origin in enumerate(origins):
+            occurred = self.now + index * 301
+            await self.store.record(
+                'a', 'binary_sensor.p', occurred, origin, now=occurred
+            )
+        report = await self.store.report('a', now=self.now + 904)
+        self.assertEqual(
+            ['parented_service_context', 'service_context', 'derived_context', 'unknown'],
+            [item['origin'] for item in report['evidence']],
+        )
+        self.assertNotIn('invalid-private-id', json.dumps(report))
+
     async def test_context_withdrawal_and_role_change(self):
         await self.configure(context_learning=True)
         await self.store.record('a','binary_sensor.p',self.now,'unknown',now=self.now,context=self.data)
