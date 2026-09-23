@@ -1,5 +1,19 @@
 # Current State
 
+## Development: pattern workbench
+
+The user confirmed on 2026-09-23 that the existing history diagram renders.
+This is user-reported UI acceptance, not independent Recorder coverage verification.
+The next package adds preference filters, derived evidence chains, matching local
+light-context summaries, coverage warnings and JSON review briefs to the existing
+pattern cards. It reuses canonical candidates and durable feedback; no new evidence
+store, collection consent, migration or actuation path. See docs/PATTERN_WORKBENCH.md.
+122 synthetic backend tests, four JavaScript tests and repository validation pass
+locally. Extended Chromium regression and amd64 CI must pass before merge.
+No version bump or installation yet; last verified live version remains alpha.13.
+Next: candidate CI, then release packaging with a fresh scoped App-and-data backup
+and exact-version CI; after installation, review the workbench with the user.
+
 ## Merged: bounded history request timeouts
 
 The next reliability increment maps both the explicit 90-second history budget and

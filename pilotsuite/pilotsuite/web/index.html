@@ -218,6 +218,10 @@
           <div class="selection-tools"><button type="submit">Rollen / Freigabe speichern</button><button id="context-cancel" type="button">Abbrechen</button></div>
         </fieldset></form>
         <details><summary>Wie wird aus einem Muster eine Umsetzung?</summary><p>„Passt“ bestätigt nur, dass ein Muster hilfreich ist. Es erteilt keine Schaltfreigabe. Geplant: vorhandene HA-Automationen prüfen, konkreten Skript-/Automationsentwurf mit Bedingungen und Rückweg zeigen, separat freigeben, gesichert anwenden und Ergebnis prüfen. Die Ausführung ist in dieser Version gesperrt.</p></details>
+        <h3>Muster-Werkbank</h3>
+        <p>Belege prüfen, Routine bewerten und die nächsten Schritte vorbereiten. „Passt“ ist keine Schaltfreigabe.</p>
+        <label>Muster anzeigen<select id="pattern-filter"><option value="all">Alle</option><option value="open">Offen</option><option value="accepted">Passt</option><option value="later">Später</option><option value="rejected">Nicht hilfreich</option></select></label>
+        <p id="pattern-summary" role="status"></p>
         <p id="context-message" role="status"></p><div id="learned-patterns"></div>
       </section>
       <p id="error" class="error" role="alert" hidden></p>

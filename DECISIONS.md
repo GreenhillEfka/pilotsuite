@@ -1,5 +1,14 @@
 # Architecture Decision Log
 
+## ADR-025 — Review briefs are derived and cannot authorize execution
+
+The pattern workbench derives briefs and evidence graphs from the canonical report.
+Existing feedback owns preference; no duplicate lifecycle or evidence store is added.
+Context must match the candidate's local window and day group. Zone-wide coverage
+stays explicitly zone-wide. A brief includes no executable actions; acceptance is
+not actuation consent. Exports are explicit user downloads and may contain private
+routine/source information. See docs/PATTERN_WORKBENCH.md.
+
 ## ADR-023 — Origin hints are consent-gated, ephemeral and non-identifying
 
 Home Assistant context fields are correlation links, not verified human or

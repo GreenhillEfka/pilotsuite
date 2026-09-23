@@ -47,6 +47,10 @@ See `docs/HISTORY_AND_TRENDS.md` and `docs/EVENT_ATTRIBUTION.md`.
 
 ## Conceptual chain
 
+The user confirmed history diagram rendering on 2026-09-23. Recorder coverage is
+still separate. The pattern-workbench candidate derives review briefs from canonical
+evidence and preference; it is not an execution plan. See docs/PATTERN_WORKBENCH.md.
+
 `world/sensors -> neurons -> moods -> synapses -> suggestions -> dialogue/approval -> policy -> transaction -> Home Assistant`
 
 - **Neurons** normalize relevant Home Assistant observations.

@@ -519,8 +519,13 @@ function renderLearning() {
   }
   byId('learning-export').href = endpoint(`api/v1/zones/${encodeURIComponent(selectionZone)}/context/export`);
   const root = byId('learned-patterns'); root.replaceChildren();
+  text('pattern-summary', 'Noch keine aktuellen Muster.');
   if (!contextData.patterns?.length) { root.textContent = `Noch kein Musterkandidat: mindestens ${progress?.required_events ?? 5} beobachtete Aktivierungen an ${progress?.required_days ?? 3} verschiedenen lokalen Tagen derselben Tagesgruppe im gleichen Zwei-Stunden-Fenster nötig.`; return; }
-  for (const pattern of contextData.patterns) {
+  const filter = byId('pattern-filter').value;
+  const visible = contextData.patterns.filter(p => filter === 'all' || (filter === 'open' ? !p.preference : p.preference === filter));
+  text('pattern-summary', `${visible.length} von ${contextData.patterns.length} aktuellen Mustern. Abgelaufene Muster werden nicht als aktuelle Vorschläge angezeigt.`);
+  if (!visible.length) root.textContent = 'Keine Muster in dieser Auswahl.';
+  for (const pattern of visible) {
     const card = document.createElement('article'); card.className = 'suggestion';
     const title = document.createElement('h3'); title.textContent = pattern.title;
     const stats = pattern.statistics || {};
@@ -530,6 +535,31 @@ function renderLearning() {
     const assessment = document.createElement('p'); assessment.textContent = `Regelstärke: Schwelle erfüllt (Ereignisse ×${pattern.rule_strength?.event_ratio ?? '—'}, Tage ×${pattern.rule_strength?.day_ratio ?? '—'}). Konfidenz: ${pattern.confidence == null ? 'nicht bestimmt' : percent(pattern.confidence)}. Risiko: ${pattern.risk === 'read_only' ? 'nur Prüfung, keine Aktion' : pattern.risk}.`;
     const feedback = document.createElement('p'); feedback.textContent = `Deine Präferenz: ${{accepted:'Passt', rejected:'Nicht hilfreich', later:'Später prüfen'}[pattern.preference] || 'noch offen'}`;
     card.append(title, evidence, assessment, feedback);
+    const review = contextData.reviews?.find(item => item.pattern_id === pattern.id);
+    if (review) {
+      const details = document.createElement('details');
+      const heading = document.createElement('summary'); heading.textContent = 'Belegkette und Prüfentwurf'; details.append(heading);
+      const chain = document.createElement('ol'); chain.setAttribute('aria-label', 'Belegkette');
+      for (const node of review.evidence_graph.nodes) {
+        const item = document.createElement('li'); item.textContent = node.label; chain.append(item);
+      }
+      details.append(chain);
+      const warnings = document.createElement('p'); warnings.textContent = review.warnings.join(' '); details.append(warnings);
+      const ctx = document.createElement('p'); ctx.textContent = review.context
+        ? `Kontext im selben Zeitfenster: Licht an ${review.context.light_on}, aus ${review.context.light_off}, unbekannt ${review.context.light_unknown}. Gleichzeitiges Auftreten ist keine Schaltfolge.`
+        : 'Kein passender Lichtkontext für dieses Zeitfenster vorhanden.';
+      details.append(ctx);
+      const steps = document.createElement('ol');
+      for (const step of review.next_steps) { const item = document.createElement('li'); item.textContent = step; steps.append(item); }
+      details.append(steps);
+      const download = document.createElement('button'); download.type = 'button'; download.textContent = 'Prüfentwurf als JSON exportieren';
+      download.addEventListener('click', () => {
+        const url = URL.createObjectURL(new Blob([JSON.stringify(review, null, 2)], {type:'application/json'}));
+        const link = document.createElement('a'); link.href=url; link.download='pilotsuite-review.json'; link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+      details.append(download); card.append(details);
+    }
     for (const [decision, label] of [['accepted','Passt'], ['rejected','Nicht hilfreich'], ['later','Später prüfen']]) {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
       button.disabled = selectionBusy || contextEditing;
@@ -546,6 +576,7 @@ function renderLearning() {
   }
 }
 const roleKinds = {temperature:['temperature'], humidity:['humidity'], illuminance:['illuminance'], light:['light'], presence:['motion','occupancy','presence'], reference_temperature:['temperature']};
+byId('pattern-filter').addEventListener('change', renderLearning);
 function renderRolePreview() {
   const parts = Object.keys(roleKinds).filter(k => k !== 'reference_temperature').map(role => {
     const count = byId(`role-${role}`).querySelectorAll('input:checked').length;
