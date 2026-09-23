@@ -30,15 +30,16 @@ This file is the canonical long-term context for humans and AI contributors. If 
 Alpha.18 is published via PR #40 at f3f5a25; exact main CI 35880705662 is green
 (151 Python, nine JS, Chromium, amd64). Feedback validation/save now share a SQLite
 transaction. Existing HTTP serialization is distinct from the store-level race tests.
-HA still runs/offers alpha.17. Verified backup 92e7a465 holds that app/data/options.
-Next: alpha.18 Store availability, source/backup recheck, scoped update and runtime
-checks. Temporal UI/export acceptance remains separately open. No learning enabled.
+HA now runs/offers alpha.18 after one successful normal Store update. Fresh verified
+backup b6c90eb0 holds alpha.17 app/data/options for scoped rollback. Runtime checks
+passed. Next: authenticated temporal UI/export acceptance, without reinstallation.
+No learning enabled. The Store already offered alpha.18; no refresh was performed.
 
 The user accepted alpha.16 guide/navigation/workbench on 2026-09-23. This closes
 that user UI gate; it does not prove real learning quality or independent network
 capture. Alpha.17 (PR #37, 8a83932; CI 35874744954 green) adds temporal review of existing retained evidence using
 the shared retrospective logic (docs/PATTERN_WORKBENCH.md). No extra collection,
-state owner or execution permission. HA now runs/offers alpha.17 after verified scoped backup fcbbc115 and one update.
+state owner or execution permission. Alpha.18 includes that temporal view and is installed.
 Runtime/read-only checks passed. Next is authenticated temporal-view/export acceptance,
 then quality review only within existing explicit learning consent.
 For any release: read docs/RELEASE_STATE.json, the newest CURRENT_STATE receipt and
@@ -63,7 +64,7 @@ Alpha.14 adds the pattern workbench on top of targeted transient HA
 history/statistics views and the existing consented evidence owner. Do not copy
 Recorder data or infer missing history as absence of behavior. The immediate live
 continuation is alpha.17 temporal-view/export acceptance, after user acceptance of alpha.16.
-Alpha.17 is installed and started after verified scoped backup fcbbc115. Native backup/details
+Alpha.18 is installed and started after verified scoped backup b6c90eb0. Native backup/details
 works; the old permission-gate receipt is superseded. Source association uses the
 canonical release and unchanged app tree, not an exposed Store checkout SHA.
 Reliability corrections may continue as separate

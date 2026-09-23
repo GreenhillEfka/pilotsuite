@@ -147,6 +147,19 @@ documentation PR solely to record a documentation CI run.
 
 ## Verified operational facts (2026-09-23)
 
+- Alpha.18 update repeated the working routine: ha_get_app offered alpha.18 while
+  alpha.17 ran; fresh hassio.backup_partial with apps [0d79c5e8_pilotsuite]; list
+  completion; native backup/details verified b6c90eb0 and alpha.17 app/data/options;
+  exact source CI and unchanged app tree checked; one ha_manage_app(action=update);
+  ha_get_app and startup/readiness logs confirmed alpha.18, started, hard_read_only,
+  connected stream, fresh snapshot and resolved zone. No separate restart needed.
+- Store availability and installation permission are different gates. Alpha.18 was
+  already offered at the successful deployment check; no Store refresh was needed
+  or performed. This success does not prove the previously denied /store/reload
+  bridge is authorized. Never describe an unavailable Store offer as a general
+  inability to install; resume the working update path as soon as the offer matches.
+- Keep the live outcome and exact next action in RELEASE_STATE.json. Do not ask for
+  already-granted update/backup authorization or recreate this routine each turn.
 - Native backup/details worked for d454e834 and 95bb73d4 with existing credentials.
 - The earlier hassio/api backup-info call was denied. That gateway result did not
   establish a general backup permission failure. Do not repeat the old blocker.
