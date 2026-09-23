@@ -8,7 +8,7 @@
 | Einrichtung | Reihenfolge und gesperrte Bedienung unklar | Drei Einrichtungsschritte und sichtbarer Bearbeitungshinweis; Abgleich während Bearbeitung gesperrt |
 | Begriffe | Englische Fachbegriffe, alte Version im Fußtext | Deutsche Status-/Messwertbegriffe, feste Regeln getrennt von Lernmustern, Version nur aus Laufzeitstatus |
 | Zonen | Alter Lerninhalt konnte unter neuem Zonennamen verbleiben | Sofort leeren, Rückmeldungen verzögerter Anfragen an Zone binden, alten Exportlink entfernen |
-| Lernen | Module überladen den Einstieg | Modulübersicht aufklappbar; leere Lernfortschritte erklären den nächsten Schritt |
+| Lernen | Module überladen den Einstieg | Module und Belegdetails aufklappbar; Lernaktionen oben; leere Lernfortschritte erklären den nächsten Schritt |
 | Muster | Feedbackbestätigung fehlt | Gespeicherte Bewertung ausdrücklich bestätigen und aktuelle Auswahl markieren |
 | Historie | Gesperrter Import ohne Erklärung, technische Datumsfehler | Grund anzeigen; fehlende, umgekehrte, zukünftige und zu alte Zeiträume lokal ablehnen |
 | Darstellung | Unterschiedliche Eingaben; kleine Diagrammtexte | Einheitliche Zahlen-/Datumsfelder, responsive Karten, horizontal scrollbar lesbare Grafik |
@@ -24,7 +24,9 @@ Feedback getrennt. Hauptsensoren, Freigaben, Algorithmen und Aufbewahrung unver�
 - Lokal: 123 Backendtests, vier JavaScript-Modelltests, Syntax- und Vertragsprüfung.
 - Erweiterte Chromium-Prüfung: bestehende Speicher-/Konflikt-/Lern-/Exportpfade plus
   Navigation, Bearbeitungshinweis, fehlgeschlagenen Zonen-Kontext, Historiengrenzen und Überlauf bei 390/768/1440 px.
-- Lokaler Chromium-Download fehlgeschlagen; Browser und Container via CI ausstehend.
+- Funktionsstand `4d3c8d3`: CI `35827201950` vollständig erfolgreich, einschließlich
+  Chromium und amd64-Container. Synthetische Screenshots für 390/768/1440 px archiviert;
+  Handy- und Desktopansicht visuell geprüft. Lokaler Chromium-Download fehlgeschlagen.
 - Produktive Home-Assistant-Oberfläche und reale Sensordaten sind eine separate Abnahme.
 
 ## Offene Verbesserungen

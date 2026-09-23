@@ -10,8 +10,11 @@ History import explains its disabled state; custom intervals are validated befor
 requesting HA history. No schema, role, consent or algorithm change.
 
 Local verification after merging main 53a17f3: 123 backend tests, four JS tests, syntax and repository contracts
-pass. Chromium could not be downloaded locally; expanded CI browser tests cover
-navigation, editing state, history validation and widths 390/768/1440. CI is pending.
+pass. Final functional candidate 4d3c8d3 passed CI 35827201950: backend, JS,
+Chromium and amd64 container. Expanded browser tests cover navigation, editing state,
+failed-zone isolation, history validation and widths 390/768/1440. Synthetic mobile
+and desktop screenshots were visually reviewed; dense learning details were folded
+and cancelled-edit feedback corrected. Local Chromium download remained unavailable.
 No HA update or live usability acceptance performed. Latest prior deployment report
 was alpha.13; alpha.14 store refresh was unauthorized. Do not infer installation
 from repository version. See docs/USABILITY_REVIEW.md.
