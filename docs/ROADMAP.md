@@ -1,11 +1,12 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Current slice: alpha.19 candidate adds persistent revisioned routine drafts to
-  existing PlanStore (ADR-027). No execution or copied evidence. Next: exact CI,
-  normal Store update after verified scoped backup, then read-only comparison
-  with existing HA automations. Temporal/draft UI and real learning/second-zone
-  acceptance remain separate. Alpha.18 atomic feedback is already installed.
+- Alpha.19 persistent revisioned routine drafts are published (PR #43, main CI
+  35905466915 green: 163 Python, nine JS, Chromium, amd64). Existing PlanStore,
+  no execution or copied evidence (ADR-027). HA remains alpha.18 installed/offered.
+  Next delivery: Store offer, normal update with verified scoped backup, live checks.
+  Next concept slice: read-only existing-automation comparison. Temporal/draft UI
+  and real learning/second-zone acceptance remain separate.
 - Preserve canonical repository and read-only boundary.
 - Normalize units, explicit missing evidence, stable suggestion identity.
 - Guard Ingress peer; test actual proxy path and browser assets.
