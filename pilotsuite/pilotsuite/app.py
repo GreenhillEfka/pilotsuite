@@ -12,7 +12,7 @@ from aiohttp import web
 
 from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
 from pilotsuite.core.logging import configure_logging
-from pilotsuite.core.plans import InvalidPlan, ReadOnlyRelease
+from pilotsuite.core.plans import InvalidPlan, ReadOnlyRelease, TARGET_DOMAINS
 from pilotsuite.core.settings import Settings
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
@@ -103,6 +103,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_get("/", _index)
     app.router.add_get("/assets/app.js", _javascript)
     app.router.add_get("/assets/history.js", _history_javascript)
+    app.router.add_get('/assets/drafts.js', _draft_javascript)
     app.router.add_get("/assets/selections.js", _selection_javascript)
     app.router.add_get("/assets/styles.css", _stylesheet)
     app.router.add_get("/health", _health)
@@ -122,6 +123,10 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_patch('/api/v1/zones/{zone_id}/context', _context_patch)
     app.router.add_get('/api/v1/zones/{zone_id}/context/export', _context_export)
     app.router.add_post('/api/v1/zones/{zone_id}/feedback', _pattern_feedback)
+    app.router.add_get('/api/v1/zones/{zone_id}/drafts', _routine_drafts)
+    app.router.add_post('/api/v1/zones/{zone_id}/drafts', _routine_drafts)
+    app.router.add_patch('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
+    app.router.add_delete('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
     app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
@@ -335,6 +340,9 @@ async def _context_payload(service, zone_id, export=False):
         report.pop('context_evidence', None)
         report.pop('coverage_samples', None)
     report['revision'] = inventory['revision']
+    report['drafts'] = await service.plans.drafts(zone_id, inventory)
+    report['draft_target_candidates'] = [i for i in inventory['items'] if i['decision'] == 'relevant'
+                                         and i['entity_id'].split('.')[0] in TARGET_DOMAINS]
     report['enabled'] = inventory['enabled']
     report['eligible'] = zone_id in service._learning_sources
     report['collection_state'] = (
@@ -422,6 +430,34 @@ async def _pattern_feedback(request):
         await service.selection_inventory(request.match_info['zone_id'])
         await service.context.feedback(request.match_info['zone_id'], payload['pattern_id'], payload['decision'])
         return web.json_response(await _context_payload(service, request.match_info['zone_id']))
+
+
+async def _draft_javascript(request):
+    return web.FileResponse(WEB_DIR / 'drafts.js', headers={'Cache-Control': 'no-cache'})
+
+
+async def _routine_drafts(request):
+    service = request.app[SERVICE_KEY]
+    zone_id = request.match_info['zone_id']
+    payload = None
+    if request.method != 'GET':
+        try: payload = await request.json()
+        except ValueError as exc: raise InvalidSelection('Invalid JSON') from exc
+        if not isinstance(payload, dict): raise InvalidSelection('Object required')
+    async with service._projection_lock:
+        inventory = await service.selection_inventory(zone_id)
+        if request.method == 'GET':
+            return web.json_response({'items': await service.plans.drafts(zone_id, inventory)})
+        if request.method == 'POST':
+            if set(payload) != {'pattern_id', 'zone_revision'}:
+                raise InvalidSelection('pattern_id and zone_revision required')
+            draft = await service.plans.create_draft(zone_id, payload['pattern_id'], payload['zone_revision'], inventory)
+            return web.json_response(draft, status=201)
+        if request.method == 'PATCH':
+            return web.json_response(await service.plans.save_draft(zone_id, request.match_info['draft_id'], payload, inventory))
+        if set(payload) != {'revision'}: raise InvalidSelection('revision required')
+        await service.plans.delete_draft(zone_id, request.match_info['draft_id'], payload['revision'])
+        return web.json_response({'deleted': True})
 
 
 async def _history_request(request, importing=False):

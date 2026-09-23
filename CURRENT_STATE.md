@@ -1,5 +1,30 @@
 # Current State
 
+## Routine drafts / alpha.19 candidate — 2026-09-23
+
+The user approved implementing durable routine drafts. The existing PlanStore owns
+creation/edit/export/delete with optimistic revisions and explicit source refresh.
+SQLite schema 7 adds one bounded table after backing up schema 6. User-authored
+fields survive learning reset; evidence/statistics/preferences are not copied.
+Current patterns are derived from ContextStore. No execution or extra collection;
+risk and automation comparison remain unassessed. Contract: docs/ROUTINE_DRAFTS.md.
+
+Local validation: 163 Python tests (12 new synthetic draft/API/migration cases).
+Browser regression adds create/edit/conflict/reload/JSON export, zone isolation and
+mobile/desktop layout. Local Chromium download failed; exact PR/main CI is required.
+
+HA freshly reports alpha.18 installed/offered/started. Scoped backup 14e86f1c
+completed 2026-09-23T18:46:09Z, 53,954,560 bytes, unprotected. Native backup/details
+confirms exactly alpha.18 PilotSuite, no failures, HA configuration/database/folders
+excluded. Standard app backup includes data/options. Concrete recovery:
+hassio.restore_partial with slug 14e86f1c, apps [0d79c5e8_pilotsuite],
+homeassistant false, folders []; no restore drill. No installation performed yet.
+
+Next: exact alpha.19 CI, normal Store update when offered, runtime verification.
+Authenticated temporal/draft UI acceptance remains separate. Next concept slice:
+read-only comparison with existing HA automations, explicit uncertainty, no edits.
+No household evidence collected. Older receipts below are historical.
+
 ## Alpha.18 installed through the normal Store path — 2026-09-23
 
 The Store now offered alpha.18 while alpha.17 ran. Fresh source verification confirms

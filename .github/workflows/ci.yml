@@ -29,6 +29,7 @@ jobs:
         run: |
           node --check pilotsuite/pilotsuite/web/app.js
           node --check pilotsuite/pilotsuite/web/history.js
+          node --check pilotsuite/pilotsuite/web/drafts.js
           node --check pilotsuite/pilotsuite/web/selections.js
           node --test pilotsuite/tests/*.test.cjs
       - name: Install runtime dependencies
