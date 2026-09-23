@@ -1,5 +1,20 @@
 # Capability and acceptance ledger
 
+## alpha.12 release candidate
+
+Release metadata combines merged PR #13 with the previously merged bounded origin
+hints. The code reads only saved relevant main groups through supported Home
+Assistant APIs, keeps raw history transient, and imports historical activations only
+after an additional interval-scoped consent. Event-origin identifiers remain
+memory-only and are persisted only as coarse categories. Schema 6 creates a
+pre-migration backup and shares the existing activity-v1 evidence owner.
+
+The candidate is not installed. HA remains on alpha.11, with all production
+learning/import choices unchanged. Exact candidate CI and a fresh, confirmed
+PilotSuite App-and-data backup are required before publication because automatic
+App updates are enabled. Live migration, history availability and Ingress behavior
+are not implied by synthetic/browser CI.
+
 ## History increment (development, not installed)
 Scoped HA raw/history and hourly statistic reads, zone graphs, weekly activity view
 and time-separated reobservation checks implemented. Explicit one-time activity

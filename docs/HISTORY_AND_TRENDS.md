@@ -1,6 +1,6 @@
 # Historie, Verläufe und rückwirkendes Lernen
 
-Entwicklungspaket nach alpha.11, noch nicht auf HA installiert.
+Release-Kandidat für alpha.12, noch nicht auf Home Assistant installiert.
 
 ## Bedienung
 
