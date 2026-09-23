@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -198,6 +199,55 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('relevant',(await self.service.selections.get('a'))['decisions']['binary_sensor.p'])
         self.assertEqual(409,(await self.client.patch(path,json={'revision':1,'roles':{},'learning':False})).status)
         self.assertEqual(400,(await self.client.post('/api/v1/zones/a/feedback',json={'pattern_id':'unknown','decision':'accepted'})).status)
+
+    async def test_consented_service_context_is_ephemeral_and_export_is_coarse(self):
+        from datetime import datetime, UTC
+        now = datetime.now(UTC)
+        entity = {'entity_id': 'binary_sensor.p', 'area_id': 'a'}
+        await self.service.world.replace({
+            'areas': [{'area_id': 'a'}],
+            'entities': [entity],
+            'states': [{'entity_id': entity['entity_id'], 'state': 'off',
+                        'last_updated': now.isoformat(),
+                        'attributes': {'device_class': 'motion'}}],
+        })
+        await self.service.selections.patch('a', 0, {'binary_sensor.p': 'relevant'})
+        await self.service.context.configure(
+            'a', 1, {'presence': ['binary_sensor.p']}, True,
+            now=now.timestamp() - 1,
+        )
+        self.service._connected = self.service._stream_connected = True
+        self.service._last_refresh_at = now.isoformat()
+        await self.service._derive()
+        await self.service._on_service_call({
+            'context': {'id': 'private-context-id', 'parent_id': 'private-parent-id'},
+            'data': {'domain': 'binary_sensor', 'service': 'turn_on'},
+        })
+        changed = datetime.now(UTC).isoformat()
+        await self.service._on_state_change({
+            'entity_id': 'binary_sensor.p',
+            'old_state': {'state': 'off'},
+            'new_state': {'entity_id': 'binary_sensor.p', 'state': 'on',
+                          'last_changed': changed, 'last_updated': changed,
+                          'attributes': {'device_class': 'motion'},
+                          'context': {'id': 'private-context-id'}},
+        })
+        exported = await self.service.context.report('a')
+        self.assertEqual('parented_service_context', exported['evidence'][0]['origin'])
+        self.assertNotIn('private-context-id', json.dumps(exported))
+        self.assertNotIn('private-parent-id', json.dumps(exported))
+
+        await self.service.context.configure(
+            'a', 2, {'presence': ['binary_sensor.p']}, False,
+            now=now.timestamp(),
+        )
+        await self.service._derive()
+        self.assertEqual(
+            'unknown',
+            self.service.attribution.classify_state(
+                {'context': {'id': 'private-context-id'}}
+            ),
+        )
 
     async def test_presence_selection_drives_summary_and_learning_after_reload(self):
         from pilotsuite.core.context import ContextStore

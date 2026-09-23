@@ -3,9 +3,27 @@
 ## History increment (development, not installed)
 Scoped HA raw/history and hourly statistic reads, zone graphs, weekly activity view
 and time-separated reobservation checks implemented. Explicit one-time activity
-import shares existing learning store; schema 6 with migration backup. 105 backend
+import shares existing learning store; schema 6 with migration backup. 113 backend
 and four JS tests pass locally; CI browser/container gate pending. See
 HISTORY_AND_TRENDS.md for consent, retention and limitations. Live remains alpha.11.
+
+## Merged after alpha.11: bounded origin hints
+
+PR #11 merged as 203fb51 with the exact tree tested at 00773dc. Main CI
+35802574356 passed 93 backend tests, four JS tests, Chromium browser regression
+and amd64 container. The code is merged but not versioned, released or installed;
+HA remains on alpha.11 and production learning consent is unchanged.
+
+The next small slice subscribes to HA `call_service` and correlates its context
+with activity state changes for 120 seconds in bounded memory. Correlation only
+runs with active per-zone learning consent and an eligible source; disconnect or
+loss of all eligible sources clears it. SQLite/export/UI receive only coarse origin
+categories, never HA user/context IDs or service payloads. Parented service context
+is displayed as a possible automation/script chain, not as causal proof. PilotSuite
+is read-only and emits no own-action evidence.
+
+Live origin acceptance remains separate and may use only already-consented
+learning. No version bump, HA update, role change or production consent change.
 
 ## alpha.11 released and installed
 
@@ -57,7 +75,7 @@ and real multi-day activity candidates still need live acceptance; consent stays
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Plural roles, separate references and source spread implemented; live mapping review pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Climate heuristics plus separate activity candidates with independent feedback; not causal habits |
 | Habitus zones and roles | Logical zones and entity selection implemented | Stable IDs, multiple areas, extras, editor; role groups with climate median/min/max, separate references and presence-any implemented |
-| Learning and consent | Bounded activity candidates implemented | Live event replay tests, role groups, opt-in, retention/export/reset; extended HA learning acceptance still pending |
+| Learning and consent | Bounded activity candidates; coarse consent-gated origin hints in development | Live event replay tests, role groups, opt-in, retention/export/reset; exact automation/manual attribution is intentionally not claimed; extended HA learning acceptance pending |
 | SQLite / migrations | Schema 4 for zones, roles, consent, evidence and feedback; migration tests pass | Pre-migration backup, shared revisions, export, bounded selection journal; audit/plans remain JSONL |
 | Multi-user preferences | Planned | Separate preference from evidence; conflict rules required |
 | Brain graph | Planned | Derived explanation graph, not a separate truth store |

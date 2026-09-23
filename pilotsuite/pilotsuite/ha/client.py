@@ -14,6 +14,7 @@ from aiohttp import ClientSession, ClientTimeout, WSMsgType
 
 LOGGER = logging.getLogger(__name__)
 StateCallback = Callable[[dict[str, Any]], Awaitable[None]]
+EventCallback = Callable[[dict[str, Any]], Awaitable[None]]
 MAX_WS_MESSAGE_BYTES = 32 * 1024 * 1024
 STABLE_STREAM_SECONDS = 60
 
@@ -112,8 +113,9 @@ class HomeAssistantClient:
     async def listen(
         self, callback: StateCallback, stop_event: asyncio.Event,
         connection_callback: Callable[[bool], Awaitable[None]] | None = None,
+        service_callback: EventCallback | None = None,
     ) -> None:
-        """Subscribe to state changes and reconnect with bounded backoff."""
+        """Subscribe to state/service events and reconnect with bounded backoff."""
         if not self._token:
             await stop_event.wait()
             return
@@ -129,16 +131,33 @@ class HomeAssistantClient:
                     max_msg_size=MAX_WS_MESSAGE_BYTES,
                 ) as socket:
                     await self._authenticate(socket)
-                    await socket.send_json(
-                        {
-                            "id": 1,
-                            "type": "subscribe_events",
-                            "event_type": "state_changed",
-                        }
-                    )
-                    subscribed = await self._receive_json(socket)
-                    if not subscribed.get("success"):
-                        raise HomeAssistantError("state_changed subscription rejected")
+                    subscriptions = {1: "state_changed"}
+                    if service_callback is not None:
+                        subscriptions[2] = "call_service"
+                    for request_id, event_type in subscriptions.items():
+                        await socket.send_json(
+                            {
+                                "id": request_id,
+                                "type": "subscribe_events",
+                                "event_type": event_type,
+                            }
+                        )
+                    confirmed: set[int] = set()
+                    while confirmed != set(subscriptions):
+                        subscribed = await self._receive_json(socket)
+                        if subscribed.get("type") == "event":
+                            await self._dispatch_event(
+                                subscribed, callback, service_callback
+                            )
+                            continue
+                        request_id = subscribed.get("id")
+                        if request_id not in subscriptions:
+                            continue
+                        if not subscribed.get("success"):
+                            raise HomeAssistantError(
+                                f"{subscriptions[request_id]} subscription rejected"
+                            )
+                        confirmed.add(request_id)
                     if connection_callback:
                         await connection_callback(True)
                     stream_started = monotonic()
@@ -148,10 +167,9 @@ class HomeAssistantClient:
                         if message.type is WSMsgType.TEXT:
                             payload = json.loads(message.data)
                             if payload.get("type") == "event":
-                                event = payload.get("event", {})
-                                data = event.get("data", {})
-                                if isinstance(data, dict):
-                                    await callback(data)
+                                await self._dispatch_event(
+                                    payload, callback, service_callback
+                                )
                         elif message.type in {
                             WSMsgType.CLOSED,
                             WSMsgType.CLOSE,
@@ -178,6 +196,24 @@ class HomeAssistantClient:
             except TimeoutError:
                 pass
             delay = min(delay * 2, 30)
+
+    @staticmethod
+    async def _dispatch_event(
+        payload: dict[str, Any],
+        state_callback: StateCallback,
+        service_callback: EventCallback | None,
+    ) -> None:
+        event = payload.get("event", {})
+        if not isinstance(event, dict):
+            return
+        event_type = event.get("event_type")
+        if event_type == "call_service" or payload.get("id") == 2:
+            if service_callback is not None:
+                await service_callback(event)
+        elif event_type == "state_changed" or payload.get("id") == 1:
+            data = event.get("data", {})
+            if isinstance(data, dict):
+                await state_callback(data)
 
     async def _authenticate(self, socket: Any) -> None:
         hello = await self._receive_json(socket)

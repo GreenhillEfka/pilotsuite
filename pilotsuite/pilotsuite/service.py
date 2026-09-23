@@ -15,6 +15,7 @@ from pilotsuite.core.settings import Settings
 from pilotsuite.core.selections import SelectionStore, InvalidSelection
 from pilotsuite.core.zones import ZoneStore
 from pilotsuite.core.context import ContextStore
+from pilotsuite.core.attribution import EventAttribution
 from pilotsuite.domain.context import context_summary
 from pilotsuite.domain.models import Mood, Neuron, Suggestion
 from pilotsuite.domain.moods import calculate_moods
@@ -35,6 +36,7 @@ class PilotSuiteService:
         self.selections = SelectionStore(settings.data_dir)
         self.zones = ZoneStore(self.selections)
         self.context = ContextStore(self.selections)
+        self.attribution = EventAttribution()
         self._learning_sources = {}
         self._history_lock = asyncio.Lock()
         self._zone_results: list[dict[str, Any]] = []
@@ -79,7 +81,12 @@ class PilotSuiteService:
                 details={"reason": "startup", "error": type(exc).__name__},
             )
         self._tasks = [
-            asyncio.create_task(self.client.listen(self._on_state_change, self._stop, self._on_connection)),
+            asyncio.create_task(self.client.listen(
+                self._on_state_change,
+                self._stop,
+                self._on_connection,
+                self._on_service_call,
+            )),
             asyncio.create_task(self._refresh_loop()),
         ]
 
@@ -267,6 +274,8 @@ class PilotSuiteService:
         self._neurons = list(neurons.values())
         self._moods = moods
         self._suggestions = suggestions
+        if not self._learning_sources:
+            self.attribution.clear()
 
     async def _on_state_change(self, event_data: dict[str, Any]) -> None:
         async with self._projection_lock:
@@ -285,8 +294,7 @@ class PilotSuiteService:
                     occurred = stamp.timestamp()
                 except (KeyError, ValueError, TypeError):
                     return
-                ctx = new.get('context') if isinstance(new.get('context'), dict) else {}
-                origin = 'user_context' if ctx.get('user_id') else 'derived_context' if ctx.get('parent_id') else 'unknown'
+                origin = self.attribution.classify_state(new)
                 for zone_id, source in self._learning_sources.items():
                     if entity_id in source:
                         from pilotsuite.core.learning_views import activation_context
@@ -297,12 +305,21 @@ class PilotSuiteService:
                             context['captured_at'] = datetime.now(UTC).isoformat()
                         await self.context.record(zone_id, entity_id, occurred, origin, context=context)
 
+    async def _on_service_call(self, event: dict[str, Any]) -> None:
+        # Context correlation is useful only for zones with explicit active
+        # learning consent. No service data or identifiers are persisted.
+        if not self._learning_sources:
+            self.attribution.clear()
+            return
+        self.attribution.observe_service_event(event)
+
     async def _on_connection(self, connected: bool) -> None:
         self._stream_connected = connected
         if connected:
             # Resynchronize after subscription, including every reconnect.
             await self.refresh(reason="stream_connected")
         else:
+            self.attribution.clear()
             async with self._projection_lock:
                 await self._derive()
 

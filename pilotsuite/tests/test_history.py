@@ -96,6 +96,7 @@ class ImportTests(unittest.IsolatedAsyncioTestCase):
         report=await ContextStore(self.selections).report('a',now=self.now)
         self.assertEqual(2,report['event_count']);self.assertEqual(1,report['historical_event_count'])
         self.assertEqual(2,len(report['history_imports']))
+        self.assertEqual(['ha_history','live'],[e['recording_source'] for e in report['evidence']])
         self.assertEqual([],report['coverage_samples']);self.assertEqual([],report['context_evidence'])
 
     async def test_revocation_and_revision_conflict_reject_atomically(self):

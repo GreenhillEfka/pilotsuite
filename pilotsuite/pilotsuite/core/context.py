@@ -9,6 +9,7 @@ from collections import Counter, defaultdict
 from contextlib import closing
 from datetime import datetime, UTC
 from .learning_views import temporal_settings, time_bucket, coverage_report, context_report
+from .attribution import ALLOWED_ORIGINS
 from .selections import InvalidSelection, SelectionConflict
 
 ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
@@ -141,7 +142,7 @@ class ContextStore:
                 return False
             last = db.execute('SELECT MAX(occurred) FROM activity_evidence WHERE zone_id=?', (zone_id,)).fetchone()[0]
             if last is not None and occurred-last < 300: return False
-            origin = origin if origin in ('user_context', 'derived_context') else 'unknown'
+            origin = origin if origin in ALLOWED_ORIGINS else 'unknown'
             db.execute('INSERT OR IGNORE INTO activity_evidence VALUES (?,?,?,?)', (zone_id, entity_id, occurred, origin))
             if cfg['context_learning'] and context is not None and occurred >= (cfg['context_consented_at'] or now):
                 db.execute('INSERT OR REPLACE INTO activity_context VALUES (?,?,?)', (zone_id, occurred, json.dumps(context)))
@@ -167,6 +168,8 @@ class ContextStore:
             self.prune(db, now)
             cfg = self.read(db, zone_id)
             rows = db.execute('SELECT entity_id, occurred, origin FROM activity_evidence WHERE zone_id=? ORDER BY occurred', (zone_id,)).fetchall()
+            historical = {(e,t) for e,t in db.execute('SELECT entity_id,occurred FROM history_provenance WHERE zone_id=?', (zone_id,))}
+            historical_times = {t for _,t in historical}
             feedback = dict(db.execute('SELECT pattern_id,decision FROM pattern_feedback WHERE zone_id=?', (zone_id,)))
             detector = cfg['detector']
             local_zone, day_mode = temporal_settings(detector)
@@ -193,7 +196,7 @@ class ContextStore:
                 patterns.append({'id': pid, 'title': f'Wiederkehrende Aktivierungen {bucket*2:02d}–{bucket*2+2:02d} Uhr {local_zone.key} ({day_group})',
                                  'algorithm': ACTIVITY_RULE_ID, 'parameters': dict(detector),
                                  'sources': cfg['roles'].get('presence', []),
-                                 'statistics': {'activation_count': len(events), 'distinct_day_count': len(days),
+                                 'statistics': {'historical_activation_count': sum(t in historical_times for t,_ in events), 'activation_count': len(events), 'distinct_day_count': len(days),
                                                 'days_local': days, 'timezone': local_zone.key, 'day_group': day_group,
                                                 'days_utc': sorted({datetime.fromtimestamp(t, UTC).date().isoformat() for t,_ in events}), 'observed_zone_activations': len(rows),
                                                 'origins': origins, 'window_local': {'start_hour': bucket*2, 'end_hour': bucket*2+2},
@@ -222,7 +225,7 @@ class ContextStore:
                     'context_evidence': [{'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'context': json.loads(p)} for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))],
                     'history_imports': [json.loads(p) for (p,) in db.execute('SELECT payload FROM history_imports WHERE zone_id=? ORDER BY created DESC', (zone_id,))],
                     'historical_event_count': db.execute('SELECT COUNT(*) FROM history_provenance WHERE zone_id=?', (zone_id,)).fetchone()[0],
-                    'time_basis': local_zone.key, 'day_mode': day_mode, 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o} for e,t,o in rows],
+                    'time_basis': local_zone.key, 'day_mode': day_mode, 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o, 'recording_source': 'ha_history' if (e,t) in historical else 'live'} for e,t,o in rows],
                     'limitations': 'Nur beobachtete Aktivierungen, keine Anwesenheitsdauer oder Wahrscheinlichkeit. Ausfälle und inaktive Lernzeiten sind unbeobachtet; Herkunft ist kein Beweis menschlicher Bedienung.'}
 
     async def feedback(self, zone_id, pattern_id, decision):

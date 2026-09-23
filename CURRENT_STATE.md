@@ -2,18 +2,48 @@
 
 ## Development: targeted history and zone trends
 
-Branch feat/history-and-trends is based on main ebadf12 (alpha.11). Implements
+Branch feat/history-and-trends incorporates main 155fb07 including consent-gated
+event attribution. Implements
 scoped raw/statistics reads, source/reference graphs, presence/light timelines,
 weekly activity raster and chronological reobservation checks. One-time explicit
 consent imports only presence activations into the existing bounded activity-v1
 store, deduplicated against live/imported evidence. Schema 6 migration backs up
-schema 5 and preserves settings. Contract: docs/HISTORY_AND_TRENDS.md / ADR-023.
-105 backend tests, four JS tests and repository validation pass locally. Browser
+schema 5 and preserves settings. Contract: docs/HISTORY_AND_TRENDS.md / ADR-024.
+113 backend tests, four JS tests and repository validation pass locally. Browser
 regression extended; local Chromium missing, so CI browser/container remain gates.
 HA read-only metadata confirms alpha.11 started. No release, update, role/consent
 change or live historical import performed. Actual Recorder coverage and Ingress
 acceptance remain open. Release requires scoped App-and-data backup first.
 
+
+## Merged, not released: consent-gated coarse event attribution
+
+PR #11 merged as `203fb512dcad1d652aa38eb37e07092855a6edb7`; its tree exactly
+matches tested candidate `00773dc3c23ad9274c29608ce1f535689b3afa58`.
+Main CI [35802574356](https://github.com/GreenhillEfka/pilotsuite/actions/runs/35802574356)
+passed 93 backend tests, four JS tests, Chromium browser regression and amd64
+container. Based on installed `0.1.0-alpha.11`, the event stream now
+subscribes separately to `state_changed` and `call_service`. When at least one zone
+has active learning consent and an eligible source, a bounded in-memory correlator
+keeps opaque HA context links for at most 120 seconds / 2,048 entries. Disconnect,
+loss of all eligible learning sources or process restart clears them. No service
+payload, user ID or context ID is written to SQLite, exports, logs or the UI.
+
+Persisted activity evidence can distinguish direct user context, correlated
+parented service context, correlated unparented service context, uncorrelated
+derived context and unknown. These are hints, not proof of manual operation or a
+specific automation/script. The candidate UI makes that limitation explicit.
+PilotSuite remains read-only and therefore produces no own-action evidence.
+
+Synthetic regression covers dual subscriptions, interleaved dispatch, consent
+gating, expiry/limit/disconnect clearing, identifier non-disclosure and independent
+origin persistence. This increment is merged but not versioned, released or
+installed. HA remains unchanged on alpha.11; no production consent was changed.
+
+Next: prepare a separately versioned release candidate without enabling learning,
+then require final exact-commit CI, a fresh App-and-data backup and an explicit
+recovery target to alpha.11 before deployment. Live attribution acceptance requires
+already-consented real learning; do not enable it merely for a test.
 
 ## Released and running: 0.1.0-alpha.11
 

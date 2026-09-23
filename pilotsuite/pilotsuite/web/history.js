@@ -79,6 +79,7 @@ function renderHistoryChart() {
   const root=byId('history-chart'); root.replaceChildren();
   byId('history-legend').replaceChildren(); byId('history-table').replaceChildren();
   text('history-basis',`${data.basis==='hourly_source_statistics'?'Stundenmittel je Quelle; keine gemeinsame Zonenreferenz':'Zonenreferenz aus abgetasteten Zuständen'} · ${historyLabels[kind]} · ${historyData.timezone}. ${data.warning}`);
+  if(reference) {const partial=reference.points.filter(p=>p.valid<p.total).length; if(partial) text('history-basis',byId('history-basis').textContent+` ${partial} Abtastpunkte mit unvollständiger Hauptgruppe.`);}
   if(!values.length) {root.textContent='Keine auswertbaren Werte dieser Klasse im geladenen Zeitraum.'; return;}
   const binary=['presence','light','activity'].includes(kind);
   let low=binary?0:Math.min(...values), high=binary?1:Math.max(...values);
