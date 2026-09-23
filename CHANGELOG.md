@@ -2,6 +2,12 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.14] - 2026-09-23
+
+- Pattern workbench: preference filters, evidence chains, matching light context and JSON review briefs.
+- Review exports remain non-executable; feedback grants no action permission.
+- Controlled Recorder metadata and history timeout failures.
+
 ## [0.1.0-alpha.13] - 2026-09-23
 
 - Convert Home Assistant connection failures during scoped history and statistics

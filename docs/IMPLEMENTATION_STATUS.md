@@ -1,5 +1,14 @@
 # Capability and acceptance ledger
 
+## alpha.14 release candidate
+
+PR #23 / main 76f7665 passed CI 35824185318: 122 backend tests, four JS tests,
+Chromium workbench/filter/JSON-export regression and amd64 container. Candidate
+packages the workbench and prior history corrections without schema or consent changes.
+Scoped PilotSuite backup fe09f165 is complete; targeted recovery returns app/data to
+alpha.13. Exact release CI and deployment checks remain required; UI acceptance of
+the new workbench is distinct from the user's confirmed prior diagram rendering.
+
 ## Pattern workbench candidate
 
 Preference filters, source-to-rule evidence chains, context matched by local time
