@@ -2,11 +2,14 @@ const byId = (id) => document.getElementById(id);
 const endpoint = (path) => new URL(path.replace(/^\//, ""), window.location.href).toString();
 
 async function json(path, options = {}) {
-  const response = await fetch(endpoint(path), {
+  let response;
+  try { response = await fetch(endpoint(path), {
     ...options,
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-  });
-  const body = await response.json();
+  }); } catch { throw new Error('Verbindung zu PilotSuite unterbrochen. Bitte erneut versuchen.'); }
+  let body;
+  try { body = await response.json(); }
+  catch { throw new Error(`Antwort nicht lesbar (HTTP ${response.status}). Bitte die Home-Assistant-Oberfläche neu öffnen.`); }
   if (!response.ok) {
     const error = new Error(body.message || `HTTP ${response.status}`);
     error.status = response.status;
@@ -16,6 +19,10 @@ async function json(path, options = {}) {
 }
 
 function text(id, value) { byId(id).textContent = value ?? "—"; }
+const displayLabels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', motion:'Bewegung', occupancy:'Präsenz', presence:'Präsenz', light:'Licht', good:'Gut', unknown:'Unbekannt', unavailable:'Nicht verfügbar', invalid:'Ungültig', read_only:'Nur Prüfung', low:'Gering', medium:'Mittel', high:'Hoch'};
+const displayLabel = value => displayLabels[value] || value;
+const displayNumber = value => typeof value === 'number' ? value.toLocaleString('de-DE', {maximumFractionDigits: 2}) : value;
+const moodLabels = {humidity_high:'Feuchte erhöht', humidity_low:'Feuchte niedrig', temperature_high:'Temperatur erhöht', temperature_low:'Temperatur niedrig', uncertainty:'Fehlende Klimawerte', alert:'Auffälligkeit', stable:'Stabilität', system_health:'Datenverbindung'};
 function percent(value) { return value == null ? "Nicht bewertbar" : `${Math.round(Number(value) * 100)}%`; }
 
 function renderStatus(status) {
@@ -29,7 +36,7 @@ function renderStatus(status) {
   const states = {available: "verfügbar", partial: "teilweise verfügbar", unavailable: "Messwerte fehlen", not_present: "nicht vorhanden"};
   const capabilities = Object.entries(status.capabilities || {}).map(([name, item]) => `${labels[name] || name}: ${states[item.status] || item.status}`);
   text("zone-detail", `${zone.resolved_area_ids.join(", ") || "Bereich fehlt"} · ${capabilities.join(" · ")}`);
-  text("habitus-state", `${status.habitus.neuron_count} Neuronen`);
+  text("habitus-state", `${status.habitus.neuron_count} Beobachtungen`);
   text("habitus-detail", `${status.habitus.suggestion_count} Vorschläge · ${status.habitus.ruleset}`);
   if (status.selection?.active_area_ids.length) {
     text('habitus-detail', `${status.habitus.suggestion_count} Vorschläge · ${status.selection.evaluated_count} ausgewertet, ${status.selection.excluded_count} durch Auswahl ausgeschlossen`);
@@ -44,7 +51,7 @@ function renderMoods(items) {
     const row = document.createElement("div");
     row.className = "mood-row";
     const name = document.createElement("span");
-    name.textContent = `${item.zone_name ? item.zone_name + ' · ' : ''}${item.name.replaceAll("_", " ")}`;
+    name.textContent = `${item.zone_name ? item.zone_name + ' · ' : ''}${moodLabels[item.name] || item.name.replaceAll("_", " ")}`;
     const bar = document.createElement("div");
     bar.className = "bar";
     const fill = document.createElement("i");
@@ -74,7 +81,7 @@ function renderSuggestions(items) {
     const title = document.createElement("h3");
     title.textContent = item.title;
     const explanation = document.createElement("p");
-    explanation.textContent = `${item.explanation} Regelstärke ${percent(item.severity)} · Konfidenz ${item.confidence == null ? "nicht bestimmt" : percent(item.confidence)} · Risiko ${item.risk}.`;
+    explanation.textContent = `${item.explanation} Regelstärke ${percent(item.severity)} · Statistische Sicherheit ${item.confidence == null ? "nicht bestimmt" : percent(item.confidence)} · Risiko ${displayLabel(item.risk)}.`;
     box.append(title, explanation);
     root.append(box);
   }
@@ -86,8 +93,8 @@ function renderObservations(items) {
   text("observation-count", String(items.length));
   for (const item of items) {
     const row = document.createElement("tr");
-    const value = item.value === null ? "—" : `${item.value}${item.unit ? ` ${item.unit}` : ""}`;
-    for (const content of [item.entity_id, item.kind, value, item.quality]) {
+    const value = item.value == null ? "—" : `${displayNumber(item.value)}${item.unit ? ` ${item.unit}` : ""}`;
+    for (const content of [item.entity_id, displayLabel(item.kind), value, displayLabel(item.quality)]) {
       const cell = document.createElement("td");
       cell.textContent = String(content);
       row.append(cell);
@@ -157,6 +164,9 @@ let zoneExtraSelection = new Set();
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
 function selectionControls() {
+  const editMessage = selectionBusy ? 'Vorgang läuft …' : selectionDraft?.dirty ? 'Ungespeicherte Entitätenauswahl. Bitte speichern oder verwerfen, bevor du die Zone wechselst.' : zoneFormOpen || contextEditing ? 'Bearbeitung geöffnet. Zum Wechseln bitte speichern oder abbrechen.' : '';
+  text('edit-status', editMessage); byId('edit-status').hidden = !editMessage;
+  byId('refresh').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty;
   byId('zone-toggle').disabled = zoneToggleBusy || selectionBusy || zoneFormOpen || contextEditing || !selectionZone || !!selectionDraft?.dirty || selectionConflict;
   byId('selection-zone').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty;
   byId('zone-new').disabled = selectionBusy || zoneFormOpen || contextEditing || !!selectionDraft?.dirty;
@@ -196,7 +206,7 @@ function renderSelection() {
     cells[0].append(checkbox);
     cells[1].textContent = item.name || item.entity_id;
     const id = document.createElement('small'); id.textContent = item.entity_id; cells[1].append(id);
-    cells[2].textContent = item.suggested_role || '—';
+    cells[2].textContent = displayLabel(item.suggested_role) || '—';
     cells[3].textContent = item.missing ? 'Nicht im aktuellen Inventar' : (item.state ?? '—');
     cells[4].textContent = decisionLabels[decision] + (item.recommended ? ' · empfohlen' : '');
     if (decision !== 'unreviewed') {
@@ -221,7 +231,15 @@ function selectionChanged() {
 async function loadSelection(zone) {
   if (selectionBusy) return;
   if (typeof historyInvalidate === "function") historyInvalidate();
-  selectionBusy = true; selectionZone = zone; renderSelection();
+  const zoneChanged = selectionZone !== zone;
+  selectionBusy = true; selectionZone = zone;
+  if (zoneChanged) {
+    contextData = null;
+    byId('learning-export').removeAttribute('href');
+    for (const id of ['learning-sources','learning-period','learning-progress','learning-coverage','context-observations','learned-patterns','module-overview','pattern-summary','context-message']) byId(id).replaceChildren();
+    text('learning-status', 'Lernstatus wird geladen …');
+  }
+  renderSelection();
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(zone)}`);
     selectionDraft = new SelectionDraft(inventory); selectionConflict = false;
@@ -230,6 +248,7 @@ async function loadSelection(zone) {
   } catch (error) {
     // Do not display one zone's data under another zone's label.
     if (selectionDraft?.inventory.zone_id !== zone) selectionDraft = null;
+    if (!contextData) text('learning-status', 'Lernstatus nicht verfügbar. Auswahl neu laden, um es erneut zu versuchen.');
     text('selection-message', `Laden fehlgeschlagen: ${error.message}. Neu laden zum Wiederholen.`);
   } finally { selectionBusy = false; renderSelection(); renderZoneView(); }
 }
@@ -348,7 +367,7 @@ load().catch((error) => {
 
 // Refresh the display without forcing additional HA snapshots.
 setInterval(() => {
-  if (!document.hidden) load().catch((error) => {
+  if (!document.hidden && !selectionBusy && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty && !document.activeElement?.closest('#zone-tabs, #learned-patterns, #zone-summary')) load().catch((error) => {
     byId("error").textContent = error.message;
     byId("error").hidden = false;
   });
@@ -356,10 +375,12 @@ setInterval(() => {
 
 
 function renderZoneTabs() {
+  const focusedId = byId('zone-tabs').contains(document.activeElement) ? document.activeElement.id : null;
   const locked = selectionBusy || zoneFormOpen || contextEditing || zoneToggleBusy || !!selectionDraft?.dirty;
   byId('zone-tabs').replaceChildren(...zoneDefinitions.map(zone => {
     const button = document.createElement('button'); button.type = 'button';
     button.id = `tab-${zone.zone_id}`;
+    button.tabIndex = zone.zone_id === selectionZone ? 0 : -1;
     button.setAttribute('role', 'tab'); button.setAttribute('aria-selected', String(zone.zone_id === selectionZone));
     button.textContent = `${zone.name}${zone.enabled ? '' : ' · pausiert'}`;
     button.disabled = locked;
@@ -380,6 +401,7 @@ function renderZoneTabs() {
     });
     return button;
   }));
+  if (focusedId) byId(focusedId)?.focus({preventScroll:true});
 }
 
 function renderZoneView() {
@@ -387,7 +409,7 @@ function renderZoneView() {
   const result = zoneResults.find(z => z.zone_id === selectionZone);
   text('active-zone-name', zone?.name || 'Noch keine Zone');
   text('zone-toggle', zone?.enabled ? 'Auswertung pausieren' : 'Auswertung starten');
-  const note = zone?.profile === 'observe' ? 'Neutrales Profil: Beobachtung und Datenqualität; noch keine gelernten Gewohnheiten.' : 'Erdkeller-Klimaregeln.';
+  const note = zone?.profile === 'observe' ? 'Neutrales Profil: Beobachtung und Datenqualität. Aktivitätsmuster findest du unter Lernen.' : 'Erdkeller-Klimaregeln; Aktivitätsmuster findest du unter Lernen.';
   text('zone-state-message', !zone ? 'Mit + Neue Zone beginnen.' :
     `${zone.enabled ? 'Auswertung aktiv' : 'Pausiert – Entitäten können bereits ausgewählt werden'}. ${result?.evaluated_count ?? 0} Beobachtungen. ${note}${selectionDraft?.dirty ? ' Bitte Auswahl zuerst speichern oder verwerfen.' : ''}${zone.enabled && !result?.evaluated_count ? ' Noch keine auswertbaren Beobachtungen: relevante Entitäten und deren Zustände prüfen.' : ''}`);
   renderCompactSummary(result);
@@ -460,7 +482,10 @@ function renderCompactSummary(result) {
 }
 
 async function loadContext() {
-  contextData = await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`);
+  const zone = selectionZone;
+  const result = await json(`api/v1/zones/${encodeURIComponent(zone)}/context`);
+  if (zone !== selectionZone) return;
+  contextData = result;
   if (typeof historyCheckRevision === "function") historyCheckRevision();
   renderLearning();
 }
@@ -492,6 +517,7 @@ function renderLearning() {
   };
   text('learning-period', `Lernfreigabe seit: ${date(cfg.consented_at ? cfg.consented_at * 1000 : null)}. Ältester aufbewahrter Beleg: ${date(progress?.first_evidence_at)}. Letzter Beleg: ${date(progress?.last_evidence_at)}. Keine Aussage über lückenlose Beobachtung.`);
   const progressRoot = byId('learning-progress'); progressRoot.replaceChildren();
+  if (!progress?.windows?.length) text('learning-progress', cfg.learning ? 'Noch keine Aktivierungen gespeichert. Prüfe Präsenzquellen und Lernstatus; ein Muster benötigt Belege an mehreren Tagen.' : 'Zum Start Hauptsensoren prüfen und Lernen für diese Zone freigeben.');
   for (const window of progress?.windows || []) {
     const row = document.createElement('p');
     row.textContent = `${String(window.start_hour).padStart(2,'0')}–${String(window.end_hour).padStart(2,'0')} Uhr ${timeBasis} (${dayLabels[window.day_group] || 'alle Tage'}): ${window.events} Aktivierungen an ${window.days} Tagen. ${window.missing_events || window.missing_days ? `Noch mindestens ${window.missing_events} Aktivierungen und ${window.missing_days} weitere Tage in diesem Zeitfenster nötig.` : 'Mindestbelege erreicht – Muster prüfen.'}`;
@@ -562,11 +588,12 @@ function renderLearning() {
     }
     for (const [decision, label] of [['accepted','Passt'], ['rejected','Nicht hilfreich'], ['later','Später prüfen']]) {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
+      button.setAttribute('aria-pressed', String(pattern.preference === decision));
       button.disabled = selectionBusy || contextEditing;
       button.addEventListener('click', async () => {
         const zone = selectionZone;
         selectionBusy = true; renderSelection(); renderLearning();
-        try { contextData = await json(`api/v1/zones/${encodeURIComponent(zone)}/feedback`, {method:'POST', body:JSON.stringify({pattern_id:pattern.id, decision})}); }
+        try { contextData = await json(`api/v1/zones/${encodeURIComponent(zone)}/feedback`, {method:'POST', body:JSON.stringify({pattern_id:pattern.id, decision})}); text('context-message', `Bewertung „${label}“ gespeichert. Keine Automation aktiviert.`); }
         catch(error) { text('context-message', `Feedback nicht bestätigt: ${error.message}`); }
         finally { selectionBusy = false; renderSelection(); renderLearning(); }
       });
@@ -611,6 +638,8 @@ byId('context-edit').addEventListener('click', async () => {
     byId('context-learning-consent').checked=!!contextData.config.context_learning;
     byId('context-learning-consent').disabled=!contextData.config.learning;
     byId('context-form').hidden=false;
+    byId('context-form').scrollIntoView({block:'start'});
+    byId('context-form').querySelector('input:not(:disabled)')?.focus({preventScroll:true});
   } catch(error) { contextEditing=false; text('context-message',error.message); renderSelection(); }
 });
 byId('learning-consent').addEventListener('change', () => {

@@ -26,7 +26,7 @@ main { padding: 2rem 0 1rem; }
 .hero > div { max-width: 760px; }
 .lede { color: var(--muted); line-height: 1.6; margin-bottom: 0; }
 button { appearance: none; border: 1px solid var(--accent); border-radius: .7rem; padding: .78rem 1rem; color: #062015; background: var(--accent); font: inherit; font-weight: 750; cursor: pointer; white-space: nowrap; }
-button:disabled { opacity: .55; cursor: wait; }
+button:disabled { opacity: .55; cursor: not-allowed; }
 .grid { display: grid; gap: 1rem; }
 .status-grid { grid-template-columns: repeat(4, 1fr); margin-block: 1rem; }
 .card, .panel { border: 1px solid var(--line); background: rgba(16,32,27,.9); }
@@ -104,3 +104,38 @@ input[type="checkbox"] { width: 1.3rem; height: 1.3rem; accent-color: var(--acce
 #history-table { max-height: 22rem; }
 #history-heatmap td { text-align: center; }
 .history-panel label { display: block; margin: .7rem 0; }
+
+/* Shared controls and compact, touch-friendly navigation. */
+html { scroll-padding-top: 5.5rem; }
+body { line-height: 1.5; }
+main > *, .grid > *, .split > * { min-width: 0; }
+.panel, .card { overflow-wrap: anywhere; }
+button { white-space: normal; min-height: 44px; }
+input[type="number"], input[type="datetime-local"] { width: 100%; min-width: 0; padding: .7rem; border: 1px solid var(--line); border-radius: .5rem; background: var(--panel-soft); color: var(--text); font: inherit; }
+#context-form > fieldset > label, #context-form details > label { display: block; margin-block: 1rem; }
+#context-form input[type="checkbox"], .role-choices input { flex-shrink: 0; vertical-align: middle; }
+.role-choices label { min-height: 44px; }
+.section-nav { position: sticky; top: 0; z-index: 5; display: flex; gap: .4rem; overflow-x: auto; padding: .6rem; margin-block: 1rem; border: 1px solid var(--line); border-radius: .8rem; background: var(--bg); }
+.section-nav a { flex: 1 0 auto; text-align: center; padding: .6rem .8rem; border-radius: .5rem; text-decoration: none; }
+.section-nav a:hover, .section-nav a:focus-visible { background: var(--panel-soft); }
+.skip-link { position: fixed; top: -100px; left: 1rem; z-index: 10; padding: 1rem; background: var(--panel); }
+.skip-link:focus { top: .5rem; }
+.edit-status { padding: .8rem 1rem; border-left: 3px solid var(--accent-2); background: var(--panel-soft); }
+.danger-button { background: transparent; color: var(--danger); border-color: var(--danger); }
+#module-overview { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+#learned-patterns { display: grid; gap: 1rem; }
+#learned-patterns button[aria-pressed="true"] { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+.history-panel #history-chart { overflow-x: auto; }
+#history-chart svg { min-width: 640px; }
+.history-panel .table-wrap:focus-visible { outline-offset: -2px; }
+#error { position: sticky; bottom: .5rem; z-index: 6; background: var(--panel); }
+@media (max-width: 560px) {
+  .topbar { gap: 1rem; }
+  .topbar .mode { max-width: 60%; }
+  .panel { padding: 1rem; }
+  .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card { padding: .8rem; min-height: 100px; }
+  .selection-tools > button { flex: 1 1 150px; }
+}
+
+.role-group { flex: 1 1 240px; }

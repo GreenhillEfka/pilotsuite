@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — Bedienungsrevision
+
+- Direkte Bereichsnavigation, konsistente deutsche Begriffe und mobile Formulare.
+- Bearbeitungs- und Feedbackbestätigungen, Importgründe und klare Datumsvalidierung.
+- Keine fremden Lernangaben nach Zonenwechsel; Tastaturfokus besser erhalten.
+- Erweiterte Browserregression für Navigation und drei Bildschirmbreiten.
+
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
 ## [0.1.0-alpha.14] - 2026-09-23

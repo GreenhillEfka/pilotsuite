@@ -91,6 +91,11 @@ const assert = require('node:assert/strict');
     await page.goto('http://pilotsuite.test/ingress/test/');
     await page.waitForFunction(() => document.getElementById('learning-progress').textContent.includes('Noch mindestens 2 Aktivierungen'));
     assert.match(await page.locator('#learning-period').innerText(), /noch keine/);
+    assert.equal(await page.locator('.section-nav a').count(), 5);
+    await page.locator('.section-nav a[href="#history-section"]').click();
+    assert.equal(new URL(page.url()).hash, '#history-section');
+    assert.equal(await page.locator('#zone-tabs [tabindex="0"]').count(), 1);
+    assert.doesNotMatch(await page.locator('footer').innerText(), /alpha\./);
     await page.locator('#entity-details summary').click();
     const first = page.locator('#selection-rows input').first();
     await first.waitFor();
@@ -99,6 +104,8 @@ const assert = require('node:assert/strict');
     assert.equal(await first.isChecked(), true);
     assert.equal(writes, 0);
     assert.equal(await page.locator('#selection-zone').isDisabled(), true);
+    assert.match(await page.locator('#edit-status').innerText(), /Ungespeicherte/);
+    assert.equal(await page.locator('#refresh').isDisabled(), true);
     await page.evaluate(() => load()); // dashboard polling must preserve draft
     assert.equal(await first.isChecked(), true);
     await page.locator('#selection-save').click();
@@ -241,9 +248,17 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('#history-basis').innerText(),/Stundenmittel/);
     await page.locator('#history-consent').check();
     assert.equal(await page.locator('#history-import').isDisabled(),true);
+    assert.match(await page.locator('#history-import-help').innerText(), /Stundenmittel/);
     await page.locator('#history-range').selectOption('custom');
     assert.equal(await page.locator('#history-start').isVisible(),true);
     assert.equal(await page.locator('#history-display').isVisible(),false);
+    await page.locator('#history-load').click();
+    await page.waitForFunction(() => document.getElementById('history-message').textContent.includes('vollständig eingeben'));
+    for (const width of [390, 768, 1440]) {
+      await page.setViewportSize({width,height:900});
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    }
+    await page.setViewportSize({width:390,height:844});
     await page.locator('#learning-reset').click();
     await page.waitForFunction(() => document.getElementById('learning-status').textContent.includes('Lernen ausgeschaltet'));
     assert.equal(contexts.hz_test.event_count,0);
