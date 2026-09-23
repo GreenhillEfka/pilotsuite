@@ -1,5 +1,20 @@
 # Capability and acceptance ledger
 
+## Deployment gate review — 2026-09-23
+
+Published alpha.16 source 208b5d31532c5f4ad38a6227b51028aeacacc9fd is verified by
+main CI 35838497565 (138 Python, nine JS, Chromium, amd64) and source preflight.
+HA now offers alpha.16 but still runs alpha.13. Store checkout SHA is not exposed
+by the available app metadata, so exact source mapping remains unverified.
+Backup d454e834 is complete/listed and excludes HA/database; its detail read
+(hassio/api GET /backups/d454e834/info) returns Unauthorized. Saved app version
+and data/options cannot yet be confirmed. No install, restart or bypass occurred.
+
+Pause at this permission gate rather than adding features ahead of live acceptance.
+Next: authorized backup-content verification and offered-source mapping, fresh
+scoped recovery point as needed, then one update and authenticated guide/workbench
+acceptance. No new runtime code, tests, consent, roles or release in this receipt.
+
 ## Zone guide / alpha.16 candidate — 2026-09-23
 
 User requested the next coherent package after the release procedure was fixed.

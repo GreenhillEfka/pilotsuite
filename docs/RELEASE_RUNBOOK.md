@@ -78,6 +78,12 @@ Keep the scoped request and completion evidence; distinguish metadata confirmati
 from archive inspection or a restore drill. If necessary details/key availability
 cannot be confirmed, stop before update. Never use snapshot **create/restore**:
 those are full-HA operations, outside the authorization.
+Known detail-read gate (2026-09-23): `ha_call_service` with
+`ws_command: "hassio/api"`, `data: {endpoint: "/backups/d454e834/info", method: "get"}`
+returned `Unauthorized` even though backup listing works. This does not prove the
+archive is bad; it prevents content/recovery verification. Do not downgrade the
+gate to listing success or keep creating backups that cannot be inspected. Wait
+for authorized access; do not retry other paths to bypass the same restriction.
 The scoped backup can itself stop/start the app. Inspect post-backup startup and
 readiness; report this separately from an explicit restart or a version update.
 
@@ -103,6 +109,9 @@ upgrade. Previous Store reload through the HA WebSocket bridge was denied
 GitHub access. Do not retry speculative endpoint/action variants, change tokens,
 disable guards or alter permissions. Retry only after a relevant access/state
 change; a normal Store refresh through an already authorized session is acceptable.
+At the later 2026-09-23 check the Store already offered alpha.16: the stale Store
+offer was no longer the blocker, and no reload was attempted. Backup detail access
+and independent exact-source mapping remained separate open gates.
 
 Read app metadata again. If offered version still equals installed version, stop
 the deployment step without update/restart. Require the offered version and its
