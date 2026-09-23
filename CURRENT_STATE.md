@@ -1,5 +1,32 @@
 # Current State
 
+## Atomic pattern feedback / alpha.18 candidate — 2026-09-23
+
+A queued feedback request could validate a pattern, then save after a concurrent
+reset/source change/threshold change or expiry. Validation and persistence now use
+one BEGIN IMMEDIATE transaction and the existing canonical report projection.
+No second detector, storage owner, schema, collection or consent change. Retained
+valid patterns remain reviewable with learning disabled. Observation statistics,
+rule strength, confidence, risk and preference remain separate.
+
+Six synthetic regressions cover those four stale-write cases, competing SQLite
+writers at the validation/save boundary, and valid durable feedback with learning
+off. Four stale-write tests failed against the preceding code; all six pass with
+the fix. Full local suite: 151 Python and nine JavaScript tests; repository contracts
+and diff checks pass. Exact PR/main CI including Chromium/amd64 must precede delivery.
+
+HA remains alpha.17 installed/offered/started. Fresh backup 92e7a465 completed
+2026-09-23T15:15:58Z (53,923,840 bytes, unprotected); native backup/details verifies
+only PilotSuite alpha.17, no failed components, HA/database/folders excluded.
+Scoped rollback is hassio.restore_partial with slug 92e7a465, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no restore drill performed.
+Alpha.17 temporal-view/export browser acceptance remains open; only about:blank
+is available. No real learning, feedback, roles or automation/actuator edits.
+
+Next: exact alpha.18 candidate/main CI, then source/backup recheck and one normal
+PilotSuite update when offered. Verify runtime and authenticated temporal view/export;
+do not conflate synthetic regressions with live learning-quality acceptance.
+
 ## Alpha.17 installed; temporal UI acceptance pending — 2026-09-23
 
 One normal PilotSuite-only update completed from alpha.16 to alpha.17. Supervisor
