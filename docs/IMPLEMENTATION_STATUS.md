@@ -1,5 +1,40 @@
 # Capability and acceptance ledger
 
+## Alpha.17 installed; temporal UI acceptance pending — 2026-09-23
+
+One normal PilotSuite-only update completed from alpha.16 to alpha.17. Supervisor
+confirms alpha.17 installed/offered/started, update_available false. Startup logs
+confirm alpha.17, hard_read_only, ready, connected stream, fresh snapshot and
+resolved Golden Zone. Initial connection setup completed normally; no separate
+restart or rollback was needed. Store already offered the target; no reload needed.
+
+Published source 8a8393249ef43c9f85dbfc6ec759889827319de3 and pre-update main
+723fea28004f55c95f6450efb5f8533ee1bc6268 share app tree
+70879070888a7de8df6b15d1800bdb4bace5f598. Exact CI runs 35874744954 and
+35875185276 are successful: 145 Python tests, nine JavaScript tests, Chromium and
+amd64 container. Source preflight passed; no open PR or branch rule blocked this
+receipt. Source association uses canonical repository/version and unchanged app
+tree; Supervisor does not expose an independently verified checkout/image identity.
+
+Fresh scoped backup fcbbc115 completed at 2026-09-23T15:09:02Z, 53,934,080 bytes,
+unprotected. Native backup/details confirms exactly PilotSuite alpha.16, no failed
+apps/agents/folders, no HA configuration/database and no folders. Standard app backup
+includes app data/options; no archive extraction or live restore drill was performed.
+Concrete rollback is hassio.restore_partial with slug fcbbc115, apps
+[0d79c5e8_pilotsuite], homeassistant false and folders []; target alpha.16 and its
+matching app data/options. The live service schema was checked before deployment.
+
+Only about:blank is available in the browser; authenticated HA Ingress HTML/JS/CSS/API
+and the new temporal review/export remain unverified. Alpha.16 user-reported UI
+acceptance remains complete; it is not evidence for alpha.17's new view or real
+learning quality. No roles, learning consent, configuration, automations or actuators
+were changed. No household evidence was collected or exported for this work.
+
+Next: read-only authenticated acceptance of alpha.17 temporal review and JSON export,
+without reinstallation. Learning-quality and second-zone review remain distinct and
+bounded to existing explicit consent. This receipt changes documentation only;
+earlier pending-deployment sections below are historical and superseded.
+
 ## Alpha.17 published; Store offer pending — 2026-09-23
 
 PR #37 merged temporal review at 8a8393249ef43c9f85dbfc6ec759889827319de3.
