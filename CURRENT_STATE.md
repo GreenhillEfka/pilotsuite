@@ -1,6 +1,6 @@
 # Current State
 
-## Candidate: bounded history request timeouts
+## Merged: bounded history request timeouts
 
 The next reliability increment maps both the explicit 90-second history budget and
 lower-level WebSocket receive/connect timeouts to the existing typed Home Assistant
@@ -9,13 +9,15 @@ of escaping as a generic HTTP 500. Cancellation remains untouched, and successfu
 history/statistics responses, storage schema 6, roles, consent and learning do not
 change.
 
-One synthetic regression covers the timeout boundary. Local repository validation,
-117 backend tests and four JavaScript tests pass. CI browser and amd64-container gates
-remain required before merge. Home Assistant remains unchanged on installed alpha.13.
+One synthetic regression covers the timeout boundary. PR #21 merged the increment as
+main commit `e77b80c573a1429173aaaa0f5d50a92b9102fc6a`. Final main CI 35822148371
+passed 117 backend tests, four JavaScript tests, Chromium browser regression and the
+amd64 container. Home Assistant remains unchanged on installed alpha.13.
 
-Next: merge only after exact-candidate CI is green. The separate live acceptance item
-remains a short read-only history request and graph check in an authenticated local HA
-Ingress session; do not enable learning or import history for that test.
+Next: the separate live acceptance item remains a short read-only history request and
+graph check in an authenticated local HA Ingress session. Do not enable learning or
+import history for that test. Package the merged correction in a later release
+candidate only after an exact-version CI gate and fresh scoped backup.
 
 ## Merged: bounded statistics metadata validation
 
