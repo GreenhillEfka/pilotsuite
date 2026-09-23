@@ -205,6 +205,7 @@ const assert = require('node:assert/strict');
     contexts.hz_test.patterns=[{id:'p1',title:'Activity pattern',sources:['binary_sensor.p','binary_sensor.q'],statistics:{activation_count:6,distinct_day_count:3,observed_zone_activations:6,origins:{parented_service_context:4,unknown:2}},confidence:null,confidence_basis:'not_estimated',rule_strength:{rule_id:'activity-v1',threshold_met:true,event_ratio:1.2,day_ratio:1},risk:'read_only',proposal:'Check routine',preference:null}];
     await page.evaluate(() => load());
     await page.waitForFunction(() => document.getElementById('context-observations').textContent.includes('25 lx Median'));
+    await page.locator('#learning-details summary').click();
     assert.match(await page.locator('#learning-coverage').innerText(), /2 mit Einschränkungen/);
     assert.match(await page.locator('#learned-patterns').innerText(), /mögliche Automation/);
     assert.doesNotMatch(await page.locator('#learned-patterns').innerText(), /bewiesene Automation/);
@@ -254,13 +255,14 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('#history-display').isVisible(),false);
     await page.locator('#history-load').click();
     await page.waitForFunction(() => document.getElementById('history-message').textContent.includes('vollständig eingeben'));
+    await page.locator('#learning-details summary').click();
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({width,height:900});
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       if (process.env.PILOTSUITE_SCREENSHOTS) {
         await fs.mkdir(process.env.PILOTSUITE_SCREENSHOTS, {recursive:true});
-        await page.locator('#zone-overview').screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `overview-${width}.png`)});
-        await page.locator('#learning-section').screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `learning-${width}.png`)});
+        await page.locator('#zone-overview').screenshot({style:'.section-nav, .skip-link { visibility: hidden !important; }',path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `overview-${width}.png`)});
+        await page.locator('#learning-section').screenshot({style:'.section-nav, .skip-link { visibility: hidden !important; }',path:path.join(process.env.PILOTSUITE_SCREENSHOTS, `learning-${width}.png`)});
       }
     }
     await page.setViewportSize({width:390,height:844});

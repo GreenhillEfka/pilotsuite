@@ -454,7 +454,7 @@ function renderCompactSummary(result) {
     const card = document.createElement('article'); card.className = 'card';
     const title = document.createElement('span'); title.textContent = label;
     const value = document.createElement('strong'); const info = result?.summary?.[kind];
-    value.textContent = !info ? 'Zone pausiert / keine Bewertung' : (info.status === 'available' || info.status === 'partial')
+    value.textContent = !info ? (zoneDefinitions.find(z => z.zone_id === selectionZone)?.enabled ? 'Keine Bewertung' : 'Pausiert') : (info.status === 'available' || info.status === 'partial')
       ? info.value != null ? `${Number(info.value).toLocaleString('de-DE', {maximumFractionDigits: 1})} ${info.unit || ''}` : `${info.on} von ${info.total} aktiv${info.status === 'partial' ? ' · Daten fehlen' : ''}`
       : statuses[info.status] || info.status;
     card.append(title, value);
@@ -646,7 +646,7 @@ byId('learning-consent').addEventListener('change', () => {
   byId('context-learning-consent').disabled=!byId('learning-consent').checked;
   if (!byId('learning-consent').checked) byId('context-learning-consent').checked=false;
 });
-byId('context-cancel').addEventListener('click', () => { if (selectionBusy) return; contextEditing=false; byId('context-form').hidden=true; renderSelection(); });
+byId('context-cancel').addEventListener('click', () => { if (selectionBusy) return; contextEditing=false; byId('context-form').hidden=true; text('context-message','Bearbeitung abgebrochen. Der gespeicherte Stand gilt.'); renderSelection(); byId('context-edit').focus(); });
 byId('context-form').addEventListener('submit', async event => {
   event.preventDefault(); if (selectionBusy) return;
   const roles=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]));

@@ -118,8 +118,8 @@ input[type="number"], input[type="datetime-local"] { width: 100%; min-width: 0; 
 .section-nav { position: sticky; top: 0; z-index: 5; display: flex; gap: .4rem; overflow-x: auto; padding: .6rem; margin-block: 1rem; border: 1px solid var(--line); border-radius: .8rem; background: var(--bg); }
 .section-nav a { flex: 1 0 auto; text-align: center; padding: .6rem .8rem; border-radius: .5rem; text-decoration: none; }
 .section-nav a:hover, .section-nav a:focus-visible { background: var(--panel-soft); }
-.skip-link { position: fixed; top: -100px; left: 1rem; z-index: 10; padding: 1rem; background: var(--panel); }
-.skip-link:focus { top: .5rem; }
+.skip-link { visibility: hidden; position: fixed; top: -100px; left: 1rem; z-index: 10; padding: 1rem; background: var(--panel); }
+.skip-link:focus { visibility: visible; top: .5rem; }
 .edit-status { padding: .8rem 1rem; border-left: 3px solid var(--accent-2); background: var(--panel-soft); }
 .danger-button { background: transparent; color: var(--danger); border-color: var(--danger); }
 #module-overview { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
@@ -139,3 +139,7 @@ input[type="number"], input[type="datetime-local"] { width: 100%; min-width: 0; 
 }
 
 .role-group { flex: 1 1 240px; }
+
+#learning-section > .selection-tools > button { flex: 0 1 auto; }
+#learning-section > .selection-tools { align-items: center; }
+@media (max-width: 560px) { #learning-section > .selection-tools > button { flex: 1 1 100%; } }

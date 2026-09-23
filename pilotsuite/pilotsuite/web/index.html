@@ -192,14 +192,16 @@
         <h2>Sensorrollen, Module und Lernen</h2>
         <details><summary>Module und Entwicklungsstand</summary><div id="module-overview" class="grid"></div></details>
         <p id="learning-status" role="status"></p>
+        <div class="selection-tools"><button id="context-edit" type="button">Hauptsensoren und Lernen bearbeiten</button><a id="learning-export" download>Belege exportieren</a><button id="learning-reset" class="danger-button" type="button">Lerndaten löschen</button></div>
         <p id="learning-sources"></p>
         <p id="learning-period"></p>
         <div id="learning-progress"></div>
+        <details id="learning-details"><summary>Datenabdeckung, Lichtkontext und Grenzen</summary>
         <h3>Beobachtbarkeit</h3><p id="learning-coverage"></p>
         <h3>Lichtkontext bei Aktivierungen</h3><div id="context-observations"></div>
         <p>Belege sind beobachtete Aktivierungen, keine bestätigten Besuche. Datenlücken bedeuten keine Abwesenheit. Die Mindestzahlen sind keine statistische Sicherheit.</p>
         <p>Erkennt wiederkehrende Aktivierungen bestätigter Präsenz-/Bewegungssensoren. Keine Anwesenheitsdauer, Personenidentifikation oder automatische Steuerung. Zeitfenster verwenden die gespeicherte Zeitzone; bestehende Zonen behalten UTC, bis du sie umstellst.</p>
-        <div class="selection-tools"><button id="context-edit" type="button">Hauptsensoren und Lernen bearbeiten</button><a id="learning-export" download>Belege exportieren</a><button id="learning-reset" class="danger-button" type="button">Lerndaten löschen</button></div>
+        </details>
         <form id="context-form" hidden><fieldset id="context-fields"><legend>Sensorrollen</legend>
           <div class="selection-tools">
             <fieldset class="role-group"><legend>Hauptsensoren Temperatur</legend><div id="role-temperature" class="role-choices"></div></fieldset>
