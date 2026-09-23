@@ -1,16 +1,22 @@
 # Capability and acceptance ledger
 
-## alpha.13 release candidate
+## alpha.13 released and installed
 
 Release metadata packages the PR #16 history-transport reliability correction.
 Connection failures and malformed WebSocket text frames become controlled typed
 history errors without changing successful reads, SQLite schema 6, roles, consent,
-learning evidence or the hard read-only boundary. Final main CI 35810366587 passed
-115 backend tests, four JavaScript tests, Chromium browser regression and the amd64
-container. The release candidate still requires its own exact-commit CI and a fresh
-completed PilotSuite App-and-data backup with targeted recovery to alpha.12 before
-publication or installation. Live remains alpha.12; authenticated history interaction
-and actual Recorder coverage are still separate acceptance work.
+learning evidence or the hard read-only boundary. PR #17 released main commit
+d7068e5. Candidate CI 35814179314 and final main CI 35814266844 passed 115 backend
+tests, four JavaScript tests, Chromium browser regression and the amd64 container.
+
+Scoped pre-update App-and-data backup 9bf5a8a1 completed and excludes Home Assistant
+configuration/database. Recovery is a targeted PilotSuite partial restore to
+alpha.12. Supervisor reports alpha.13 installed, offered and started. Runtime reports
+hard read-only, connected event stream, fresh snapshot, resolved Golden Zone and
+readiness. No role, learning/import consent, automation or actuator changed.
+Authenticated Ingress history interaction and actual Recorder coverage remain
+separate live acceptance work because no authenticated browser could reach the
+private HA address.
 
 ## History transport reliability increment
 
@@ -20,7 +26,8 @@ to the typed HA protocol error. Successful reads, storage, consent and learning 
 unchanged. Two synthetic regressions bring the backend suite to 115 tests. PR #16
 candidate CI 35810101307 passed them together with four JavaScript tests, Chromium
 browser regression and the amd64 container; final main CI 35810366587 is also green.
-Live remains alpha.12 with authenticated history interaction pending.
+The fix is included in running alpha.13; authenticated history interaction remains
+pending.
 
 ## alpha.12 released and installed
 
@@ -109,8 +116,8 @@ and real multi-day activity candidates still need live acceptance; consent stays
 
 | Capability | Code state | Acceptance / remaining work |
 |---|---|---|
-| Add-on packaging | Implemented | alpha.12 installed and started after scoped App-and-data backup f803e957 |
-| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed and live direct proxy rejects with 403; authenticated alpha.12 root/assets/APIs/charts remain pending |
+| Add-on packaging | Implemented | alpha.13 installed and started after scoped App-and-data backup 9bf5a8a1 |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed and protected proxy behavior remains enforced; authenticated alpha.13 root/assets/APIs/charts remain pending |
 | HA snapshot and event stream | Integrated reconnect correction retained | Short-stream exponential backoff and stable-stream recovery tested; live soak pending |
 | Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Plural roles, separate references and source spread implemented; live mapping review pending |
@@ -131,7 +138,7 @@ and real multi-day activity candidates still need live acceptance; consent stays
 
 ## Next acceptance gates
 
-1. Authenticated alpha.12 HA Ingress loads root, JS, CSS and API without 404; a short read-only history request renders graphs and no unintended peer access exists.
+1. Authenticated alpha.13 HA Ingress loads root, JS, CSS and API without 404; a short read-only history request renders graphs and no unintended peer access exists.
 2. Real Golden Zone role mapping is reviewed; missing/conflicting data remains explicit.
 3. HA restart/disconnect does not falsely report readiness; reconnect restores projection.
 4. One consented read-only habit produces a traceable proposal and durable feedback.

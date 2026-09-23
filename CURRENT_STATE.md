@@ -1,6 +1,6 @@
 # Current State
 
-## Release candidate: 0.1.0-alpha.13
+## Released and running: 0.1.0-alpha.13
 
 PR #16 merged the reliability increment as main commit
 `734a1e5c272433d37405470918ea93b983e1fdf9`. It converts `aiohttp`
@@ -10,16 +10,29 @@ now become the same typed Home Assistant protocol error used for other invalid
 frames. This changes no successful response, storage schema, consent, roles or
 actuation boundary.
 
-Synthetic regression covers both failure paths. Final main CI 35810366587 passed
-115 backend tests, four JavaScript tests, Chromium browser regression and the amd64
-container. This release candidate only advances version and release metadata.
-Home Assistant remains unchanged on alpha.12 and continues to report hard read-only
-readiness. Before publication require exact candidate CI, a fresh completed
-PilotSuite App-and-data backup, and a targeted partial-restore path back to alpha.12.
-After installation, verify version, startup, connected event stream, readiness,
-resolved Golden Zone and the read-only boundary. Authenticated Ingress loading of a
-short read-only history interval remains separate live acceptance; no historical
-import is required.
+Synthetic regression covers both failure paths. PR #17 released the fix as main
+commit `d7068e5b08827a9ddf61df60cf2271b6a1b7aa88`. Candidate CI 35814179314 and
+final main CI 35814266844 each passed 115 backend tests, four JavaScript tests,
+Chromium browser regression and the amd64 container.
+
+Before publication, scoped PilotSuite App-and-data backup `9bf5a8a1` completed at
+2026-09-23T03:27:24Z. The completed listing reports 53,841,920 bytes and excludes
+Home Assistant configuration and database. Recovery is a targeted partial restore
+of PilotSuite and its data from this backup to alpha.12; archive contents were not
+independently inspected and no restore drill was performed.
+
+Supervisor Store metadata links offered `0.1.0-alpha.13` to the exact main commit
+above. The update completed, and metadata confirms alpha.13 installed, offered and
+started. Startup at 2026-09-23T05:28:40Z reports `hard_read_only`; at 05:28:41Z it
+reports `ready=True`, connected event stream, fresh snapshot and resolved Golden
+Zone. No error or history request appeared after startup. No role, learning consent,
+history import, automation or actuator state was changed.
+
+Authenticated Ingress loading of a short read-only history interval remains the
+next live acceptance item. The available remote browser had no authenticated HA
+session and could not access the private HA address, so root/assets/APIs, Recorder
+coverage and graph rendering are not claimed. Do not enable learning or import
+history merely for this acceptance.
 
 ## Released and running: 0.1.0-alpha.12
 
