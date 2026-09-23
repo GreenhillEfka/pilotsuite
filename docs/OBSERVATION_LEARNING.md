@@ -52,8 +52,12 @@ sondern über Min/Max und Details sichtbar. Die Zusammenfassung ersetzt keinen A
   Regelschwelle, statistische Konfidenz, Read-only-Risiko und Nutzerpräferenz sind
   getrennte Felder. Regelstärke zeigt nur den Abstand zur Kandidatenschwelle, keine
   Wahrscheinlichkeit. Statistische Konfidenz bleibt unbekannt (`null`).
-- Herkunft nur user_context/derived_context/unknown, ohne Benutzer-/Context-IDs.
-  Das ist kein Beweis für manuelle Bedienung oder eine konkrete Automation.
+- Herkunft nur als grobe Kategorie, ohne Benutzer-/Context-IDs: Nutzerkontext,
+  beobachteter Serviceaufruf, verketteter Serviceaufruf, sonstiger abgeleiteter
+  Kontext oder unbekannt. Die kurzlebige Service-Korrelation läuft ausschließlich
+  im Speicher und nur bei aktiver Lernfreigabe; beim Verbindungsabbruch wird sie
+  geleert. Ein Nutzerkontext beweist keine manuelle Bedienung, ein verketteter
+  Serviceaufruf keine konkrete Automation oder ein bestimmtes Skript.
 - Stabile Muster-ID aus Algorithmus, Zone, sortierter Quellgruppe und Zeitfenster.
 - Nutzerpräferenz getrennt von Belegen; höchstens 2.000 letzte Feedbackeinträge.
   Eine Präferenz ändert weder Beobachtungszahlen noch Regelstärke oder Konfidenz.

@@ -55,6 +55,87 @@ class _Session:
 
 
 class HomeAssistantClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_listen_subscribes_to_both_event_types_and_preserves_service_context(self):
+        stop = asyncio.Event()
+        service_event = {
+            "event_type": "call_service",
+            "data": {"domain": "light", "service": "turn_on"},
+            "context": {"id": "opaque", "parent_id": "parent"},
+        }
+        state_data = {"entity_id": "binary_sensor.motion"}
+
+        class StreamingSocket(_Socket):
+            def __init__(self):
+                super().__init__([
+                    {"type": "auth_required"},
+                    {"type": "auth_ok"},
+                    {"id": 1, "type": "result", "success": True},
+                    {"id": 2, "type": "result", "success": True},
+                ])
+                self.stream = iter([
+                    {"id": 2, "type": "event", "event": service_event},
+                    {"id": 1, "type": "event", "event": {
+                        "event_type": "state_changed", "data": state_data
+                    }},
+                ])
+
+            def __aiter__(self):
+                return self
+
+            async def __anext__(self):
+                try:
+                    payload = next(self.stream)
+                except StopIteration:
+                    raise StopAsyncIteration
+                return SimpleNamespace(type=WSMsgType.TEXT, data=json.dumps(payload))
+
+        socket = StreamingSocket()
+        client = HomeAssistantClient("ws://example.invalid/websocket", "token")
+        client._session = _Session(socket)
+        async def state_changed(_: dict[str, object]) -> None:
+            stop.set()
+
+        state = AsyncMock(side_effect=state_changed)
+        service = AsyncMock()
+        await client.listen(state, stop, service_callback=service)
+
+        self.assertIn(
+            {"id": 1, "type": "subscribe_events", "event_type": "state_changed"},
+            socket.sent,
+        )
+        self.assertIn(
+            {"id": 2, "type": "subscribe_events", "event_type": "call_service"},
+            socket.sent,
+        )
+        service.assert_awaited_once_with(service_event)
+        state.assert_awaited_once_with(state_data)
+
+    async def test_dispatches_state_data_and_full_service_event_separately(self):
+        state = AsyncMock()
+        service = AsyncMock()
+        service_event = {
+            "event_type": "call_service",
+            "data": {"domain": "light", "service": "turn_on"},
+            "context": {"id": "opaque", "parent_id": "parent"},
+        }
+        await HomeAssistantClient._dispatch_event(
+            {"id": 2, "type": "event", "event": service_event}, state, service
+        )
+        service.assert_awaited_once_with(service_event)
+        state.assert_not_awaited()
+
+        state_data = {"entity_id": "binary_sensor.motion"}
+        await HomeAssistantClient._dispatch_event(
+            {
+                "id": 1,
+                "type": "event",
+                "event": {"event_type": "state_changed", "data": state_data},
+            },
+            state,
+            service,
+        )
+        state.assert_awaited_once_with(state_data)
+
     async def _reconnect_delays(self, durations, *, authenticated=True):
         """Drive synthetic connections and a fake clock without real waiting."""
         clock = [0.0]

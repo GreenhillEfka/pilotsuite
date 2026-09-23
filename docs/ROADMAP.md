@@ -16,6 +16,11 @@
 - Consent, retention, export, delete/reset and replay regression fixtures.
 - Test a second unlike zone; no execution.
 
+Current bounded slice: correlate HA service/state contexts only with active consent,
+store no identifiers, and expose uncertainty. Exact automation identity is not
+available from generic context alone. Own-action exclusion remains blocked until a
+governed execution owner exists; the read-only alpha cannot generate own actions.
+
 ## 0.3 — governed action pilot
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.
 - Review existing HA automations before proposing duplicates.

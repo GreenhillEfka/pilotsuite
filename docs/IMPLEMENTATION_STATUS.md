@@ -1,5 +1,19 @@
 # Capability and acceptance ledger
 
+## Development after alpha.11: bounded origin hints
+
+The next small slice subscribes to HA `call_service` and correlates its context
+with activity state changes for 120 seconds in bounded memory. Correlation only
+runs with active per-zone learning consent and an eligible source; disconnect or
+loss of all eligible sources clears it. SQLite/export/UI receive only coarse origin
+categories, never HA user/context IDs or service payloads. Parented service context
+is displayed as a possible automation/script chain, not as causal proof. PilotSuite
+is read-only and emits no own-action evidence.
+
+Local evidence: 93 backend tests, four JS tests, repository validation and Python
+compilation pass. Browser/container CI and live acceptance are separate and still
+open. No version bump, HA update, role change or production consent change.
+
 ## alpha.11 released and installed
 
 PR #9 merge a1bb95f matches the final tested tree c2a4707. CI 35800786084
@@ -50,7 +64,7 @@ and real multi-day activity candidates still need live acceptance; consent stays
 | Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Plural roles, separate references and source spread implemented; live mapping review pending |
 | Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Climate heuristics plus separate activity candidates with independent feedback; not causal habits |
 | Habitus zones and roles | Logical zones and entity selection implemented | Stable IDs, multiple areas, extras, editor; role groups with climate median/min/max, separate references and presence-any implemented |
-| Learning and consent | Bounded activity candidates implemented | Live event replay tests, role groups, opt-in, retention/export/reset; extended HA learning acceptance still pending |
+| Learning and consent | Bounded activity candidates; coarse consent-gated origin hints in development | Live event replay tests, role groups, opt-in, retention/export/reset; exact automation/manual attribution is intentionally not claimed; extended HA learning acceptance pending |
 | SQLite / migrations | Schema 4 for zones, roles, consent, evidence and feedback; migration tests pass | Pre-migration backup, shared revisions, export, bounded selection journal; audit/plans remain JSONL |
 | Multi-user preferences | Planned | Separate preference from evidence; conflict rules required |
 | Brain graph | Planned | Derived explanation graph, not a separate truth store |

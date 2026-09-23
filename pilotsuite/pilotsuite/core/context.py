@@ -9,6 +9,7 @@ from collections import Counter, defaultdict
 from contextlib import closing
 from datetime import datetime, UTC
 from .learning_views import temporal_settings, time_bucket, coverage_report, context_report
+from .attribution import ALLOWED_ORIGINS
 from .selections import InvalidSelection, SelectionConflict
 
 ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
@@ -136,7 +137,7 @@ class ContextStore:
                 return False
             last = db.execute('SELECT MAX(occurred) FROM activity_evidence WHERE zone_id=?', (zone_id,)).fetchone()[0]
             if last is not None and occurred-last < 300: return False
-            origin = origin if origin in ('user_context', 'derived_context') else 'unknown'
+            origin = origin if origin in ALLOWED_ORIGINS else 'unknown'
             db.execute('INSERT OR IGNORE INTO activity_evidence VALUES (?,?,?,?)', (zone_id, entity_id, occurred, origin))
             if cfg['context_learning'] and context is not None and occurred >= (cfg['context_consented_at'] or now):
                 db.execute('INSERT OR REPLACE INTO activity_context VALUES (?,?,?)', (zone_id, occurred, json.dumps(context)))

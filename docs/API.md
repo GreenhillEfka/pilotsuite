@@ -55,6 +55,10 @@ fields. `rule_strength` reports deterministic threshold ratios only; it is not a
 probability. Posting feedback changes only `preference`, never stored evidence or
 counts. The earlier flat `events`/`days`/`observed_total`/`origins`/`feedback`
 fields remain deprecated read-only aliases until an announced API-version change.
+`statistics.origins` counts only coarse origin categories. PilotSuite never exports
+Home Assistant user/context identifiers. `parented_service_context` means a state
+was correlated with a recently observed parented `call_service` event; it is not
+proof of a particular automation or script. Correlation is memory-only and consent-gated.
 Status adds `ready`, `event_stream_connected`, `snapshot_fresh`, and
 `missing_required_kinds`. In alpha.3 readiness required the stream, a recent snapshot, a
 resolved scope and valid temperature/humidity inputs; alpha.4 supersedes that rule. It does not certify physical

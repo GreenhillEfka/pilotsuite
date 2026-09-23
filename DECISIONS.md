@@ -1,5 +1,23 @@
 # Architecture Decision Log
 
+## ADR-023 — Origin hints are consent-gated, ephemeral and non-identifying
+
+Home Assistant context fields are correlation links, not verified human or
+automation identities. PilotSuite may subscribe to `call_service` beside
+`state_changed`, but correlates only while an enabled zone has explicit activity
+learning consent and a valid source. Opaque context/user identifiers and service
+payloads are never persisted or exported. Correlation lives in bounded memory for
+120 seconds / 2,048 service contexts and is cleared on disconnect or when no
+eligible consented source remains.
+
+Stored evidence uses coarse categories: direct user context, correlated parented
+service context, correlated unparented service context, uncorrelated derived
+context or unknown. A user context is not proof of physical/manual operation; a
+parented service context is not proof of one particular automation or script.
+Current read-only PilotSuite creates no own-action evidence. Future own actions must
+be marked explicitly by the single transaction owner and excluded from learning,
+not guessed from generic HA context chains. See `docs/EVENT_ATTRIBUTION.md`.
+
 ## ADR-022 — Local rhythms, sampled observability and separately consented context
 
 Stored UTC events are grouped using a saved IANA timezone and optional weekday /
