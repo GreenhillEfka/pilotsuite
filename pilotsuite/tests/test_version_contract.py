@@ -23,6 +23,15 @@ class VersionContractTests(unittest.TestCase):
         self.assertIsNotNone(docker_version)
         self.assertEqual(VERSION, docker_version.group(1))
 
+        docs = (ROOT / "pilotsuite" / "DOCS.md").read_text(encoding="utf-8")
+        self.assertIn(f"Release: `{VERSION}`", docs)
+
+    def test_web_shell_does_not_embed_a_stale_release_number(self) -> None:
+        index = (
+            ROOT / "pilotsuite" / "pilotsuite" / "web" / "index.html"
+        ).read_text(encoding="utf-8")
+        self.assertNotRegex(index, r"0\.1\.0-alpha\.\d+")
+
 
 if __name__ == "__main__":
     unittest.main()

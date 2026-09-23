@@ -1,5 +1,18 @@
 # Capability and acceptance ledger
 
+## Release marker reliability increment
+
+The alpha.14 tree no longer exposes a stale alpha.13 literal in its static browser
+shell. The first-start documentation is tied by regression to the canonical version,
+and the static shell is required to stay free of hard-coded alpha numbers. 123 backend
+tests, four JavaScript tests and repository validation pass locally; browser/container
+CI is pending. No persistence, consent, history or execution boundary changes.
+
+Deployment remains separate: Supervisor still reports alpha.13 installed and offered.
+Backup fe09f165 remains available; no app update or restart was performed. The next
+gate is CI, followed by an authorized Store refresh and exact alpha.14 deployment and
+workbench acceptance.
+
 ## Published alpha.14; live update pending (2026-09-23)
 
 PR #23 delivers the pattern workbench; PR #24 publishes 0.1.0-alpha.14 at
