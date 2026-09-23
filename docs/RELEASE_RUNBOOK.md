@@ -78,6 +78,8 @@ Keep the scoped request and completion evidence; distinguish metadata confirmati
 from archive inspection or a restore drill. If necessary details/key availability
 cannot be confirmed, stop before update. Never use snapshot **create/restore**:
 those are full-HA operations, outside the authorization.
+The scoped backup can itself stop/start the app. Inspect post-backup startup and
+readiness; report this separately from an explicit restart or a version update.
 
 Concrete rollback is `ha_call_service` / `hassio.restore_partial` with:
 

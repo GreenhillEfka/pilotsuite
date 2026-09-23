@@ -1,6 +1,6 @@
 # Current State
 
-## Release procedure and alpha.15 candidate — 2026-09-23
+## Published alpha.15; repeatable release procedure — 2026-09-23
 
 Baseline main f0989ea17a819a0718f5b980c6f62d0e64804bab, CI 35831435324
 fully green; no open PR at the initial check. Alpha.15 packages the already merged
@@ -14,7 +14,10 @@ versions, marker/changelog drift and unrelated history; it never authorizes depl
 Seven synthetic Git regressions pass. Local total: 130 Python and nine JavaScript
 tests, repository contracts and diff checks passed. Functional candidate
 d9f7ab7e824a7e6cf998c1e9377a8fb78206e4b4 passed CI 35837285851, including
-Chromium and amd64 container. PR #32 records the final head/main CI receipts.
+Chromium and amd64 container. PR #32 merged at
+7fc0abc6c62bc15446c39b6d6da03990519fc919; final head CI 35837490073 and exact
+main CI 35837585440 both passed all three jobs. Release app tree is
+e789111f0f672a026b1f4e8813edee075c32a208. Source preflight passed for exact main.
 
 Fresh HA metadata: alpha.13 installed/offered/started, no update available,
 auto-update enabled. Scoped backup 6db4ba91 completed 2026-09-23T08:23:00Z,
@@ -23,9 +26,12 @@ selected only PilotSuite and no folders. Archive internals and restore drill wer
 not inspected/performed. Recovery target: alpha.13 app and matching data/options
 using hassio.restore_partial, apps [0d79c5e8_pilotsuite], homeassistant false,
 folders []. Confirm backup contents and source mapping before an actual update.
-No update/restart, Store retry, role/consent edits or Ingress bypass in this increment.
+No update or explicit restart command, Store retry, role/consent edits or Ingress
+bypass in this increment. The scoped backup produced a fresh alpha.13 startup log;
+afterward logs confirm hard_read_only, ready, connected stream, fresh snapshot and
+resolved zone. Backup-related app lifecycle is not a release installation.
 
-Next: verify final documentation-head/main CI (receipt in PR #32); once offered, verify source mapping and
+Next: once alpha.15 is offered, verify source mapping and
 backup recovery gate, update once and accept navigation/workbench in authenticated
 Ingress. Existing Store authorization and live UI acceptance remain open; do not
 silently substitute the older published alpha.14 source or invent new feature work.
