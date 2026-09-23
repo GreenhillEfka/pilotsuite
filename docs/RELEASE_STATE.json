@@ -4,19 +4,19 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.17",
-    "commit": "8a8393249ef43c9f85dbfc6ec759889827319de3",
-    "app_tree": "70879070888a7de8df6b15d1800bdb4bace5f598",
-    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35874744954",
+    "version": "0.1.0-alpha.18",
+    "commit": "f3f5a25c344304b881ba858d253271450d3fc1db",
+    "app_tree": "431ab2e2f2810315b98680459c0b5448da2f598c",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35880705662",
     "ci_conclusion": "success",
-    "source_association": "canonical_repository_and_offered_version_match_published_unchanged_app_tree",
+    "source_association": "published_canonical_source_not_yet_offered_by_store",
     "independent_store_checkout_verified": false
   },
   "backup": {
-    "id": "fcbbc115",
-    "date": "2026-09-23T15:09:02.254862+00:00",
-    "previous_version": "0.1.0-alpha.16",
-    "size_bytes": 53934080,
+    "id": "92e7a465",
+    "date": "2026-09-23T15:15:58.977908+00:00",
+    "previous_version": "0.1.0-alpha.17",
+    "size_bytes": 53923840,
     "completed": true,
     "native_details_verified": true,
     "only_pilotsuite": true,
@@ -26,14 +26,14 @@
     "rollback": {
       "service": "hassio.restore_partial",
       "data": {
-        "slug": "fcbbc115",
+        "slug": "92e7a465",
         "apps": [
           "0d79c5e8_pilotsuite"
         ],
         "homeassistant": false,
         "folders": []
       },
-      "target_version": "0.1.0-alpha.16"
+      "target_version": "0.1.0-alpha.17"
     }
   },
   "installation": {
@@ -54,7 +54,7 @@
     "status": "pending",
     "reason": "no_authenticated_HA_browser_session_available"
   },
-  "next_task": "Accept the alpha.17 temporal review and JSON export in authenticated HA Ingress, read-only. Do not reinstall. Learning-quality review and second-zone acceptance remain separate and require existing explicit consent.",
+  "next_task": "When alpha.18 is offered, recheck source and backup freshness, update PilotSuite once and verify runtime. Authenticated temporal-view/export acceptance from alpha.17 remains pending; no learning or actuation enablement.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",

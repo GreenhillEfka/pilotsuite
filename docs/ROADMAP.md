@@ -3,7 +3,8 @@
 ## 0.1 alpha — reliable observation (current)
 - Immediate reliability slice: alpha.18 makes current-pattern validation and feedback
   persistence atomic with reset/configuration/retention. Six synthetic regressions;
-  next exact CI, versioned deployment and runtime/UI acceptance. Alpha.17 is installed.
+  PR #40 and exact main CI 35880705662 are green. Next is alpha.18 Store availability,
+  scoped update and runtime/UI acceptance. Alpha.17 remains installed/offered.
 - Preserve canonical repository and read-only boundary.
 - Normalize units, explicit missing evidence, stable suggestion identity.
 - Guard Ingress peer; test actual proxy path and browser assets.

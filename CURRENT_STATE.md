@@ -1,5 +1,33 @@
 # Current State
 
+## Alpha.18 published; alpha.17 still installed — 2026-09-23
+
+PR #40 merged atomic feedback at f3f5a25c344304b881ba858d253271450d3fc1db.
+Exact final PR CI 35880542131 and main CI 35880705662 passed: 151 Python tests,
+nine JavaScript tests, Chromium and amd64 container. Source preflight passes;
+app tree 431ab2e2f2810315b98680459c0b5448da2f598c matches the tested candidate.
+Six synthetic regressions cover queued stale writes, actual SQLite write exclusion
+and valid feedback persistence. The HTTP projection lock already serialized UI
+configuration/feedback; this change guarantees atomicity at the ContextStore boundary
+and evaluates expiry after acquiring the write lock. No new schema or collection.
+
+Fresh completed backup 92e7a465 (2026-09-23T15:15:58Z, 53,923,840 bytes,
+unprotected) was verified with native backup/details: exactly PilotSuite alpha.17,
+no failed components, no HA configuration/database/folders. The standard app backup
+includes app data/options. Recovery is only hassio.restore_partial, slug 92e7a465,
+apps [0d79c5e8_pilotsuite], homeassistant false, folders []; no live restore drill.
+
+HA still reports alpha.17 installed/offered/started. Post-backup logs confirm ready,
+connected stream, fresh snapshot and resolved zone. No update, separate restart,
+role/consent/feedback change or automation/actuator action. No same-version reinstall
+or retry of the known denied Store bridge. Alpha.17 temporal-view/export Ingress
+acceptance remains open because no authenticated HA browser session is available.
+
+Next: once alpha.18 is offered, recheck source/backup freshness, update once, verify
+runtime and complete read-only temporal-view/export acceptance. Keep live learning
+quality and second-zone acceptance separate and bounded to existing explicit consent.
+The candidate and older deployment sections below are historical receipts.
+
 ## Atomic pattern feedback / alpha.18 candidate — 2026-09-23
 
 At the ContextStore boundary, a queued feedback request could validate a pattern,
