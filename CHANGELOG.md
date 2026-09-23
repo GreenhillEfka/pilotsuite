@@ -2,6 +2,21 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.12] - 2026-09-23
+
+- Add consent-gated, memory-only correlation between Home Assistant service and
+  state contexts; persist only coarse origin categories without identifiers.
+- Add scoped zone-history graphs for recorded states and hourly long-term statistics.
+- Show virtual zone references, source ranges, presence/light timelines, weekly
+  activity rasters and chronological re-observation checks with explicit gaps.
+- Add one-time, interval-scoped retrospective activity consent. Import only
+  confirmed presence activations into the existing activity-v1 store; never infer
+  historical light context or actuation intent.
+- Migrate to SQLite schema 6 with a pre-migration backup, import receipts and
+  provenance; deduplicate imported evidence against live and previous evidence.
+- Keep learning, historical import and every Home Assistant action disabled unless
+  separately authorized. This release remains hard read-only.
+
 ## [0.1.0-alpha.11] - 2026-09-23
 
 - Add per-zone activity thresholds, local IANA timezones and weekday/weekend grouping.

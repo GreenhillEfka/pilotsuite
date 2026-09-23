@@ -1,6 +1,24 @@
 # Current State
 
-## Development: targeted history and zone trends
+## Release candidate: 0.1.0-alpha.12
+
+PR #13 is merged as `13e1b03791d93d2bedb3e022b08743a1d61649b9`.
+Its final head CI 35803025273 passed 113 backend tests, four JavaScript tests,
+extended Chromium browser flows and the amd64 container. The alpha.12 release
+branch combines consent-gated coarse event-origin hints with targeted Home
+Assistant history/statistics views and separately consented retrospective activity
+imports. It remains hard read-only; no learning consent or import is enabled by
+the update. SQLite schema 6 backs up schema 5 before migration.
+
+This candidate is not yet published or installed. Home Assistant still runs
+alpha.11. Before merge/publication, require exact release-candidate CI plus a fresh,
+confirmed PilotSuite App-and-data backup. Recovery is restoration of that scoped
+alpha.11 backup, not running alpha.11 code against schema 6. After installation,
+verify startup, migration, connected event stream, readiness, Erdkeller resolution,
+read-only boundary and real Ingress asset/API requests. Actual role choices,
+Recorder coverage and user interaction remain separate live acceptance items.
+
+## Merged implementation: targeted history and zone trends
 
 Branch feat/history-and-trends incorporates main 155fb07 including consent-gated
 event attribution. Implements
@@ -13,9 +31,9 @@ CI 35802932782 for candidate 31f04a68577a5afbfa9df4d9dfa150659900953c passed
 113 backend tests, four JS tests, extended Chromium browser flows and amd64
 container. Local repository validation also passed. Implementation is in PR #13.
 The following documentation-only commit records that verified candidate.
-HA read-only metadata confirms alpha.11 started. No release, update, role/consent
-change or live historical import performed. Actual Recorder coverage and Ingress
-acceptance remain open. Release requires scoped App-and-data backup first.
+HA read-only metadata confirms alpha.11 started. No role/consent change or live
+historical import was performed. Actual Recorder coverage and Ingress acceptance
+remain open.
 
 
 ## Merged, not released: consent-gated coarse event attribution
