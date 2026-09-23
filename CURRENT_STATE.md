@@ -1,5 +1,34 @@
 # Current State
 
+## Automation inspection packages / alpha.21 candidate — 2026-09-23
+
+Continues ADR-028 with three bounded review packages (ADR-029): explicitly selected
+trigger/condition/action structure, source/target alignment with an open checklist,
+and fingerprint change detection plus combined JSON export. The HA client reads
+only a freshly matched automation/config; required admin capability remains a live
+gate. Templates/indirect behavior stay unknown. No raw configuration is persisted,
+no HA write, consent change, new collection/schema or execution is introduced.
+Contract: docs/AUTOMATION_INSPECTION.md. All development fixtures are synthetic.
+
+Local validation: 192 Python tests and nine JavaScript tests passed; syntax checks
+passed. Chromium coverage extends details, unchanged/changed retries, open checklist,
+export, failure invalidation and responsive layout; exact CI is still pending.
+
+Completed scoped backup 697876b6 (2026-09-23T20:11:00Z, 53,964,800 bytes) was
+verified through native backup/details: exactly PilotSuite alpha.18, unprotected,
+no failures and no HA configuration/database/folders. App backup includes data/options.
+Concrete recovery is hassio.restore_partial with slug 697876b6, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no live restore drill.
+HA currently reports alpha.18 installed/offered/started; no installation performed.
+Store refresh access and authenticated Ingress remain unchanged open gates.
+
+Next delivery: exact candidate CI, merge and exact main CI, then source/backup
+recheck and one update when Store offers alpha.21. Runtime and authenticated
+Ingress HTML/JS/CSS/API/detail capability acceptance are separate from code tests.
+Next concept: explicit user review notes/dispositions bound to draft revision and
+configuration fingerprint in the existing PlanStore; no action approval.
+Older sections below are historical.
+
 ## Alpha.20 published; installation pending Store offer — 2026-09-23
 
 PR #45 merged at 8be431a133d9694977193947c45de570b280edb6, app tree

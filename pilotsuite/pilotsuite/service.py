@@ -59,11 +59,19 @@ class PilotSuiteService:
         self._moods: list[Mood] = []
         self._suggestions: list[Suggestion] = []
 
-    async def compare_automations(self, zone_id, draft_id, payload):
+    async def compare_automations(self, zone_id, draft_id, payload, *, inspection=False):
         from pilotsuite.domain.automation_review import reference_review
-        if (not isinstance(payload, dict) or set(payload) != {'revision', 'zone_revision'}
-                or any(type(payload[k]) is not int for k in payload)):
+        expected = {'revision', 'zone_revision'} | ({'automation_id', 'previous_fingerprint'} if inspection else set())
+        if (not isinstance(payload, dict) or set(payload) != expected
+                or any(type(payload[k]) is not int for k in ('revision','zone_revision'))):
             raise InvalidSelection('Draft revision and zone_revision required')
+        if inspection:
+            import re
+            if (not isinstance(payload['automation_id'],str) or len(payload['automation_id'])>255
+                    or not re.fullmatch(r'automation\.[a-z0-9_]+',payload['automation_id'])
+                    or (payload['previous_fingerprint'] is not None and
+                        (not isinstance(payload['previous_fingerprint'],str) or not re.fullmatch(r'[0-9a-f]{64}',payload['previous_fingerprint'])))):
+                raise InvalidSelection('Invalid selected automation or fingerprint')
         if self._automation_review_lock.locked():
             raise HomeAssistantError('An automation lookup is already running')
         async with self._automation_review_lock:
@@ -83,11 +91,20 @@ class PilotSuiteService:
             entities = sorted(set(draft['fields']['target_ids']) | set(draft['current_pattern']['sources']))
             # Network I/O never blocks the projection/learning lock.
             relations = await self.client.related_automations(entities)
+            if inspection:
+                if not any(payload['automation_id'] in ids for ids in relations.values()):
+                    raise SelectionConflict('Selected automation no longer matches; repeat reference review')
+                from pilotsuite.domain.automation_inspection import inspect_automation
+                config = await self.client.automation_config(payload['automation_id'])
+                detail = inspect_automation(config,draft,payload['automation_id'],payload['previous_fingerprint'])
+                del config
             async with self._projection_lock:
                 current = await basis()
                 if current['current_pattern']['sources'] != draft['current_pattern']['sources']:
                     raise SelectionConflict('Pattern sources changed during comparison; retry')
-                return reference_review(current, payload['zone_revision'], relations)
+                report = reference_review(current, payload['zone_revision'], relations)
+                if inspection: report['inspection'] = detail
+                return report
 
     async def start(self) -> None:
         await self.selections.initialize()

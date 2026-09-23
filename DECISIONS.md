@@ -292,3 +292,17 @@ Bound time, inputs and responses; reject failures without partial-clean claims.
 No new consent, configuration collection or execution. Detailed semantics of an
 explicitly selected existing automation are the next separate slice. Contract:
 docs/AUTOMATION_REVIEW.md.
+
+## ADR-029 — Selected structural inspection, open review plan and change receipt
+
+Accepted 2026-09-23 as continuation of ADR-028 and the requested further concept
+packages. Read one explicitly selected current match through automation/config;
+reuse the canonical HA client and PlanStore draft. Bound configuration work and
+return only whitelisted structure, scoped references and unknowns. No raw config
+persistence, automatic scans, template evaluation or permissions change.
+Keep all derived checklist items open. Compare canonical config fingerprints on
+explicit retries; export only the current transient report with its draft basis.
+Neither matching structure nor unchanged config establishes safety or equivalence.
+No schema change or second evidence owner. The next separate slice may persist
+user-authored review notes bound to draft revision/fingerprint in PlanStore, never
+an approval to act. Contract: docs/AUTOMATION_INSPECTION.md.

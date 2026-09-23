@@ -2,6 +2,14 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.21] - 2026-09-23
+
+- Eine ausdrücklich gewählte passende HA-Automation rein lesend in Auslöser, Bedingungen und Aktionen aufschlüsseln.
+- Verschachtelte Abläufe und Quellen-/Zielbezüge sichtbar machen; Templates, indirekte Aufrufe und unbekanntes Verhalten offen kennzeichnen.
+- Offenen Prüfplan für Komfortziel, Zeitverhalten, manuellen Vorrang, Aktivierungsstatus und Risiko ableiten.
+- Bei erneuter Prüfung Konfigurationsänderungen erkennen; Entwurf, Strukturprüfung und Prüfplan gemeinsam exportieren.
+- Keine Rohkonfiguration speichern/exportieren, keine neue Datensammlung, Ausführung oder Automationsänderung.
+
 ## [0.1.0-alpha.20] - 2026-09-23
 
 - Gespeicherte Routine-Entwürfe auf Klick mit Entitätsbezügen bestehender HA-Automationen vergleichen.

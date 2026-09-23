@@ -159,6 +159,24 @@ class HomeAssistantClient:
         # Discard every partial result on failure; never imply a clean comparison.
         return results
 
+    async def automation_config(self, entity_id):
+        """Read one explicitly selected automation; never use the edit REST API."""
+        import re
+        if not isinstance(entity_id, str) or len(entity_id) > 255 or not re.fullmatch(r'automation\.[a-z0-9_]+', entity_id):
+            raise HomeAssistantError('Invalid automation identity')
+        await self.start()
+        try:
+            async with asyncio.timeout(20):
+                async with self._session.ws_connect(self._ws_url, heartbeat=30,
+                                                    max_msg_size=128*1024) as socket:
+                    await self._authenticate(socket)
+                    result = await self._command(socket, 1, {'type':'automation/config','entity_id':entity_id})
+                    if not isinstance(result, dict) or not isinstance(result.get('config'), dict):
+                        raise HomeAssistantError('Invalid automation configuration response')
+                    return result['config']
+        except (TimeoutError, ClientError, RecursionError) as exc:
+            raise HomeAssistantError('Automation details unavailable') from exc
+
     async def listen(
         self, callback: StateCallback, stop_event: asyncio.Event,
         connection_callback: Callable[[bool], Awaitable[None]] | None = None,

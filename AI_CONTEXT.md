@@ -27,20 +27,20 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
-Alpha.20 is published via PR #45 at 8be431a133d9694977193947c45de570b280edb6;
-app tree 12f06b6c99fd3df9fdd5b9f28e11c6420ac21833, exact main CI 35909475569 green
-(175 Python, nine JS, Chromium, amd64). ADR-028 / docs/AUTOMATION_REVIEW.md define
-the bounded transient check: saved targets/current pattern sources, HA search/related,
-separate source/target matches. No semantic duplicate/safety verdict, persisted
-automation data, new collection/schema or execution. Empty matches retain warnings.
+Alpha.21 candidate implements selected automation structure, an open review plan,
+and fingerprint change detection with combined export (ADR-029,
+docs/AUTOMATION_INSPECTION.md). All fixtures are synthetic; no raw HA configuration
+is persisted/exported, no new learning or execution. Local 192 Python/nine JS pass;
+exact CI and release publication remain pending. Prior release alpha.20 is
+8be431a133d9694977193947c45de570b280edb6, main CI 35909475569 green.
 
-HA still runs/offers alpha.18; no update performed. Fresh verified scoped backup
-c8347e4a contains alpha.18 app/data/options. Next delivery: exact source/backup
-recheck and one normal Store update when alpha.20 is offered, then runtime and
-authenticated temporal/draft/reference UI acceptance. Only about:blank is available;
-alpha.16 user UI acceptance stands. No real automation scan/learning was performed.
-Next concept: inspect one explicitly selected matching automation's trigger/condition/
-action references read-only; templates/unsupported semantics remain unknown.
+HA remains alpha.18 installed/offered. Fresh scoped backup 697876b6 contains
+alpha.18 app/data/options and has a documented partial rollback. Next: exact CI,
+publication, matching alpha.21 Store offer, source/backup recheck and one update,
+then runtime and authenticated Ingress/capability acceptance. Alpha.16 user UI
+acceptance remains separate. No household automation scan was performed.
+Next concept: user-authored review notes tied to draft revision/config fingerprint,
+using the canonical PlanStore and never granting execution permission.
 
 For release/deployment read docs/RELEASE_STATE.json, newest CURRENT_STATE receipt and
 docs/RELEASE_RUNBOOK.md. Resume recorded next steps after live checks; do not
