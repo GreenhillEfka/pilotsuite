@@ -1,0 +1,686 @@
+# Capability and acceptance ledger
+
+## Alpha.21 published; installation pending Store offer — 2026-09-23
+
+PR #47 merged at 1223f96f45053f7bf3d509bd7ad72c85b9f6cab1, app tree
+3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77. Exact PR CI 35914519415 and main CI
+35914643847 passed: 192 Python tests, nine JavaScript tests, Chromium and amd64.
+Release source preflight passed on the exact merge. The three packages are selected
+trigger/condition/action inspection, an open review plan, and fingerprint change
+detection with combined export (ADR-029). Browser checks cover first/unchanged/
+changed reads, checklist, export, failed retries and mobile/desktop overflow.
+All fixtures are synthetic. This is no semantic equivalence/safety verdict.
+
+Scoped backup 697876b6 completed 2026-09-23T20:11:00Z, 53,964,800 bytes,
+unprotected. Native backup/details confirms only PilotSuite alpha.18 app/data/options,
+no failures, no HA configuration/database/folders. Concrete recovery remains
+hassio.restore_partial with slug 697876b6, apps [0d79c5e8_pilotsuite],
+homeassistant false, folders []; no live restore drill.
+
+After publication Supervisor still reports alpha.18 installed/offered/started.
+Post-backup startup/readiness logs confirm hard_read_only, connected stream, fresh
+snapshot and resolved Golden Zone. No installation or independent restart, actor/
+automation/configuration/role/consent change. No denied Store route retried/bypassed.
+The available browser has only about:blank. Authenticated temporal/draft/reference/
+inspection Ingress HTML/JS/CSS/API and actual automation/config capability acceptance
+remain open; required HA admin capability is not presumed or escalated. No household
+config was fetched for development. Alpha.16 user UI acceptance stays separate.
+
+Next delivery: when Store offers alpha.21, recheck exact source/CI and backup
+freshness, update PilotSuite once, verify runtime and real Ingress where authorized.
+Next concept: explicit user-authored review notes/dispositions in canonical PlanStore,
+bound to draft revision and inspected fingerprint; changes require renewed review.
+This must not alter evidence statistics, confidence, rule strength, risk or grant
+execution permission. Final documentation CI receipts stay in the documentation PR.
+Older sections below are historical.
+
+## Automation inspection packages / alpha.21 candidate — 2026-09-23
+
+Continues ADR-028 with three bounded review packages (ADR-029): explicitly selected
+trigger/condition/action structure, source/target alignment with an open checklist,
+and fingerprint change detection plus combined JSON export. The HA client reads
+only a freshly matched automation/config; required admin capability remains a live
+gate. Templates/indirect behavior stay unknown. No raw configuration is persisted,
+no HA write, consent change, new collection/schema or execution is introduced.
+Contract: docs/AUTOMATION_INSPECTION.md. All development fixtures are synthetic.
+
+Local validation: 192 Python tests and nine JavaScript tests passed; syntax checks
+passed. Chromium coverage extends details, unchanged/changed retries, open checklist,
+export, failure invalidation and responsive layout; exact CI is still pending.
+
+Completed scoped backup 697876b6 (2026-09-23T20:11:00Z, 53,964,800 bytes) was
+verified through native backup/details: exactly PilotSuite alpha.18, unprotected,
+no failures and no HA configuration/database/folders. App backup includes data/options.
+Concrete recovery is hassio.restore_partial with slug 697876b6, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no live restore drill.
+HA currently reports alpha.18 installed/offered/started; no installation performed.
+Store refresh access and authenticated Ingress remain unchanged open gates.
+
+Next delivery: exact candidate CI, merge and exact main CI, then source/backup
+recheck and one update when Store offers alpha.21. Runtime and authenticated
+Ingress HTML/JS/CSS/API/detail capability acceptance are separate from code tests.
+Next concept: explicit user review notes/dispositions bound to draft revision and
+configuration fingerprint in the existing PlanStore; no action approval.
+Older sections below are historical.
+
+## Alpha.20 published; installation pending Store offer — 2026-09-23
+
+PR #45 merged at 8be431a133d9694977193947c45de570b280edb6, app tree
+12f06b6c99fd3df9fdd5b9f28e11c6420ac21833. Exact PR CI 35909368171 and main CI
+35909475569 passed: 175 Python tests, nine JS, Chromium and amd64. Source preflight
+passed. Browser checks include reference matches/empty results/errors, revision
+invalidation, JSON export and mobile/desktop overflow checks. This is synthetic
+acceptance, not a live household automation comparison or semantic duplicate proof.
+
+Scoped backup c8347e4a completed 2026-09-23T19:23:44Z, 53,954,560 bytes,
+unprotected. Native backup/details confirms exactly PilotSuite alpha.18, no failures,
+HA configuration/database/folders excluded. Standard app backup includes data/
+options. Concrete recovery: hassio.restore_partial, slug c8347e4a, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no restore drill.
+
+Latest Supervisor check still reports alpha.18 installed/offered/started. Post-backup
+logs confirm ready, stream connected, fresh snapshot and resolved Golden Zone.
+No install, independent restart, automation/actor/configuration or consent change.
+Store bridge denial was not retried or bypassed. No real reference scan or household
+evidence exported. Only about:blank is available; authenticated temporal/draft/
+reference-review Ingress HTML/JS/CSS/API acceptance remains open. Alpha.16 user UI
+acceptance is preserved separately.
+
+Next delivery: when alpha.20 is offered, verify exact source/CI and backup freshness,
+update PilotSuite once, then runtime and real Ingress acceptance where authorized.
+If an older intermediate version is offered, do not describe it as alpha.20 or
+install it as this package. Next concept slice: read-only trigger/condition/action
+inspection of one explicitly selected matching automation, with unsupported/
+template semantics left unknown. Final documentation CI receipts remain in its PR.
+Older sections below are historical.
+
+## Automation reference review / alpha.20 candidate — 2026-09-23
+
+Continues ADR-027 with a bounded read-only entity-reference comparison (ADR-028,
+docs/AUTOMATION_REVIEW.md). Explicit requests use saved draft targets/current
+pattern sources and the existing HA client search/related. Transient results
+separate source/target overlap; they do not establish duplicate behavior, causality,
+enabled status or safety. Empty matches retain all coverage warnings. No new
+collection/schema/owner; no automation writes, activation or household evidence.
+
+Twelve new synthetic cases cover commands/scope, limits, failures, timeout,
+cancellation, no persistence and concurrent changes/reset. Local suite: 175 Python
+and nine JS passed. Chromium regression now covers matching/empty/error results,
+stale-result suppression, JSON export and mobile/desktop layout. Exact CI pending.
+
+HA freshly remains alpha.18 installed/offered/started; alpha.19 is published but
+not yet offered. Fresh scoped backup c8347e4a completed 2026-09-23T19:23:44Z,
+53,954,560 bytes, unprotected; native backup/details confirms exactly PilotSuite
+alpha.18 and no failed components, HA configuration/database/folders excluded.
+Standard app backup includes data/options. Recovery only via hassio.restore_partial,
+slug c8347e4a, apps [0d79c5e8_pilotsuite], homeassistant false, folders [].
+No restore drill or installation performed.
+
+Next delivery: exact candidate/main CI, then matching Store offer, normal update
+after source/backup recheck and runtime/Ingress acceptance. Next concept slice:
+read-only trigger/condition/action inspection of an explicitly selected matching
+automation; templates/unsupported behavior remain unknown. Older receipts below
+are historical; code, installed version and live acceptance are separate.
+
+## Alpha.19 published; Store offer pending — 2026-09-23
+
+PR #43 merged at 0101a4152664f3005f51814050477c06d74337fa, app tree
+2765acc28f933ee434b568478c0c6eb1d68d2c3f. Exact PR CI 35905305381 and main CI
+35905466915 passed: 163 Python tests, nine JavaScript tests, Chromium and amd64.
+Release preflight passed. Browser regression verifies create/edit, conflict input
+preservation, reload, escaped text, JSON export, zone isolation and mobile/desktop
+overflow checks. Synthetic CI screenshots exist; separate visual inspection was
+not completed because artifact download was denied. No real UI pass is claimed.
+
+Fresh scoped backup 14e86f1c completed 2026-09-23T18:46:09Z (53,954,560 bytes,
+unprotected). Native backup/details confirms only PilotSuite alpha.18, app data/
+options included by standard app backup, no failures or HA/database/folders.
+Recovery: hassio.restore_partial, slug 14e86f1c, apps [0d79c5e8_pilotsuite],
+homeassistant false, folders []; no restore drill.
+
+Latest HA check remains alpha.18 installed/offered/started, no update available.
+Post-backup logs show ready, connected stream, fresh snapshot and resolved zone.
+No install, independent restart, learning/configuration/automation or actuator
+mutation. No household evidence exported. Previously denied Store bridge was not
+retried; availability remains distinct from working app-update permission.
+The browser has only about:blank; real authenticated temporal/draft Ingress
+HTML/JS/CSS/API acceptance remains open. Alpha.16 user UI acceptance is preserved.
+
+Next delivery step: when Store offers alpha.19, recheck source/backup freshness,
+update PilotSuite once, verify version/start/read-only/connection/zone and real
+Ingress where authorized. Next concept slice: read-only existing-automation
+comparison with explicit uncertainty, no automation writes. Earlier candidate/
+release receipts below are historical. Final receipt CI stays in its PR.
+
+## Routine drafts / alpha.19 candidate — 2026-09-23
+
+The user approved implementing durable routine drafts. The existing PlanStore owns
+creation/edit/export/delete with optimistic revisions and explicit source refresh.
+SQLite schema 7 adds one bounded table after backing up schema 6. User-authored
+fields survive learning reset; evidence/statistics/preferences are not copied.
+Current patterns are derived from ContextStore. No execution or extra collection;
+risk and automation comparison remain unassessed. Contract: docs/ROUTINE_DRAFTS.md.
+
+Local validation: 163 Python tests (12 new synthetic draft/API/migration cases).
+Browser regression adds create/edit/conflict/reload/JSON export, zone isolation and
+mobile/desktop layout. Local Chromium download failed; exact PR/main CI is required.
+
+HA freshly reports alpha.18 installed/offered/started. Scoped backup 14e86f1c
+completed 2026-09-23T18:46:09Z, 53,954,560 bytes, unprotected. Native backup/details
+confirms exactly alpha.18 PilotSuite, no failures, HA configuration/database/folders
+excluded. Standard app backup includes data/options. Concrete recovery:
+hassio.restore_partial with slug 14e86f1c, apps [0d79c5e8_pilotsuite],
+homeassistant false, folders []; no restore drill. No installation performed yet.
+
+Next: exact alpha.19 CI, normal Store update when offered, runtime verification.
+Authenticated temporal/draft UI acceptance remains separate. Next concept slice:
+read-only comparison with existing HA automations, explicit uncertainty, no edits.
+No household evidence collected. Older receipts below are historical.
+
+## Alpha.18 installed through the normal Store path — 2026-09-23
+
+The Store now offered alpha.18 while alpha.17 ran. Fresh source verification confirms
+release f3f5a25c344304b881ba858d253271450d3fc1db and pre-update main
+809fe1144ac6888390bc8c59b66711569fc5dc40 share app tree
+431ab2e2f2810315b98680459c0b5448da2f598c. Exact CI 35880705662 and
+35881046994 are green: 151 Python, nine JS, Chromium and amd64. Source preflight
+passed; no open PR or branch rule blocked this receipt. This is canonical
+repository/version/app-tree association, not an independently exposed Store SHA.
+
+Fresh backup b6c90eb0 completed at 2026-09-23T17:52:24Z, 53,944,320 bytes,
+unprotected. Native backup/details verifies exactly PilotSuite alpha.17, no failed
+components, no HA configuration/database or folders. Standard app backup includes
+data/options. Exact recovery: hassio.restore_partial, slug b6c90eb0, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no restore drill performed.
+
+One ha_manage_app update succeeded. Supervisor reports alpha.18 installed/offered,
+started, no update available. Startup/readiness confirms version alpha.18,
+hard_read_only, connected stream, fresh snapshot, resolved zone and ready. No
+separate restart or Store refresh was performed. No role, consent, feedback,
+configuration, automation or actuator changes. No household evidence exported.
+
+The working sequence is reinforced in RELEASE_RUNBOOK; the previous Store delay
+is not a present installation blocker. A successful update does not prove that the
+previously denied Store-reload bridge works. Only about:blank is available in the
+browser. Real authenticated Ingress HTML/JS/CSS/API and temporal-view/export
+acceptance remain open; alpha.16 user UI acceptance is preserved separately.
+
+Next: authenticated read-only temporal-view/export acceptance on alpha.18; do not
+reinstall or restart. Real learning-quality and second-zone acceptance remain
+separate and require existing explicit consent. Documentation-only receipt;
+earlier pending-deployment entries below are historical and superseded.
+
+## Alpha.18 published; alpha.17 still installed — 2026-09-23
+
+PR #40 merged atomic feedback at f3f5a25c344304b881ba858d253271450d3fc1db.
+Exact final PR CI 35880542131 and main CI 35880705662 passed: 151 Python tests,
+nine JavaScript tests, Chromium and amd64 container. Source preflight passes;
+app tree 431ab2e2f2810315b98680459c0b5448da2f598c matches the tested candidate.
+Six synthetic regressions cover queued stale writes, actual SQLite write exclusion
+and valid feedback persistence. The HTTP projection lock already serialized UI
+configuration/feedback; this change guarantees atomicity at the ContextStore boundary
+and evaluates expiry after acquiring the write lock. No new schema or collection.
+
+Fresh completed backup 92e7a465 (2026-09-23T15:15:58Z, 53,923,840 bytes,
+unprotected) was verified with native backup/details: exactly PilotSuite alpha.17,
+no failed components, no HA configuration/database/folders. The standard app backup
+includes app data/options. Recovery is only hassio.restore_partial, slug 92e7a465,
+apps [0d79c5e8_pilotsuite], homeassistant false, folders []; no live restore drill.
+
+HA still reports alpha.17 installed/offered/started. Post-backup logs confirm ready,
+connected stream, fresh snapshot and resolved zone. No update, separate restart,
+role/consent/feedback change or automation/actuator action. No same-version reinstall
+or retry of the known denied Store bridge. Alpha.17 temporal-view/export Ingress
+acceptance remains open because no authenticated HA browser session is available.
+
+Next: once alpha.18 is offered, recheck source/backup freshness, update once, verify
+runtime and complete read-only temporal-view/export acceptance. Keep live learning
+quality and second-zone acceptance separate and bounded to existing explicit consent.
+The candidate and older deployment sections below are historical receipts.
+
+## Atomic pattern feedback / alpha.18 candidate — 2026-09-23
+
+At the ContextStore boundary, a queued feedback request could validate a pattern,
+then save after a concurrent reset/source/threshold change or expiry. Existing HTTP
+routes already serialize configuration and feedback with the projection lock; the
+new guard protects the store itself and rechecks time after worker queuing. This is
+not evidence of a reproduced concurrent-reset failure through the current HTTP UI.
+Validation and persistence now use
+one BEGIN IMMEDIATE transaction and the existing canonical report projection.
+No second detector, storage owner, schema, collection or consent change. Retained
+valid patterns remain reviewable with learning disabled. Observation statistics,
+rule strength, confidence, risk and preference remain separate.
+
+Six synthetic regressions cover those four stale-write cases, competing SQLite
+writers at the validation/save boundary, and valid durable feedback with learning
+off. Four stale-write tests failed against the preceding code; all six pass with
+the fix. Full local suite: 151 Python and nine JavaScript tests; repository contracts
+and diff checks pass. Exact PR/main CI including Chromium/amd64 must precede delivery.
+
+HA remains alpha.17 installed/offered/started. Fresh backup 92e7a465 completed
+2026-09-23T15:15:58Z (53,923,840 bytes, unprotected); native backup/details verifies
+only PilotSuite alpha.17, no failed components, HA/database/folders excluded.
+Scoped rollback is hassio.restore_partial with slug 92e7a465, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no restore drill performed.
+Alpha.17 temporal-view/export browser acceptance remains open; only about:blank
+is available. No real learning, feedback, roles or automation/actuator edits.
+
+Next: exact alpha.18 candidate/main CI, then source/backup recheck and one normal
+PilotSuite update when offered. Verify runtime and authenticated temporal view/export;
+do not conflate synthetic regressions with live learning-quality acceptance.
+
+## Alpha.17 installed; temporal UI acceptance pending — 2026-09-23
+
+One normal PilotSuite-only update completed from alpha.16 to alpha.17. Supervisor
+confirms alpha.17 installed/offered/started, update_available false. Startup logs
+confirm alpha.17, hard_read_only, ready, connected stream, fresh snapshot and
+resolved Golden Zone. Initial connection setup completed normally; no separate
+restart or rollback was needed. Store already offered the target; no reload needed.
+
+Published source 8a8393249ef43c9f85dbfc6ec759889827319de3 and pre-update main
+723fea28004f55c95f6450efb5f8533ee1bc6268 share app tree
+70879070888a7de8df6b15d1800bdb4bace5f598. Exact CI runs 35874744954 and
+35875185276 are successful: 145 Python tests, nine JavaScript tests, Chromium and
+amd64 container. Source preflight passed; no open PR or branch rule blocked this
+receipt. Source association uses canonical repository/version and unchanged app
+tree; Supervisor does not expose an independently verified checkout/image identity.
+
+Fresh scoped backup fcbbc115 completed at 2026-09-23T15:09:02Z, 53,934,080 bytes,
+unprotected. Native backup/details confirms exactly PilotSuite alpha.16, no failed
+apps/agents/folders, no HA configuration/database and no folders. Standard app backup
+includes app data/options; no archive extraction or live restore drill was performed.
+Concrete rollback is hassio.restore_partial with slug fcbbc115, apps
+[0d79c5e8_pilotsuite], homeassistant false and folders []; target alpha.16 and its
+matching app data/options. The live service schema was checked before deployment.
+
+Only about:blank is available in the browser; authenticated HA Ingress HTML/JS/CSS/API
+and the new temporal review/export remain unverified. Alpha.16 user-reported UI
+acceptance remains complete; it is not evidence for alpha.17's new view or real
+learning quality. No roles, learning consent, configuration, automations or actuators
+were changed. No household evidence was collected or exported for this work.
+
+Next: read-only authenticated acceptance of alpha.17 temporal review and JSON export,
+without reinstallation. Learning-quality and second-zone review remain distinct and
+bounded to existing explicit consent. This receipt changes documentation only;
+earlier pending-deployment sections below are historical and superseded.
+
+## Alpha.17 published; Store offer pending — 2026-09-23
+
+PR #37 merged temporal review at 8a8393249ef43c9f85dbfc6ec759889827319de3.
+Exact PR CI 35874564312 and main CI 35874744954 passed 145 Python tests, nine JS
+tests, Chromium (including temporal text/JSON export) and amd64 container. Source
+preflight passed; app tree 70879070888a7de8df6b15d1800bdb4bace5f598 matches the candidate.
+
+The user confirmed alpha.16 guide, zone navigation and workbench operate correctly.
+That UI acceptance is complete as user-reported evidence, not independent network
+capture or proof of learning quality. The new alpha.17 temporal view remains pending
+installation and its own UI acceptance. Synthetic two-zone tests are not live
+second-zone acceptance; no real learning was enabled or household evidence exported.
+
+Pre-publication backup 94355ad1 completed 2026-09-23T14:28:37Z, 53,923,840 bytes,
+unprotected. Native backup/details confirms only PilotSuite alpha.16, no failed
+apps/agents/folders, HA configuration/database and folders excluded. Scoped recovery
+is hassio.restore_partial with that slug, apps [0d79c5e8_pilotsuite], homeassistant
+false, folders []; no restore drill. Post-backup logs confirm readiness, connected
+stream, fresh snapshot and resolved zone.
+
+Fresh Store metadata still reports alpha.16 installed/offered/started, no update
+available. No same-version installation, explicit restart or denied Store-route
+retry was performed. Backup access is working, not a blocker.
+
+Next: once Store offers alpha.17, recheck source association/CI and backup freshness,
+update once and verify startup/read-only/connection/zone; then accept the temporal
+view. Repository development is complete for this slice. Do not add artificial
+features to fill Store waiting time. Real learning-quality review stays bounded to
+already explicitly consented evidence; actuation remains disabled.
+
+## Temporal pattern review candidate / alpha.17 — 2026-09-23
+
+The user confirmed alpha.16 guide/navigation/workbench works. Record this as
+user-reported UI acceptance, not independent network capture or proof of real
+learning quality. Current HA metadata remains alpha.16 installed/offered/started.
+
+The next bounded slice reuses retrospective() for retained activity evidence.
+Earlier 70% of the fixed rolling 14-day retention window must qualify independently;
+later 30% is checked only for repeat observation in the same local bucket/day group.
+An overall qualifying recent pattern may still lack earlier qualifying evidence.
+No later events train the earlier partition; out-of-period events are excluded.
+Counts/status/period enter the existing review and JSON export. No probability,
+causality or action permission is inferred. No new collection, schema or owner.
+
+Seven synthetic regressions cover partition bounds, missing early/later evidence,
+local day/window separation, two distinct zone profiles, durable feedback isolation,
+revoked consent and detached reports. Local tests/CI receipts are recorded in the PR.
+Browser regression checks temporal text and exported counts. No real learning or
+configuration change has been performed. Alpha.17 is not installed by this commit.
+
+Next: exact candidate CI, fresh verified PilotSuite-only backup, release and scoped
+update, then runtime checks. Live quality review of already-consented evidence in
+Golden Zone and a second unlike zone remains distinct from synthetic tests and UI
+acceptance. Do not create or activate automations from this review.
+
+## Alpha.16 live receipt — 2026-09-23
+
+Alpha.16 is now installed/offered/started after one normal PilotSuite update.
+Startup confirms hard_read_only, connected stream, fresh snapshot, resolved zone
+and readiness. No runtime change in this receipt. Existing release CI 35838497565
+and pre-update main CI 35842713561 are green: 138 Python, nine JS, Chromium, amd64.
+Canonical release 208b5d3 and pre-update main 33d5676 share app tree
+811de10be4d11acab5ee98a41eb5dc3a93b56f46; Store does not expose a checkout SHA.
+
+Native Core backup/details succeeds without changed credentials. Fresh completed
+95bb73d4 contains exactly PilotSuite alpha.13; no failed components, no HA/DB or
+folders, unprotected. Recovery is app-only restore_partial from that backup,
+including matching data/options. No archive extraction or live restore drill.
+Prior blanket backup-permission blocker was too broad and is superseded.
+
+Only about:blank is present in the available browser. Real authenticated Ingress
+HTML/JS/CSS/API, guide and workbench acceptance remain open. Next: that read-only
+acceptance, without reinstallation or enabling learning/actuation.
+
+## Deployment gate review — 2026-09-23
+
+Published alpha.16 source 208b5d31532c5f4ad38a6227b51028aeacacc9fd is verified by
+main CI 35838497565 (138 Python, nine JS, Chromium, amd64) and source preflight.
+HA now offers alpha.16 but still runs alpha.13. Store checkout SHA is not exposed
+by the available app metadata, so exact source mapping remains unverified.
+Backup d454e834 is complete/listed and excludes HA/database; its detail read
+(hassio/api GET /backups/d454e834/info) returns Unauthorized. Saved app version
+and data/options cannot yet be confirmed. No install, restart or bypass occurred.
+
+Pause at this permission gate rather than adding features ahead of live acceptance.
+Next: authorized backup-content verification and offered-source mapping, fresh
+scoped recovery point as needed, then one update and authenticated guide/workbench
+acceptance. No new runtime code, tests, consent, roles or release in this receipt.
+
+## Zone guide / alpha.16 candidate — 2026-09-23
+
+User requested the next coherent package after the release procedure was fixed.
+Based on published alpha.15 (PR #32) and its receipt (PR #33), the zone guide derives
+setup and optional-learning readiness from existing canonical projections. It shows
+one next step, missing relevant sources, paused evaluation, connection readiness,
+presence validity and retained patterns. Nearest-window evidence remains separate;
+no pooling, completion forecast, confidence/preference change or action permission.
+No new persistence, migration, consent or collection. Contract: docs/ZONE_GUIDE.md.
+
+Validation: 138 Python and nine JavaScript tests passed locally, including eight new
+synthetic guide regressions. Browser regression covers navigation without writes and
+clearing guidance on failed zone loads. Functional candidate 78f0206258a6bbac0b47fd2e5264a40595857d05 passed CI
+35838202517 (138 Python, nine JS, Chromium and amd64 container). PR #34 records
+the final documentation-head and resulting main CI receipts separately.
+
+Installation is separate: alpha.13 still installed/offered/started; no update available.
+Scoped PilotSuite backup d454e834 completed 2026-09-23T08:35:11Z, 53,882,880 bytes,
+unprotected, HA/database excluded. Request selected only PilotSuite and no folders.
+Archive internals not inspected; do not claim verified restore readiness. Concrete
+recovery target is alpha.13 and matching app data/options via restore_partial for
+this app only, after contents verification. No update, restart, learning enablement
+or Store permission retry. Real authenticated guide/workbench acceptance remains open.
+
+Next: pass exact candidate/main CI, then offered-source and backup-content gates;
+install once when available and validate the guide in authenticated HA Ingress.
+The sections below are historical receipts, not new pending work.
+
+## Published alpha.15; repeatable release procedure — 2026-09-23
+
+The current candidate packages post-alpha.14 UI/ordering fixes as alpha.15, without
+additional runtime/schema/consent changes. ADR-026 and RELEASE_RUNBOOK.md retain
+verified scoped service calls, source/CI gates, known permission boundaries and
+separate installation/UI evidence. Read-only release preflight checks immutable
+commit/tree identity, markers, changelogs, increasing version and ancestry.
+Seven new synthetic Git regressions: 130 Python and nine JS tests pass locally.
+Functional candidate d9f7ab7 passed CI 35837285851 including Chromium and amd64;
+PR #32 merged at 7fc0abc6c62bc15446c39b6d6da03990519fc919. Final head CI
+35837490073 and exact main CI 35837585440 passed tests, Chromium and amd64.
+
+Deployment is unchanged: alpha.13 installed/offered/started. Fresh scoped backup
+6db4ba91 completed at 2026-09-23T08:23:00Z; HA/database excluded, PilotSuite-only
+request. Archive contents/restore drill are not independently verified. No update,
+explicit restart command or consent change. Backup-related alpha.13 startup is
+visible in logs; readiness, stream, snapshot, zone and hard_read_only are confirmed.
+Next: offered version/source and
+backup verification gates, then authenticated navigation/workbench acceptance.
+Older sections below record earlier evidence, not the current pending-CI status.
+
+## Context response ordering candidate
+
+Read generations prevent late same-zone / revisited-zone responses and obsolete
+errors from superseding newer context. Feedback/configuration/reset and selection
+reloads invalidate pending reads; this changes UI ordering only, not persisted
+evidence or preference. Five synthetic ordering tests (four reproduced failures on
+the preceding code) pass alongside four selection JS tests and 123 backend tests.
+The browser regression holds an older GET across a real UI feedback save. Exact
+candidate 2823517 passed CI 35831207187, including Chromium and amd64 container
+(PR #31). No deployment was performed.
+Live metadata still reports alpha.13 installed/offered/started. Next gate: candidate
+CI, followed by separately verified release/backup and authorized live acceptance.
+
+## Release marker reliability increment
+
+The alpha.14 tree no longer exposes a stale alpha.13 literal in its static browser
+shell. The first-start documentation is tied by regression to the canonical version,
+and the static shell is required to stay free of hard-coded alpha numbers. 123 backend
+tests, four JavaScript tests and repository validation pass locally; browser/container
+CI is pending. No persistence, consent, history or execution boundary changes.
+
+Deployment remains separate: Supervisor still reports alpha.13 installed and offered.
+Backup fe09f165 remains available; no app update or restart was performed. The next
+gate is CI, followed by an authorized Store refresh and exact alpha.14 deployment and
+workbench acceptance.
+
+## Published alpha.14; live update pending (2026-09-23)
+
+PR #23 delivers the pattern workbench; PR #24 publishes 0.1.0-alpha.14 at
+1644c9b170c861e83582ef9503775a8e913818f0. Release candidate CI 35824319061
+and exact main CI 35824395251 passed: 122 backend tests, four JavaScript tests,
+Chromium workbench/filter/export regression and amd64 container build.
+
+Live verification still reports alpha.13 installed/offered and started. Recent app
+logs confirm readiness, connected stream, fresh snapshot and resolved zone. No update
+or restart was performed. Store reload through the documented Supervisor WebSocket
+API was denied Unauthorized; this access boundary was respected. Backup fe09f165
+and scoped rollback are recorded below. Recheck backup freshness before deployment.
+
+Next: wait for authorized Store refresh, verify offered alpha.14 and exact source,
+then perform scoped update and startup checks. User confirmed the previous history
+diagram renders; the new workbench, JSON download and real Recorder coverage still
+require separate live UI acceptance. No learning consent, roles or actuators changed.
+
+### Earlier preparation record
+
+## alpha.14 release candidate
+
+PR #23 / main 76f7665 passed CI 35824185318: 122 backend tests, four JS tests,
+Chromium workbench/filter/JSON-export regression and amd64 container. Candidate
+packages the workbench and prior history corrections without schema or consent changes.
+Scoped PilotSuite backup fe09f165 is complete; targeted recovery returns app/data to
+alpha.13. Exact release CI and deployment checks remain required; UI acceptance of
+the new workbench is distinct from the user's confirmed prior diagram rendering.
+
+## Pattern workbench candidate
+
+Preference filters, source-to-rule evidence chains, context matched by local time
+window/day group and downloadable non-executable review briefs are implemented.
+122 backend tests and four JavaScript tests pass locally; expanded browser/amd64 CI
+pending. No new collection or schema. Deployment remains separate (alpha.13).
+User confirmed existing history diagram rendering on 2026-09-23; Recorder coverage
+and new workbench acceptance remain unverified. Contract: PATTERN_WORKBENCH.md.
+
+## Merged history-timeout reliability increment
+
+The candidate converts the bounded 90-second history budget and underlying WebSocket
+timeouts into a controlled HA history error instead of a generic HTTP 500. Cancellation
+and all successful Recorder reads are unchanged. PR #21 merged as main commit e77b80c;
+final main CI 35822148371 passed 117 backend tests, four JavaScript tests, Chromium
+browser regression and the amd64 container. No release or Home Assistant update has
+been performed; alpha.13 remains installed and hard read-only.
+
+Authenticated local Ingress history/graph rendering remains a distinct live acceptance
+gate. A later release candidate still requires exact-version CI and a fresh scoped
+App-and-data backup before installation.
+
+## Merged statistics metadata reliability increment
+
+The candidate validates the shape and identifier type of Recorder statistics
+metadata before projection. Malformed responses become a controlled HA history error
+instead of a generic HTTP 500; unrequested metadata is ignored. One synthetic
+regression exercises five invalid response shapes. PR #19 merged as main commit
+af41ee3; final main CI 35818141260 passed 116 backend tests, four JavaScript tests,
+Chromium browser regression and the amd64 container. Successful history/statistics,
+storage, consent, learning and the hard read-only boundary are unchanged. Live
+remains alpha.13; authenticated Ingress history and actual Recorder coverage remain
+separate acceptance work.
+
+## alpha.13 released and installed
+
+Release metadata packages the PR #16 history-transport reliability correction.
+Connection failures and malformed WebSocket text frames become controlled typed
+history errors without changing successful reads, SQLite schema 6, roles, consent,
+learning evidence or the hard read-only boundary. PR #17 released main commit
+d7068e5. Candidate CI 35814179314 and final main CI 35814266844 passed 115 backend
+tests, four JavaScript tests, Chromium browser regression and the amd64 container.
+
+Scoped pre-update App-and-data backup 9bf5a8a1 completed and excludes Home Assistant
+configuration/database. Recovery is a targeted PilotSuite partial restore to
+alpha.12. Supervisor reports alpha.13 installed, offered and started. Runtime reports
+hard read-only, connected event stream, fresh snapshot, resolved Golden Zone and
+readiness. No role, learning/import consent, automation or actuator changed.
+Authenticated Ingress history interaction and actual Recorder coverage remain
+separate live acceptance work because no authenticated browser could reach the
+private HA address.
+
+## History transport reliability increment
+
+Connection failures during scoped history/statistics WebSocket requests are mapped
+to the existing user-facing bounded history error; malformed text frames are mapped
+to the typed HA protocol error. Successful reads, storage, consent and learning are
+unchanged. Two synthetic regressions bring the backend suite to 115 tests. PR #16
+candidate CI 35810101307 passed them together with four JavaScript tests, Chromium
+browser regression and the amd64 container; final main CI 35810366587 is also green.
+The fix is included in running alpha.13; authenticated history interaction remains
+pending.
+
+## alpha.12 released and installed
+
+PR #14 released main commit 52bc972; CI 35805983743 passed 113 backend
+tests, four JavaScript tests, Chromium browser flows and the amd64 container.
+Scoped pre-update App-and-data backup f803e957 is complete and excludes Home
+Assistant configuration/database. Supervisor reports alpha.12 installed, offered
+and started. Runtime reports hard read-only, connected event stream, fresh snapshot,
+resolved Golden Zone and readiness. The protected non-Ingress proxy continues to
+reject API access with HTTP 403, as designed.
+
+The code reads only saved relevant main groups through supported Home Assistant
+APIs, keeps raw history transient, and imports historical activations only after an
+additional interval-scoped consent. Event-origin identifiers remain memory-only and
+are persisted only as coarse categories. Schema 6 creates a pre-migration backup and
+shares the existing activity-v1 evidence owner. The update changed no production
+role, learning/import consent, automation or actuator. Authenticated Ingress assets,
+APIs, chart interaction and actual Recorder coverage remain live acceptance work.
+
+## History increment (included in alpha.12)
+Scoped HA raw/history and hourly statistic reads, zone graphs, weekly activity view
+and time-separated reobservation checks implemented. Explicit one-time activity
+import shares existing learning store; schema 6 with migration backup. 113 backend
+and four JS tests pass; final release CI 35805983743 also passed Chromium browser
+and container. See HISTORY_AND_TRENDS.md for consent, retention and limitations.
+Live acceptance remains separate from test coverage.
+
+## Merged after alpha.11: bounded origin hints
+
+PR #11 merged as 203fb51 with the exact tree tested at 00773dc. Main CI
+35802574356 passed 93 backend tests, four JS tests, Chromium browser regression
+and amd64 container. The code is merged but not versioned, released or installed;
+HA remains on alpha.11 and production learning consent is unchanged.
+
+The next small slice subscribes to HA `call_service` and correlates its context
+with activity state changes for 120 seconds in bounded memory. Correlation only
+runs with active per-zone learning consent and an eligible source; disconnect or
+loss of all eligible sources clears it. SQLite/export/UI receive only coarse origin
+categories, never HA user/context IDs or service payloads. Parented service context
+is displayed as a possible automation/script chain, not as causal proof. PilotSuite
+is read-only and emits no own-action evidence.
+
+Live origin acceptance remains separate and may use only already-consented
+learning. No version bump, HA update, role change or production consent change.
+
+## alpha.11 released and installed
+
+PR #9 merge a1bb95f matches the final tested tree c2a4707. CI 35800786084
+passed 85 backend tests, four JS tests, browser and amd64 container. Backup
+1b74df9a created/confirmed before publication; Supervisor update/start successful.
+Runtime confirms alpha.11 read-only, ready, connected and freshly reconciled.
+Post-start real Ingress context/selections/zones/status requests return HTTP 200.
+Schema-5 initialization completed during startup; migration copy files were not
+independently inspected. No production role or consent change was performed.
+Interactive live UI acceptance and real multi-day learning remain pending.
+
+## alpha.10 release candidate
+
+The next candidate separates activity observation statistics, deterministic rule
+threshold ratios, nullable confidence, read-only risk and persisted preference.
+Synthetic regression covers evidence/feedback invariance. PR #10 candidate CI
+35798185711 passed 64 backend tests, four JS tests, browser and amd64 container.
+App-only alpha.9 backup 522eda91 is complete; final release-metadata CI and live
+deployment verification remain. Learning consent is unchanged.
+
+## alpha.9 update
+
+PR #8 / merge 04db3fb; final CI 35797007069 passed 63 backend tests, four JS
+tests, browser and container. App-only backup 19bfccc7 confirmed. Supervisor and
+startup logs verify alpha.9 started/read-only/ready with connected event stream.
+Automatic typed references, illuminance, explicit-empty groups and unified
+presence-source semantics are implemented. Actual live user role-selection
+acceptance remains open. See CURRENT_STATE.md and docs/SENSOR_REFERENCES.md.
+
+## Historical alpha.8 baseline
+
+Stand: released and running 0.1.0-alpha.8, merge 3aec18f. CI 35793755621
+passed 59 backend tests (including real module startup), four JS tests, browser
+workflows and amd64 image build. Confirmed pre-update App-only backup: 89e963d5.
+alpha.7 failed before schema migration due to handler definition order; alpha.8
+fixes that startup defect. Supervisor reports started; runtime at
+2026-09-23T00:45:49Z confirms hard_read_only, ready, connected stream, fresh
+snapshot and resolved zone. Local/CI tests are not interactive live HA acceptance.
+The user confirmed Badbereich activation in alpha.6. New role/learning interactions
+and real multi-day activity candidates still need live acceptance; consent stays off.
+
+| Capability | Code state | Acceptance / remaining work |
+|---|---|---|
+| Add-on packaging | Implemented | alpha.13 installed and started after scoped App-and-data backup 9bf5a8a1 |
+| Ingress routes / peer restriction | Implemented, local HTTP tests | CI browser passed and protected proxy behavior remains enforced; authenticated alpha.13 root/assets/APIs/charts remain pending |
+| HA snapshot and event stream | Integrated reconnect correction retained | Short-stream exponential backoff and stable-stream recovery tested; live soak pending |
+| Readiness | Stream + snapshot freshness; scope and capabilities separate | Not a physical sensor freshness guarantee |
+| Climate normalization | C/F/K to Celsius, finite values, humidity bounds | Plural roles, separate references and source spread implemented; live mapping review pending |
+| Suggestions | Deterministic climate rules; stable IDs; unknown confidence | Climate heuristics plus separate activity candidates with independent feedback; not causal habits |
+| Habitus zones and roles | Logical zones and entity selection implemented | Stable IDs, multiple areas, extras, editor; role groups with climate median/min/max, separate references and presence-any implemented |
+| Learning and consent | Bounded activity candidates and coarse consent-gated origin hints implemented | Live event replay tests, role groups, opt-in, retention/export/reset; exact automation/manual attribution is intentionally not claimed; extended HA learning acceptance pending |
+| SQLite / migrations | Schema 6 for zones, roles, consent, evidence, feedback and history provenance; migration tests pass | Pre-migration backup, shared revisions, export, bounded selection journal; audit/plans remain JSONL |
+| Multi-user preferences | Planned | Separate preference from evidence; conflict rules required |
+| Brain graph | Planned | Derived explanation graph, not a separate truth store |
+| Native HA adapter / Assist | Optional, planned | No current custom integration in canonical repository |
+| LLM / RAG | Optional, planned | Read-only tool boundary; no direct action execution |
+| HomeKit candidates | Planned | Inventory-based review only; no automatic export |
+| Module UI / Dev / Wiki | Planned | Zone tabs, compact cards, opt-in learning controls; broader module/Dev/Wiki UI deferred |
+| Action plans | Dry-run, always denied | Typed action catalog and approval lifecycle pending |
+| Backup / verify / recovery | Planned | No runtime execution or rollback engine implemented |
+| Update / presets | Standard app versioning | Signed images and update/recovery drills pending |
+| Legacy HA cleanup | Not verified comprehensively | Store repo removal does not prove HACS/config entries/entities removed |
+
+## Next acceptance gates
+
+1. Authenticated alpha.13 HA Ingress loads root, JS, CSS and API without 404; a short read-only history request renders graphs and no unintended peer access exists.
+2. Real Golden Zone role mapping is reviewed; missing/conflicting data remains explicit.
+3. HA restart/disconnect does not falsely report readiness; reconnect restores projection.
+4. One consented read-only habit produces a traceable proposal and durable feedback.
+5. A second unlike zone validates generality before 1.0; no automatic actuation.
+6. Only then add one bounded, reversible action with fault-injection and recovery tests.
+
+Known limitations: snapshots are not atomic HA transactions; stream replay is not
+durable. Timestamp guarding prevents older state updates replacing newer values,
+but deletion ordering still relies on subsequent reconciliation. Current climate
+thresholds are heuristics, not a validated cellar-control policy. No ventilation
+command may be inferred from relative humidity alone.
+
+The retained reconnect correction from PR #4 passed CI 35792464489 before merge
+aac362a; PR #5 records that gate. alpha.8 retains it with the new role/learning package.
