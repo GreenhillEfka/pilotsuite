@@ -4,10 +4,10 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.20",
-    "commit": "8be431a133d9694977193947c45de570b280edb6",
-    "app_tree": "12f06b6c99fd3df9fdd5b9f28e11c6420ac21833",
-    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35909475569",
+    "version": "0.1.0-alpha.21",
+    "commit": "1223f96f45053f7bf3d509bd7ad72c85b9f6cab1",
+    "app_tree": "3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35914643847",
     "ci_conclusion": "success",
     "source_association": "canonical_release_commit_verified_store_offer_pending",
     "independent_store_checkout_verified": false
@@ -48,15 +48,16 @@
       "snapshot_fresh",
       "zone_resolved"
     ],
-    "deployment_status": "alpha20_store_offer_pending_alpha18_unchanged"
+    "deployment_status": "alpha21_store_offer_pending_alpha18_unchanged"
   },
   "ingress_acceptance": {
-    "version": "0.1.0-alpha.20",
+    "version": "0.1.0-alpha.21",
     "status": "pending",
     "reason": "not_installed_and_no_authenticated_HA_browser_session_available",
-    "previous_temporal_ui_acceptance": "pending_on_alpha18"
+    "previous_temporal_ui_acceptance": "pending_on_alpha18",
+    "config_read_capability": "not_verified_on_live_addon_admin_required_no_escalation"
   },
-  "next_task": "Verify exact alpha.21 candidate/main CI, then matching Store offer and fresh source/backup gates before one PilotSuite update and runtime/authenticated Ingress inspection acceptance. Next concept: revision/fingerprint-bound authored review notes in PlanStore; no execution.",
+  "next_task": "When Store offers alpha.21, recheck exact source/CI and backup freshness, update PilotSuite once and verify runtime/authenticated temporal/draft/inspection UI and config-read capability. Next concept: user-authored revision/fingerprint-bound review notes in PlanStore; no execution.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
@@ -71,10 +72,5 @@
       ],
       "independent_network_capture": false
     }
-  },
-  "candidate": {
-    "version": "0.1.0-alpha.21",
-    "status": "local_tests_passed_exact_ci_pending",
-    "contract": "docs/AUTOMATION_INSPECTION.md"
   }
 }

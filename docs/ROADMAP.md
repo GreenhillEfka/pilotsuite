@@ -1,12 +1,12 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Alpha.21 candidate completes three read-only review packages: selected automation
-  structure, an open source/target review plan, and change-aware combined export
-  (ADR-029). Local 192 Python/nine JS pass; exact CI/publication pending.
-  HA remains alpha.18 installed/offered; fresh scoped backup 697876b6 is verified.
-  Next delivery: exact CI, matching Store offer, source/backup recheck, one update
-  and real runtime/Ingress/capability acceptance. Next concept: explicit authored
+- Alpha.21 is published (PR #47, main CI 35914643847 green: 192 Python, nine JS,
+  Chromium, amd64). Three read-only packages: selected automation structure, an
+  open review plan, and change-aware combined export (ADR-029).
+  HA remains alpha.18 installed/offered; scoped backup 697876b6 is verified.
+  Next delivery: matching Store offer, source/backup recheck, update once and real
+  runtime/Ingress/config-read capability acceptance. Next concept: explicit authored
   review notes/dispositions in PlanStore, tied to draft revision/config fingerprint
   and stale after changes. No action approval. Live learning/second-zone gates stay
   separate.
