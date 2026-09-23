@@ -1,5 +1,23 @@
 # Current State
 
+## Next package: local rhythms and activation context (development)
+
+PR #9 now includes persisted IANA timezone and weekday/weekend grouping, DST-safe
+local-day counts, bounded sampled observability and separately consented light/lux
+context at accepted activity events. Explicit source groups only; unknown values
+stay unknown. Context cards make read-only review suggestions, not HA commands.
+Schema 5 backs up before adding two tables; existing context consent defaults off.
+84 backend tests and repository validation pass locally. Browser test now covers
+new settings and context/coverage rendering; expanded CI remains a required gate.
+The previous df5a77b head passed all CI 35799028200 before this package.
+Verified at package start: PR #9 open, main d48e719, HA alpha.9 started. No production
+consent, role edit, update or HA automation was performed by this increment.
+Contract and recovery: docs/RHYTHMS_AND_CONTEXT.md / ADR-022. Release requires an
+App-and-data backup because schema-4 code cannot open schema 5. Remaining: actual
+HA Ingress acceptance and real multi-day data; temporal light sequences, shadow
+execution and native HA drafts are explicitly deferred.
+
+
 ## Development: zone overview and evidence progress
 
 PR #9 now also provides per-zone activity-v1 minimum events (5–100) and days

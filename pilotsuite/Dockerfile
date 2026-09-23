@@ -18,6 +18,8 @@ LABEL \
 WORKDIR /opt/pilotsuite
 
 COPY requirements.txt ./requirements.txt
+RUN apk add --no-cache tzdata
+RUN python -c "from zoneinfo import ZoneInfo; ZoneInfo('Europe/Berlin')"
 RUN pip install --no-cache-dir --requirement requirements.txt
 
 COPY pilotsuite ./pilotsuite

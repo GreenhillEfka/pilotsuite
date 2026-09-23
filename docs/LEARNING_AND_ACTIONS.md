@@ -22,11 +22,12 @@ konfigurierbare Mindestbelege. Dies ist Entwicklungsstand, noch kein HA-Release.
 6. Lernen separat freigeben. Speichern ist mit der Zonenrevision gegen paralleles
    Überschreiben geschützt. Die Lernfreigabe ist niemals eine Schaltfreigabe.
 
-Fest begrenzt bleiben zunächst: zwei Stunden pro UTC-Fenster, fünf Minuten Abstand
-zwischen gespeicherten Aktivierungen einer Zone, 14 Tage Aufbewahrung und maximal
-5.000 Belege insgesamt. Hohe Mindestwerte können dazu führen, dass kein Kandidat
-entsteht. Sie sind keine statistischen Vertrauenswerte. UTC ist ausdrücklich
-sichtbar; lokale Zeit, Wochentage und Sommerzeitbehandlung sind noch nicht umgesetzt.
+In PR #9 sind Zeitzone und Trennung Mo–Fr/Sa–So zusätzlich konfigurierbar;
+UTC bleibt der unveränderte Standard. Fest: zwei Stunden pro Fenster, fünf Minuten
+Abstand zwischen Aktivierungen, 14 Tage Aufbewahrung und maximal 5.000 Belege.
+Hohe Mindestwerte können dazu führen, dass kein Kandidat entsteht; sie sind keine
+statistischen Vertrauenswerte. Die zusätzliche Kontextfreigabe speichert Licht
+und Helligkeit bei Aktivierungen. Einzelheiten: [RHYTHMS_AND_CONTEXT.md](RHYTHMS_AND_CONTEXT.md).
 
 Parameteränderungen erhalten die Belege und die Lernfreigabe. Muster werden neu
 berechnet. Ihre Identität enthält die abweichende Parameterkonfiguration, damit
@@ -40,10 +41,10 @@ Widerruf stoppt die Erfassung; Reset löscht Lerndaten und widerruft die Freigab
 | Modul | Verfahren | Stand / Konfiguration |
 |---|---|---|
 | Zonenreferenzen | Median bzw. typisierte logische Verknüpfung | Implementiert; Sensorrollen, Zonenpause |
-| Aktivitätsmuster v1 | Häufigkeiten pro UTC-Fenster | Implementiert; Freigabe, Quellen; Mindestbelege in PR #9 |
+| Aktivitätsmuster v1 | Häufigkeiten pro lokalem Fenster | Implementiert; Freigabe, Quellen; Mindestbelege in PR #9 |
 | Klima-Vorschläge | Feste profilspezifische Regeln | Implementiert; Zonenprofil, kein gelerntes Verhalten |
-| Präsenz–Licht–Helligkeit | Zeitliche Zusammenhänge mit Kontext | Geplant; noch kein einstellbares Modul |
-| Tages-/Wochenrhythmus | Lokale Zeit, Wochentage und Beobachtungsabdeckung | Geplant |
+| Lichtkontext bei Aktivierungen | Gemeinsames Auftreten, keine Kausalität | In PR #9; zusätzliche Freigabe und Sensorgruppen |
+| Lokale Rhythmen / Beobachtbarkeit | Zeitzone, Tagesgruppen und Prüfstichproben | In PR #9; keine durchgängige Abdeckungsmessung |
 | Umsetzung | Typisierte Pläne mit Policy und Verifikation | Nur gesperrte Dry-run-Grenze vorhanden |
 
 Das Modulregister zeigt implementiert/geplant/gesperrt. Es lädt keinen beliebigen
@@ -95,7 +96,7 @@ Die reine Konfiguration eines Algorithmus erweitert keine HA-Berechtigung.
 ## Nächste fachliche Schritte
 
 Zuerst reale Quellen und Lernbelege in Erdkeller und Badbereich abnehmen.
-Danach lokale Zeit und Beobachtungsabdeckung sauber modellieren, anschließend
-Präsenz-/Licht-Zusammenhänge und Entwurfsvorschau. Aktorfreigabe erst mit geprüfter
+Lokale Zeit, Prüfstichproben und Aktivierungs-Kontext sind im Entwicklungszweig
+umgesetzt. Danach zeitliche Schaltfolgen und Entwurfsvorschau ergänzen. Aktorfreigabe erst mit geprüfter
 Konflikt-, Sicherungs-, Ausführungs- und Wiederherstellungskette. Keine scheinbare
 Wahrscheinlichkeit allein aus Mindestzählwerten ableiten.

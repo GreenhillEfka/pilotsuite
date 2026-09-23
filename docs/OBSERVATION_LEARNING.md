@@ -44,8 +44,10 @@ sondern über Min/Max und Details sichtbar. Die Zusammenfassung ersetzt keinen A
   Das reduziert Duplikate; es ist keine präzise Erkennung menschlicher Besuche.
 - 14 Tage Aufbewahrung; maximal 5.000 Belege global. Aufräumen auch bei normalen
   Abgleichen ohne neue Ereignisse. Bei ausgeschalteter App beim nächsten Start.
-- Musterkandidat ab fünf Aktivierungen an drei UTC-Tagen im selben Zwei-Stunden-
-  UTC-Fenster. Sommerzeit/Lokalzeitmodell, Wochentage und Grundraten folgen später.
+- Standard: fünf Aktivierungen an drei Tagen im selben Zwei-Stunden-Fenster.
+  Mindestwerte, Zeitzone und Tagesgruppen sind im Entwicklungszweig konfigurierbar.
+  UTC bleibt Bestandsstandard. Grundraten und durchgängige Beobachtungsabdeckung
+  sind nicht implementiert; siehe RHYTHMS_AND_CONTEXT.md.
 - Beobachtungsstatistik (Ereignisse, Tage, Gesamtbelege, Herkunft), deterministische
   Regelschwelle, statistische Konfidenz, Read-only-Risiko und Nutzerpräferenz sind
   getrennte Felder. Regelstärke zeigt nur den Abstand zur Kandidatenschwelle, keine
@@ -62,7 +64,7 @@ sondern über Min/Max und Details sichtbar. Die Zusammenfassung ersetzt keinen A
 
 ## Persistenz und Freigabe
 
-SQLite-Schema 4 im bestehenden Speicher, Sicherung vor Migration aus Schema 1–3,
+SQLite-Schema 5 im Entwicklungszweig, Sicherung vor Migration aus Schema 1–4,
 atomare Schemaänderung, gemeinsame Revisionskontrolle für Zonen/Auswahl/Rollen.
 Die automatische Auswahl-Ausnahme entfällt ohne vorhandene Entscheidungen zu ändern.
 Bestehende App-Backups werden bei einem Lernreset nicht verändert. Downgrade nur

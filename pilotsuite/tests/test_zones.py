@@ -122,6 +122,37 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('relevant', saved['decisions']['sensor.hot'])
         self.assertEqual(1, len(list(Path(self.temp.name).glob('selections.v2.*.bak'))))
 
+    async def test_live_event_context_export_and_disconnect_checkpoint(self):
+        from datetime import datetime, UTC
+        now=datetime.now(UTC)
+        entities=[{'entity_id':i,'area_id':'a'} for i in ('binary_sensor.p','light.a','sensor.lux')]
+        states=[{'entity_id':'binary_sensor.p','state':'off','attributes':{'device_class':'motion'},'last_updated':now.isoformat()},
+                {'entity_id':'light.a','state':'on','attributes':{},'last_updated':now.isoformat()},
+                {'entity_id':'sensor.lux','state':'25','attributes':{'device_class':'illuminance','unit_of_measurement':'lx'},'last_updated':now.isoformat()}]
+        await self.service.world.replace({'areas':[{'area_id':'a'}],'entities':entities,'states':states})
+        await self.service.selections.patch('a',0,{e['entity_id']:'relevant' for e in entities})
+        path='/api/v1/zones/a/context'
+        roles={'presence':['binary_sensor.p'],'light':['light.a'],'illuminance':['sensor.lux']}
+        response=await self.client.patch(path,json={'revision':1,'roles':roles,'learning':True,'context_learning':True,
+              'detector':{'min_events':5,'min_days':3,'timezone':'Europe/Berlin','day_mode':'weekday_weekend'}})
+        self.assertEqual(200,response.status)
+        self.service._connected=self.service._stream_connected=True
+        self.service._last_refresh_at=now.isoformat()
+        changed=datetime.now(UTC).isoformat()
+        await self.service._on_state_change({'entity_id':'binary_sensor.p','old_state':{'state':'off'},'new_state':{
+            'entity_id':'binary_sensor.p','state':'on','last_changed':changed,'last_updated':changed,'attributes':{'device_class':'motion'}}})
+        report=await (await self.client.get(path)).json()
+        self.assertEqual(1,report['context_windows'][0]['light_on'])
+        self.assertEqual(25,report['context_windows'][0]['lux_median'])
+        self.assertNotIn('context_evidence',report); self.assertNotIn('coverage_samples',report)
+        exported=await (await self.client.get(path+'/export')).json()
+        self.assertEqual(['light.a'],exported['context_evidence'][0]['context']['light']['sources'])
+        self.assertIn('captured_at',exported['context_evidence'][0]['context'])
+        await self.service._on_connection(False)
+        report=await (await self.client.get(path)).json()
+        self.assertGreaterEqual(report['coverage']['impaired_slots'],1)
+        self.assertEqual('disconnected',report['collection_state'])
+
     async def test_detector_api_config_and_module_status(self):
         path = '/api/v1/zones/a/context'
         payload = {'revision': 0, 'roles': {}, 'learning': False, 'detector': {'min_events': 12, 'min_days': 6}}

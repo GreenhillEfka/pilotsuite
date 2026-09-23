@@ -62,3 +62,15 @@ sensor freshness. All UI/API calls require the Ingress TCP peer; only `/health`
 also permits loopback probes. Forwarded headers do not grant access.
 
 The `/api/v1` prefix is stable, but alpha response fields may grow. Existing fields will not be silently repurposed.
+
+## Development: local rhythms and activation context
+
+Zone context PATCH accepts optional `context_learning` (boolean) and detector
+`timezone` (IANA name), `day_mode` (`all` or `weekday_weekend`). Unknown settings
+are rejected; omitted settings preserve existing config. UTC/all defaults normalize
+without changing legacy identity. Context consent requires activity consent.
+Statistics expose `days_local`, `timezone`, `day_group`, `window_local`; deprecated
+`window_utc` is null for non-UTC groups rather than mislabeled local hours.
+Context GET includes `coverage` and `context_windows`; export additionally includes
+`coverage_samples` and `context_evidence` with capture timestamps. No execution API
+is enabled. See RHYTHMS_AND_CONTEXT.md for sampling, retention and reset semantics.

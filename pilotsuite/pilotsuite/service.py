@@ -207,7 +207,11 @@ class PilotSuiteService:
     async def _derive(self) -> None:
         await self.zones.bootstrap(self.settings.golden_zone_area_ids)
         await self.context.maintain()
-        definitions = [z for z in await self.zones.list() if z['enabled']]
+        all_definitions = await self.zones.list()
+        for zone in all_definitions:
+            if not zone['enabled']:
+                await self.context.checkpoint(zone['zone_id'], 'paused')
+        definitions = [z for z in all_definitions if z['enabled']]
         results, neurons, moods, suggestions = [], {}, [], []
         raw, resolved, missing, requested = {}, set(), set(), set()
         active_ids = []
@@ -228,6 +232,9 @@ class PilotSuiteService:
             presence = [n.entity_id for n in zone_neurons if n.entity_id in cfg['roles'].get('presence', []) and n.kind in {'presence', 'occupancy', 'motion'} and n.quality == 'good']
             if cfg['learning'] and presence:
                 self._learning_sources[zone['zone_id']] = presence
+            transport_ready = (await self.status())['ready']
+            check_state = 'disconnected' if not transport_ready else 'no_source' if not presence else 'partial_source' if len(presence) < len(cfg['roles'].get('presence', [])) else 'ready'
+            await self.context.checkpoint(zone['zone_id'], check_state)
             zone_moods = calculate_moods(climate_neurons, connected=self._connected and self._stream_connected, profile=zone['profile'])
             total = sum(summary[k]['total_count'] for k in ('temperature', 'humidity'))
             valid = sum(summary[k]['valid_count'] for k in ('temperature', 'humidity'))
@@ -281,7 +288,13 @@ class PilotSuiteService:
                 origin = 'user_context' if ctx.get('user_id') else 'derived_context' if ctx.get('parent_id') else 'unknown'
                 for zone_id, source in self._learning_sources.items():
                     if entity_id in source:
-                        await self.context.record(zone_id, entity_id, occurred, origin)
+                        from pilotsuite.core.learning_views import activation_context
+                        cfg = await self.context.get(zone_id)
+                        result = next((z for z in self._zone_results if z['zone_id'] == zone_id), {})
+                        context = activation_context(result.get('summary', {}), cfg['roles']) if cfg['context_learning'] else None
+                        if context is not None:
+                            context['captured_at'] = datetime.now(UTC).isoformat()
+                        await self.context.record(zone_id, entity_id, occurred, origin, context=context)
 
     async def _on_connection(self, connected: bool) -> None:
         self._stream_connected = connected

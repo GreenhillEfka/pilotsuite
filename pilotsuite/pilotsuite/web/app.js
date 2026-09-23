@@ -480,17 +480,43 @@ function renderLearning() {
   const sourceName = id => contextData.candidates?.find(i => i.entity_id === id)?.name || id;
   text('learning-sources', `Gespeicherte Präsenzgruppe: ${sourceIds.map(sourceName).join(', ') || 'keine'}. Auswertbare Quellen: ${(contextData.collecting_sources || []).map(sourceName).join(', ') || 'keine'}.`);
   const progress = contextData.progress;
-  const date = value => value ? new Date(value).toLocaleString('de-DE', {timeZone:'UTC'}) + ' UTC' : 'noch keine';
+  const timeBasis = contextData.time_basis || 'UTC';
+  const dayLabels = {all:'alle Tage', weekday:'Mo–Fr', weekend:'Sa–So'};
+  const date = value => {
+    if (!value) return 'noch keine';
+    try { return new Date(value).toLocaleString('de-DE', {timeZone:timeBasis}) + ' ' + timeBasis; }
+    catch { return new Date(value).toISOString(); }
+  };
   text('learning-period', `Lernfreigabe seit: ${date(cfg.consented_at ? cfg.consented_at * 1000 : null)}. Ältester aufbewahrter Beleg: ${date(progress?.first_evidence_at)}. Letzter Beleg: ${date(progress?.last_evidence_at)}. Keine Aussage über lückenlose Beobachtung.`);
   const progressRoot = byId('learning-progress'); progressRoot.replaceChildren();
   for (const window of progress?.windows || []) {
     const row = document.createElement('p');
-    row.textContent = `${String(window.start_hour).padStart(2,'0')}–${String(window.end_hour).padStart(2,'0')} Uhr UTC: ${window.events} Aktivierungen an ${window.days} Tagen. ${window.missing_events || window.missing_days ? `Noch mindestens ${window.missing_events} Aktivierungen und ${window.missing_days} weitere Tage in diesem Zeitfenster nötig.` : 'Mindestbelege erreicht – Muster prüfen.'}`;
+    row.textContent = `${String(window.start_hour).padStart(2,'0')}–${String(window.end_hour).padStart(2,'0')} Uhr ${timeBasis} (${dayLabels[window.day_group] || 'alle Tage'}): ${window.events} Aktivierungen an ${window.days} Tagen. ${window.missing_events || window.missing_days ? `Noch mindestens ${window.missing_events} Aktivierungen und ${window.missing_days} weitere Tage in diesem Zeitfenster nötig.` : 'Mindestbelege erreicht – Muster prüfen.'}`;
     progressRoot.append(row);
+  }
+  const coverage = contextData.coverage;
+  const checkLabels={ready:'bereit',disconnected:'Verbindung fehlt',no_source:'Quelle fehlt',partial_source:'Quellen teilweise verfügbar',paused:'pausiert'};
+  const checkDetails=Object.entries(coverage?.states || {}).map(([key,count]) => `${checkLabels[key] || key}: ${count}`).join(', ');
+  text('learning-coverage', coverage?.sampled_slots
+    ? `${coverage.sampled_slots} Fünf-Minuten-Abschnitte mit Prüfungen: ${coverage.ready_only_slots} ohne gemeldete Einschränkung, ${coverage.impaired_slots} mit Einschränkungen. ${coverage.unobserved_slots_between_checks} Abschnitte zwischen erster und letzter Prüfung ohne Stichprobe. Gemeldete Zustände (können sich überlappen): ${checkDetails}. Keine lückenlose Sensorüberwachung und keine Anwesenheitsmessung.`
+    : 'Noch keine Stichproben zur Beobachtbarkeit. Ohne Lernfreigabe werden keine gespeichert.');
+  const contextRoot = byId('context-observations'); contextRoot.replaceChildren();
+  if (!cfg.context_learning) {
+    const note = document.createElement('p'); note.textContent='Kontextsammlung ausgeschaltet. Vorhandene Belege laufen aus; Reset löscht sie sofort.'; contextRoot.append(note);
+  }
+  if (!contextData.context_windows?.length) {
+    const note = document.createElement('p'); note.textContent='Noch keine Kontextbelege. Zusätzliche Freigabe und ausdrücklich gespeicherte Licht-/Helligkeitsgruppen erforderlich, um bekannte Werte zu erfassen.'; contextRoot.append(note);
+  }
+  for (const entry of contextData.context_windows || []) {
+    const card = document.createElement('article'); card.className='card';
+    const title = document.createElement('strong'); title.textContent=`${entry.start_hour}–${entry.end_hour} Uhr ${timeBasis} · ${dayLabels[entry.day_group] || 'alle Tage'}`;
+    const stats = document.createElement('p'); stats.textContent=`${entry.activations} Aktivierungen an ${entry.days} Tagen: Licht an ${entry.light_on}, aus ${entry.light_off}, unbekannt ${entry.light_unknown}. Helligkeit: ${entry.lux_median == null ? 'unbekannt' : Number(entry.lux_median).toLocaleString('de-DE')+' lx Median'} aus ${entry.lux_count} bekannten Werten. Quellen: ${(entry.sources || []).join(', ') || 'keine auswertbaren'}.`;
+    const proposal = document.createElement('p'); proposal.textContent=entry.review_ready ? entry.proposal : 'Weitere Belege mit bekanntem Lichtzustand nötig. Keine Schaltfreigabe.';
+    card.append(title, stats, proposal); contextRoot.append(card);
   }
   byId('learning-export').href = endpoint(`api/v1/zones/${encodeURIComponent(selectionZone)}/context/export`);
   const root = byId('learned-patterns'); root.replaceChildren();
-  if (!contextData.patterns?.length) { root.textContent = `Noch kein Musterkandidat: mindestens ${progress?.required_events ?? 5} beobachtete Aktivierungen an ${progress?.required_days ?? 3} verschiedenen UTC-Tagen im gleichen Zwei-Stunden-Fenster nötig.`; return; }
+  if (!contextData.patterns?.length) { root.textContent = `Noch kein Musterkandidat: mindestens ${progress?.required_events ?? 5} beobachtete Aktivierungen an ${progress?.required_days ?? 3} verschiedenen lokalen Tagen derselben Tagesgruppe im gleichen Zwei-Stunden-Fenster nötig.`; return; }
   for (const pattern of contextData.patterns) {
     const card = document.createElement('article'); card.className = 'suggestion';
     const title = document.createElement('h3'); title.textContent = pattern.title;
@@ -544,21 +570,33 @@ byId('context-edit').addEventListener('click', async () => {
     byId('learning-consent').checked=contextData.config.learning;
     byId('detector-events').value=contextData.config.detector?.min_events ?? 5;
     byId('detector-days').value=contextData.config.detector?.min_days ?? 3;
+    byId('detector-timezone').value=contextData.config.detector?.timezone || 'UTC';
+    byId('detector-day-mode').value=contextData.config.detector?.day_mode || 'all';
+    byId('context-learning-consent').checked=!!contextData.config.context_learning;
+    byId('context-learning-consent').disabled=!contextData.config.learning;
     byId('context-form').hidden=false;
   } catch(error) { contextEditing=false; text('context-message',error.message); renderSelection(); }
+});
+byId('learning-consent').addEventListener('change', () => {
+  byId('context-learning-consent').disabled=!byId('learning-consent').checked;
+  if (!byId('learning-consent').checked) byId('context-learning-consent').checked=false;
 });
 byId('context-cancel').addEventListener('click', () => { if (selectionBusy) return; contextEditing=false; byId('context-form').hidden=true; renderSelection(); });
 byId('context-form').addEventListener('submit', async event => {
   event.preventDefault(); if (selectionBusy) return;
   const roles=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]));
   const learning=byId('learning-consent').checked;
-  const detector={min_events:Number(byId('detector-events').value), min_days:Number(byId('detector-days').value)};
+  const detector={min_events:Number(byId('detector-events').value), min_days:Number(byId('detector-days').value),timezone:byId('detector-timezone').value.trim(),day_mode:byId('detector-day-mode').value};
+  const context_learning=learning && byId('context-learning-consent').checked;
+  const contextSourceChanged=['light','illuminance'].some(k => JSON.stringify(roles[k] || []) !== JSON.stringify(contextData.config.roles[k] || []));
+  if (contextSourceChanged && contextData.context_windows?.length && !window.confirm('Licht-/Helligkeitsquellen wechseln? Alte Kontextbelege werden gelöscht; Aktivitätsbelege bleiben erhalten.')) return;
+  if (context_learning && (!contextData.config.context_learning || contextSourceChanged) && !window.confirm('Lichtzustand und Helligkeit bei Aktivierungen bis 14 Tage speichern? Dies erweitert die Beobachtung, erteilt aber keine Schaltfreigabe.')) return;
   const sourceChanged=JSON.stringify(roles.presence || []) !== JSON.stringify(contextData.config.roles.presence || []);
   if (sourceChanged && contextData.event_count && !window.confirm('Lernquelle wechseln? Vorhandene Lernbelege und Musterfeedback dieser Zone werden gelöscht.')) return;
-  if (learning && (!contextData.config.learning || sourceChanged) && !window.confirm(`Lernen für ${roles.presence || 'keine ausgewählte Quelle'} freigeben? Bis 14 Tage Aktivierungen speichern, Zeitfenster in UTC, höchstens 5.000 Belege insgesamt. Keine Aktorsteuerung.`)) return;
+  if (learning && (!contextData.config.learning || sourceChanged) && !window.confirm(`Lernen für ${roles.presence || 'keine ausgewählte Quelle'} freigeben? Bis 14 Tage Aktivierungen speichern, Zeitfenster in ${detector.timezone}, höchstens 5.000 Belege insgesamt. Keine Aktorsteuerung.`)) return;
   selectionBusy=true; byId('context-fields').disabled=true; renderSelection();
   try {
-    contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles,learning,detector})});
+    contextData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/context`, {method:'PATCH',body:JSON.stringify({revision:contextData.revision,roles,learning,detector,context_learning})});
     contextEditing=false; byId('context-form').hidden=true;
     text('context-message','Rollen und Lernfreigabe gespeichert.');
     selectionBusy=false; await loadSelection(selectionZone); await load();

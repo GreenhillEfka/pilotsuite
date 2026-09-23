@@ -41,9 +41,9 @@ class SelectionStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(sqlite3.connect(self.path)) as db, db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 4:
+            if version > 5:
                 raise RuntimeError("Selection database schema is newer than this release")
-            if version == 4:
+            if version == 5:
                 return
             if version:
                 backup = self.path.with_name(f"selections.v{version}.{uuid.uuid4().hex}.bak")
@@ -61,12 +61,15 @@ class SelectionStore:
             if version <= 2:
                 db.execute('CREATE TABLE habitus_zones (zone_id TEXT PRIMARY KEY, definition TEXT NOT NULL)')
                 db.execute('CREATE TABLE zone_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
-            db.execute('CREATE TABLE zone_context (zone_id TEXT PRIMARY KEY, config TEXT NOT NULL)')
-            db.execute('CREATE TABLE activity_evidence (zone_id TEXT NOT NULL, entity_id TEXT NOT NULL, occurred REAL NOT NULL, origin TEXT NOT NULL, PRIMARY KEY(zone_id, entity_id, occurred))')
-            db.execute('CREATE TABLE pattern_feedback (zone_id TEXT NOT NULL, pattern_id TEXT NOT NULL, decision TEXT NOT NULL, updated REAL NOT NULL, PRIMARY KEY(zone_id, pattern_id))')
-            # Consent is never inferred; old automatic modes no longer bypass decisions.
-            db.execute('UPDATE selection_modes SET active=1')
-            db.execute('PRAGMA user_version=4')
+            if version <= 3:
+                db.execute('CREATE TABLE zone_context (zone_id TEXT PRIMARY KEY, config TEXT NOT NULL)')
+                db.execute('CREATE TABLE activity_evidence (zone_id TEXT NOT NULL, entity_id TEXT NOT NULL, occurred REAL NOT NULL, origin TEXT NOT NULL, PRIMARY KEY(zone_id, entity_id, occurred))')
+                db.execute('CREATE TABLE pattern_feedback (zone_id TEXT NOT NULL, pattern_id TEXT NOT NULL, decision TEXT NOT NULL, updated REAL NOT NULL, PRIMARY KEY(zone_id, pattern_id))')
+                # Consent is never inferred; old automatic modes no longer bypass decisions.
+                db.execute('UPDATE selection_modes SET active=1')
+            db.execute('CREATE TABLE IF NOT EXISTS activity_context (zone_id TEXT NOT NULL, occurred REAL NOT NULL, payload TEXT NOT NULL, PRIMARY KEY(zone_id, occurred))')
+            db.execute('CREATE TABLE IF NOT EXISTS coverage_checks (zone_id TEXT NOT NULL, slot INTEGER NOT NULL, state TEXT NOT NULL, PRIMARY KEY(zone_id, slot, state))')
+            db.execute('PRAGMA user_version=5')
 
     @staticmethod
     def _zone(zone_id: str) -> None:

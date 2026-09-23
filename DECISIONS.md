@@ -1,5 +1,18 @@
 # Architecture Decision Log
 
+## ADR-022 — Local rhythms, sampled observability and separately consented context
+
+Stored UTC events are grouped using a saved IANA timezone and optional weekday /
+weekend separation. UTC defaults preserve legacy behavior and candidate identity.
+DST repetition cannot fabricate extra days. Time grouping participates in identity.
+Observability uses bounded five-minute checkpoint buckets, not inferred uptime or
+physical sensor coverage. New context evidence requires separate consent and uses
+only explicitly saved complete light/lux groups at event processing time. It is
+co-occurrence, not a causal switching sequence or an executable plan. Schema 5
+backs up before adding context/checkpoint tables; reset, retention and source edits
+cover the new evidence. See docs/RHYTHMS_AND_CONTEXT.md for limits and recovery.
+
+
 ## ADR-021 — Bounded per-zone learner parameters, separate action authorization
 
 Activity-v1 thresholds are stored in the canonical zone context JSON with backward
