@@ -166,85 +166,92 @@ class ContextStore:
 
     def _report(self, zone_id, now):
         with closing(sqlite3.connect(self.path)) as db, db:
-            self.prune(db, now)
-            cfg = self.read(db, zone_id)
-            rows = db.execute('SELECT entity_id, occurred, origin FROM activity_evidence WHERE zone_id=? ORDER BY occurred', (zone_id,)).fetchall()
-            historical = {(e,t) for e,t in db.execute('SELECT entity_id,occurred FROM history_provenance WHERE zone_id=?', (zone_id,))}
-            historical_times = {t for _,t in historical}
-            feedback = dict(db.execute('SELECT pattern_id,decision FROM pattern_feedback WHERE zone_id=?', (zone_id,)))
-            detector = cfg['detector']
-            local_zone, day_mode = temporal_settings(detector)
-            buckets = defaultdict(list)
-            for entity, occurred, origin in rows:
-                if entity in cfg['roles'].get('presence', []):
-                    key, _ = time_bucket(occurred, detector)
-                    buckets[key].append((occurred, origin))
-            min_events, min_days = detector['min_events'], detector['min_days']
-            patterns, windows = [], []
-            for (day_group, bucket), events in sorted(buckets.items()):
-                days = sorted({time_bucket(t, detector)[1] for t,_ in events})
-                windows.append({'day_group': day_group, 'timezone': local_zone.key, 'start_hour': bucket*2, 'end_hour': bucket*2+2,
-                                'events': len(events), 'days': len(days),
-                                'missing_events': max(0, min_events-len(events)),
-                                'missing_days': max(0, min_days-len(days))})
-                if len(events) < min_events or len(days) < min_days: continue
-                identity = f'activity-v1:{zone_id}:{cfg["roles"].get("presence")}:{bucket}'
-                if day_group != 'all': identity += ':' + day_group
-                if detector != DEFAULT_DETECTOR:
-                    identity += ':' + json.dumps(detector, sort_keys=True)
-                pid = hashlib.sha256(identity.encode()).hexdigest()[:24]
-                origins = dict(Counter(origin for _,origin in events))
-                patterns.append({'id': pid, 'title': f'Wiederkehrende Aktivierungen {bucket*2:02d}–{bucket*2+2:02d} Uhr {local_zone.key} ({day_group})',
-                                 'algorithm': ACTIVITY_RULE_ID, 'parameters': dict(detector),
-                                 'sources': cfg['roles'].get('presence', []),
-                                 'statistics': {'historical_activation_count': sum(t in historical_times for t,_ in events), 'activation_count': len(events), 'distinct_day_count': len(days),
-                                                'days_local': days, 'timezone': local_zone.key, 'day_group': day_group,
-                                                'days_utc': sorted({datetime.fromtimestamp(t, UTC).date().isoformat() for t,_ in events}), 'observed_zone_activations': len(rows),
-                                                'origins': origins, 'window_local': {'start_hour': bucket*2, 'end_hour': bucket*2+2},
-                                                'window_utc': {'start_hour': bucket*2, 'end_hour': bucket*2+2} if local_zone.key == 'UTC' else None},
-                                 'confidence': None, 'confidence_basis': 'not_estimated',
-                                 'rule_strength': {'rule_id': ACTIVITY_RULE_ID, 'threshold_met': True,
-                                                   'event_ratio': round(len(events)/min_events, 3),
-                                                   'day_ratio': round(len(days)/min_days, 3),
-                                                   'minimum_events': min_events, 'minimum_days': min_days},
-                                 'risk': 'read_only', 'preference': feedback.get(pid),
-                                 # Deprecated alpha aliases; remove only with an
-                                 # announced API-version transition.
-                                 'events': len(events), 'days': days, 'observed_total': len(rows),
-                                 'origins': origins, 'feedback': feedback.get(pid),
-                                 'proposal': 'Prüfen, ob dieses Zeitfenster eine relevante Routine beschreibt. Keine Automation wird erstellt.'})
-            return {'config': cfg, 'event_count': len(rows), 'retention_days': 14, 'limit': MAX_EVIDENCE,
-                    'reobservation': {
-                        **retrospective([(t,e) for e,t,_ in rows if e in cfg['roles'].get('presence', [])],
-                                        detector, now-RETENTION, now),
-                        'basis': 'retained_activations_fixed_retention_window_not_continuous_coverage'},
-                    'progress': {'required_events': min_events, 'required_days': min_days,
-                                 'window_hours': 2, 'windows': windows,
-                                 'first_evidence_at': datetime.fromtimestamp(rows[0][1], UTC).isoformat() if rows else None,
-                                 'last_evidence_at': datetime.fromtimestamp(rows[-1][1], UTC).isoformat() if rows else None,
-                                 'observed_days': len({time_bucket(row[1], detector)[1] for row in rows}),
-                                 'observed_days_utc': len({datetime.fromtimestamp(row[1], UTC).date() for row in rows})},
-                    'coverage': coverage_report(db.execute('SELECT slot, state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,)).fetchall()),
-                    'coverage_samples': [{'slot': slot, 'state': state} for slot,state in db.execute('SELECT slot,state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,))],
-                    'context_windows': context_report([(t, json.loads(p)) for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))], detector),
-                    'context_evidence': [{'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'context': json.loads(p)} for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))],
-                    'history_imports': [json.loads(p) for (p,) in db.execute('SELECT payload FROM history_imports WHERE zone_id=? ORDER BY created DESC', (zone_id,))],
-                    'historical_event_count': db.execute('SELECT COUNT(*) FROM history_provenance WHERE zone_id=?', (zone_id,)).fetchone()[0],
-                    'time_basis': local_zone.key, 'day_mode': day_mode, 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o, 'recording_source': 'ha_history' if (e,t) in historical else 'live'} for e,t,o in rows],
-                    'limitations': 'Nur beobachtete Aktivierungen, keine Anwesenheitsdauer oder Wahrscheinlichkeit. Ausfälle und inaktive Lernzeiten sind unbeobachtet; Herkunft ist kein Beweis menschlicher Bedienung.'}
+            return self._report_in_transaction(db, zone_id, now)
+
+    def _report_in_transaction(self, db, zone_id, now):
+        """Build the canonical projection using the caller's transaction."""
+        self.prune(db, now)
+        cfg = self.read(db, zone_id)
+        rows = db.execute('SELECT entity_id, occurred, origin FROM activity_evidence WHERE zone_id=? ORDER BY occurred', (zone_id,)).fetchall()
+        historical = {(e,t) for e,t in db.execute('SELECT entity_id,occurred FROM history_provenance WHERE zone_id=?', (zone_id,))}
+        historical_times = {t for _,t in historical}
+        feedback = dict(db.execute('SELECT pattern_id,decision FROM pattern_feedback WHERE zone_id=?', (zone_id,)))
+        detector = cfg['detector']
+        local_zone, day_mode = temporal_settings(detector)
+        buckets = defaultdict(list)
+        for entity, occurred, origin in rows:
+            if entity in cfg['roles'].get('presence', []):
+                key, _ = time_bucket(occurred, detector)
+                buckets[key].append((occurred, origin))
+        min_events, min_days = detector['min_events'], detector['min_days']
+        patterns, windows = [], []
+        for (day_group, bucket), events in sorted(buckets.items()):
+            days = sorted({time_bucket(t, detector)[1] for t,_ in events})
+            windows.append({'day_group': day_group, 'timezone': local_zone.key, 'start_hour': bucket*2, 'end_hour': bucket*2+2,
+                            'events': len(events), 'days': len(days),
+                            'missing_events': max(0, min_events-len(events)),
+                            'missing_days': max(0, min_days-len(days))})
+            if len(events) < min_events or len(days) < min_days: continue
+            identity = f'activity-v1:{zone_id}:{cfg["roles"].get("presence")}:{bucket}'
+            if day_group != 'all': identity += ':' + day_group
+            if detector != DEFAULT_DETECTOR:
+                identity += ':' + json.dumps(detector, sort_keys=True)
+            pid = hashlib.sha256(identity.encode()).hexdigest()[:24]
+            origins = dict(Counter(origin for _,origin in events))
+            patterns.append({'id': pid, 'title': f'Wiederkehrende Aktivierungen {bucket*2:02d}–{bucket*2+2:02d} Uhr {local_zone.key} ({day_group})',
+                             'algorithm': ACTIVITY_RULE_ID, 'parameters': dict(detector),
+                             'sources': cfg['roles'].get('presence', []),
+                             'statistics': {'historical_activation_count': sum(t in historical_times for t,_ in events), 'activation_count': len(events), 'distinct_day_count': len(days),
+                                            'days_local': days, 'timezone': local_zone.key, 'day_group': day_group,
+                                            'days_utc': sorted({datetime.fromtimestamp(t, UTC).date().isoformat() for t,_ in events}), 'observed_zone_activations': len(rows),
+                                            'origins': origins, 'window_local': {'start_hour': bucket*2, 'end_hour': bucket*2+2},
+                                            'window_utc': {'start_hour': bucket*2, 'end_hour': bucket*2+2} if local_zone.key == 'UTC' else None},
+                             'confidence': None, 'confidence_basis': 'not_estimated',
+                             'rule_strength': {'rule_id': ACTIVITY_RULE_ID, 'threshold_met': True,
+                                               'event_ratio': round(len(events)/min_events, 3),
+                                               'day_ratio': round(len(days)/min_days, 3),
+                                               'minimum_events': min_events, 'minimum_days': min_days},
+                             'risk': 'read_only', 'preference': feedback.get(pid),
+                             # Deprecated alpha aliases; remove only with an
+                             # announced API-version transition.
+                             'events': len(events), 'days': days, 'observed_total': len(rows),
+                             'origins': origins, 'feedback': feedback.get(pid),
+                             'proposal': 'Prüfen, ob dieses Zeitfenster eine relevante Routine beschreibt. Keine Automation wird erstellt.'})
+        return {'config': cfg, 'event_count': len(rows), 'retention_days': 14, 'limit': MAX_EVIDENCE,
+                'reobservation': {
+                    **retrospective([(t,e) for e,t,_ in rows if e in cfg['roles'].get('presence', [])],
+                                    detector, now-RETENTION, now),
+                    'basis': 'retained_activations_fixed_retention_window_not_continuous_coverage'},
+                'progress': {'required_events': min_events, 'required_days': min_days,
+                             'window_hours': 2, 'windows': windows,
+                             'first_evidence_at': datetime.fromtimestamp(rows[0][1], UTC).isoformat() if rows else None,
+                             'last_evidence_at': datetime.fromtimestamp(rows[-1][1], UTC).isoformat() if rows else None,
+                             'observed_days': len({time_bucket(row[1], detector)[1] for row in rows}),
+                             'observed_days_utc': len({datetime.fromtimestamp(row[1], UTC).date() for row in rows})},
+                'coverage': coverage_report(db.execute('SELECT slot, state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,)).fetchall()),
+                'coverage_samples': [{'slot': slot, 'state': state} for slot,state in db.execute('SELECT slot,state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,))],
+                'context_windows': context_report([(t, json.loads(p)) for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))], detector),
+                'context_evidence': [{'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'context': json.loads(p)} for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))],
+                'history_imports': [json.loads(p) for (p,) in db.execute('SELECT payload FROM history_imports WHERE zone_id=? ORDER BY created DESC', (zone_id,))],
+                'historical_event_count': db.execute('SELECT COUNT(*) FROM history_provenance WHERE zone_id=?', (zone_id,)).fetchone()[0],
+                'time_basis': local_zone.key, 'day_mode': day_mode, 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o, 'recording_source': 'ha_history' if (e,t) in historical else 'live'} for e,t,o in rows],
+                'limitations': 'Nur beobachtete Aktivierungen, keine Anwesenheitsdauer oder Wahrscheinlichkeit. Ausfälle und inaktive Lernzeiten sind unbeobachtet; Herkunft ist kein Beweis menschlicher Bedienung.'}
 
     async def feedback(self, zone_id, pattern_id, decision):
         if decision not in ('accepted', 'rejected', 'later'):
             raise InvalidSelection('invalid feedback')
-        report = await self.report(zone_id)
-        if pattern_id not in {p['id'] for p in report['patterns']}:
-            raise InvalidSelection('Pattern expired or unknown; reload')
         await asyncio.to_thread(self._feedback, zone_id, pattern_id, decision)
 
     def _feedback(self, zone_id, pattern_id, decision):
-        with closing(sqlite3.connect(self.path)) as db, db:
-            db.execute('INSERT INTO pattern_feedback VALUES (?,?,?,?) ON CONFLICT(zone_id,pattern_id) DO UPDATE SET decision=excluded.decision, updated=excluded.updated', (zone_id, pattern_id, decision, time.time()))
-            self.prune(db, time.time())
+        with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
+            # Serialize reset/configuration/retention with validation and save.
+            db.execute('BEGIN IMMEDIATE')
+            now = time.time()
+            report = self._report_in_transaction(db, zone_id, now)
+            if pattern_id not in {p['id'] for p in report['patterns']}:
+                raise InvalidSelection('Pattern expired or unknown; reload')
+            db.execute('INSERT INTO pattern_feedback VALUES (?,?,?,?) ON CONFLICT(zone_id,pattern_id) DO UPDATE SET decision=excluded.decision, updated=excluded.updated', (zone_id, pattern_id, decision, now))
+            self.prune(db, now)
 
     async def import_history(self, zone_id, revision, roles, events, start, end, *, now=None):
         return await asyncio.to_thread(self._import_history, zone_id, revision, roles,

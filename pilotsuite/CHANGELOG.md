@@ -2,6 +2,12 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.18] - 2026-09-23
+
+- Musterfeedback prüft Gültigkeit und speichert die Rückmeldung in einer gemeinsamen SQLite-Transaktion.
+- Gleichzeitiger Lern-Reset, Quellenwechsel, neue Erkennungsschwellen oder abgelaufene Belege können keine veraltete Rückmeldung mehr einschleusen.
+- Vorhandene gültige Muster bleiben bei ausgeschaltetem Lernen bewertbar; Beobachtungen, Regelstärke und Konfidenz bleiben unverändert.
+
 ## [0.1.0-alpha.17] - 2026-09-23
 
 - Zeitlich getrennte Musterprüfung direkt in Werkbank und JSON-Prüfbericht.

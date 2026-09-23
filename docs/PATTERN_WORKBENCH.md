@@ -53,3 +53,16 @@ synthetische Muster. Nutzerbestätigung vom 23.09.2026: alpha.16 Zonen-Assistent
 Zonenwechsel und Werkbank funktionieren. Dies ist Nutzerabnahme der Oberfläche,
 keine unabhängige Netzwerkprüfung und kein Nachweis realer Lernqualität. Die neue
 Zeitprüfung benötigt nach Installation ihre eigene Bedienabnahme.
+
+## Rückmeldungen bei gleichzeitigen Änderungen (alpha.18)
+
+Gültigkeitsprüfung und Speicherung eines Feedbacks verwenden dieselbe SQLite-
+Schreibtransaktion und die vorhandene kanonische Musterprojektion. Die HTTP-Routen
+serialisieren Konfiguration und Feedback bereits; diese Sicherung gilt zusätzlich
+direkt am Speicher und prüft die Zeit nach dem Warten auf den Schreibzugriff. Ein zuvor
+angezeigtes Muster wird beim Speichern erneut gegen die aktuellen Quellen,
+Erkennungsschwellen und die Aufbewahrungsfrist geprüft. Nach einem Reset oder
+bei einem nicht mehr gültigen Muster wird die Rückmeldung abgelehnt; neu laden.
+Eine ausgeschaltete Lernfreigabe verhindert weiterhin nur zusätzliche Sammlung:
+aufbewahrte, gültige Muster bleiben bewertbar. Rückmeldungen verändern keine
+Beobachtungszahlen, Regelstärke oder Konfidenz. Kein neuer Speicher und keine Migration.

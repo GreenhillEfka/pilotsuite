@@ -27,6 +27,13 @@ This file is the canonical long-term context for humans and AI contributors. If 
 
 ## Current package
 
+Alpha.18 candidate fixes a reproducible feedback/reset race using one SQLite
+transaction and the existing report projection. Six synthetic regressions added;
+151 Python and nine JS tests pass locally. Exact candidate/main CI and Store-based
+deployment are next; backup 92e7a465 verifies the current alpha.17 app/data/options.
+Alpha.17 remains installed. Its temporal UI/export acceptance stays separately open.
+See newest CURRENT_STATE receipt; no learning or actuation was enabled.
+
 The user accepted alpha.16 guide/navigation/workbench on 2026-09-23. This closes
 that user UI gate; it does not prove real learning quality or independent network
 capture. Alpha.17 (PR #37, 8a83932; CI 35874744954 green) adds temporal review of existing retained evidence using
