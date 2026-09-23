@@ -22,6 +22,10 @@ available from generic context alone. Own-action exclusion remains blocked until
 governed execution owner exists; the read-only alpha cannot generate own actions.
 
 ## 0.3 — governed action pilot
+
+Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
+Next gate: exact candidate CI, backed-up release, user review of the workbench.
+Real learning and second-zone acceptance remain prerequisites for actuation.
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.
 - Review existing HA automations before proposing duplicates.
 - Backup as required, precondition recheck, verify, action-specific recovery.

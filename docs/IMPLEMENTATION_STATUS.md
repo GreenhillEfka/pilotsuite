@@ -1,5 +1,14 @@
 # Capability and acceptance ledger
 
+## Pattern workbench candidate
+
+Preference filters, source-to-rule evidence chains, context matched by local time
+window/day group and downloadable non-executable review briefs are implemented.
+122 backend tests and four JavaScript tests pass locally; expanded browser/amd64 CI
+pending. No new collection or schema. Deployment remains separate (alpha.13).
+User confirmed existing history diagram rendering on 2026-09-23; Recorder coverage
+and new workbench acceptance remain unverified. Contract: PATTERN_WORKBENCH.md.
+
 ## Merged history-timeout reliability increment
 
 The candidate converts the bounded 90-second history budget and underlying WebSocket

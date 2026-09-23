@@ -326,6 +326,10 @@ def main() -> None:
 async def _context_payload(service, zone_id, export=False):
     inventory = await service.selection_inventory(zone_id)
     report = await service.context.report(zone_id)
+    from pilotsuite.core.review import review_brief
+    report['reviews'] = [dict(review_brief(pattern, report), zone_id=zone_id,
+                              revision=inventory['revision'])
+                         for pattern in report.get('patterns', [])]
     if not export:
         report.pop('evidence', None)
         report.pop('context_evidence', None)
