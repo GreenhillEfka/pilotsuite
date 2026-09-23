@@ -1,5 +1,38 @@
 # Current State
 
+## Alpha.18 installed through the normal Store path — 2026-09-23
+
+The Store now offered alpha.18 while alpha.17 ran. Fresh source verification confirms
+release f3f5a25c344304b881ba858d253271450d3fc1db and pre-update main
+809fe1144ac6888390bc8c59b66711569fc5dc40 share app tree
+431ab2e2f2810315b98680459c0b5448da2f598c. Exact CI 35880705662 and
+35881046994 are green: 151 Python, nine JS, Chromium and amd64. Source preflight
+passed; no open PR or branch rule blocked this receipt. This is canonical
+repository/version/app-tree association, not an independently exposed Store SHA.
+
+Fresh backup b6c90eb0 completed at 2026-09-23T17:52:24Z, 53,944,320 bytes,
+unprotected. Native backup/details verifies exactly PilotSuite alpha.17, no failed
+components, no HA configuration/database or folders. Standard app backup includes
+data/options. Exact recovery: hassio.restore_partial, slug b6c90eb0, apps
+[0d79c5e8_pilotsuite], homeassistant false, folders []; no restore drill performed.
+
+One ha_manage_app update succeeded. Supervisor reports alpha.18 installed/offered,
+started, no update available. Startup/readiness confirms version alpha.18,
+hard_read_only, connected stream, fresh snapshot, resolved zone and ready. No
+separate restart or Store refresh was performed. No role, consent, feedback,
+configuration, automation or actuator changes. No household evidence exported.
+
+The working sequence is reinforced in RELEASE_RUNBOOK; the previous Store delay
+is not a present installation blocker. A successful update does not prove that the
+previously denied Store-reload bridge works. Only about:blank is available in the
+browser. Real authenticated Ingress HTML/JS/CSS/API and temporal-view/export
+acceptance remain open; alpha.16 user UI acceptance is preserved separately.
+
+Next: authenticated read-only temporal-view/export acceptance on alpha.18; do not
+reinstall or restart. Real learning-quality and second-zone acceptance remain
+separate and require existing explicit consent. Documentation-only receipt;
+earlier pending-deployment entries below are historical and superseded.
+
 ## Alpha.18 published; alpha.17 still installed — 2026-09-23
 
 PR #40 merged atomic feedback at f3f5a25c344304b881ba858d253271450d3fc1db.
