@@ -16,7 +16,9 @@ request. No schema, algorithm, evidence, consent or actuator change.
 Five deterministic Node regressions exercise the actual UI function. Four failed
 before the fix and all five pass after it. Local totals: 123 backend tests, nine
 JavaScript tests, syntax and repository contracts passed. Browser regression now
-freezes an old GET while saving feedback; exact-candidate CI remains pending.
+freezes an old GET while saving feedback. PR #31 functional candidate 2823517
+passed CI 35831207187: backend/JS, expanded Chromium and amd64 container. The
+following documentation-only commit records that verified result.
 
 Fresh HA metadata still reports alpha.13 installed/offered/started, with no update
 available. Readiness logs report connected stream, fresh snapshot and resolved zone.
