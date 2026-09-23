@@ -57,7 +57,9 @@ Zeitprüfung benötigt nach Installation ihre eigene Bedienabnahme.
 ## Rückmeldungen bei gleichzeitigen Änderungen (alpha.18)
 
 Gültigkeitsprüfung und Speicherung eines Feedbacks verwenden dieselbe SQLite-
-Schreibtransaktion und die vorhandene kanonische Musterprojektion. Ein zuvor
+Schreibtransaktion und die vorhandene kanonische Musterprojektion. Die HTTP-Routen
+serialisieren Konfiguration und Feedback bereits; diese Sicherung gilt zusätzlich
+direkt am Speicher und prüft die Zeit nach dem Warten auf den Schreibzugriff. Ein zuvor
 angezeigtes Muster wird beim Speichern erneut gegen die aktuellen Quellen,
 Erkennungsschwellen und die Aufbewahrungsfrist geprüft. Nach einem Reset oder
 bei einem nicht mehr gültigen Muster wird die Rückmeldung abgelehnt; neu laden.

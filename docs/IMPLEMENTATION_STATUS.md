@@ -2,8 +2,12 @@
 
 ## Atomic pattern feedback / alpha.18 candidate — 2026-09-23
 
-A queued feedback request could validate a pattern, then save after a concurrent
-reset/source change/threshold change or expiry. Validation and persistence now use
+At the ContextStore boundary, a queued feedback request could validate a pattern,
+then save after a concurrent reset/source/threshold change or expiry. Existing HTTP
+routes already serialize configuration and feedback with the projection lock; the
+new guard protects the store itself and rechecks time after worker queuing. This is
+not evidence of a reproduced concurrent-reset failure through the current HTTP UI.
+Validation and persistence now use
 one BEGIN IMMEDIATE transaction and the existing canonical report projection.
 No second detector, storage owner, schema, collection or consent change. Retained
 valid patterns remain reviewable with learning disabled. Observation statistics,
