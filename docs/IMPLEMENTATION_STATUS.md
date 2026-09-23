@@ -1,71 +1,90 @@
-# PilotSuite implementation status
+# PilotSuite capability and acceptance ledger
 
-## Current release and evidence — 2026-09-23
+## Current candidate refinement — 2026-09-24
 
-**0.1.0-alpha.21 is installed and started in Home Assistant.**
-Release commit: `1223f96f45053f7bf3d509bd7ad72c85b9f6cab1`.
-App tree: `3228fa2b5cae4d0db00dc7646aa6e39bb43b6b77`.
-Release CI `35914643847` and pre-deployment current-main CI `35915002481` passed
-test, Chromium browser and amd64 container jobs. The release receipt records 192
-Python and nine JavaScript tests; this continuation checked those existing CI runs,
-not a new local execution of the suite.
+PR #50 now also contains review-note presentation counts, direct selected recheck,
+conservative editor defaults after a changed inspection basis, and saved-text
+comparison for concurrent edits. See REVIEW_NOTES_USABILITY.md. This is a bounded
+UI refinement of ADR-030, not a new backend summary owner or action approval.
+Backend, schema 8, release number alpha.22 and the publication gates are unchanged.
+Twelve additional JavaScript cases pass locally; syntax checks pass. The existing
+browser-editor contract is extended. Exact complete CI evidence belongs to the
+latest PR #50 HEAD, not an earlier successful run. No local browser pass is claimed.
+No HA-MCP action or fresh backup receipt was available; no live read/write or update.
 
-Native Store refresh now works with `ha_manage_app(action="check_updates")`.
-Fresh scoped backup `ae7a3fba` was completed and verified before one normal update.
-Runtime confirms alpha.21, hard read-only, connected stream, fresh snapshot,
-resolved Golden Zone and readiness. No new role, learning consent or actuation.
-See [RELEASE_STATE.json](RELEASE_STATE.json), [RELEASE_RUNBOOK.md](RELEASE_RUNBOOK.md)
-and [../CURRENT_STATE.md](../CURRENT_STATE.md) for operational detail.
+## Previous Alpha.22 Store versioning — 2026-09-24
 
-## Capability ledger
+**PR #50**, branch `feat/revision-bound-review-notes`, is now versioned as
+**0.1.0-alpha.22**. All five release markers and both changelogs are updated.
+**Not merged, published, offered by a verified Store read, or installed.**
+The last actual alpha.21 deployment receipt stays unchanged in RELEASE_STATE.json.
 
-| Capability | Implemented boundary | Acceptance / remaining work |
+That previous continuation changed release metadata, added the note workflow to app
+DOCS and ran the existing read-only source preflight in CI for a changed release
+version. No additional runtime behavior, HA option, permission or architecture
+change was part of versioning. No HA-MCP/native Store action was available in that
+tool discovery. No fresh live HA metadata, backup, Store action or household change.
+
+## Implemented review-note package
+
+| Capability | Candidate implementation | Evidence / remaining gate |
 |---|---|---|
-| App packaging and updates | Canonical Supervisor app; exact release/version/tree association and scoped operational backup routine | alpha.21 installed; independently attested Store checkout/image and recovery drill not claimed |
-| Ingress and frontend | Peer-restricted app UI, navigation, zone guide and workbench | Synthetic Chromium passes; actual authenticated alpha.21 assets/API/interaction acceptance remains pending |
-| HA snapshot and event stream | Read projection, reconnect/backoff, timestamp guards, bounded origin correlation | Runtime connected/fresh/ready; snapshots are not atomic transactions, no durable stream replay; soak pending |
-| Readiness and quality | Stream, snapshot freshness, scope and capabilities reported separately | Does not certify physical sensor freshness; missing/conflicting data stays explicit |
-| Habitus zones and entity roles | Stable logical zones, multiple areas/extras, explicit inclusion, plural role groups and main sensor selection | Real mapping review remains separate; no wholesale HA state mirror |
-| Typed sensor references | Climate normalization, plural sources, spread, separate references, illuminance and unified presence-source semantics | Selection-dependent coverage; no invented sensor values |
-| Suggestions and activity candidates | Deterministic climate heuristics and bounded consented activity evidence | Observation counts, confidence, risk and preference remain distinct; no causal habit or safe cellar-control claim |
-| History and temporal views | Targeted transient history/statistics, graphs and explicit scoped history import through the existing evidence owner | Recorder coverage not presumed; raw history is not mirrored; new import consent was not enabled |
-| Pattern workbench | Derived review briefs, evidence explanations and time-separated reobservation | Not a predictive holdout, action plan, semantic verdict or execution permission |
-| Routine drafts / PlanStore | Explicit user-authored durable drafts with revision checks, declarative intent/targets, source refresh, export/delete | Schema 7; drafts survive learning reset. No raw automation config is copied into PlanStore |
-| Existing automation reference review | Explicit bounded transient related-entity lookup using supported HA APIs | Entity reference is not equivalence, causality, enabled state or safety; no household-wide scan |
-| Selected automation inspection | Fresh selected configuration read, whitelisted trigger/condition/action structure, open review checklist, fingerprint comparison and combined export | Config remains transient; live app automation/config capability not verified; no privilege escalation or template evaluation |
-| Persisted review notes | **Next planned increment, not implemented** | User-authored notes bound to draft revision/config fingerprint; stale after change; never action authorization |
-| Storage and migrations | Owned zones, roles, consent, evidence, feedback, provenance and routine drafts with migration safeguards | SQLite schema 7; audit and legacy dry-run records remain separate; not a Recorder clone |
-| Action execution and runtime recovery engine | Dry-run boundary remains denied | Typed action catalog, real approval lifecycle, transactional apply/verify/rollback and fault-injection gates are future work; operational app backup is not that engine |
-| Multi-user preferences | Planned | Preference/evidence separation and conflict handling required |
-| Brain graph | Full interactive brain graph planned | Existing derived evidence views do not establish a second semantic owner |
-| Optional native HA adapter / Assist / LLM / RAG | Planned or optional architecture | No mandatory LLM and no direct LLM action path; provider capabilities require verification |
-| HomeKit, broad module/Dev/Wiki UI and presets | Deferred | Inventory-first and capability-specific review; no automatic exports or unrestricted actuation |
-| Legacy cleanup | Not comprehensively verified | Removed Store repositories do not prove legacy HACS/config entries/entities were removed |
+| Persistent review notes | PlanStore, three dispositions, text up to 2000 characters, 20 notes per draft | Own assessment, not verified individual attribution or permission |
+| Change detection | Draft/zone revisions, reference hash, config fingerprint and stale projection | GET/restart says not_rechecked; explicit inspection describes only last read |
+| Save validation | Existing selected-automation inspection; no network under projection lock; bounded age and atomic revision/write checks | Synthetic API/store/concurrency tests; live app config-read capability not assumed |
+| Conflict-safe editing | Text survives 409/503 and basis reload; changed basis resets editor selection to open; saved-text comparison | Dedicated editor browser contract and existing full-shell browser suite |
+| Note overview | Independent assessment/freshness counts and explicit per-note recheck | Presentation only; no autosave, global verdict or additional collection |
+| Deletion/export | Note deletion, monotonic tombstone revision, draft-delete revision guard and JSON export | No HA changes, evidence deletion or automatic exports |
+| Migration | Existing owner migrates schema 7 to 8 after SQLite backup | Preservation/idempotence regressions; no verified live migration yet |
+| Execution boundary | Apply remains denied; notes cannot grant permission | API denial and unchanged evidence/risk tests |
 
-Feature contracts: [HABITUS_ZONES.md](HABITUS_ZONES.md),
-[SENSOR_REFERENCES.md](SENSOR_REFERENCES.md), [OBSERVATION_LEARNING.md](OBSERVATION_LEARNING.md),
-[HISTORY_AND_TRENDS.md](HISTORY_AND_TRENDS.md), [PATTERN_WORKBENCH.md](PATTERN_WORKBENCH.md),
-[ROUTINE_DRAFTS.md](ROUTINE_DRAFTS.md), [AUTOMATION_REVIEW.md](AUTOMATION_REVIEW.md),
-[AUTOMATION_INSPECTION.md](AUTOMATION_INSPECTION.md), and [../DECISIONS.md](../DECISIONS.md).
+Feature HEAD `47ae62ead032c48ecc8c2c56cb2eae124f0a0a54` passed complete CI
+`35923067713`: 215 Python, 16 JavaScript, full-shell browser, note-editor browser and
+amd64 container. New source/CI evidence belongs to the **exact alpha.22 PR HEAD**;
+read the final receipt in PR #50, not an earlier run. No new local full-suite pass
+is claimed. The existing focused/CI evidence and old corrections remain in Git/PR
+history. Tests and screenshots are synthetic, not actual household UI acceptance.
 
-## Remaining acceptance gates
+## Baseline capabilities
 
-1. Actual authenticated alpha.21 Ingress assets, APIs, temporal/draft/review UI and
-   existing app read capability. No fabricated browser pass or elevated permissions.
-2. Golden Zone mappings and measured history coverage; reconnect/HA-restart soak
-   without treating unavailable data as false, zero or absent behavior.
-3. Already-consented real habit evidence with traceable proposal and durable
-   feedback. A second unlike read-only zone before 1.0; no new consent by testing.
-4. Only after separate explicit approval: one bounded reversible action with
-   validated policy, backup, fault-injection, verification and recovery design.
+| Capability | Boundary | Separate limitation / acceptance |
+|---|---|---|
+| Supervisor app / update routine | Canonical version/tree association, scoped backup, native Store refresh | alpha.21 last verified installed; no independent image attestation or restore drill |
+| Ingress workspace | Peer-restricted navigation, zone guide, pattern/draft workbench | Synthetic browser tests are not authenticated live acceptance |
+| HA projection / readiness | Snapshot, stream, reconnect/backoff, quality/scope separation | Not physical sensor freshness, atomic snapshot or durable event replay |
+| Habitus zones / roles | Stable logical zones, areas/extras, confirmed-only groups | No shadow topology or invented sensors |
+| Typed references | Climate normalization, median/spread, illuminance and saved presence groups | Actual mapping/coverage review remains |
+| Learning / context | Consent-gated bounded evidence and coarse ephemeral origin correlation | Counts, confidence, preference, strength and risk remain separate |
+| History | Transient history/statistics and explicit interval-scoped evidence import | No Recorder clone or assumed coverage |
+| Pattern workbench | Derived explanations and chronological reobservation | Not unbiased predictive validation or executable plans |
+| Routine drafts | User intent/targets, revisions, source refresh, export/delete | Survive learning reset; schema 8 only in the candidate |
+| Automation comparison | Bounded related-entity review and selected structural inspection | No semantic equivalence/safety verdict, template evaluation or automatic scan |
+| Multi-user policy | Beyond shared revision-protected notes, planned | No inferred personal identity |
+| Full brain graph / HA adapter / Assist / LLM / RAG | Planned or optional | No second semantic owner or direct LLM action path |
+| HomeKit / broad Dev-Wiki UI / presets | Deferred | Inventory and actual capability first |
+| Action catalog / execution / runtime recovery | Future work; apply denied | Operational app backup is not a runtime transaction engine |
 
-Relative humidity alone never justifies a ventilation command. Current climate
-thresholds are heuristics, not a validated cellar-control policy.
+## Publication gate and next step
 
-## Full historical ledger
+Fresh installed-version information and completed PilotSuite-only app/data/options
+backup verification are still required before publication. The last observed
+auto_update setting was true; publishing could make the release eligible for an
+automatic update. Do not change that option or treat the historical alpha.18 backup
+`ae7a3fba` as a new alpha.21 recovery point. Missing tool access does not invalidate
+the documented working Store route.
 
-The prior document is preserved byte-for-byte in
-[IMPLEMENTATION_HISTORY_2026-09-23.md](IMPLEMENTATION_HISTORY_2026-09-23.md), original
-blob `c7324a3d73365cc144caedf43fa3d2a6b9682287`. Historical installed versions and
-acceptance instructions there are superseded by the current receipt above.
-This consolidation changes documentation only, not application behavior.
+Versioning is complete; next verify backup and exact candidate source/CI, main/open
+work and version uniqueness, then merge only with those gates satisfied. Verify main
+CI, use the normal Store refresh if needed, update once and check runtime. No custom
+bridge, speculative restart or weakened permissions. Follow RELEASE_RUNBOOK.md.
+Actual authenticated assets/API/temporal/draft/inspection/note UI, existing app
+read rights, Golden Zone/Recorder coverage, reconnect soak, traceable real habit
+and a second unlike zone remain separately pending. No extra consent in tests.
+Relative humidity alone never authorizes ventilation.
+
+Contracts: REVIEW_NOTES.md, REVIEW_NOTES_USABILITY.md, ROUTINE_DRAFTS.md,
+AUTOMATION_INSPECTION.md, AUTOMATION_REVIEW.md, PATTERN_WORKBENCH.md,
+HISTORY_AND_TRENDS.md, OBSERVATION_LEARNING.md, SENSOR_REFERENCES.md and HABITUS_ZONES.md.
+The prior complete candidate ledger is preserved at `47ae62e`; the old full ledger
+stays unchanged in IMPLEMENTATION_HISTORY_2026-09-23.md. Old installed versions and
+unversioned-candidate statements are historical, not current measurements.

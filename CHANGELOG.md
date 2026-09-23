@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.0-alpha.22] - 2026-09-24
+
+- Dauerhafte Prüfnotizen zu ausgewählten Automationen im bestehenden PlanStore: Offen, Änderungsbedarf oder Manuell geprüft – keine Freigabe.
+- Bewertungen an Entwurfs-/Zonenrevision, Quellen-/Zielbezug und Konfigurationsfingerabdruck binden; veraltete und nicht erneut geprüfte Stände getrennt anzeigen.
+- Vor dem Speichern erneut lesend prüfen; konkurrierende Änderungen und abgelaufene Prüfstände ohne Überschreiben zurückweisen.
+- Editor erhält Texte bei Fehlern und beim Neuladen der Prüfgrundlage; expliziter Export und revisionsgeschütztes Löschen.
+- Additive SQLite-Migration 8 mit vorgelagerter Datenbanksicherung. Vor dem App-Update weiterhin PilotSuite samt Daten sichern.
+- Keine neue Lernfreigabe, Rohkonfigurationsspeicherung, HA-Automationsänderung oder Ausführung.
+
 ## [0.1.0-alpha.21] - 2026-09-23
 
 - Eine ausdrücklich gewählte passende HA-Automation rein lesend in Auslöser, Bedingungen und Aktionen aufschlüsseln.

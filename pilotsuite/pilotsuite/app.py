@@ -16,6 +16,7 @@ from pilotsuite.core.plans import InvalidPlan, ReadOnlyRelease, TARGET_DOMAINS
 from pilotsuite.core.settings import Settings
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
+from pilotsuite.review_notes_api import register_review_notes
 
 
 LOGGER = logging.getLogger(__name__)
@@ -129,6 +130,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_delete('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
     app.router.add_post('/api/v1/zones/{zone_id}/drafts/{draft_id}/automation-review', _automation_review)
     app.router.add_post('/api/v1/zones/{zone_id}/drafts/{draft_id}/automation-inspection', _automation_review)
+    register_review_notes(app, SERVICE_KEY)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
     app.router.add_get("/api/v1/selections/{area_id}", _selection_inventory)
@@ -457,8 +459,9 @@ async def _routine_drafts(request):
             return web.json_response(draft, status=201)
         if request.method == 'PATCH':
             return web.json_response(await service.plans.save_draft(zone_id, request.match_info['draft_id'], payload, inventory))
-        if set(payload) != {'revision'}: raise InvalidSelection('revision required')
-        await service.plans.delete_draft(zone_id, request.match_info['draft_id'], payload['revision'])
+        if set(payload) not in ({'revision'}, {'revision', 'review_revision'}):
+            raise InvalidSelection('revision and optionally review_revision required')
+        await service.plans.delete_draft(zone_id, request.match_info['draft_id'], payload['revision'], payload.get('review_revision'))
         return web.json_response({'deleted': True})
 
 

@@ -19,7 +19,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Policy mode: hard read-only
-- Release: `0.1.0-alpha.21`
+- Release: `0.1.0-alpha.22`
 
 ## Habitus zones and entity selection
 
@@ -67,3 +67,17 @@ löschen** removes evidence and pattern feedback and revokes consent while prese
 entity choices. Changing the presence group also clears its old evidence/feedback.
 Export provides a per-zone JSON report including evidence. Backups remain separate.
 No learning history is reconstructed from HA snapshots or after disconnects.
+
+## Prüfnotizen (alpha.22)
+
+Im Routineentwurf **Bestehende Automationen prüfen**, einen Treffer im Detail prüfen
+und **Bewertung festhalten** wählen. Bewertungen und Notizen werden zum konkreten
+Entwurfs-/Quellen-/Automationsstand gespeichert. Bei Änderungen bleiben sie erhalten,
+werden aber als veraltet angezeigt; nach dem Neuladen ist der Automationsstand
+zunächst nicht erneut geprüft. Beim Speichern erfolgt eine neue lesende Prüfung.
+
+Der Editor behält deinen Text bei Konflikten und beim Neuladen des Prüfstands.
+Eine Bewertung ist keine Ausführungsfreigabe; HA-Automationen bleiben unverändert.
+Notizen bleiben beim Lernreset erhalten und lassen sich gezielt löschen/exportieren.
+Schema 8 ergänzt die bestehende Datenbank nach einer automatischen SQLite-Sicherung.
+Das ersetzt nicht die vollständige PilotSuite-App-/Datensicherung vor dem Update.

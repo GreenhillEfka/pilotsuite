@@ -18,6 +18,7 @@ from pilotsuite.domain.policies import evaluate_plan
 
 from .audit import AuditLog, redact
 from .selections import InvalidSelection, SelectionConflict
+from .review_notes import ReviewNotesMixin, notes_view
 
 DRAFT_TEXT_FIELDS = ('title', 'goal', 'trigger', 'conditions', 'exceptions', 'manual_override')
 TARGET_DOMAINS = {'light', 'switch', 'fan', 'climate', 'cover', 'media_player'}
@@ -32,7 +33,7 @@ class ReadOnlyRelease(RuntimeError):
     pass
 
 
-class PlanStore:
+class PlanStore(ReviewNotesMixin):
     def __init__(self, data_dir: Path, audit: AuditLog, context=None) -> None:
         self._path = data_dir / "plans.jsonl"
         self._audit = audit
@@ -76,12 +77,17 @@ class PlanStore:
                 'automation_check': 'not_checked', 'risk': 'not_assessed',
                 'execution': {'allowed': False, 'reason': 'draft_only', 'actions': []}}
 
+    def _draft_with_notes(self, db, row, basis):
+        draft = self._draft_view(row, basis)
+        draft['review_notes'] = notes_view(db, draft, basis[0])
+        return draft
+
     def _drafts(self, zone_id, inventory):
         with closing(sqlite3.connect(self._context.path, timeout=10)) as db, db:
             db.execute('BEGIN IMMEDIATE')
             basis = self._draft_basis(db, zone_id, inventory)
             rows = db.execute('SELECT * FROM routine_drafts WHERE zone_id=? ORDER BY updated DESC, id', (zone_id,)).fetchall()
-            return [self._draft_view(row, basis) for row in rows]
+            return [self._draft_with_notes(db, row, basis) for row in rows]
 
     async def create_draft(self, zone_id, pattern_id, zone_revision, inventory):
         if not isinstance(pattern_id, str) or not pattern_id or len(pattern_id) > 128:
@@ -97,7 +103,7 @@ class PlanStore:
             if pattern_id not in basis[1]:
                 raise InvalidSelection('Pattern expired or unknown; reload')
             existing = db.execute('SELECT * FROM routine_drafts WHERE zone_id=? AND pattern_id=?', (zone_id, pattern_id)).fetchone()
-            if existing: return self._draft_view(existing, basis)
+            if existing: return self._draft_with_notes(db, existing, basis)
             if db.execute('SELECT COUNT(*) FROM routine_drafts').fetchone()[0] >= MAX_DRAFTS:
                 raise InvalidSelection('Draft limit reached; remove an unneeded draft first')
             fields = {key: '' for key in DRAFT_TEXT_FIELDS}
@@ -105,7 +111,7 @@ class PlanStore:
             stamp = datetime.now(UTC).isoformat()
             row = (str(uuid.uuid4()), zone_id, pattern_id, basis[0], 1, stamp, stamp, json.dumps(fields))
             db.execute('INSERT INTO routine_drafts VALUES (?,?,?,?,?,?,?,?)', row)
-            return self._draft_view(row, basis)
+            return self._draft_with_notes(db, row, basis)
 
     async def save_draft(self, zone_id, draft_id, payload, inventory):
         if (not isinstance(payload, dict) or set(payload) != {'revision', 'zone_revision', 'fields', 'refresh_source'}
@@ -144,18 +150,25 @@ class PlanStore:
             source_revision = basis[0] if refresh_source else row[3]
             db.execute('UPDATE routine_drafts SET revision=?, source_revision=?, updated=?, fields=? WHERE id=?',
                        (revision+1, source_revision, datetime.now(UTC).isoformat(), json.dumps(fields), draft_id))
-            return self._draft_view(db.execute('SELECT * FROM routine_drafts WHERE id=?', (draft_id,)).fetchone(), basis)
+            return self._draft_with_notes(db, db.execute('SELECT * FROM routine_drafts WHERE id=?', (draft_id,)).fetchone(), basis)
 
-    async def delete_draft(self, zone_id, draft_id, revision):
+    async def delete_draft(self, zone_id, draft_id, revision, review_revision=None):
         if type(revision) is not int or revision < 1: raise InvalidSelection('Invalid draft revision')
-        await asyncio.to_thread(self._delete_draft, zone_id, draft_id, revision)
+        if review_revision is not None and (type(review_revision) is not int or review_revision < 0):
+            raise InvalidSelection('Invalid review revision')
+        await asyncio.to_thread(self._delete_draft, zone_id, draft_id, revision, review_revision)
 
-    def _delete_draft(self, zone_id, draft_id, revision):
+    def _delete_draft(self, zone_id, draft_id, revision, review_revision=None):
         with closing(sqlite3.connect(self._context.path, timeout=10)) as db, db:
             db.execute('BEGIN IMMEDIATE')
             row = db.execute('SELECT revision FROM routine_drafts WHERE id=? AND zone_id=?', (draft_id, zone_id)).fetchone()
             if not row: raise InvalidSelection('Unknown draft in this zone')
             if row[0] != revision: raise SelectionConflict('Draft changed; reload before removing')
+            notes = db.execute('SELECT revision FROM routine_review_notes WHERE draft_id=?', (draft_id,)).fetchone()
+            current_review = notes[0] if notes else 0
+            if (review_revision is None and current_review) or (review_revision is not None and review_revision != current_review):
+                raise SelectionConflict('Review notes changed; reload before removing the draft')
+            db.execute('DELETE FROM routine_review_notes WHERE draft_id=?', (draft_id,))
             db.execute('DELETE FROM routine_drafts WHERE id=?', (draft_id,))
 
     async def create(self, payload: dict[str, Any]) -> dict[str, Any]:
