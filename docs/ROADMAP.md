@@ -1,31 +1,23 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Alpha.22 is published and installed; the actual receipt is RELEASE_STATE.json.
-  Its authenticated live UI, app-specific config-read capability and independent
-  data-preservation acceptance remain separate, not inferred from CI/runtime.
-- Current approved package: PR #52, Alpha.23 Prüfkompass in the existing workbench.
-  Five derived sections, clear next step, zone filter/sort, accessible explanations,
-  unchanged canonical owners and readonly boundaries. See REVIEW_COMPASS.md.
-  Development is integrated; exact candidate CI, fresh scoped backup and normal
-  Store release gates remain before deployment. No repeat of Alpha.22 delivery.
+- Alpha.23 Prüfkompass is implemented and published through merged PR #52. Exact
+  candidate and main CI passed. Do not recreate the feature or bump its version.
+- Next: fresh native HA app read and complete the pending installation/runtime
+  verification under RELEASE_RUNBOOK.md. Skip installation if already current.
+  Prior scoped backup and conflicting Store offer readings are in
+  RELEASE_STATE.json.pending_release; recheck actual availability/freshness.
+- The last completed deployment receipt is Alpha.22; it is not a fresh live reading.
+  Current HA-MCP tools are not exposed in the documentation continuation.
+  Authenticated UI, app config-read capability and data preservation stay separate.
 - The user resumed hourly autonomous package development on 2026-09-24; see
   DEVELOPMENT_MANDATE.md. Existing scope/consent/actuation boundaries remain.
-- After this package, prioritize a useful or reasonably rejected proposal in the
-  already consented Golden Zone; validate a second unlike zone only within its
+- After verified delivery, prioritize a useful or reasonably rejected proposal in
+  the already consented Golden Zone. Validate a second unlike zone only within its
   separately confirmed data scope. Comfort benefit precedes more review machinery.
-- Preserve canonical repository and read-only boundary.
-- Normalize units, explicit missing evidence, stable suggestion identity.
-- Guard Ingress peer; test actual proxy path and browser assets.
-- Distinguish snapshot freshness, stream health and sensor validity.
-- Ship foundation fixes before claiming live acceptance.
-- Follow RELEASE_RUNBOOK.md for every release; alpha.16 adds the requested zone
-  guide to existing setup and optional learning, without another state owner.
-  Alpha.16 is installed and user UI acceptance is confirmed. Alpha.17 extends
-  retained-evidence review with the shared chronological split; PR #37/main CI
-  35874744954 are green. Alpha.17 is installed; runtime/read-only checks passed after
-  scoped backup fcbbc115. Next is authenticated temporal-view/export acceptance,
-  then review of already-consented evidence. No actuation.
+- Preserve the canonical repository/read-only boundary. Distinguish transport,
+  snapshot freshness, physical sensor validity and domain completeness. The existing
+  source normalization, entity/role curation and evidence workbench remain shared.
 
 ## 0.2 — consented read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
@@ -36,7 +28,7 @@
 - Consent, retention, export, delete/reset and replay regression fixtures.
 - Test a second unlike zone; no execution.
 
-Current bounded slice: correlate HA service/state contexts only with active consent,
+Implemented bounded slice: correlate HA service/state contexts only with active consent,
 store no identifiers, and expose uncertainty. Exact automation identity is not
 available from generic context alone. Own-action exclusion remains blocked until a
 governed execution owner exists; the read-only alpha cannot generate own actions.
@@ -44,8 +36,8 @@ governed execution owner exists; the read-only alpha cannot generate own actions
 ## 0.3 — governed action pilot
 
 Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
-Alpha.16 packages the workbench, UI fixes and zone guide and is installed.
-User UI review of alpha.16 guide/workbench is confirmed. Temporal review remains
+Alpha.16 has historical user acceptance of its guide/workbench. Alpha.23 is
+published; its installation/live UI acceptance is unverified. Temporal review remains
 a read-only preparation and never grants action permission.
 Real learning and second-zone acceptance remain prerequisites for actuation.
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.

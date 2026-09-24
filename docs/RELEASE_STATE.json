@@ -22,7 +22,9 @@
   },
   "store_refresh": {
     "tool": "ha_manage_app",
-    "arguments": {"action": "check_updates"},
+    "arguments": {
+      "action": "check_updates"
+    },
     "success": true,
     "offered_before": "0.1.0-alpha.21",
     "offered_after": "0.1.0-alpha.22",
@@ -48,7 +50,9 @@
       "service": "hassio.restore_partial",
       "data": {
         "slug": "33908293",
-        "apps": ["0d79c5e8_pilotsuite"],
+        "apps": [
+          "0d79c5e8_pilotsuite"
+        ],
         "homeassistant": false,
         "folders": []
       },
@@ -86,7 +90,7 @@
     "config_read_capability": "not_verified_on_live_addon_admin_required_no_escalation",
     "independent_live_migration_inspection": "not_performed"
   },
-  "next_task": "Do not repeat the completed Alpha.22 installation, backup, rebuild or restart. Keep authenticated live Alpha.22 UI, existing app config-read capability and independent migration/data-preservation acceptance separate and pending, without new consent or rights escalation. A future bounded derived review-requirements summary requires a separate development slice and never grants execution permission. Do not automatically resume a paused recurring task.",
+  "next_task": "Resume the already-published Alpha.23 delivery from pending_release, starting with a fresh HA-MCP app read. Do not recreate PR #52, republish/version the app or repeat completed preparation blindly. Preserve the last completed Alpha.22 receipt until actual target installation is verified. Autonomous development mandate remains as explicitly resumed; this handoff makes no scheduler change.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
@@ -94,8 +98,85 @@
       "version": "0.1.0-alpha.16",
       "status": "user_reported_pass",
       "date": "2026-09-23",
-      "scope": ["zone_guide", "zone_navigation", "pattern_workbench"],
+      "scope": [
+        "zone_guide",
+        "zone_navigation",
+        "pattern_workbench"
+      ],
       "independent_network_capture": false
     }
+  },
+  "receipt_scope": "Top-level release/backup/installation retain the last verified completed Alpha.22 deployment. pending_release records the actual Alpha.23 publication and prior native preparation, NOT an Alpha.23 installation or fresh live check.",
+  "pending_release": {
+    "version": "0.1.0-alpha.23",
+    "status": "published_installation_unverified",
+    "commit": "dfecb464f9f67eb1dd3e393b8ecc99e9ca208814",
+    "tree": "3b3125e3643e3fda6a851a2bdc2851693a4dfc0e",
+    "app_tree": "38ef81068ff75f135bce6734a43e2caca3c09b8c",
+    "pull_request": 52,
+    "candidate_commit": "cf445355868cbe1448f402be19207f66beae5898",
+    "candidate_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35990039222",
+    "candidate_ci_conclusion": "success",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35991187908",
+    "ci_conclusion": "success",
+    "merged_at": "2026-09-24T11:07:25Z",
+    "source_verification": {
+      "method": "GitHub git tree plus SHA256-verified source-only CI bundle",
+      "workflow_run": 35991187908,
+      "artifact_id": 10804665498,
+      "artifact_sha256": "5b30aaa45a620a04e5b80f66a14bde742dc2970033b9975299d86155b8d117ff",
+      "candidate_and_release_tree_equal": true,
+      "independent_installed_image_verified": false,
+      "supersedes_incorrect_merge_message_app_tree": true
+    },
+    "tests": {
+      "python_passed": 247,
+      "javascript_passed": 48,
+      "synthetic_browser_flows_passed": 3,
+      "amd64_build": "success",
+      "authenticated_live_ui": "pending"
+    },
+    "prepublication_backup": {
+      "id": "5c40193c",
+      "previous_version": "0.1.0-alpha.22",
+      "date": "2026-09-24T11:02:07.031215+00:00",
+      "size_bytes": 54118400,
+      "completed_before_publication": true,
+      "native_details_verified_in_preceding_run": true,
+      "evidence_origin": "Native backup/details and snapshot/list responses in the preceding conversation; not a new live read in this handoff.",
+      "only_pilotsuite": true,
+      "homeassistant_included": false,
+      "database_included": false,
+      "folders": [],
+      "protected": false,
+      "failed_components": [],
+      "archive_downloaded": false,
+      "restore_drill_performed": false,
+      "current_existence_and_freshness_reverified": false
+    },
+    "store_offer_history": {
+      "native_refresh_succeeded_in_preceding_run": true,
+      "target_offered_and_read_back_in_preceding_run": true,
+      "later_prior_metadata_reported_alpha22_offer": true,
+      "current_offered_version_verified": false,
+      "note": "Prior offer responses are inconsistent. Refresh also changed unrelated catalog metadata, not installed apps. Read current installed/offered metadata before any update; do not treat earlier Store output as current."
+    },
+    "installation": {
+      "last_observed_installed": "0.1.0-alpha.22",
+      "last_observed_state": "started",
+      "live_checked_in_this_handoff": false,
+      "target_installation_verified": false,
+      "assistant_alpha23_update_calls": 0,
+      "auto_update_last_observed": true,
+      "automatic_installation_since_last_read": "unknown",
+      "options_changed_by_this_handoff": false
+    },
+    "continuation_access": {
+      "github_read": "available",
+      "ha_mcp_tools": "not_exposed_in_this_invocation",
+      "ha_permission_denial_observed": false,
+      "scope_or_credentials_changed": false
+    },
+    "next_step": "Read current PilotSuite installed/offered metadata through HA-MCP. If Alpha.23 is installed, skip backup/update/rebuild/restart and verify runtime. Otherwise reverify the matching scoped recovery point, exact source/CI and offer under RELEASE_RUNBOOK.md; perform at most one matching native update, then record runtime separately from UI acceptance."
   }
 }

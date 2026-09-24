@@ -1,8 +1,9 @@
 # Prüfkompass – vorhandene Routinen verständlich weiterprüfen
 
-Alpha.23 candidate in PR #52. Implementation is distinct from publication,
-installation and authenticated household acceptance. See CURRENT_STATE.md and
-RELEASE_STATE.json for those independently evidenced states.
+Alpha.23 was published through merged PR #52; exact candidate and release-main CI
+passed. Installation is unverified. See CURRENT_STATE.md and
+RELEASE_STATE.json.pending_release for the independent publication/preparation
+receipt. No duplicate implementation or new version is needed to finish delivery.
 
 ## Product and ownership
 
