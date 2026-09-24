@@ -530,9 +530,39 @@ function renderZoneGuide() {
     root.append(li);
   }
 }
+function renderDailyBrief() {
+  const root = byId('daily-brief');
+  if (!root) return;
+  root.replaceChildren();
+  const brief = contextData?.daily_brief;
+  if (!brief) { root.textContent = 'Alltagsbrief derzeit nicht verfügbar.'; return; }
+  const obs = document.createElement('p');
+  obs.textContent = (brief.observations || []).map(item => item.summary).join(' · ') || 'Noch keine belastbare Beobachtung.';
+  root.append(obs);
+  if (brief.candidate) {
+    const p=document.createElement('p');
+    const strong=document.createElement('strong'); strong.textContent='Prüfenswert: ';
+    const a=document.createElement('a'); a.href='#pattern-workbench'; a.textContent=brief.candidate.title;
+    p.append(strong,a,document.createTextNode(' — nur zur Prüfung, keine Ausführung.'));
+    root.append(p);
+  } else {
+    const p=document.createElement('p'); p.textContent='Heute kein belastbarer Vorschlag.';
+    root.append(p);
+  }
+  for (const reason of brief.withheld_reasons || []) {
+    const p=document.createElement('p'); p.className='muted'; p.textContent='• '+reason; root.append(p);
+  }
+  const excluded=brief.excluded || {};
+  if ((excluded.dismissed || 0) + (excluded.deferred || 0)) {
+    const p=document.createElement('p'); p.className='muted';
+    p.textContent=`Nicht erneut vorgeschlagen: ${excluded.dismissed || 0} abgelehnt, ${excluded.deferred || 0} vertagt.`;
+    root.append(p);
+  }
+}
 function renderLearning() {
   renderRoutineDrafts();
   renderZoneGuide();
+  renderDailyBrief();
   if (!contextData?.config) return;
   const cfg = contextData.config;
   const moduleRoot = byId('module-overview'); moduleRoot.replaceChildren();
