@@ -1,37 +1,40 @@
 # PilotSuite AI Context
 
-## Active development — 2026-09-24
+Canonical long-term context for humans and AI contributors. Current repository
+receipts plus newer explicit user decisions take precedence over older chat/status
+prose. Read CURRENT_STATE.md and docs/RELEASE_STATE.json before acting.
 
-The user explicitly resumed the hourly autonomous development mandate; see
-[DEVELOPMENT_MANDATE.md](docs/DEVELOPMENT_MANDATE.md). PR #52 on
-`feat/review-compass-workspace` implements the next bounded package, **Alpha.23
-Prüfkompass**, in the existing PlanStore and routine workbench. This replaces the
-historical paused-task/next-slice instruction, not any household permission.
+## Resume point — 2026-09-24
 
-Five server-derived sections, one revalidated next step, transient zone filters,
-accessible explanations and same-basis automation/note enrichment are integrated.
-No new store, schema, learner or execution gate. The existing draft HEAD handler
-is corrected to use the read-only path. Contract: docs/REVIEW_COMPASS.md.
-Local canonical-code tests: **247 Python and 48 JavaScript passed**. Local browser
-navigation is administratively blocked; no bypass attempted and no local browser
-pass claimed. Exact candidate CI including the new full-app synthetic browser test
-must be recorded in PR #52 before release. Local Python is 3.13; CI uses 3.14.
+**Alpha.23 Prüfkompass is implemented, merged through PR #52 and published.**
+Release `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814` passed exact main CI 35991187908;
+candidate `cf445355868cbe1448f402be19207f66beae5898` passed CI 35990039222.
+247 Python tests, 48 JavaScript tests, three synthetic browser flows and amd64 build
+passed. Actual app tree: `38ef81068ff75f135bce6734a43e2caca3c09b8c`. The tree was checked
+against Git and the source-only CI bundle; the different hash in the merge message
+is a transcription error, not a second release. No image attestation is implied.
 
-**Production remains Alpha.22, started, with no offered update at the entry read.**
-No new backup, publication, installation, restart, HA configuration, automation,
-actor, learning consent, permission or other-app change has occurred in this slice.
-RELEASE_STATE.json remains the actual Alpha.22 receipt below, not a candidate claim.
-Before a future merge: exact CI plus a fresh completed PilotSuite-only backup of
-the then-installed version; follow RELEASE_RUNBOOK.md with auto_update unchanged.
+**Installation is unverified.** This continuation exposes GitHub but no HA-MCP.
+No live HA check or update occurred here. Prior reads observed Alpha.22/started;
+auto_update was true, so do not assume it is still Alpha.22. Prior Store readings
+were inconsistent after a successful Alpha.23 offer. Native backup 5c40193c covered
+Alpha.22 before publication: 54,118,400 bytes, 2026-09-24T11:02:07.031215+00:00,
+PilotSuite only, no HA/database/folders/errors/key requirement. Recheck availability
+and freshness; do not silently reuse an older Alpha.21 recovery point.
 
-Next: finish the exact PR #52 browser/CI and source review, then the existing scoped
-backup and native Store release gates. Real authenticated UI, app configuration
-read capability, independent data-preservation and useful real evidence remain
-separate acceptance items. Do not repeat Alpha.22 installation.
+One next task: resume the existing native release routine with a fresh app read.
+Installed Alpha.23 means skip backup/update/rebuild/restart; otherwise follow exact
+source/CI/backup/offer gates for one matching update, then runtime verification.
+Do not recreate the feature or release it under another version to finish delivery.
+`docs/RELEASE_STATE.json` retains the completed Alpha.22 receipt; `pending_release`
+records Alpha.23 publication/preparation only, not installation. No permission
+weakening, new tokens, alternate bridge or unconsented household scan.
 
-
-Canonical long-term context for humans and AI contributors. The repository is
-authoritative over chat history until an explicit architecture decision changes it.
+The user resumed hourly package development on 2026-09-24; see
+[DEVELOPMENT_MANDATE.md](docs/DEVELOPMENT_MANDATE.md). This supersedes old paused-task
+instructions, not household consent boundaries. No scheduler change was made in
+this handoff. First finish delivery; then demonstrate real usefulness in the
+already consented Golden Zone. No additional review administration for its own sake.
 
 ## Identity and invariants
 
@@ -48,72 +51,21 @@ authoritative over chat history until an explicit architecture decision changes 
 - Record material decisions in DECISIONS.md and implementation in CURRENT_STATE.md.
 - Erdkeller is the first Golden Zone; validate a second unlike read-only zone before 1.0.
 
-## Current verified delivery — 2026-09-24
+## Published review workflow and independent acceptance
 
-**0.1.0-alpha.22 is published, offered by the normal Home Assistant Store,
-installed and started. Runtime acceptance passed; authenticated live UI acceptance
-remains pending. Do not implement, version or install this package again.**
+ADR-027–031 and docs/ROUTINE_DRAFTS.md, REVIEW_NOTES.md,
+REVIEW_NOTES_USABILITY.md and REVIEW_COMPASS.md describe the shared PlanStore path.
+Five derived compass sections do not create another evidence owner or permission
+gate. Note save reinspects and checks revisions/age atomically; GET cannot certify
+current HA configuration. Authored text, preference, evidence, confidence, risk and
+execution permission remain independent. No new schema in Alpha.23; Apply denied.
 
-PR #50 was merged without force at `7990f5a3225aec53548dd8cb5bc79e74707b9fd9`.
-Its exact candidate was `ca6ba76f90c706cd3f7158aa07eec1605c81089a`.
-The candidate, tested PR merge and published release have the same repository tree
-`a73c3ada0695becd5823d1e0c386a06151cd5279` and application tree
-`0d427053cdf246e63e044a11c15494f18dbeab08`.
-Candidate CI `35928225010` and exact main CI `35929637405` passed all three jobs:
-Python/JavaScript and repository/source contracts, both browser flows, amd64 build.
-The candidate test log confirms 215 Python and 28 JavaScript tests. These browser
-fixtures are synthetic, not a household UI acceptance receipt.
-
-The first live call read the installed alpha.21 app. Before publication, fresh
-PilotSuite-only backup `33908293` completed and native `backup/details` verified
-alpha.21, 54005760 bytes, no HA configuration/database/folders, no failed components
-and no encryption-key requirement. Health was verified after the backup.
-After exact main CI, the native `ha_manage_app(action="check_updates")` without
-slug/repository offered alpha.22. Metadata was reread, then exactly one matching
-PilotSuite update completed. Installed/offered alpha.22, started, no update pending,
-startup version, hard_read_only, readiness, connected stream, fresh snapshot and
-resolved zone were verified. Options and auto_update=true remained unchanged.
-No other app, HA configuration, actor, learning consent or permission was changed.
-No separate restart, rebuild, custom bridge or restore drill was performed.
-
-RELEASE_STATE.json is the actual deployment receipt. Source association is the
-canonical repository, offered version and unchanged tested application tree; it is
-not an independent installed-image or Supervisor-checkout attestation.
-The older `ae7a3fba` backup contains alpha.18; `33908293` is the verified pre-alpha.22
-alpha.21 recovery point. Older access blockers are historical, not current failures.
-
-## Delivered review-note package
-
-ADR-030 / docs/REVIEW_NOTES.md define the implemented PlanStore notes, schema 8,
-revision/reference/config-fingerprint binding and conservative stale views.
-Explicit save reinspects the selected automation, then atomically checks revisions
-and bounded age. GET/restart never certifies current HA config. The editor preserves
-text on conflicts, resets selection after a changed inspection basis and displays
-saved text for comparison. Overview counts separate assessment from freshness;
-selected recheck is explicit. See docs/REVIEW_NOTES_USABILITY.md.
-Shared workspace notes are not verified individual identities. Notes, evidence,
-preference, risk and execution authorization remain separate. Apply stays denied.
-No implementation or release-number change was made during this delivery.
-
-## Resume workflow and remaining acceptance
-
-Read CURRENT_STATE.md, docs/IMPLEMENTATION_STATUS.md, DECISIONS.md and docs/VISION.md.
-For delivery also read docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md (ADR-026).
-First read current app metadata, main/open work and exact CI. If alpha.22 is still
-installed, do not update, rebuild, restart or create another pre-update backup.
-Proceed only with an explicitly authorized next slice or pending acceptance.
-For a future release, retain the same backup-before-publication and native Store
-routine; existing backup/update authorization need not be asked again.
-Do not automatically re-enable a paused recurring development task.
-
-Actual authenticated assets/API/temporal/draft/inspection/note UI, the app's existing
-automation/config-read capability, independent live migration/data-preservation
-inspection, Recorder coverage, reconnect soak, real multi-day habit evidence and a
-second unlike read-only zone remain separate tasks. No rights escalation, additional
-consent or household scan is implied by deployment. Historical alpha.16 user UI
-acceptance does not certify alpha.22. After note acceptance, a compact derived
-review-requirements summary may be a next development slice, never action permission;
-it was not implemented in this delivery.
+Read DECISIONS.md, docs/VISION.md, docs/ROADMAP.md and
+ docs/IMPLEMENTATION_STATUS.md before the next code change. For deployment follow
+ docs/RELEASE_RUNBOOK.md; never repeatedly ask for the already granted app-only scope.
+Source CI, native installation/runtime, authenticated Ingress acceptance, app's
+config-read capability, independent data preservation and installed-image checks
+are separate. Missing tool access is not missing user authorization.
 
 ## Conceptual chain and retained boundaries
 
@@ -131,6 +83,5 @@ not absent behavior. Read-only PilotSuite emits no own-action evidence.
 No unrestricted services, direct HA .storage edits, automatic automation creation,
 full Recorder mirror, mandatory LLM stack or broad unconsented learning.
 
-Prior candidate handoff is preserved at `ca6ba76`; older full ledgers remain in
-CURRENT_STATE_HISTORY_2026-09-23.md and docs/IMPLEMENTATION_HISTORY_2026-09-23.md.
-This documentation-only handoff does not change the deployed application tree.
+Earlier handoffs and their measurements remain in Git at `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814`
+and older commits. This handoff changes documentation only; no app or version change.

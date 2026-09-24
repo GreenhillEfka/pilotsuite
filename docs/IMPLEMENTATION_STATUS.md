@@ -1,44 +1,33 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.23 candidate — PR #52, not deployed
+## Alpha.23 — published, installation unverified
 
-Prüfkompass is integrated with the existing PlanStore, canonical current report,
-explicit comparison/inspection routes, note-save response and routine workbench.
-Five independently explained sections, one basis-checked next action, transient
-zone filter/sort, explicit export, responsive panels and preserved input/focus.
-No new SQLite schema, data owner, background HA scan, learning or Apply permission.
-The routine-drafts HEAD request now follows its GET path (regression covered).
+PR #52 merged at `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814`. Exact candidate CI
+35990039222 and release-main CI 35991187908 passed: 247 Python and 48 JavaScript
+tests, all three synthetic browser flows, source contracts and amd64 build.
+The actual app tree is `38ef81068ff75f135bce6734a43e2caca3c09b8c`; confirmed from Git and
+the SHA256-verified release source bundle. No independent installed-image proof.
 
-247 Python and 48 JavaScript tests passed locally against the real repository.
-New full-app synthetic browser test is wired into CI alongside both existing
-browser flows; local navigation is blocked by administrative policy, not bypassed.
-Exact candidate CI and release status belong in PR #52. No new live acceptance,
-backup, deployment or version switch occurred yet. Production is the Alpha.22
-receipt below. See REVIEW_COMPASS.md and DEVELOPMENT_MANDATE.md.
+| Capability | Published implementation | Separate limitation |
+|---|---|---|
+| Derived compass | Existing PlanStore supplies five independent source/evidence/intent/automation/note sections | No extra owner, learner, schema or global safety verdict |
+| Workbench navigation | One basis-checked next step, zone filters/sorting, explicit existing functions | Viewing/filtering never starts HA comparison or autosave |
+| Transient comparison | Same-basis, five-minute navigation shelf-life; latest GET source/evidence sections | Last read is not continuous HA configuration validation |
+| Interaction | Responsive explanations, safe text, preserved edits/focus; HEAD draft route corrected | Synthetic tests are not authenticated live household acceptance |
+| Execution | hard_read_only and Apply denial unchanged | No actuation permission from notes, evidence or compass |
 
+Prior native preparation: backup 5c40193c, Alpha.22 only, 54,118,400 bytes,
+2026-09-24T11:02:07.031215+00:00, completed before publication, no HA/DB/folders,
+failed components or key requirement. These are corrected values from the preceding
+native response, not a new backup or fresh verification in this handoff.
+Prior refresh and one read confirmed an Alpha.23 offer; later prior metadata
+reported Alpha.22 offered again. Current Store/installed state is unverified.
+No assistant Alpha.23 update call has occurred; automatic installation is unknown.
 
-## Current delivery — 2026-09-24
-
-**Alpha.22 is published, offered by the normal Store, installed and started.**
-PR #50 candidate `ca6ba76f90c706cd3f7158aa07eec1605c81089a` was merged without force
-at `7990f5a3225aec53548dd8cb5bc79e74707b9fd9`. Candidate CI `35928225010` and exact
-release main CI `35929637405` completed successfully, including tests, both browser
-flows and amd64 build. Candidate logs confirm 215 Python and 28 JavaScript tests.
-Release/source contracts passed; the application tree is
-`0d427053cdf246e63e044a11c15494f18dbeab08`. No code or version change in this delivery.
-
-Fresh PilotSuite-only backup `33908293` completed before publication; native details
-verified alpha.21, 54005760 bytes, no HA configuration/database/folders, no failed
-components and no key requirement. One native Store refresh offered alpha.22; one
-matching app update completed. Metadata and logs verified version/start,
-hard_read_only, readiness, stream, fresh snapshot and resolved zone. Options and
-auto_update=true remained unchanged. No other app, HA configuration, consent,
-permission or actor was changed. No additional restart, rebuild or restore drill.
-
-RELEASE_STATE.json is the actual deployment receipt. Authenticated live browser
-acceptance, independent installed-image/checkout attestation and independent live
-migration/data-preservation inspection are not implied by these runtime checks.
-The handoff changes documentation only; it does not replace the deployed app tree.
+This continuation exposes GitHub, not HA-MCP. No HA writes or new live acceptance.
+RELEASE_STATE.json preserves the last completed Alpha.22 deployment and records
+the actual Alpha.23 publication separately in pending_release. Fresh live app read
+is the single next step; use RELEASE_RUNBOOK.md rather than rebuilding this package.
 
 ## Implemented review-note package
 
@@ -56,8 +45,8 @@ The handoff changes documentation only; it does not replace the deployed app tre
 ADR-030 and REVIEW_NOTES_USABILITY.md define the delivered package and editor
 refinement. Exact candidate and release-main CI are recorded above, not replaced by
 earlier feature runs. Tests and screenshots are synthetic, not actual household UI
-acceptance. The delivery used authorized GitHub/HA tools; no local full-suite or
-browser run is claimed. Historical focused-test evidence remains in Git/PR history.
+acceptance. Those historical delivery checks used authorized GitHub/HA tools; no local
+full-suite or browser run was claimed for the Alpha.22 delivery. Historical focused-test evidence remains in Git/PR history.
 
 ## Baseline capabilities
 
@@ -78,26 +67,19 @@ browser run is claimed. Historical focused-test evidence remains in Git/PR histo
 | HomeKit / broad Dev-Wiki UI / presets | Deferred | Inventory and actual capability first |
 | Action catalog / execution / runtime recovery | Future work; apply denied | Operational app backup is not a runtime transaction engine |
 
-## Remaining acceptance and next step
+## Remaining acceptance
 
-The Alpha.22 publication, Store offering, installation and runtime gates are complete.
-If the installed version still matches alpha.22, do not repeat backup/update/rebuild/
-restart. Follow RELEASE_RUNBOOK.md for future releases, with a fresh scoped backup
-before publication while auto_update is enabled. `33908293` is this delivery's
-alpha.21 recovery point; the historical `ae7a3fba` contains alpha.18. No recovery ran.
+Resume actual Alpha.23 installation/runtime verification first, skipping any
+already completed installation. Verify current scoped recovery/offer conditions
+rather than replaying backup or Store calls blindly. No speculative restart/rebuild.
+Then authenticate the real UI and verify existing app configuration-read capability
+and data preservation separately, without changing permissions or learning consent.
+Golden Zone/Recorder coverage, reconnect soak, traceable real habits and a second
+unlike consented zone remain independent product gates. Relative humidity alone
+never authorizes ventilation. The resumed development mandate remains unchanged.
 
-Actual authenticated assets/API/temporal/draft/inspection/note UI, existing app
-read rights, Golden Zone/Recorder coverage, reconnect soak, traceable real habits
-and a second unlike zone remain separately pending. No extra consent or household
-scan in tests; no permission weakening to obtain acceptance. Relative humidity
-alone never authorizes ventilation. A future derived review-requirements summary
-is distinct from presentation-only note counters and would not authorize execution.
-No such feature was implemented as part of delivery. A paused recurring task stays
-paused unless explicitly resumed.
-
-Contracts: REVIEW_NOTES.md, REVIEW_NOTES_USABILITY.md, ROUTINE_DRAFTS.md,
-AUTOMATION_INSPECTION.md, AUTOMATION_REVIEW.md, PATTERN_WORKBENCH.md,
-HISTORY_AND_TRENDS.md, OBSERVATION_LEARNING.md, SENSOR_REFERENCES.md and HABITUS_ZONES.md.
-The prior candidate ledger is preserved at `ca6ba76`; the old full ledger remains
-in IMPLEMENTATION_HISTORY_2026-09-23.md. Earlier access blockers and unpublished
-candidate statements are historical, not current measurements.
+Contracts: REVIEW_COMPASS.md, REVIEW_NOTES.md, REVIEW_NOTES_USABILITY.md,
+ROUTINE_DRAFTS.md, AUTOMATION_INSPECTION.md, AUTOMATION_REVIEW.md,
+PATTERN_WORKBENCH.md, HISTORY_AND_TRENDS.md, OBSERVATION_LEARNING.md,
+SENSOR_REFERENCES.md and HABITUS_ZONES.md. Historical full ledgers remain in Git and
+IMPLEMENTATION_HISTORY_2026-09-23.md; older pending/paused prose is not current state.
