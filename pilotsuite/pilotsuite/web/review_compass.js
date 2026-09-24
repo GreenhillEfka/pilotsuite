@@ -175,7 +175,6 @@
       }
       const count=document.createElement('p');count.id='review-compass-count';count.setAttribute('role','status');count.setAttribute('aria-live','polite');toolbar.append(count);
       root.before(toolbar);
-      root.addEventListener('focusout',()=>queueMicrotask(()=>{if(!document.activeElement?.closest('#routine-list'))renderRoutineDrafts();}));
     }
     toolbar.hidden=!drafts.length;
     byId('review-compass-filter').value=view.filter;byId('review-compass-sort').value=view.sort;

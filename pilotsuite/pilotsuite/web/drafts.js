@@ -97,9 +97,13 @@ function routineStatus(draft) {
 
 function renderRoutineDrafts() {
   const root = byId('routine-list');
-  // Keep keyboard focus while read-only background projections arrive. Actions
-  // revalidate their basis; focus leaving the list renders the latest projection.
-  if (!selectionBusy && !contextEditing && document.activeElement?.closest('#routine-list')) return;
+  // Rebuild current information and restore keyboard focus by stable draft/control
+  // identity. Never rerender from focusout: that can remove a pointer's target
+  // between mousedown and click. Editors live outside the list and stay untouched.
+  const active = document.activeElement;
+  const activeCard = active?.closest('#routine-list > article');
+  const focus = activeCard && ['BUTTON','SUMMARY'].includes(active.tagName)
+    ? {id:activeCard.dataset.draftId,tag:active.tagName.toLowerCase(),label:active.textContent} : null;
   root.replaceChildren();
   const allDrafts = contextData?.drafts || [];
   const drafts = globalThis.PilotSuiteReviewCompass?.workspace(root, allDrafts) || allDrafts;
@@ -120,6 +124,12 @@ function renderRoutineDrafts() {
     appendComparison(card, draft);
     if (typeof appendReviewNotes === 'function') appendReviewNotes(card, draft);
     root.append(card);
+  }
+  if (focus) {
+    const card = [...root.children].find(item => item.dataset.draftId === focus.id);
+    const control = card && [...card.querySelectorAll(focus.tag)].find(item => item.textContent === focus.label && !item.disabled);
+    if (control) control.focus({preventScroll:true});
+    else if (card) { card.tabIndex = -1; card.focus({preventScroll:true}); }
   }
 }
 
