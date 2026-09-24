@@ -367,6 +367,8 @@ async def _context_payload(service, zone_id, export=False):
     from pilotsuite.core.guide import zone_guide
     zone_result = next((z for z in service._zone_results if z['zone_id'] == zone_id), {})
     report['guide'] = zone_guide(inventory, report, await service.status(), zone_result.get('summary', {}))
+    from pilotsuite.core.daily_brief import build_daily_brief
+    report['daily_brief'] = build_daily_brief(inventory, report)
     report['modules'] = [
         {'id': 'references-v1', 'name': 'Zonenreferenzen', 'kind': 'deterministic',
          'state': 'active' if report['enabled'] else 'paused', 'configurable': 'Sensorrollen'},
