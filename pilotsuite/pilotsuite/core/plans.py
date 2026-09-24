@@ -19,6 +19,7 @@ from pilotsuite.domain.policies import evaluate_plan
 from .audit import AuditLog, redact
 from .selections import InvalidSelection, SelectionConflict
 from .review_notes import ReviewNotesMixin, notes_view
+from .review_compass import build_review_compass
 
 DRAFT_TEXT_FIELDS = ('title', 'goal', 'trigger', 'conditions', 'exceptions', 'manual_override')
 TARGET_DOMAINS = {'light', 'switch', 'fan', 'climate', 'cover', 'media_player'}
@@ -54,11 +55,11 @@ class PlanStore(ReviewNotesMixin):
         targets = {i['entity_id'] for i in inventory['items']
                    if selected['decisions'].get(i['entity_id']) == 'relevant'
                    and i['entity_id'].split('.')[0] in TARGET_DOMAINS}
-        return selected['revision'], {p['id']: p for p in report['patterns']}, targets
+        return selected['revision'], {p['id']: p for p in report['patterns']}, targets, report
 
     @staticmethod
     def _draft_view(row, basis):
-        revision, patterns, targets = basis
+        revision, patterns, targets = basis[:3]
         pattern = patterns.get(row[2])
         fields = json.loads(row[7])
         source_status = ('pattern_missing' if pattern is None else
@@ -77,9 +78,10 @@ class PlanStore(ReviewNotesMixin):
                 'automation_check': 'not_checked', 'risk': 'not_assessed',
                 'execution': {'allowed': False, 'reason': 'draft_only', 'actions': []}}
 
-    def _draft_with_notes(self, db, row, basis):
+    def _draft_with_notes(self, db, row, basis, inventory):
         draft = self._draft_view(row, basis)
         draft['review_notes'] = notes_view(db, draft, basis[0])
+        draft['review_compass'] = build_review_compass(draft, inventory, basis[3])
         return draft
 
     def _drafts(self, zone_id, inventory):
@@ -87,7 +89,7 @@ class PlanStore(ReviewNotesMixin):
             db.execute('BEGIN IMMEDIATE')
             basis = self._draft_basis(db, zone_id, inventory)
             rows = db.execute('SELECT * FROM routine_drafts WHERE zone_id=? ORDER BY updated DESC, id', (zone_id,)).fetchall()
-            return [self._draft_with_notes(db, row, basis) for row in rows]
+            return [self._draft_with_notes(db, row, basis, inventory) for row in rows]
 
     async def create_draft(self, zone_id, pattern_id, zone_revision, inventory):
         if not isinstance(pattern_id, str) or not pattern_id or len(pattern_id) > 128:
@@ -103,7 +105,7 @@ class PlanStore(ReviewNotesMixin):
             if pattern_id not in basis[1]:
                 raise InvalidSelection('Pattern expired or unknown; reload')
             existing = db.execute('SELECT * FROM routine_drafts WHERE zone_id=? AND pattern_id=?', (zone_id, pattern_id)).fetchone()
-            if existing: return self._draft_with_notes(db, existing, basis)
+            if existing: return self._draft_with_notes(db, existing, basis, inventory)
             if db.execute('SELECT COUNT(*) FROM routine_drafts').fetchone()[0] >= MAX_DRAFTS:
                 raise InvalidSelection('Draft limit reached; remove an unneeded draft first')
             fields = {key: '' for key in DRAFT_TEXT_FIELDS}
@@ -111,7 +113,7 @@ class PlanStore(ReviewNotesMixin):
             stamp = datetime.now(UTC).isoformat()
             row = (str(uuid.uuid4()), zone_id, pattern_id, basis[0], 1, stamp, stamp, json.dumps(fields))
             db.execute('INSERT INTO routine_drafts VALUES (?,?,?,?,?,?,?,?)', row)
-            return self._draft_with_notes(db, row, basis)
+            return self._draft_with_notes(db, row, basis, inventory)
 
     async def save_draft(self, zone_id, draft_id, payload, inventory):
         if (not isinstance(payload, dict) or set(payload) != {'revision', 'zone_revision', 'fields', 'refresh_source'}
@@ -150,7 +152,7 @@ class PlanStore(ReviewNotesMixin):
             source_revision = basis[0] if refresh_source else row[3]
             db.execute('UPDATE routine_drafts SET revision=?, source_revision=?, updated=?, fields=? WHERE id=?',
                        (revision+1, source_revision, datetime.now(UTC).isoformat(), json.dumps(fields), draft_id))
-            return self._draft_with_notes(db, db.execute('SELECT * FROM routine_drafts WHERE id=?', (draft_id,)).fetchone(), basis)
+            return self._draft_with_notes(db, db.execute('SELECT * FROM routine_drafts WHERE id=?', (draft_id,)).fetchone(), basis, inventory)
 
     async def delete_draft(self, zone_id, draft_id, revision, review_revision=None):
         if type(revision) is not int or revision < 1: raise InvalidSelection('Invalid draft revision')

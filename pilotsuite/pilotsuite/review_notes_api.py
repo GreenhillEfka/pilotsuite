@@ -5,6 +5,7 @@ from pathlib import Path
 from aiohttp import web
 
 from pilotsuite.core.review_notes import validate_note_request
+from pilotsuite.core.review_compass import with_saved_notes
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.ha.client import HomeAssistantError
 
@@ -46,6 +47,7 @@ def register_review_notes(app, service_key):
         async with service._projection_lock:
             inventory = await service.selection_inventory(zone)
             result = await service.plans.save_review_note(zone, draft, payload, inventory, report, inspected_at)
+        report['review_compass'] = with_saved_notes(report.get('review_compass'), result, report)
         return web.json_response({'review_notes': result, 'automation_review': report},
                                  headers={'Cache-Control': 'no-store'})
 
@@ -57,6 +59,16 @@ def register_review_notes(app, service_key):
         return web.FileResponse(Path(__file__).with_name('web') / 'review_notes.css',
                                 headers={'Content-Type': 'text/css', 'Cache-Control': 'no-cache'})
 
+    async def compass_javascript(_):
+        return web.FileResponse(Path(__file__).with_name('web') / 'review_compass.js',
+                                headers={'Content-Type': 'text/javascript', 'Cache-Control': 'no-cache'})
+
+    async def compass_stylesheet(_):
+        return web.FileResponse(Path(__file__).with_name('web') / 'review_compass.css',
+                                headers={'Content-Type': 'text/css', 'Cache-Control': 'no-cache'})
+
+    app.router.add_get('/assets/review_compass.js', compass_javascript)
+    app.router.add_get('/assets/review_compass.css', compass_stylesheet)
     route = '/api/v1/zones/{zone_id}/drafts/{draft_id}/review-notes'
     app.router.add_get(route, notes)
     app.router.add_put(route, notes)

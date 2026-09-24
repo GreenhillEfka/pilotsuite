@@ -1,0 +1,15 @@
+.review-compass {border:1px solid var(--line,#435260);border-radius:.65rem;padding:1rem;margin:1rem 0;overflow-wrap:anywhere}
+.review-compass h5 {font-size:1.05rem;margin:.15rem 0 .6rem}
+.review-compass-next {font-weight:600}
+.review-compass-basis,.review-compass-fact {font-size:.875rem}
+.review-compass-action {margin:.35rem 0 1rem;max-width:100%;white-space:normal;text-align:left}
+.review-compass-details summary {cursor:pointer;padding:.5rem 0}
+.review-compass-checks {padding-left:1.35rem}
+.review-compass-checks li {margin:.9rem 0;padding-left:.2rem}
+.review-compass-checks p {margin:.4rem 0}
+.review-compass-limits {border-top:1px solid var(--line,#435260);padding-top:.8rem}
+.review-compass-workspace {display:grid;grid-template-columns:auto minmax(12rem,1fr);gap:.6rem 1rem;align-items:center;margin:1rem 0}
+.review-compass-workspace select {width:100%;max-width:100%;min-width:0}
+#review-compass-count {grid-column:1/-1;font-size:.875rem;margin:0}
+.review-compass :focus-visible,.review-compass-workspace :focus-visible {outline:3px solid currentColor;outline-offset:3px}
+@media(max-width:600px) {.review-compass-workspace {grid-template-columns:1fr}.review-compass {padding:.8rem}.review-compass-workspace label {margin-top:.3rem}}

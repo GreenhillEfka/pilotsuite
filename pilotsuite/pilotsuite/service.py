@@ -104,6 +104,8 @@ class PilotSuiteService:
                     raise SelectionConflict('Pattern sources changed during comparison; retry')
                 report = reference_review(current, payload['zone_revision'], relations)
                 if inspection: report['inspection'] = detail
+                from pilotsuite.core.review_compass import with_automation_review
+                report['review_compass'] = with_automation_review(current['review_compass'], current, report)
                 return report
 
     async def start(self) -> None:

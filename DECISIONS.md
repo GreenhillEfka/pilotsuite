@@ -343,3 +343,25 @@ Contract: docs/REVIEW_NOTES.md. PR #50 remains off main until fresh live/source 
 scoped-backup gates, a new release number and exact CI satisfy ADR-026. Last-known
 alpha.21 deployment and its older alpha.18 recovery backup are not fresh evidence
 of the current live system. Resume the existing PR rather than recreating this slice.
+
+
+## ADR-031 — Derived review compass is navigation, not authorization
+
+Accepted continuation of ADR-025/027–030 and the explicit user mandate of
+2026-09-24. The canonical PlanStore projects five sections from existing draft,
+notes, inventory and retained evidence in its current transaction. No new state
+owner, migration, learner, global safety score or action gate. Existing explicit
+HA review routes enrich only automation/note sections after their current scope
+checks. GET never performs an HA configuration review or saves an assessment.
+Existing retention housekeeping remains unchanged.
+
+The frontend composes only same-basis server sections and their declared next
+steps; current sources/evidence/intent always come from the newest projection.
+Transient reads expire for navigation after five minutes and do not prove ongoing
+config validity. Filters, ordering and expansion are transient, zone-scoped view
+state. User text, note dispositions and execution permission remain independent.
+An allowed internal navigation ID is not an HA service or permission. Apply stays
+closed. Contract: docs/REVIEW_COMPASS.md. Live acceptance is separate from tests.
+
+The user's express resumed development mandate supersedes historical pause/next
+slice instructions, not the release runbook or household consent boundaries.

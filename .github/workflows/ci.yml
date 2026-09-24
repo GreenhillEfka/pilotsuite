@@ -45,6 +45,7 @@ jobs:
           node --check pilotsuite/pilotsuite/web/history.js
           node --check pilotsuite/pilotsuite/web/drafts.js
           node --check pilotsuite/pilotsuite/web/review_notes.js
+          node --check pilotsuite/pilotsuite/web/review_compass.js
           node --check pilotsuite/pilotsuite/web/selections.js
           node --test pilotsuite/tests/*.test.cjs
       - name: Install runtime dependencies
@@ -83,6 +84,12 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Set up Python for isolated full-app browser fixture
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Install existing runtime dependencies for synthetic fixture
+        run: python -m pip install --disable-pip-version-check --requirement pilotsuite/requirements.txt
       - name: Install pinned browser test dependency
         run: npm install --no-save --package-lock=false playwright@1.62.1
       - name: Install Chromium
@@ -95,9 +102,41 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_review_notes_browser.cjs
+      - name: Exercise review compass against the isolated actual application
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_review_compass_browser.cjs
       - name: Save synthetic UI review screenshots
         uses: actions/upload-artifact@v4
         with:
           name: usability-review
           path: ui-review/*.png
           retention-days: 7
+
+  source:
+    name: Reproducible source checkout
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact CI source without stored credentials
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Bundle tracked source history and identity
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir source-evidence
+          git bundle create source-evidence/pilotsuite-source.bundle HEAD
+          git bundle verify source-evidence/pilotsuite-source.bundle
+          printf 'checkout=%s\ntree=%s\ncandidate=%s\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" "$CANDIDATE_SHA" > source-evidence/IDENTITY.txt
+          (cd source-evidence && sha256sum pilotsuite-source.bundle > SHA256SUMS)
+      - name: Retain source-only evidence for offline reproduction
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-checkout
+          path: source-evidence/*
+          retention-days: 1
+          if-no-files-found: error

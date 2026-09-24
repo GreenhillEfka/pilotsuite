@@ -1,5 +1,22 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.23 candidate — PR #52, not deployed
+
+Prüfkompass is integrated with the existing PlanStore, canonical current report,
+explicit comparison/inspection routes, note-save response and routine workbench.
+Five independently explained sections, one basis-checked next action, transient
+zone filter/sort, explicit export, responsive panels and preserved input/focus.
+No new SQLite schema, data owner, background HA scan, learning or Apply permission.
+The routine-drafts HEAD request now follows its GET path (regression covered).
+
+247 Python and 48 JavaScript tests passed locally against the real repository.
+New full-app synthetic browser test is wired into CI alongside both existing
+browser flows; local navigation is blocked by administrative policy, not bypassed.
+Exact candidate CI and release status belong in PR #52. No new live acceptance,
+backup, deployment or version switch occurred yet. Production is the Alpha.22
+receipt below. See REVIEW_COMPASS.md and DEVELOPMENT_MANDATE.md.
+
+
 ## Current delivery — 2026-09-24
 
 **Alpha.22 is published, offered by the normal Store, installed and started.**

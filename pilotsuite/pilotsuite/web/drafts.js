@@ -96,14 +96,24 @@ function routineStatus(draft) {
 }
 
 function renderRoutineDrafts() {
-  const root = byId('routine-list'); root.replaceChildren();
-  const drafts = contextData?.drafts || [];
-  if (!drafts.length) { root.textContent = 'Noch keine gespeicherten Entwürfe in dieser Zone.'; return; }
+  const root = byId('routine-list');
+  // Rebuild current information and restore keyboard focus by stable draft/control
+  // identity. Never rerender from focusout: that can remove a pointer's target
+  // between mousedown and click. Editors live outside the list and stay untouched.
+  const active = document.activeElement;
+  const activeCard = active?.closest('#routine-list > article');
+  const focus = activeCard && ['BUTTON','SUMMARY'].includes(active.tagName)
+    ? {id:activeCard.dataset.draftId,tag:active.tagName.toLowerCase(),label:active.textContent} : null;
+  root.replaceChildren();
+  const allDrafts = contextData?.drafts || [];
+  const drafts = globalThis.PilotSuiteReviewCompass?.workspace(root, allDrafts) || allDrafts;
+  if (!drafts.length) { root.textContent = allDrafts.length ? 'Kein Entwurf passt zu diesem Filter.' : 'Noch keine gespeicherten Entwürfe in dieser Zone.'; return; }
   for (const draft of drafts) {
-    const card = document.createElement('article'); card.className = 'suggestion';
+    const card = document.createElement('article'); card.className = 'suggestion'; card.dataset.draftId = draft.id;
     const title = document.createElement('h4'); title.textContent = draft.fields.title;
     const detail = document.createElement('p'); detail.textContent = `${routineStatus(draft)} Revision ${draft.revision}.`;
     card.append(title, detail);
+    globalThis.PilotSuiteReviewCompass?.render(card, draft);
     for (const [label, handler] of [['Entwurf bearbeiten', () => openRoutineEditor(draft)],
       ['Entwurf exportieren', () => exportRoutine(draft)], ['Bestehende Automationen prüfen', () => compareRoutine(draft)], ['Entwurf löschen', () => deleteRoutine(draft)]]) {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
@@ -114,6 +124,12 @@ function renderRoutineDrafts() {
     appendComparison(card, draft);
     if (typeof appendReviewNotes === 'function') appendReviewNotes(card, draft);
     root.append(card);
+  }
+  if (focus) {
+    const card = [...root.children].find(item => item.dataset.draftId === focus.id);
+    const control = card && [...card.querySelectorAll(focus.tag)].find(item => item.textContent === focus.label && !item.disabled);
+    if (control) control.focus({preventScroll:true});
+    else if (card) { card.tabIndex = -1; card.focus({preventScroll:true}); }
   }
 }
 
@@ -213,6 +229,7 @@ async function deleteRoutine(draft) {
 function exportRoutine(draft) {
   const review = comparisonFor(draft);
   const url = URL.createObjectURL(new Blob([JSON.stringify({schema:'pilotsuite-routine-draft-v1', ...draft,
+    review_compass:globalThis.PilotSuiteReviewCompass?.forDraft(draft) || draft.review_compass,
     review_notes:typeof projectReviewNotes === 'function' ? projectReviewNotes(draft) : draft.review_notes,
     automation_check:review?.inspection ? 'structural_review' : review ? 'limited_reference_review' : 'not_checked', automation_review:review}, null, 2)], {type:'application/json'}));
   const link = document.createElement('a'); link.href = url; link.download = 'pilotsuite-routine-draft.json'; link.click();
@@ -224,3 +241,9 @@ const reviewNotesScript = document.createElement('script');
 reviewNotesScript.src = endpoint('assets/review_notes.js');
 reviewNotesScript.addEventListener('error', () => text('routine-message', 'Prüfnotizen konnten nicht geladen werden. Ansicht neu laden.'));
 document.head.append(reviewNotesScript);
+
+
+const reviewCompassScript = document.createElement('script');
+reviewCompassScript.src = endpoint('assets/review_compass.js');
+reviewCompassScript.addEventListener('error', () => text('routine-message', 'Prüfkompass konnte nicht geladen werden. Vorhandene Entwurfsfunktionen bleiben verfügbar.'));
+document.head.append(reviewCompassScript);

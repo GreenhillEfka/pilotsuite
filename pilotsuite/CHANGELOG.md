@@ -2,6 +2,29 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.23] - 2026-09-24
+
+### Added
+- Derived review compass in the existing routine workbench: five independent
+  source/evidence/intent/automation/note sections, provenance and one next step.
+- Zone-scoped transient filters and sorting, accessible explanation panels and
+  current-basis navigation without another store, learner or execution permission.
+- Same-basis, age-bounded presentation of explicit automation inspection and note
+  results; source and evidence sections always use the latest canonical projection.
+- Synthetic Python, JavaScript and full-application browser regression contracts;
+  source-only CI evidence for reproducible tests.
+
+### Fixed
+- HEAD requests for routine drafts follow the read-only GET path instead of being
+  parsed as mutation requests.
+- Review-note deletion refreshes the derived workbench basis without losing user
+  text; keyboard focus survives background projection updates.
+
+### Boundaries
+- No autosave, background automation scan, inferred learning consent or HA writes.
+- Assessment, freshness, evidence, risk and execution permission remain separate.
+  Apply remains denied. CI does not certify authenticated household UI acceptance.
+
 ## [0.1.0-alpha.22] - 2026-09-24
 
 - Dauerhafte Prüfnotizen zu ausgewählten Automationen im bestehenden PlanStore: Offen, Änderungsbedarf oder Manuell geprüft – keine Freigabe.
