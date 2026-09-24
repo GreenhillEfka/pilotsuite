@@ -1,15 +1,19 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Alpha.21 is published (PR #47, main CI 35914643847 green: 192 Python, nine JS,
-  Chromium, amd64). Three read-only packages: selected automation structure, an
-  open review plan, and change-aware combined export (ADR-029).
-  HA remains alpha.18 installed/offered; scoped backup 697876b6 is verified.
-  Next delivery: matching Store offer, source/backup recheck, update once and real
-  runtime/Ingress/config-read capability acceptance. Next concept: explicit authored
-  review notes/dispositions in PlanStore, tied to draft revision/config fingerprint
-  and stale after changes. No action approval. Live learning/second-zone gates stay
-  separate.
+- Alpha.22 is published and installed; the actual receipt is RELEASE_STATE.json.
+  Its authenticated live UI, app-specific config-read capability and independent
+  data-preservation acceptance remain separate, not inferred from CI/runtime.
+- Current approved package: PR #52, Alpha.23 Prüfkompass in the existing workbench.
+  Five derived sections, clear next step, zone filter/sort, accessible explanations,
+  unchanged canonical owners and readonly boundaries. See REVIEW_COMPASS.md.
+  Development is integrated; exact candidate CI, fresh scoped backup and normal
+  Store release gates remain before deployment. No repeat of Alpha.22 delivery.
+- The user resumed hourly autonomous package development on 2026-09-24; see
+  DEVELOPMENT_MANDATE.md. Existing scope/consent/actuation boundaries remain.
+- After this package, prioritize a useful or reasonably rejected proposal in the
+  already consented Golden Zone; validate a second unlike zone only within its
+  separately confirmed data scope. Comfort benefit precedes more review machinery.
 - Preserve canonical repository and read-only boundary.
 - Normalize units, explicit missing evidence, stable suggestion identity.
 - Guard Ingress peer; test actual proxy path and browser assets.

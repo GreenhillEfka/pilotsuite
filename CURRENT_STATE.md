@@ -1,5 +1,35 @@
 # PilotSuite current state
 
+## Active development — 2026-09-24
+
+The user explicitly resumed the hourly autonomous development mandate; see
+[DEVELOPMENT_MANDATE.md](docs/DEVELOPMENT_MANDATE.md). PR #52 on
+`feat/review-compass-workspace` implements the next bounded package, **Alpha.23
+Prüfkompass**, in the existing PlanStore and routine workbench. This replaces the
+historical paused-task/next-slice instruction, not any household permission.
+
+Five server-derived sections, one revalidated next step, transient zone filters,
+accessible explanations and same-basis automation/note enrichment are integrated.
+No new store, schema, learner or execution gate. The existing draft HEAD handler
+is corrected to use the read-only path. Contract: docs/REVIEW_COMPASS.md.
+Local canonical-code tests: **247 Python and 48 JavaScript passed**. Local browser
+navigation is administratively blocked; no bypass attempted and no local browser
+pass claimed. Exact candidate CI including the new full-app synthetic browser test
+must be recorded in PR #52 before release. Local Python is 3.13; CI uses 3.14.
+
+**Production remains Alpha.22, started, with no offered update at the entry read.**
+No new backup, publication, installation, restart, HA configuration, automation,
+actor, learning consent, permission or other-app change has occurred in this slice.
+RELEASE_STATE.json remains the actual Alpha.22 receipt below, not a candidate claim.
+Before a future merge: exact CI plus a fresh completed PilotSuite-only backup of
+the then-installed version; follow RELEASE_RUNBOOK.md with auto_update unchanged.
+
+Next: finish the exact PR #52 browser/CI and source review, then the existing scoped
+backup and native Store release gates. Real authenticated UI, app configuration
+read capability, independent data-preservation and useful real evidence remain
+separate acceptance items. Do not repeat Alpha.22 installation.
+
+
 ## Verified Alpha.22 Store delivery — 2026-09-24
 
 Canonical repository `GreenhillEfka/pilotsuite`; app `0d79c5e8_pilotsuite`.
