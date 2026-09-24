@@ -444,13 +444,13 @@ async def _routine_drafts(request):
     service = request.app[SERVICE_KEY]
     zone_id = request.match_info['zone_id']
     payload = None
-    if request.method != 'GET':
+    if request.method not in ('GET', 'HEAD'):
         try: payload = await request.json()
         except ValueError as exc: raise InvalidSelection('Invalid JSON') from exc
         if not isinstance(payload, dict): raise InvalidSelection('Object required')
     async with service._projection_lock:
         inventory = await service.selection_inventory(zone_id)
-        if request.method == 'GET':
+        if request.method in ('GET', 'HEAD'):
             return web.json_response({'items': await service.plans.drafts(zone_id, inventory)})
         if request.method == 'POST':
             if set(payload) != {'pattern_id', 'zone_revision'}:

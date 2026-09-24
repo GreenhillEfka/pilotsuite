@@ -45,6 +45,7 @@ jobs:
           node --check pilotsuite/pilotsuite/web/history.js
           node --check pilotsuite/pilotsuite/web/drafts.js
           node --check pilotsuite/pilotsuite/web/review_notes.js
+          node --check pilotsuite/pilotsuite/web/review_compass.js
           node --check pilotsuite/pilotsuite/web/selections.js
           node --test pilotsuite/tests/*.test.cjs
       - name: Install runtime dependencies
@@ -83,6 +84,12 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Set up Python for isolated full-app browser fixture
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Install existing runtime dependencies for synthetic fixture
+        run: python -m pip install --disable-pip-version-check --requirement pilotsuite/requirements.txt
       - name: Install pinned browser test dependency
         run: npm install --no-save --package-lock=false playwright@1.62.1
       - name: Install Chromium
@@ -95,6 +102,10 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_review_notes_browser.cjs
+      - name: Exercise review compass against the isolated actual application
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_review_compass_browser.cjs
       - name: Save synthetic UI review screenshots
         uses: actions/upload-artifact@v4
         with:

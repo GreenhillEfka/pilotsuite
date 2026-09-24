@@ -19,7 +19,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Policy mode: hard read-only
-- Release: `0.1.0-alpha.22`
+- Release: `0.1.0-alpha.23`
 
 ## Habitus zones and entity selection
 
@@ -81,3 +81,18 @@ Eine Bewertung ist keine Ausführungsfreigabe; HA-Automationen bleiben unveränd
 Notizen bleiben beim Lernreset erhalten und lassen sich gezielt löschen/exportieren.
 Schema 8 ergänzt die bestehende Datenbank nach einer automatischen SQLite-Sicherung.
 Das ersetzt nicht die vollständige PilotSuite-App-/Datensicherung vor dem Update.
+
+## Prüfkompass (alpha.23)
+
+Unter **Routinen-Entwürfe** zeigt jeder vorhandene Entwurf einen nächsten Schritt
+und **Fünf Prüfbereiche und ihre Belege**. Dort stehen Quellen, Beobachtungsgrundlage,
+dein gewünschtes Ergebnis, vorhandene Automationen und eigene Bewertungen getrennt.
+Mit **Nächster Arbeitsschritt** filterst du die Entwürfe; **Sortierung** ändert nur
+die Ansicht. Filter, Neuladen und Aufklappen speichern nichts und starten keinen
+Automationsvergleich. Eine fehlende Grundlage ist keine Freigabe oder Entwarnung.
+
+Die Schaltfläche führt zur passenden bestehenden Funktion. Automationsbezüge und
+Details werden erst durch deinen ausdrücklichen Prüfaufruf gelesen. Ein Lesestand
+wird für die Navigation höchstens fünf Minuten verwendet; danach ist eine neue
+Prüfung nötig. Ändert sich die Grundlage, bleibt dein Text erhalten. Die Rangfolge
+ist eine Arbeitshilfe, keine Risiko- oder Sicherheitsbewertung. Apply bleibt gesperrt.

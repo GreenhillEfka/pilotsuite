@@ -77,6 +77,9 @@ function appendReviewNotes(card, draft) {
       : notes.items.length
         ? 'Nächster Schritt: eine gespeicherte Automation direkt erneut prüfen. Es wird nur diese Auswahl gelesen, nichts automatisch bewertet oder gespeichert.'
         : 'Nächster Schritt: bestehende Automationen vergleichen und einen Treffer im Detail prüfen. Ohne Treffer ist Konfliktfreiheit nicht nachgewiesen.';
+  if (globalThis.PilotSuiteReviewCompass?.forDraft(draft)) {
+    guidance.textContent = 'Der Prüfkompass oben bündelt den nächsten Arbeitsschritt. Gespeicherte Bewertungen bleiben davon getrennt und erteilen keine Ausführungsfreigabe.';
+  }
   section.append(heading, assessment, freshness, guidance);
   if (inspection) {
     const button = document.createElement('button'); button.type = 'button';
@@ -255,6 +258,8 @@ async function deleteReviewNote(draft, note) {
     const current = contextData.drafts.find(item => item.id === draft.id);
     if (current) current.review_notes = result;
     text('routine-message', 'Bewertung gelöscht. Entwurf und HA bleiben unverändert.');
+    try { await loadContext(); }
+    catch (_) { text('routine-message', 'Bewertung gelöscht; Prüfkompass konnte nicht neu geladen werden. Gespeicherten Stand erneut laden.'); }
   } catch (error) {
     if (zone === selectionZone) text('routine-message', `Löschen nicht bestätigt: ${error.message}. Gespeicherten Stand neu laden.`);
   } finally { selectionBusy = false; renderSelection(); renderLearning(); }
