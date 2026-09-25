@@ -35,6 +35,8 @@ jobs:
           python scripts/release_preflight.py --candidate "$CANDIDATE_SHA" --published "$PUBLISHED_SHA" --allow-unchanged
       - name: Check frontend syntax and selection model
         run: |
+          node --check pilotsuite/pilotsuite/web/workspace.js
+          node --check pilotsuite/pilotsuite/web/workspace-model.js
           node --check pilotsuite/pilotsuite/web/maintenance.js
           node --check pilotsuite/pilotsuite/web/app.js
           node --check pilotsuite/pilotsuite/web/history.js
@@ -119,7 +121,12 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_maintenance_browser.cjs
+      - name: Exercise modular workspace, configuration diff and safe navigation
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_workspace_browser.cjs
       - name: Save synthetic UI review screenshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: usability-review

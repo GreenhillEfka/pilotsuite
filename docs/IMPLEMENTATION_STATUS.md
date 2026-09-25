@@ -1,25 +1,21 @@
 # PilotSuite capability and acceptance ledger
 
-## Installed Alpha.28 — 2026-09-26
+## Alpha.31 workspace candidate
 
-Exact receipt: RELEASE_STATE.json. PR63 is merged and delivered.
-
-| Capability | Scope |
+| Area | Scope |
 |---|---|
-| Existing zones/roles/history/drafts | Retained; learning stays opt-in |
-| Local savepoints/rescue/helper inspection | Alpha.27 behavior retained |
-| Bounded helper executor | One current planned presence-delay timer per explicit confirmation |
-| Existing matching timer | Exact config may be verified/reused; no inferred ownership |
-| Conflicting/pre-existing helper | Stop; never overwrite/delete/adopt by name |
-| Lost/timeout create response | Independent read-back; never blind retry |
-| Rollback | Only positively confirmed same-transaction creation with absent pre-image |
-| PlanStore | Durable helper transaction journal; no cross-system atomicity claim |
-| Generic plan apply / automation takeover / actuators | Closed |
-| Presence runtime / lighting / media / climate control | Not implemented |
-| Candidate/main CI | All four jobs successful; 394 Python / 48 JS candidate tests |
-| Runtime | Alpha.28 started, bounded_helper_provisioning, ready/stream/fresh/zone |
-| Household helper creation during release | None |
-| Authenticated household helper-path acceptance | Pending explicit in-app action |
+| Cockpit | Actual zone counts/values, filters, unknown/disconnected states |
+| Zonenmodule | Canonical role mapping and source/reference/implementation visualization |
+| Configuration | Existing forms, search/filter, hidden selections preserved, before/after preview |
+| History | Existing explicit recorder charts/tables/heatmaps; no new background reads |
+| Workbench | Existing learning, drafts and reviews retained |
+| Appearance | Browser-local theme/density/ID preference and responsive navigation |
+| Existing automation review | Explicit existing read-only structural endpoint; no takeover |
+| State diagram | Model only, not a live runtime assertion |
+| Execution rights | No additions; prior API/runtime behavior unchanged |
+| HA configuration / learning grants | Unchanged by delivery |
+| Exact CI / installation | Gate pending for candidate; completed receipt is recorded separately |
 
-Next: verify the bounded helper path in authenticated household Ingress without bypass,
-then implement presence timing and restart/deadline reconciliation under Issue56.
+Alpha28–30 backend features are not certified by these UX tests. Root workspace,
+canonical API/form integration and synthetic browser evidence are separate from
+household Ingress acceptance. See UX_WORKSPACE.md and RELEASE_RUNBOOK.md.

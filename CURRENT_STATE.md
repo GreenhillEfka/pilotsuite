@@ -1,43 +1,29 @@
 # PilotSuite current state
 
-## 2026-09-26 — Alpha.28 installed and runtime-verified
+## 2026-09-26 — Alpha.31 workspace candidate
 
-Canonical GreenhillEfka/pilotsuite; app0d79c5e8_pilotsuite. PR63 release commit
-8897bdf8b74a745bc0a60f2d7618723e2b035b87; root tree
-72c4f12e222aaeee188cf7f12fd6972134cc10a8; app tree
-d6fb8b2437dbb8185ada5ec968b080896e4331bf. Exact candidate CI36194932567 and
-main CI36195056251 passed all four jobs: tests, browser, reproducible source and amd64
-container. Candidate tests ran 394 Python and 48 JavaScript tests.
+Implemented a progressive UX redesign over the exact Alpha30 baseline
+f79cf5ddd01cf222880da6d432d279d1837e8821. At resume HA installed/offered Alpha30,
+started, no pending update; original options and auto_update=true. Alpha31 is not
+claimed installed by this candidate document. Read the final PR delivery comment or
+completed RELEASE_STATE receipt for later acceptance.
 
-Before publication, native snapshot/list plus backup/details verified backup1122b3d9:
-2026-09-25T22:06:09.564034+00:00, only PilotSuite Alpha.27, 54,251,520 bytes,
-no HA/database/folders or failed components, unprotected local agent. No restore drill.
+Features: Cockpit, Zonenmodule, Konfiguration, Verläufe, Werkbank and System;
+searchable measured zone cards; source/reference/implementation diagrams; module
+role filters and source search; before/after role/consent/detector preview;
+light/dark/system appearance, density and technical-ID preferences; mobile navigation;
+explicit existing read-only structural adoption review, with stale/error invalidation.
 
-Exactly one native Store refresh and one PilotSuite update completed. Metadata confirms
-installed/offered Alpha.28, started, no pending update, auto_update=true and all four
-options unchanged. No extra restart/rebuild or unrelated app update. Startup confirms
-architecture v21 and bounded_helper_provisioning; repeated readiness confirms ready,
-stream connected, fresh snapshot and resolved zone. Existing partial capability states
-are unchanged.
+The original forms, endpoint write contracts and canonical owners are reused. No
+household mutation, role/grant change, new data collector, new runtime capability,
+config migration or app permission change. Do not claim presence execution works from
+UX tests: the state graph is deliberately a model, not a live state indicator.
 
-## Delivered capability
+Implementation/design/test matrix: docs/UX_WORKSPACE.md. Existing browser flows retain
+the full-page supported view; the added actual-app test exercises default workspaces.
+Local administrator browser restriction is not bypassed. Exact remote screenshots are
+synthetic fixture data; household Ingress acceptance remains separate.
 
-One real, deliberately bounded helper executor now exists in the canonical PlanStore
-mutation path. Only one current planned presence-delay timer may be submitted per
-explicit confirmation. Before-image collection read, exact existing-helper reuse,
-revision recheck immediately before write, supported timer/create transport, independent
-read-back, unknown-outcome no-retry rule, durable transaction journal and transaction-
-owned rollback are implemented. Pre-existing/mismatching helpers are not renamed,
-deleted or adopted. Generic plan apply remains denied.
-
-The Zonenbasis UI exposes this single action and requires a second browser confirmation.
-No household helper was created as part of development/release. No automation takeover,
-presence runtime, light/music/climate action, role change or learning grant occurred.
-
-## Next
-
-Authenticated household Ingress acceptance of the Alpha.28 UI and app-principal timer
-collection/write capability remains separate. Do not bypass Ingress or create a timer
-outside the explicit PilotSuite UI approval. Once one zone's bounded helper path is
-verified, implement presence timing/restart reconciliation in Issue56 while existing
-HA automations remain authoritative. Then proceed to controlled adoption and lighting.
+Next after delivery: assess real navigation and configuration usability. Keep backend
+helper/provisioning/presence correctness as a separate fault-tested behavior package;
+no automatic ownership transfer or learning consent based on a visually ready card.

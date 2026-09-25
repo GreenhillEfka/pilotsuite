@@ -18,6 +18,7 @@ from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
 from pilotsuite.review_notes_api import register_review_notes
 from pilotsuite.maintenance_api import register_maintenance
+from pilotsuite.workspace_api import register_workspace, workspace_page
 
 
 LOGGER = logging.getLogger(__name__)
@@ -108,6 +109,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app = web.Application(middlewares=[request_context, ingress_guard], client_max_size=128 * 1024)
     app[SERVICE_KEY] = service
     register_maintenance(app, SERVICE_KEY, WEB_DIR)
+    register_workspace(app, WEB_DIR)
     app.on_startup.append(_startup)
     app.on_cleanup.append(_cleanup)
     app.router.add_get("/", _index)
@@ -231,9 +233,12 @@ async def _cleanup(app: web.Application) -> None:
     await app[SERVICE_KEY].close()
 
 
-async def _index(request: web.Request) -> web.FileResponse:
+async def _index(request: web.Request) -> web.StreamResponse:
     name = "maintenance.html" if request.app[SERVICE_KEY]._rescue_error else "index.html"
-    return web.FileResponse(WEB_DIR / name)
+    if name == "maintenance.html":
+        return web.FileResponse(WEB_DIR / name)
+    return web.Response(text=workspace_page(WEB_DIR), content_type="text/html",
+                        headers={"Cache-Control": "no-cache"})
 
 
 async def _javascript(_: web.Request) -> web.FileResponse:

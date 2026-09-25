@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.1.0-alpha.31] - 2026-09-26
+
+### Workspace redesign
+- Six explicit workspaces replace the default long page: Cockpit, zone modules,
+  configuration, history, workbench and system. The full-page view remains available.
+- Searchable zone cockpit with measured values, confirmed selection counts and
+  disconnected/unknown states; no invented health score or decorative history.
+- Presence, lighting, climate and media module cards plus source/reference/implementation
+  diagrams. Configuration, current source usability and action authority stay separate.
+- Existing canonical role editor gains module filters, source search, retained hidden
+  selections and a before/after preview of roles, learning consent and detector settings.
+- Local light/dark/system theme, compact/comfortable density and optional technical IDs.
+  Desktop side navigation and mobile bottom navigation use the same workspaces.
+- Explicit existing presence-automation structural review is reachable from the module
+  view. It calls the existing read-only review API, never activates or takes over control.
+- Guard dirty configuration, selection, routine and review-note drafts on navigation;
+  preserve focus and invalidate stale diagrams after failed reads or a zone change.
+
+### Boundaries
+- Reuse the one original document, forms, handlers and canonical stores. No data migration,
+  new execution capability, household configuration change or inferred learning consent.
+- Dependency and state diagrams are labelled structural models, not proof of a running
+  presence controller. Timer/provisioning correctness is not certified by this UX change.
+- Existing recorder charts remain explicitly requested, not auto-fetched by navigation.
+
 ## [0.1.0-alpha.30] - 2026-09-26
 
 ### Added

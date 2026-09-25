@@ -1,42 +1,34 @@
-# PilotSuite AI Context
+# PilotSuite AI context
 
-Canonical: GreenhillEfka/pilotsuite / HA app 0d79c5e8_pilotsuite / architecture v21.
+Canonical: GreenhillEfka/pilotsuite, HA app 0d79c5e8_pilotsuite. No new repository.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume — Alpha.28 delivered, 2026-09-26
+## Alpha.31 workspace candidate — 2026-09-26
 
-PR63 squash-merged as 8897bdf8b74a745bc0a60f2d7618723e2b035b87; root tree
-72c4f12e222aaeee188cf7f12fd6972134cc10a8; app tree
-d6fb8b2437dbb8185ada5ec968b080896e4331bf. Candidate CI36194932567 and main
-CI36195056251 passed all four jobs. Fresh PilotSuite-only backup1122b3d9 completed
-and backup/details verified BEFORE publication: only Alpha.27, 54,251,520 bytes,
-no HA/database/folders or reported failures. One native Store refresh and one
-PilotSuite update. Alpha.28 installed/offered/started, update_available=false,
-auto_update=true and options unchanged. Startup says mode=bounded_helper_provisioning;
-readiness is ready/stream/fresh/zone-resolved. No extra restart/rebuild, other-app
-update, household helper creation, automation edit, actuator call or learning change.
-Do not repeat this delivery to resume.
+User asked to implement the UX redesign: overview, configuration, visualization,
+modern responsive appearance and modular workspaces. A completed Deep Research report
+was not available in this session; this implementation uses the actual Alpha30 source
+and primary UX references listed in docs/UX_WORKSPACE.md, not a claimed report.
 
-## New bounded capability
+Baseline main f79cf5ddd01cf222880da6d432d279d1837e8821 (PR66) and installed/offered
+Alpha30 were read directly. A checksum-verified full source bundle was cloned locally.
+Application services, roles, selection persistence, consent and execution capabilities
+are unchanged. Root HTML is enhanced by workspace_api.py, which reuses the original
+index document. workspace-model.js is a pure presentation model; workspace.js adapts
+existing renderers and moves existing forms, without another canonical data store.
+workspace.css holds local light/dark/compact display tokens. Settings cache has only
+four presentation fields. No runtime enable control or actuator action is added.
 
-Alpha.28 opens exactly one HA write: the current zone foundation's planned
-PilotSuite presence-delay timer. It requires exact zone revision and a second explicit
-in-app confirmation. The executor reads the timer collection before writing, exactly
-reuses a matching existing helper without adoption, rejects mismatches, creates only
-through timer/create, then independently reads the collection again. A lost/timeout
-response is never blindly replayed. Rollback deletes only an identity whose creation
-response was positively confirmed by this same transaction and whose pre-image proved
-absence. PlanStore durably journals approval/outcome. HA and local journal are not an
-atomic transaction. Generic PlanStore apply, automations, actuators and learning writes
-remain closed. No real household timer was created during release.
+The source/reference/state diagrams are structural views, NOT a live runtime acceptance
+or timer correctness claim. Alpha28 helper transport and Alpha29 runtime behavior have
+not been functionally revalidated by this UX task. Do not interpret readiness as authority.
 
-## Next implementation
+Local Python/JS and exact remote CI must pass. Keep all existing regression flows and
+add actual-app workspace navigation, filtered forms, diff, save/cancel, error, mobile,
+theme and no-write checks. Full-page #ps-all remains a supported view. Local browser
+navigation was blocked by administrator policy; no bypass. Use normal CI browser evidence.
 
-First perform authenticated household UI/app-principal acceptance of the new helper
-path without bypassing Ingress. Actual helper creation remains an explicit user action
-inside PilotSuite. After the bounded timer executor is proven on one zone, continue
-Issue56 with presence timing semantics: confirmed/pending/free/unknown, restart/deadline
-reconciliation and no timer-finished-alone absence claim. Existing HA automations remain
-responsible until a separate backed-up takeover is reviewed. Then lighting; media and
-climate later. Preserve manual overrides, identities, unknown fields and no implicit
-learning/ownership. No direct .storage edits, guessed replacements or blind retries.
+Release is only after exact candidate CI and fresh completed PilotSuite-only native backup
+before merge/publication (auto_update=true). Verify main CI, one native Store refresh if
+needed and one scoped update; reread metadata/logs. Do not edit HA config/consents or
+bypass Ingress. Record completed deployment in one handoff, final doc CI in PR comments.
