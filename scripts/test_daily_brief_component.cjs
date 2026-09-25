@@ -89,7 +89,12 @@ function bounded(promise,label,ms=15000){let timer;return Promise.race([promise,
     assert.equal(await link.count(),1);
     ok('real second-zone response never inherits the first zone candidate');
     for(const width of [390,1440]){
-      await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+      await page.setViewportSize({width,height:844});
+      const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
+        overflowing:[...document.querySelectorAll('body *')].map(el=>({tag:el.tagName,id:el.id,
+          text:el.textContent.slice(0,80),left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right,
+          scroll:el.scrollWidth,client:el.clientWidth})).filter(el=>el.right>innerWidth+1 || el.left<0 || el.scroll>el.client+1)}));
+      assert.ok(layout.scroll<=layout.width+1,'Horizontal overflow: '+JSON.stringify(layout));
       if(process.env.PILOTSUITE_SCREENSHOTS){await fs.mkdir(process.env.PILOTSUITE_SCREENSHOTS,{recursive:true});await page.screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS,`daily-brief-component-${width}.png`),fullPage:true});}
     }
     assert.deepEqual(network,[]);assert.deepEqual(errors,[]);
