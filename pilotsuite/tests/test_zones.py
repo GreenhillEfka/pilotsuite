@@ -298,3 +298,19 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.service.settings=replace(self.service.settings,ingress_allowed_peers=('172.30.32.2',))
         self.assertEqual(403,(await self.client.get('/api/v1/zones/a/context/export')).status)
         self.assertEqual(403,(await self.client.patch('/api/v1/zones/a/context',json={'revision':0,'roles':{},'learning':False})).status)
+
+    async def test_existing_automation_import_is_read_only_and_zone_bound(self):
+        service=self.app[SERVICE_KEY]
+        service.client.automation_config=AsyncMock(return_value={
+            'alias':'Existing room logic',
+            'triggers':[{'trigger':'state','entity_id':'binary_sensor.motion'}],
+            'actions':[{'action':'light.turn_on','target':{'entity_id':'light.room'}}]})
+        inventory=await service.selection_inventory('hz_test')
+        response=await self.client.post('/api/v1/zones/hz_test/automations/import',json={
+            'automation_id':'automation.existing_room_logic','zone_revision':inventory['revision']})
+        self.assertEqual(200,response.status)
+        data=await response.json()
+        self.assertEqual('pilotsuite-imported-automation-v1',data['schema'])
+        self.assertEqual('execution_owner',data['ownership']['home_assistant'])
+        self.assertFalse(data['adoption']['takeover_allowed'])
+        self.assertFalse(data['execution']['allowed'])
