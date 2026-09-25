@@ -4,47 +4,98 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.25",
-    "commit": "a6d6e329eee15ee97c5e732dd963ca8a531444e3",
-    "tree": "d9729d568afceb7948684719cea5eb49428df611",
-    "app_tree": "04c5379a68cbe1d62ea8f49168b1985c064b19a6",
-    "pull_request": 57,
-    "ci_run_id": 36128782821,
-    "ci_conclusion": "success",
-    "receipt_basis": "Alpha.25 delivery receipt in merged PR58; installed metadata freshly reread before Alpha.26 closure"
+    "version": "0.1.0-alpha.26",
+    "commit": "ede80bd4d7024aaa146c8d5bff53031905da9165",
+    "tree": "80ff429ec9fc26139a8a8121f3287516aa707cea",
+    "app_tree": "e9506c40047db1f8bfd4e4f6e08b643d0b03fb70",
+    "pull_request": 59,
+    "candidate_commit": "eb7c7f4deea8f5e2a2a8d885c93f2e5939fb87a8",
+    "candidate_ci_run_id": 36147092132,
+    "ci_run_id": 36148039084,
+    "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.25",
-    "commit": "a6d6e329eee15ee97c5e732dd963ca8a531444e3",
-    "tree": "d9729d568afceb7948684719cea5eb49428df611",
-    "app_tree": "04c5379a68cbe1d62ea8f49168b1985c064b19a6",
-    "pull_request": 57,
-    "ci_run_id": 36128782821,
-    "ci_conclusion": "success",
-    "receipt_basis": "Alpha.25 delivery receipt in merged PR58; installed metadata freshly reread before Alpha.26 closure"
+    "version": "0.1.0-alpha.26",
+    "commit": "ede80bd4d7024aaa146c8d5bff53031905da9165",
+    "tree": "80ff429ec9fc26139a8a8121f3287516aa707cea",
+    "app_tree": "e9506c40047db1f8bfd4e4f6e08b643d0b03fb70",
+    "pull_request": 59,
+    "ci_run_id": 36148039084,
+    "ci_conclusion": "success"
+  },
+  "backup": {
+    "backup_id": "45805440",
+    "name": "PilotSuite Alpha.25 before Alpha.26",
+    "date": "2026-09-25T14:32:22.382345+00:00",
+    "size_bytes": 54394880,
+    "app_version": "0.1.0-alpha.25",
+    "app_slugs": ["0d79c5e8_pilotsuite"],
+    "homeassistant_included": false,
+    "database_included": false,
+    "folders": [],
+    "failed_addons": [],
+    "failed_folders": [],
+    "failed_agent_ids": [],
+    "agent_errors": {},
+    "protected": false,
+    "completion_verified_before_publication": true,
+    "verification": ["native snapshot list", "native backup/details"],
+    "restore_drill_performed": false
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.25",
-    "offered_version": "0.1.0-alpha.25",
+    "installed_version": "0.1.0-alpha.26",
+    "offered_version": "0.1.0-alpha.26",
     "state": "started",
     "auto_update": true,
     "update_available": false,
+    "store_refresh_calls": 1,
+    "update_calls": 1,
+    "options_unchanged": true,
+    "options": {
+      "log_level": "info",
+      "golden_zone_area_ids": ["erdkeller"],
+      "refresh_interval_seconds": 30,
+      "audit_retention": 5000
+    },
     "source_association": "repository/version/app-tree, not independent image attestation"
   },
-  "development_candidate": {
-    "version": "0.1.0-alpha.26",
-    "pull_request": 59,
-    "branch": "feat/zone-foundation-provisioning",
-    "status": "release_closure_pending_exact_remote_CI_backup_merge_and_installation"
+  "runtime": {
+    "mode": "hard_read_only",
+    "ready": true,
+    "stream_connected": true,
+    "snapshot_fresh": true,
+    "zone_resolved": true,
+    "capabilities_available": ["temperature", "illuminance"],
+    "capabilities_partial": ["humidity", "motion", "presence", "light"],
+    "verification": "native app metadata and startup/readiness logs"
   },
-  "pending_release": "0.1.0-alpha.26",
+  "tests": {
+    "local_python_passed": 355,
+    "local_javascript_passed": 48,
+    "exact_candidate_and_main_ci": "all jobs successful",
+    "browser_steps": 6,
+    "container_platform": "linux/amd64",
+    "local_full_app_browser": "blocked by administrator policy, not bypassed",
+    "remote_full_app_browser": "passed including new foundation regression"
+  },
+  "ui_review": {
+    "artifact_id": 10870351755,
+    "run_id": 36147092132,
+    "sha256": "4f51abceb130cf542a46de590c75427133e83a3d2f8c54538465ebe6fb92a0c7",
+    "basis": "synthetic actual application, not household Ingress",
+    "viewed_widths": [390, 1440],
+    "known_follow_up": "Improve awkward narrow-card German word wrapping; no overflow observed"
+  },
+  "pending_release": null,
   "ingress_acceptance": {
-    "status": "pending_authenticated_session",
+    "status": "pending_authenticated_household_session",
     "proxy_bypass_or_permission_change": false
   },
+  "household_changes_this_delivery": [],
   "history": {
-    "path": "docs/RELEASE_HISTORY_2026-09-25_PRE_ALPHA26.json",
-    "previous_blob": "525d4b3db4e38488269c07dc269632e592cb6702"
+    "previous_release_commit": "a6d6e329eee15ee97c5e732dd963ca8a531444e3",
+    "previous_closure_receipt_at": "ede80bd4d7024aaa146c8d5bff53031905da9165:docs/RELEASE_STATE.json",
+    "older_receipt_path": "docs/RELEASE_HISTORY_2026-09-25_PRE_ALPHA26.json"
   },
-  "next_task": "Finish PR59 with exact CI, fresh PilotSuite-only backup before publication, main CI, Store and one scoped update. Do not add another preview module. Then separately implement one bounded helper executor with disposable-HA tests."
+  "next_task": "Continue Issue56 with ONE bounded helper executor in the existing PlanStore mutation path, fault-tested in disposable HA before household writes. Do not repeat Alpha26 delivery or add another contract-only module."
 }
