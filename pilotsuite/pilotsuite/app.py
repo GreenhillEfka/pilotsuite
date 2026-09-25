@@ -366,6 +366,8 @@ async def _context_payload(service, zone_id, export=False):
     report['effective_roles'] = roles
     from pilotsuite.core.foundation import build_foundation
     report['foundation'] = build_foundation(inventory, report)
+    from pilotsuite.core.provisioning import provisioning_preview
+    report['foundation']['provisioning'] = provisioning_preview(inventory, report['foundation'])
     from pilotsuite.core.guide import zone_guide
     zone_result = next((z for z in service._zone_results if z['zone_id'] == zone_id), {})
     report['guide'] = zone_guide(inventory, report, await service.status(), zone_result.get('summary', {}))
