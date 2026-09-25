@@ -34,12 +34,12 @@ def build_foundation(inventory, report):
 
     helpers = []
     if not logical_presence:
-        helpers.append({"domain":"input_boolean","key":f"pilotsuite_{key}_anwesenheit",
+        helpers.append({"domain":"input_boolean","key":f"pilotsuite_{key}_anwesenheit","name":f"PilotSuite · {key} · Anwesenheit",
                         "purpose":"Einheitlicher, expliziter Raumstatus; Rohsensoren bleiben Belege."})
-    helpers.append({"domain":"timer","key":f"pilotsuite_{key}_anwesenheitsnachlauf",
+    helpers.append({"domain":"timer","key":f"pilotsuite_{key}_anwesenheitsnachlauf","name":f"PilotSuite · {key} · Anwesenheitsnachlauf",
                     "purpose":"Nachlauf mit Neustart-/Fristprüfung; Ablauf allein beweist keine Abwesenheit."})
     if not atmosphere:
-        helpers.append({"domain":"input_select","key":f"pilotsuite_{key}_atmosphaere",
+        helpers.append({"domain":"input_select","key":f"pilotsuite_{key}_atmosphaere","name":f"PilotSuite · {key} · Atmosphäre",
                         "purpose":"Expliziter Nutzerwunsch; keine automatisch behauptete Emotion."})
 
     modules = {
