@@ -30,10 +30,10 @@ async function fixture(broken=false){
     assert.equal(await page.locator('#release-install').getAttribute('href'),'/hassio/addon/0d79c5e8_pilotsuite/info');
     // A maintenance navigation must not discard an active role draft.
     await page.evaluate(()=>{contextEditing=true;});
-    await page.locator('a[href="maintenance"]').click();
+    await page.locator('a[href="maintenance"]:visible').first().click();
     assert.equal(page.url(),f.info.url);
     await page.evaluate(()=>{contextEditing=false;});
-    await page.locator('a[href="maintenance"]').click();
+    await page.locator('a[href="maintenance"]:visible').first().click();
     await page.waitForFunction(()=>!document.getElementById('savepoint-create').disabled);
     assert.equal(await page.locator('#release-history details').count(),3);
     assert.match(await page.locator('#native-install').innerText(),/in Home Assistant installieren/);

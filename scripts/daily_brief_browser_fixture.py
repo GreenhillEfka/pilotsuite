@@ -36,7 +36,7 @@ async def main():
                     site = web.TCPSite(runner, '127.0.0.1', 0)
                     await site.start()
                     port = site._server.sockets[0].getsockname()[1]
-                    url = f'http://127.0.0.1:{port}/'
+                    url = f'http://127.0.0.1:{port}/' + ('' if '--workspace' in sys.argv else '#ps-all')
                 print(json.dumps({'url': url, 'pattern_id': fixture['pattern_id']}), flush=True)
                 while line := await asyncio.to_thread(sys.stdin.readline):
                     result = await fixture_control(service, fixture, json.loads(line))

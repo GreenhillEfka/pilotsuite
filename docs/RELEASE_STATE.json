@@ -1,14 +1,90 @@
 {
-  "schema":"pilotsuite-release-receipt-v1",
-  "verified_date":"2026-09-26",
-  "repository":"GreenhillEfka/pilotsuite",
-  "app_slug":"0d79c5e8_pilotsuite",
-  "release":{"version":"0.1.0-alpha.28","commit":"8897bdf8b74a745bc0a60f2d7618723e2b035b87","tree":"72c4f12e222aaeee188cf7f12fd6972134cc10a8","app_tree":"d6fb8b2437dbb8185ada5ec968b080896e4331bf","pull_request":63,"candidate_commit":"1ba8c7f60ae48ff9eba803f22b317842433af73e","candidate_ci_run_id":36194932567,"ci_run_id":36195056251,"ci_conclusion":"success"},
-  "backup":{"backup_id":"1122b3d9","name":"PilotSuite Alpha.27 before Alpha.28","date":"2026-09-25T22:06:09.564034+00:00","size_bytes":54251520,"app_version":"0.1.0-alpha.27","app_slugs":["0d79c5e8_pilotsuite"],"homeassistant_included":false,"database_included":false,"folders":[],"failed_addons":[],"failed_folders":[],"failed_agent_ids":[],"agent_errors":{},"protected":false,"completion_verified_before_publication":true,"restore_drill_performed":false},
-  "installation":{"installed_version":"0.1.0-alpha.28","offered_version":"0.1.0-alpha.28","state":"started","auto_update":true,"update_available":false,"store_refresh_calls":1,"update_calls":1,"options_unchanged":true,"explicit_restart_calls":0,"rebuild_calls":0,"other_app_update_calls":0},
-  "runtime":{"mode":"bounded_helper_provisioning","ready":true,"stream_connected":true,"snapshot_fresh":true,"zone_resolved":true,"verification":"native metadata and exact Alpha.28 startup/readiness logs"},
-  "tests":{"candidate_python_passed":394,"candidate_javascript_passed":48,"candidate_and_main_ci":"all four jobs successful","browser_steps":7,"container_platform":"linux/amd64"},
-  "helper_executor":{"scope":"one current planned PilotSuite presence-delay timer per explicit confirmation","before_image":true,"independent_readback":true,"blind_retry_on_unknown_outcome":false,"preexisting_delete":false,"generic_plan_apply":false,"household_helper_created_during_delivery":false},
-  "household_changes_this_delivery":[],
-  "next_task":"Authenticated household acceptance of the bounded helper path, then Issue56 presence timing/restart reconciliation. Do not repeat Alpha28 delivery."
+  "schema": "pilotsuite-release-receipt-v1",
+  "verified_date": "2026-09-26",
+  "repository": "GreenhillEfka/pilotsuite",
+  "app_slug": "0d79c5e8_pilotsuite",
+  "release": {
+    "version": "0.1.0-alpha.28",
+    "commit": "8897bdf8b74a745bc0a60f2d7618723e2b035b87",
+    "tree": "72c4f12e222aaeee188cf7f12fd6972134cc10a8",
+    "app_tree": "d6fb8b2437dbb8185ada5ec968b080896e4331bf",
+    "pull_request": 63,
+    "candidate_commit": "1ba8c7f60ae48ff9eba803f22b317842433af73e",
+    "candidate_ci_run_id": 36194932567,
+    "ci_run_id": 36195056251,
+    "ci_conclusion": "success"
+  },
+  "backup": {
+    "backup_id": "1122b3d9",
+    "name": "PilotSuite Alpha.27 before Alpha.28",
+    "date": "2026-09-25T22:06:09.564034+00:00",
+    "size_bytes": 54251520,
+    "app_version": "0.1.0-alpha.27",
+    "app_slugs": [
+      "0d79c5e8_pilotsuite"
+    ],
+    "homeassistant_included": false,
+    "database_included": false,
+    "folders": [],
+    "failed_addons": [],
+    "failed_folders": [],
+    "failed_agent_ids": [],
+    "agent_errors": {},
+    "protected": false,
+    "completion_verified_before_publication": true,
+    "restore_drill_performed": false
+  },
+  "installation": {
+    "installed_version": "0.1.0-alpha.28",
+    "offered_version": "0.1.0-alpha.28",
+    "state": "started",
+    "auto_update": true,
+    "update_available": false,
+    "store_refresh_calls": 1,
+    "update_calls": 1,
+    "options_unchanged": true,
+    "explicit_restart_calls": 0,
+    "rebuild_calls": 0,
+    "other_app_update_calls": 0
+  },
+  "runtime": {
+    "mode": "bounded_helper_provisioning",
+    "ready": true,
+    "stream_connected": true,
+    "snapshot_fresh": true,
+    "zone_resolved": true,
+    "verification": "native metadata and exact Alpha.28 startup/readiness logs"
+  },
+  "tests": {
+    "candidate_python_passed": 394,
+    "candidate_javascript_passed": 48,
+    "candidate_and_main_ci": "all four jobs successful",
+    "browser_steps": 7,
+    "container_platform": "linux/amd64"
+  },
+  "helper_executor": {
+    "scope": "one current planned PilotSuite presence-delay timer per explicit confirmation",
+    "before_image": true,
+    "independent_readback": true,
+    "blind_retry_on_unknown_outcome": false,
+    "preexisting_delete": false,
+    "generic_plan_apply": false,
+    "household_helper_created_during_delivery": false
+  },
+  "household_changes_this_delivery": [],
+  "next_task": "Authenticated household acceptance of the bounded helper path, then Issue56 presence timing/restart reconciliation. Do not repeat Alpha28 delivery.",
+  "published_source": {
+    "version": "0.1.0-alpha.30",
+    "commit": "f79cf5ddd01cf222880da6d432d279d1837e8821",
+    "tree": "99b9e23d927ac60e14ce2449f8c47ca2ea2c0a7c",
+    "app_tree": "c0bbd3306f5d0383094e9f2e62fed697d63f7630",
+    "pull_request": 66,
+    "ci_run_id": 36197260946
+  },
+  "candidate": {
+    "version": "0.1.0-alpha.31",
+    "state": "workspace_implementation_pending_exact_ci_and_delivery",
+    "scope": "UX only; canonical stores and action capabilities unchanged"
+  },
+  "receipt_note": "The older Alpha28 release/installation fields are historical. Source/live Alpha30 were verified at UX resume. A completed Alpha31 receipt must be recorded after exact CI, backup and installation, not inferred from this candidate."
 }

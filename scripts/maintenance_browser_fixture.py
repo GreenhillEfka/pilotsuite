@@ -47,7 +47,7 @@ async def main():
             site=web.TCPSite(runner,'127.0.0.1',0)
             await site.start()
             port=site._server.sockets[0].getsockname()[1]
-            print(json.dumps({'url':f'http://127.0.0.1:{port}/','version':VERSION}),flush=True)
+            print(json.dumps({'url':f'http://127.0.0.1:{port}/' + ('' if '--workspace' in sys.argv else '#ps-all'),'version':VERSION}),flush=True)
             while line := await asyncio.to_thread(sys.stdin.readline):
                 command=json.loads(line)
                 if command.get('action')=='change_zone':

@@ -68,9 +68,45 @@ async def main():
             service.client.automation_config=AsyncMock(return_value={
                 'alias':'PRIVATE_CONFIG_CANARY','triggers':[{'trigger':'state','entity_id':'binary_sensor.synthetic'}],
                 'actions':[{'action':'light.turn_on','target':{'entity_id':'light.synthetic'}}]})
+            # Rich synthetic workspace only. Other regression fixtures retain their exact basis.
+            service.client.call_bounded_service=AsyncMock(side_effect=AssertionError("No HA writes in UI tests"))
+            service.client.helper_create_timer=AsyncMock(side_effect=AssertionError("No helper creation in UI tests"))
+            service.client.helper_delete_timer=AsyncMock(side_effect=AssertionError("No helper deletion in UI tests"))
+            if '--workspace' in sys.argv:
+                entries=[
+                    ('sensor.synthetic_temperature','Raumtemperatur','21.8',{'device_class':'temperature','unit_of_measurement':'°C'}),
+                    ('sensor.synthetic_humidity','Luftfeuchte','48',{'device_class':'humidity','unit_of_measurement':'%'}),
+                    ('sensor.synthetic_lux','Tageslicht am Fenster','430',{'device_class':'illuminance','unit_of_measurement':'lx'}),
+                    ('binary_sensor.synthetic_occupancy','Präsenz am Sitzplatz','off',{'device_class':'occupancy'}),
+                    ('input_boolean.synthetic_presence','Logischer Raumstatus','off',{}),
+                    ('timer.pilotsuite_a_anwesenheitsnachlauf','Nachlauftimer','idle',{}),
+                    ('climate.synthetic','Raumregler','heat',{}),
+                    ('media_player.synthetic','Musik im Wohnbereich','idle',{}),
+                ]
+                for eid,name,state,attrs in entries:
+                    world['entities'].append({'entity_id':eid,'area_id':'a','name':name})
+                    world['states'].append({'entity_id':eid,'state':state,'attributes':attrs})
+                world['entities'][0]['name']='Bewegung im Durchgang'
+                world['entities'][1]['name']='Leselicht'
+                await service.world.replace(copy.deepcopy(world))
+                rev=(await service.selections.get('a'))['revision']
+                await service.selections.patch('a',rev,{e[0]:'relevant' for e in entries})
+                rev=(await service.selections.get('a'))['revision']
+                await service.context.configure('a',rev,{
+                    'presence':['binary_sensor.synthetic','binary_sensor.synthetic_occupancy','input_boolean.synthetic_presence'],
+                    'temperature':['sensor.synthetic_temperature'],'humidity':['sensor.synthetic_humidity'],
+                    'illuminance':['sensor.synthetic_lux'],'light':['light.synthetic'],
+                    'climate':['climate.synthetic'],'media':['media_player.synthetic']},False)
+                for zone in await service.zones.list():
+                    definition={k:zone[k] for k in ('name','area_ids','extra_entity_ids','enabled','profile')}
+                    definition.update(name='Wohnbereich · Demo' if zone['zone_id']=='a' else 'Arbeitszimmer · Demo',profile='observe')
+                    await service.zones.save(definition,zone['zone_id'],zone['revision'])
+                service._connected=service._stream_connected=True
+                service._last_refresh_at=datetime.now(UTC).isoformat()
+                await service._derive()
             site=web.TCPSite(runner,'127.0.0.1',0);await site.start()
             port=site._server.sockets[0].getsockname()[1]
-            print(json.dumps({'url':f'http://127.0.0.1:{port}/','draft_ids':ids}),flush=True)
+            print(json.dumps({'url':f'http://127.0.0.1:{port}/' + ('' if '--workspace' in sys.argv else '#ps-all'),'draft_ids':ids}),flush=True)
             while line:=await asyncio.to_thread(sys.stdin.readline):
                 command=json.loads(line);action=command['action']
                 if action=='snapshot':
@@ -79,7 +115,10 @@ async def main():
                     result={'related_reads':service.client.related_automations.await_count,
                             'config_reads':service.client.automation_config.await_count,
                             'notes':notes,'learning':(await service.context.get('a'))['learning'],
-                            'drafts':await service.plans.drafts('a',await service.selection_inventory('a'))}
+                            'drafts':await service.plans.drafts('a',await service.selection_inventory('a')),
+                            'roles':(await service.context.get('a'))['roles'],
+                            'ha_writes':service.client.call_bounded_service.await_count,
+                            'helper_writes':service.client.helper_create_timer.await_count+service.client.helper_delete_timer.await_count}
                 elif action=='touch_draft':
                     inventory=await service.selection_inventory('a')
                     draft=next(d for d in await service.plans.drafts('a',inventory) if d['id']==command['id'])

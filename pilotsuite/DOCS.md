@@ -9,7 +9,23 @@
 | `refresh_interval_seconds` | `30` | Full snapshot reconciliation interval |
 | `audit_retention` | `5000` | Maximum retained PilotSuite audit events |
 
-Home Assistant device/automation control remains closed. Alpha.28 has one deliberately narrow exception: after explicit in-app confirmation it may create or exactly reuse the planned PilotSuite presence-delay timer through Home Assistant's supported helper WebSocket API. The transaction reads the helper collection before and after the write, never blindly retries an unknown outcome, and never adopts or deletes pre-existing helpers. Generic HA mutations remain unavailable.
+The workspace adds no Home Assistant execution capability or permission. Existing
+bounded helper/presence APIs are separate from this UX release; a structural diagram
+or ready source card is not execution approval or proof of correct runtime behavior.
+The workspace does not activate presence control or take over an automation.
+
+## Workspace navigation
+
+Alpha.31 opens the Cockpit. Use Zonenmodule for source diagrams, Konfiguration for
+existing zone/role forms with filters and a change preview, Verläufe for the existing
+explicit history queries, Werkbank for evidence/drafts/reviews and System for display
+preferences. On phones the same navigation appears at the bottom. A full-page view
+remains available via `#ps-all`; it does not bypass permissions.
+
+Appearance settings are stored only in this browser (theme, density, ID visibility,
+last workspace); no household states, entity IDs or draft content go into this cache.
+Navigating away from an open edit is blocked until it is saved or cancelled. Searches
+and filters do not uncheck hidden sources. Diagrams do not imply control activation.
 
 ## First start
 
@@ -18,8 +34,8 @@ After starting, open the Web UI and confirm:
 - Home Assistant connector: connected
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
-- Policy mode: hard read-only
-- Release: `0.1.0-alpha.30`
+- Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
+- Release: `0.1.0-alpha.31`
 
 ## Habitus zones and entity selection
 

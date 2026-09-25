@@ -1,0 +1,124 @@
+// Real app and canonical temporary data. No household credentials, no HA writes.
+const {chromium}=require(process.env.PILOTSUITE_PLAYWRIGHT||'playwright');
+const {spawn}=require('node:child_process');
+const {createInterface}=require('node:readline');
+const assert=require('node:assert/strict');
+const fs=require('node:fs/promises');
+const path=require('node:path');
+(async()=>{
+ const root=path.resolve(__dirname,'..');
+ const proc=spawn(process.env.PYTHON||'python',['scripts/compass_browser_fixture.py','--workspace'],{
+  cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'pilotsuite')},stdio:['pipe','pipe','pipe']});
+ let stderr='',browser;proc.stderr.on('data',d=>{stderr=(stderr+d).slice(-12000);});
+ const lines=createInterface({input:proc.stdout})[Symbol.asyncIterator]();
+ async function read(){let timer;try{const row=await Promise.race([lines.next(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Fixture timeout '+stderr)),15000);})]);if(row.done)throw Error(stderr);return JSON.parse(row.value);}finally{clearTimeout(timer);}}
+ const command=async data=>{proc.stdin.write(JSON.stringify(data)+'\n');return read();};
+ try{
+  const info=await read();browser=await chromium.launch({headless:true,...(process.env.PILOTSUITE_CHROMIUM?{executablePath:process.env.PILOTSUITE_CHROMIUM}:{})});
+  const page=await browser.newPage({viewport:{width:1440,height:1100}});page.setDefaultTimeout(10000);
+  const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))requests.push({url:r.url(),method:r.method()});});
+  await page.goto(info.url);
+  await page.waitForFunction(()=>document.body.classList.contains('ps-workspace-ready')&&contextData&& !selectionBusy);
+  assert.deepEqual(errors,[]);
+  const before=await command({action:'snapshot'});
+  assert.equal(await page.locator('#ps-cockpit').isVisible(),true);
+  assert.equal(await page.locator('#context-form').isVisible(),false);
+  assert.equal(await page.locator('#ps-zone-grid>article').count(),2);
+  assert.match(await page.locator('#ps-zone-grid').innerText(),/21,8 °C/);
+  await page.locator('#ps-zone-search').fill('Arbeitszimmer');assert.equal(await page.locator('#ps-zone-grid>article').count(),1);
+  await page.locator('#ps-zone-search').fill('');
+  console.log('ok 1 - default cockpit uses actual zone data and filters without mutations');
+  const nav=view=>page.locator(`.ps-nav [data-ps-nav="${view}"]`);
+  await nav('zone').click();
+  await page.locator('.ps-module-card').first().waitFor();
+  assert.equal(await page.locator('.ps-module-card').count(),4);
+  assert.equal(await page.locator('.ps-flow-node').count(),3);
+  assert.match(await page.locator('#ps-module-detail').innerText(),/kein Live-Zustand/);
+  await page.locator('[data-ps-module="climate"]').click();
+  assert.equal(await page.locator('[data-ps-module="climate"]').evaluate(e=>e===document.activeElement),true);
+  assert.match(await page.locator('#ps-module-detail').innerText(),/Raumtemperatur/);
+  assert.equal(await page.locator('#ps-adoption-review').count(),0);
+  assert.deepEqual(before,await command({action:'snapshot'}));
+  console.log('ok 2 - module graph is source-based, keyboard focused and not an activation');
+  await page.locator('[data-ps-module="lighting"]').click();
+  await page.getByRole('button',{name:'Quellen konfigurieren',exact:true}).click();
+  await page.waitForFunction(()=>!document.getElementById('context-form').hidden&&!selectionBusy);
+  assert.equal(await page.locator('[data-ps-role="illuminance"]').isVisible(),true);
+  assert.equal(await page.locator('[data-ps-role="temperature"]').isVisible(),false);
+  const chosen=await page.locator('#role-illuminance input:checked').count();
+  await page.locator('[data-ps-role="illuminance"] input[type=search]').fill('no-match');
+  assert.equal(await page.locator('#role-illuminance input:checked').count(),chosen);
+  assert.match(await page.locator('[data-ps-role="illuminance"] .ps-role-count').innerText(),/1 ausgewählt · 0/);
+  await page.locator('[data-ps-role="illuminance"] input[type=search]').fill('');
+  await page.locator('#role-illuminance input').uncheck();
+  assert.match(await page.locator('#ps-config-diff').innerText(),/Helligkeit \(Lux\)/);
+  await nav('cockpit').click();assert.equal(await page.locator('#context-form').isVisible(),true);
+  assert.match(await page.locator('#ps-notice').innerText(),/speichern oder abbrechen/);
+  assert.deepEqual(before.roles,(await command({action:'snapshot'})).roles);
+  await page.locator('#context-cancel').click();await page.waitForFunction(()=>!contextEditing);
+  assert.deepEqual(before.roles,(await command({action:'snapshot'})).roles);
+  console.log('ok 3 - source search, diff and navigation guard preserve unsaved selections');
+  await page.locator('#context-edit').click();await page.waitForFunction(()=>!byId('context-form').hidden&&!selectionBusy);
+  await page.locator('.ps-role-filters button').first().click();
+  await page.locator('#role-illuminance input').uncheck();
+  await page.locator('#context-form button[type=submit]').click();
+  await page.waitForFunction(()=>!contextEditing&&!selectionBusy);
+  const saved=await command({action:'snapshot'});
+  assert.deepEqual(saved.roles.illuminance,[]);assert.deepEqual(saved.roles.presence,before.roles.presence);assert.equal(saved.learning,before.learning);assert.equal(saved.ha_writes,0);assert.equal(saved.helper_writes,0);
+  console.log('ok 4 - explicit form save uses existing revision and consent owner');
+  await nav('zone').click();await page.locator('[data-ps-module="presence"]').click();
+  const preReview=await command({action:'snapshot'});assert.equal(preReview.config_reads,0);
+  await page.locator('#ps-adoption-review').click();
+  await page.waitForFunction(()=>document.getElementById('ps-review-result').textContent.includes('verwandte Automationen'));
+  assert.equal((await command({action:'snapshot'})).config_reads,1);
+  assert.match(await page.locator('#ps-review-result').innerText(),/kein Nachweis für Konfliktfreiheit/);
+  assert.doesNotMatch(await page.locator('#ps-review-result').innerText(),/PRIVATE_CONFIG_CANARY/);
+  await page.route('**/api/v1/zones/a/context',route=>route.fulfill({status:503,json:{message:'synthetic offline'}}),{times:1});
+  await page.evaluate(async()=>{try{await loadContext();}catch{}renderLearning();});
+  assert.equal(await page.locator('.ps-module-card').count(),0);
+  await page.evaluate(async()=>{await loadContext();});await page.locator('.ps-module-card').first().waitFor();
+  console.log('ok 5 - explicit structural review and failed reads do not imply authority');
+  // Names stay plain text in cards and the dependency view.
+  await page.evaluate(()=>{zoneDefinitions[0].name='<img src=x onerror="window.workspaceCanary=1">';renderZoneView();});
+  assert.equal(await page.locator('#ps-zone-grid img').count(),0);assert.equal(await page.evaluate(()=>window.workspaceCanary),undefined);
+  await page.evaluate(async()=>{await load();});
+  await nav('history').click();assert.equal(await page.locator('#history-section').isVisible(),true);
+  assert.equal(requests.some(r=>r.url.includes('/history')),false);
+  await nav('system').click();await page.locator('#ps-theme').selectOption('dark');await page.locator('#ps-density').selectOption('compact');await page.locator('#ps-show-ids').check();
+  const prefs=await page.evaluate(()=>JSON.parse(localStorage.getItem('pilotsuite.workspace.v1')));
+  assert.deepEqual(Object.keys(prefs).sort(),['density','ids','theme','view']);
+  await page.reload();await page.waitForFunction(()=>document.body.classList.contains('ps-workspace-ready')&&contextData&&!selectionBusy);
+  assert.equal(await page.locator('html').getAttribute('data-ps-theme'),'dark');
+  assert.equal(await page.locator('html').getAttribute('data-ps-density'),'compact');
+  assert.equal(await page.locator('#ps-density').inputValue(),'compact');
+  console.log('ok 6 - no automatic recorder reads; display preferences survive reload without household state');
+  const out=process.env.PILOTSUITE_SCREENSHOTS;
+  if(out)await fs.mkdir(out,{recursive:true});
+  for(const width of [390,768,1440]){
+   await page.setViewportSize({width,height:1100});
+   await nav('system').click();await page.locator('#ps-density').selectOption('comfortable');
+   for(const theme of ['light','dark']){
+    await page.locator('#ps-theme').selectOption(theme);
+    await nav('cockpit').click();
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`cockpit overflow ${width}`);
+    if(out)await page.screenshot({path:path.join(out,`workspace-cockpit-${theme}-${width}.png`),fullPage:true});
+    await nav('zone').click();await page.locator('[data-ps-module="climate"]').click();
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`module overflow ${width}`);
+    if(out)await page.screenshot({path:path.join(out,`workspace-modules-${theme}-${width}.png`),fullPage:true});
+    await nav('system').click();
+   }
+  }
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await nav('config').click();await page.locator('#context-edit').click();await page.waitForFunction(()=>!contextEditing||(!byId('context-form').hidden&&!selectionBusy));
+  await page.locator('.ps-role-filters button').first().click();
+  if(out)await page.screenshot({path:path.join(out,'workspace-config-1440.png'),fullPage:true});
+  await page.locator('#context-cancel').click();
+  await page.evaluate(()=>{location.hash='#pattern-workbench';});
+  await page.locator('#pattern-workbench').waitFor({state:'visible'});
+  assert.equal(await nav('workbench').getAttribute('aria-current'),'page');
+  assert.deepEqual(errors,[]);
+  const end=await command({action:'snapshot'});assert.equal(end.ha_writes,0);assert.equal(end.helper_writes,0);
+  assert.equal(requests.some(r=>/presence-runtime|helpers\/provision|transactions\/.+\/apply/.test(r.url)),false);
+  console.log('ok 7 - mobile/tablet/desktop themes, deep links, reduced motion and no control calls');
+ }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
+})().catch(e=>{console.error(e);process.exitCode=1;});
