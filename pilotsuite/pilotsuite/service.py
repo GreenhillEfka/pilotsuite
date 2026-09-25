@@ -174,6 +174,79 @@ class PilotSuiteService:
                         'scope': 'helpers_in_zone_inventory', 'persisted': False,
                         'ha_execution': False, 'checked_at': datetime.now(UTC).isoformat()}
 
+    async def provision_helper(self, zone_id, payload):
+        """Execute one explicit timer transaction with before-image and independent read-back."""
+        from pilotsuite.core.foundation import build_foundation
+        from pilotsuite.core.provisioning import provision_request, desired_helper, exact_timer
+        if self._automation_review_lock.locked():
+            raise HomeAssistantError("Eine Bestandsprüfung oder Bereitstellung läuft bereits")
+        async with self._automation_review_lock:
+            async with self._projection_lock:
+                inventory = await self.selection_inventory(zone_id)
+                report = await self.context.report(zone_id)
+                report["effective_roles"] = report["config"]["roles"]
+                foundation = build_foundation(inventory, report)
+                request = provision_request(inventory, foundation, payload)
+                domain, key = request.helpers[0]
+                helper = desired_helper(foundation, domain, key)
+            before = await self.client.helper_collection(domain)
+            existing = [row for row in before if row.get("id") == key]
+            if len(existing) > 1:
+                raise SelectionConflict("Helferbestand ist nicht eindeutig; keine Änderung")
+            if existing:
+                if not exact_timer(existing[0], helper):
+                    raise SelectionConflict("Vorhandener Helfer mit dieser ID weicht ab; keine Übernahme")
+                txid = await self.plans.helper_transaction("verified_reuse",
+                    {"outcome":"verified","zone_id":zone_id,"revision":request.revision,
+                     "domain":domain,"key":key,"preexisting":True})
+                return {"transaction_id":txid,"state":"verified_reuse","entity_id":f"{domain}.{key}",
+                        "created":False,"verified":True}
+            txid = await self.plans.helper_transaction("approved",
+                {"outcome":"pending","zone_id":zone_id,"revision":request.revision,
+                 "domain":domain,"key":key,"before_count":len(before)})
+            async with self._projection_lock:
+                current = await self.selection_inventory(zone_id)
+                if current["revision"] != request.revision:
+                    await self.plans.helper_transaction("aborted",
+                        {"outcome":"conflict","reason":"zone_revision_changed"},txid)
+                    raise SelectionConflict("Zone changed before helper creation; reload")
+            create_confirmed = False
+            try:
+                await self.client.helper_create_timer(key=key,name=helper["name"],
+                    duration=helper["config"]["duration"],restore=helper["config"]["restore"])
+                create_confirmed = True
+            except HomeAssistantError:
+                pass
+            after = await self.client.helper_collection(domain)
+            matches = [row for row in after if row.get("id") == key]
+            if len(matches) == 1 and exact_timer(matches[0], helper):
+                async with self._projection_lock:
+                    current = await self.selection_inventory(zone_id)
+                    zone_current = current["revision"] == request.revision
+                await self.plans.helper_transaction("applied",
+                    {"outcome":"verified","zone_id":zone_id,"revision":request.revision,
+                     "domain":domain,"key":key,"created":True,
+                     "create_response_confirmed":create_confirmed,"zone_revision_current":zone_current},txid)
+                return {"transaction_id":txid,"state":"created_verified" if zone_current else "created_zone_changed",
+                        "entity_id":f"{domain}.{key}","created":True,"verified":True,
+                        "zone_revision_current":zone_current}
+            if create_confirmed and len(matches) == 1:
+                try:
+                    await self.client.helper_delete_timer(key)
+                    rollback = await self.client.helper_collection(domain)
+                    removed = not any(row.get("id") == key for row in rollback)
+                except HomeAssistantError:
+                    removed = False
+                await self.plans.helper_transaction("verification_failed",
+                    {"outcome":"rolled_back" if removed else "manual_recovery_required",
+                     "zone_id":zone_id,"domain":domain,"key":key},txid)
+                if removed:
+                    raise HomeAssistantError("Timer verification failed; created helper was rolled back")
+            await self.plans.helper_transaction("unknown_outcome",
+                {"outcome":"manual_recovery_required","zone_id":zone_id,"domain":domain,"key":key,
+                 "create_response_confirmed":create_confirmed},txid)
+            raise HomeAssistantError("Timer outcome is not safely resolved; no automatic retry or delete")
+
     @staticmethod
     def _recent_versions():
         from pilotsuite.core.maintenance import release_history
@@ -292,7 +365,7 @@ class PilotSuiteService:
             "selection": self._selection_summary,
             "version": VERSION,
             "architecture": ARCHITECTURE_VERSION,
-            "mode": "hard_read_only",
+            "mode": "bounded_helper_provisioning",
             "app_update": await self.world.maintenance_update(fresh=ready),
             "recent_versions": self._recent_versions(),
             "home_assistant": {
