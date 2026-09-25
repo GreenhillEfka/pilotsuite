@@ -581,6 +581,16 @@ function renderFoundationJourney() {
   if (pc) {
     const p=document.createElement('p'); p.textContent=`Anwesenheit: ${pc.logical_owner||'noch kein logischer Raumstatus'} · ${(pc.raw_sources||[]).length} Rohquellen.`; detail.append(p);
   }
+  const matrix=f?.capability_matrix;
+  if (matrix) {
+    const list=document.createElement('ul');
+    for (const item of matrix.items || []) {
+      const li=document.createElement('li');
+      li.textContent=`${item.module}: ${item.state}${(item.missing||[]).length ? ' · fehlt '+item.missing.join(', ') : ''}`;
+      list.append(li);
+    }
+    detail.append(list);
+  }
 }
 function renderDailyBrief() {
   const root = byId('daily-brief');
