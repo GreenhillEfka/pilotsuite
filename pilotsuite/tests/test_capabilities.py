@@ -73,3 +73,4 @@ class ZoneComfortMatrixTests(unittest.TestCase):
         self.assertEqual("needs_sources", capability_matrix({"light":["light.x"]})["items"][1]["state"])
         self.assertEqual("ready", capability_matrix({"light":["light.x"],"illuminance":["sensor.lux"]})["items"][1]["state"])
         self.assertEqual("ready", capability_matrix({"light":["light.x"],"daylight_binary":["binary_sensor.bright"]})["items"][1]["state"])
+        self.assertNotIn("timer", {x for row in capability_matrix({"presence":["binary_sensor.p"]})["items"] for x in row["optional_available"]})
