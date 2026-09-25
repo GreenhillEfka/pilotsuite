@@ -1,73 +1,50 @@
 # PilotSuite current state
 
-## Alpha.23 published; installation unverified — 2026-09-24
+## 2026-09-25 — Alpha.24 reconciliation in existing PR #54
 
-**PR #52 is merged. Do not implement, version or publish the Prüfkompass again.**
-The current continuation has GitHub access but no exposed HA-MCP tools, confirmed
-by tool discovery. No new HA read, backup, Store refresh or app update was performed
-in this handoff. This is a tool-availability limitation, not a denied HA permission.
-The current installed version and current Store offer are therefore unverified.
+Canonical repository GreenhillEfka/pilotsuite; branch feat/zone-daily-brief.
+Native GitHub reads AND source-object writes work again, as does HA-MCP.
+Do not restart connector setup or create another implementation/repository.
 
-## Verified source and tests
+Fresh app metadata: Alpha.23 installed/offered, started, update_available=false,
+auto_update=true. No backup, Store refresh, update, restart, options, roles,
+learning, actuation or scheduler change was made for this source integration.
+Earlier readiness observations are historical, not a new live UI/data check.
+Authenticated Ingress and independent persisted-data/image acceptance remain open.
 
-| Evidence | Actual value |
-|---|---|
-| Release commit | `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814` |
-| Candidate | `cf445355868cbe1448f402be19207f66beae5898` |
-| Candidate/release repository tree | `3b3125e3643e3fda6a851a2bdc2851693a4dfc0e` |
-| Application tree | `38ef81068ff75f135bce6734a43e2caca3c09b8c` |
-| Candidate CI | [35990039222](https://github.com/GreenhillEfka/pilotsuite/actions/runs/35990039222), success |
-| Release-main CI | [35991187908](https://github.com/GreenhillEfka/pilotsuite/actions/runs/35991187908), success |
+## Source reconciliation, not replacement
 
-CI confirms 247 Python and 48 JavaScript tests, three synthetic browser flows,
-repository/source contracts and amd64 build. The release tree was independently
-reproduced from its SHA256-verified source-only CI bundle in this continuation.
-This does not attest an installed image or an authenticated household browser.
+Remote head b994fc8b610df9a67669520795c0691950ef46ba already contained R2 and
+passed exact CI 36110294548. Artifact 10852638016 matched SHA256
+f24c608c0e16b0d2de48c5bd198674c69de177618799eb40722bbc33b91b88a9.
+Saved local candidate b9a520ce047610d611efea25be872f766b655375 shared its base
+6b1e9cbb4b02c4da86ae751e9772b95b07c1b9bd but contained additional UI/test work.
+Only those missing changes are carried forward. The stronger published_source /
+--allow-unchanged release gate and its four regressions are preserved unchanged.
 
-## Prior native preparation, not a new live check
+Runtime: retain only focus/expanded-state during context reload, never old
+candidates; restore presentation only on matching fresh response without stealing
+focus. Unsaved selection invalidates the brief immediately. Read-only stays closed.
+Tests: ten real-store API cases, six discovery regressions and explicit CI guard,
+plus canonical-owner component and full-app browser fixtures. No second collector,
+store, API or learner. All five version markers and both changelogs remain Alpha.24.
 
-Native backup/details previously verified backup **5c40193c**, Alpha.22 only,
-**54,118,400 bytes**, dated **2026-09-24T11:02:07.031215+00:00** (13:02:07 Vienna).
-It completed before publication. No HA configuration/database/folders, no failed
-components and no key requirement were reported. No archive download or restore.
-Its current existence and freshness must be rechecked when live access returns.
-The older 33908293 contains Alpha.21 and is not the Alpha.23 recovery point.
+Local Python 3.13.5 / aiohttp 3.13.3: 308 tests passed. Node 22.16.0: 48 passed.
+Playwright is absent in this local environment; no fresh local browser result is
+claimed. Prior full-app local navigation was administrator-blocked, not bypassed.
+The earlier green remote head does not certify this reconciliation: exact new-head
+CI is required. See docs/DAILY_BRIEF_HARDENING.md for scope and acceptance boundaries.
 
-The preceding native Store refresh offered Alpha.23 and one app metadata read
-confirmed that offer. A later prior metadata response again reported an Alpha.22
-offer; the prior results do not establish the current offer. Every prior observed
-installed version was Alpha.22/started, with auto_update=true. No assistant
-Alpha.23 update call has been made; subsequent automatic installation is unknown.
-The refresh affected catalog metadata for other apps too, not their installation.
+## Exact next step
 
-The previous PR body/final reply copied the backup size/date incorrectly, and the
-merge message contains an incorrect application-tree hash. The values above come
-from the actual native response and Git tree, not the prose. PR #52 records the
-correction without rewriting its immutable Git history.
+Verify this reconciliation on PR #54's exact CI. Before publication, complete and
+verify a fresh PilotSuite-only Alpha.23 backup using RELEASE_RUNBOOK.md; preserve
+auto_update=true. Recheck expected head/base and merge without force, check exact
+main CI, then the native Store offer and one matching update only when necessary.
+Do not repeat Alpha.23 deployment or create another version for unfinished delivery.
 
-## One next step
-
-**Resume live Alpha.23 delivery with `ha_get_app(slug="0d79c5e8_pilotsuite")`.**
-If already installed, skip backup/update/rebuild/restart and verify runtime. If not,
-recheck source/CI, current offer and matching scoped backup under RELEASE_RUNBOOK.md;
-refresh Store only when necessary, then at most one matching native app update.
-Do not alter options, consents, rights, automations, devices or other installed apps.
-Do not use alternative bridges, recovered tokens or direct container access.
-
-RELEASE_STATE.json keeps the completed Alpha.22 receipt intact and records the
-actual Alpha.23 publication separately in `pending_release`. Replace the completed
-deployment receipt only after real installation/runtime verification. Ingress UI,
-app config-read rights, data preservation and installed-image attestation remain
-separate acceptance items. No new release is needed for this documentation handoff.
-
-## Product continuation
-
-The Prüfkompass has five derived sections and one basis-checked next step, transient
-zone filters/sorting, explicit comparisons and retained authored notes. Existing
-PlanStore/context owners, schema 8, hard_read_only and denied Apply are unchanged.
-After verified delivery, demonstrate one helpful or reasonably rejected proposal
-within the already consented Golden Zone, not more review machinery or actuation.
-The resumed autonomous mandate is in DEVELOPMENT_MANDATE.md; no scheduler change
-was made here. Previous full handoff remains in Git at `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814`;
-older ledgers remain in CURRENT_STATE_HISTORY_2026-09-23.md and
- docs/IMPLEMENTATION_HISTORY_2026-09-23.md.
+Final candidate/release/backup/runtime receipts belong in PR #54 and RELEASE_STATE.
+Source CI, installed runtime, authenticated Ingress, configuration-read capability,
+data/image attestation and real comfort benefit remain separate acceptance items.
+Previous complete receipts remain in Git; published_source is independent of the
+older top-level installation history in docs/RELEASE_STATE.json.

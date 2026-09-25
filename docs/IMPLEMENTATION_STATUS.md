@@ -1,33 +1,24 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.23 — published, installation unverified
+## Alpha.24 candidate — integrated daily brief, not installed
 
-PR #52 merged at `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814`. Exact candidate CI
-35990039222 and release-main CI 35991187908 passed: 247 Python and 48 JavaScript
-tests, all three synthetic browser flows, source contracts and amd64 build.
-The actual app tree is `38ef81068ff75f135bce6734a43e2caca3c09b8c`; confirmed from Git and
-the SHA256-verified release source bundle. No independent installed-image proof.
+PR #54 continues cumulative R2 in the verified full source tree. Pure, bounded
+projection validates scope, current selected sources, consent/readiness, coverage,
+evidence partitions and preference before highlighting one retained review. Safe
+text rendering, activation-time basis checks, same-zone reload invalidation and
+focus/draft preservation use the existing context transport and evidence owners.
+No migration, new collector or execution permission. Read-only Apply stays denied.
 
-| Capability | Published implementation | Separate limitation |
-|---|---|---|
-| Derived compass | Existing PlanStore supplies five independent source/evidence/intent/automation/note sections | No extra owner, learner, schema or global safety verdict |
-| Workbench navigation | One basis-checked next step, zone filters/sorting, explicit existing functions | Viewing/filtering never starts HA comparison or autosave |
-| Transient comparison | Same-basis, five-minute navigation shelf-life; latest GET source/evidence sections | Last read is not continuous HA configuration validation |
-| Interaction | Responsive explanations, safe text, preserved edits/focus; HEAD draft route corrected | Synthetic tests are not authenticated live household acceptance |
-| Execution | hard_read_only and Apply denial unchanged | No actuation permission from notes, evidence or compass |
+The original failed CI and uncollected test functions are corrected. 41 projector
+unit cases plus ten actual API/store cases are included in normal unittest discovery.
+Six discovery regressions and an explicit CI check prevent silently uncollected tests.
+The full-application browser flow is added to regular CI. Local browser access to
+the fixture server was administrator-blocked; only isolated component checks ran
+locally. Exact PR/main CI, publication, installation and real Ingress acceptance
+must be read separately. Details: DAILY_BRIEF_HARDENING.md.
 
-Prior native preparation: backup 5c40193c, Alpha.22 only, 54,118,400 bytes,
-2026-09-24T11:02:07.031215+00:00, completed before publication, no HA/DB/folders,
-failed components or key requirement. These are corrected values from the preceding
-native response, not a new backup or fresh verification in this handoff.
-Prior refresh and one read confirmed an Alpha.23 offer; later prior metadata
-reported Alpha.22 offered again. Current Store/installed state is unverified.
-No assistant Alpha.23 update call has occurred; automatic installation is unknown.
-
-This continuation exposes GitHub, not HA-MCP. No HA writes or new live acceptance.
-RELEASE_STATE.json preserves the last completed Alpha.22 deployment and records
-the actual Alpha.23 publication separately in pending_release. Fresh live app read
-is the single next step; use RELEASE_RUNBOOK.md rather than rebuilding this package.
+Fresh native observation confirms Alpha.23 installed/started and ready/connected/
+fresh/zone-resolved. Presence/light remain partial. No HA changes during integration.
 
 ## Implemented review-note package
 
@@ -52,7 +43,7 @@ full-suite or browser run was claimed for the Alpha.22 delivery. Historical focu
 
 | Capability | Boundary | Separate limitation / acceptance |
 |---|---|---|
-| Supervisor app / update routine | Canonical version/tree association, scoped backup, native Store refresh | alpha.22 installed/runtime verified; no independent image attestation or restore drill |
+| Supervisor app / update routine | Canonical version/tree association, scoped backup, native Store refresh | alpha.23 installed/readiness rechecked; no independent image attestation or restore drill |
 | Ingress workspace | Peer-restricted navigation, zone guide, pattern/draft workbench | Synthetic browser tests are not authenticated live acceptance |
 | HA projection / readiness | Snapshot, stream, reconnect/backoff, quality/scope separation | Not physical sensor freshness, atomic snapshot or durable event replay |
 | Habitus zones / roles | Stable logical zones, areas/extras, confirmed-only groups | No shadow topology or invented sensors |
@@ -69,9 +60,8 @@ full-suite or browser run was claimed for the Alpha.22 delivery. Historical focu
 
 ## Remaining acceptance
 
-Resume actual Alpha.23 installation/runtime verification first, skipping any
-already completed installation. Verify current scoped recovery/offer conditions
-rather than replaying backup or Store calls blindly. No speculative restart/rebuild.
+Finish exact Alpha.24 candidate CI and the existing scoped release routine. Do not
+repeat Alpha.23 installation or blindly replay backup/Store operations.
 Then authenticate the real UI and verify existing app configuration-read capability
 and data preservation separately, without changing permissions or learning consent.
 Golden Zone/Recorder coverage, reconnect soak, traceable real habits and a second

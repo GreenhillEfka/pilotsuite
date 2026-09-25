@@ -77,3 +77,28 @@ class ReleasePreflightTests(unittest.TestCase):
         self.git("checkout", "--orphan", "unrelated")
         with self.assertRaises(subprocess.CalledProcessError):
             release.preflight(self.root, self.commit_version(15), self.old)
+
+    def test_ci_allows_documentation_only_with_identical_published_app_tree(self):
+        (self.root / "NOTE.md").write_text("Synthetic documentation only\n")
+        self.git("add", "."); self.git("commit", "-qm", "docs")
+        result = release.check_source(self.root, "HEAD", self.old)
+        self.assertEqual("unchanged_published_application", result["source_check"])
+        self.assertFalse(result["deployment_authorized"])
+        self.assertEqual(self.git("rev-parse", "HEAD:pilotsuite"), result["candidate"]["app_tree"])
+
+    def test_ci_rejects_same_version_even_when_only_test_in_app_tree_changes(self):
+        candidate = self.commit_version(14, {"pilotsuite/test.txt": "changed"})
+        with self.assertRaisesRegex(ValueError, "reuses a published version"):
+            release.check_source(self.root, candidate, self.old)
+
+    def test_ci_new_version_still_requires_all_release_gates(self):
+        candidate = self.commit_version(15)
+        self.assertEqual(release.preflight(self.root, candidate, self.old),
+                         release.check_source(self.root, candidate, self.old))
+
+    def test_ci_rejects_older_version_and_unrelated_same_version(self):
+        with self.assertRaisesRegex(ValueError, "newer"):
+            release.check_source(self.root, self.commit_version(13), self.old)
+        self.git("checkout", "--orphan", "unrelated-same")
+        with self.assertRaises(subprocess.CalledProcessError):
+            release.check_source(self.root, self.commit_version(14, {"NOTE.md": "unrelated root"}), self.old)

@@ -90,7 +90,7 @@
     "config_read_capability": "not_verified_on_live_addon_admin_required_no_escalation",
     "independent_live_migration_inspection": "not_performed"
   },
-  "next_task": "Resume the already-published Alpha.23 delivery from pending_release, starting with a fresh HA-MCP app read. Do not recreate PR #52, republish/version the app or repeat completed preparation blindly. Preserve the last completed Alpha.22 receipt until actual target installation is verified. Autonomous development mandate remains as explicitly resumed; this handoff makes no scheduler change.",
+  "next_task": "Finish exact Alpha.24 PR #54 CI, then use RELEASE_RUNBOOK.md: fresh PilotSuite-only backup before publication, expected-head merge, exact main CI and one matching native Store update if needed. Alpha.23 is already installed; do not repeat its deployment. No household, consent, rights or scheduler changes.",
   "previous_user_accepted_release": {
     "version": "0.1.0-alpha.16",
     "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
@@ -106,7 +106,7 @@
       "independent_network_capture": false
     }
   },
-  "receipt_scope": "Top-level release/backup/installation retain the last verified completed Alpha.22 deployment. pending_release records the actual Alpha.23 publication and prior native preparation, NOT an Alpha.23 installation or fresh live check.",
+  "receipt_scope": "Top-level release/backup/installation and pending_release are preserved historical Alpha.22/23 handoff records. current_observation supersedes their stale live-status/access claims. published_source is the last published source reference for CI, independent of installation. development_candidate is not a deployment receipt.",
   "pending_release": {
     "version": "0.1.0-alpha.23",
     "status": "published_installation_unverified",
@@ -178,5 +178,52 @@
       "scope_or_credentials_changed": false
     },
     "next_step": "Read current PilotSuite installed/offered metadata through HA-MCP. If Alpha.23 is installed, skip backup/update/rebuild/restart and verify runtime. Otherwise reverify the matching scoped recovery point, exact source/CI and offer under RELEASE_RUNBOOK.md; perform at most one matching native update, then record runtime separately from UI acceptance."
+  },
+  "published_source": {
+    "version": "0.1.0-alpha.23",
+    "commit": "dfecb464f9f67eb1dd3e393b8ecc99e9ca208814",
+    "tree": "3b3125e3643e3fda6a851a2bdc2851693a4dfc0e",
+    "app_tree": "38ef81068ff75f135bce6734a43e2caca3c09b8c",
+    "pull_request": 52,
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35991187908",
+    "ci_conclusion": "success"
+  },
+  "current_observation": {
+    "date": "2026-09-25",
+    "installed": "0.1.0-alpha.23",
+    "offered": "0.1.0-alpha.23",
+    "state": "started",
+    "update_available": false,
+    "auto_update": true,
+    "source": "native ha_get_app and PilotSuite readiness logs",
+    "readiness_log_last_label": "2026-09-25T09:31:59Z",
+    "ready": true,
+    "stream_connected": true,
+    "snapshot_fresh": true,
+    "zone_resolved": true,
+    "partial_capabilities": [
+      "presence",
+      "light"
+    ],
+    "startup_log_rechecked": false,
+    "options_changed": false,
+    "update_calls": 0,
+    "backup_calls": 0,
+    "historical_installation_receipt": "PR #54 initial body and WORK_PACKAGE_DAILY_BRIEF.md",
+    "authenticated_live_ingress_acceptance": "pending",
+    "independent_image_attestation": false
+  },
+  "development_candidate": {
+    "version": "0.1.0-alpha.24",
+    "pull_request": 54,
+    "branch": "feat/zone-daily-brief",
+    "based_on_commit": "6b1e9cbb4b02c4da86ae751e9772b95b07c1b9bd",
+    "status": "integrated_candidate_not_published",
+    "exact_ci": "pending",
+    "prepublication_backup": "required_before_merge",
+    "installed": false,
+    "local_full_app_browser": "blocked_by_local_browser_administrator_policy_not_bypassed",
+    "local_component_browser_tests": 35,
+    "authenticated_live_ui": "pending"
   }
 }

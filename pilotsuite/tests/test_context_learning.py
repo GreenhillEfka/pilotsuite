@@ -244,7 +244,7 @@ class CollectionStateTests(unittest.IsolatedAsyncioTestCase):
             (True, True, True, ['binary_sensor.a'], 'collecting'),
         ]:
             service = SimpleNamespace(
-                selection_inventory=AsyncMock(return_value={'revision': 1, 'enabled': enabled, 'items': [], 'missing': [], 'resolved': True}),
+                selection_inventory=AsyncMock(return_value={'zone_id': 'a', 'revision': 1, 'enabled': enabled, 'items': [], 'missing': [], 'resolved': True}),
                 context=SimpleNamespace(report=AsyncMock(return_value={'config': {'learning': learning, 'roles': {}}, 'evidence': []})),
                 plans=SimpleNamespace(drafts=AsyncMock(return_value=[])),
                 status=AsyncMock(return_value={'ready': ready}),

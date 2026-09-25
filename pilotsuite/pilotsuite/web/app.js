@@ -226,7 +226,7 @@ function renderSelection() {
 
 function selectionChanged() {
   text('selection-message', `${Object.keys(selectionDraft.changes).length} geänderte Entitäten. Nur bestätigte Entitäten werden ausgewertet. ${selectionDraft.dirty ? 'Ungespeichert.' : 'Keine Änderungen.'}`);
-  renderSelection(); renderZoneView();
+  renderSelection(); renderZoneView(); renderDailyBrief();
 }
 
 async function loadSelection(zone) {
@@ -235,6 +235,8 @@ async function loadSelection(zone) {
   if (typeof historyInvalidate === "function") historyInvalidate();
   const zoneChanged = selectionZone !== zone;
   selectionBusy = true; selectionZone = zone;
+  // A same-zone reload is also a new basis check, even while inventory is pending.
+  invalidateDailyBrief('Alltagsbrief wird für die ausgewählte Zone geladen …');
   if (zoneChanged) {
     contextData = null;
     byId('learning-export').removeAttribute('href');
@@ -251,6 +253,7 @@ async function loadSelection(zone) {
     await loadContext();
     text('selection-message', `${inventory.resolved ? 'Inventar geladen' : 'Zone derzeit nicht aufgelöst'} · Revision ${inventory.revision}. ${inventory.enabled === false ? 'Zone ist deaktiviert. ' : ''}Ungeprüft ist nicht gleich ignoriert.`);
   } catch (error) {
+    if (zone === selectionZone) invalidateDailyBrief('Alltagsbrief nicht verfügbar. Auswahl neu laden.');
     // Do not display one zone's data under another zone's label.
     if (selectionDraft?.inventory.zone_id !== zone) selectionDraft = null;
     if (!contextData) {
@@ -492,10 +495,12 @@ function renderCompactSummary(result) {
 async function loadContext() {
   const zone = selectionZone;
   const generation = ++contextGeneration;
+  invalidateDailyBrief('Alltagsbrief wird neu geprüft …', true);
   let result;
   try { result = await json(`api/v1/zones/${encodeURIComponent(zone)}/context`); }
   catch (error) {
     if (zone !== selectionZone || generation !== contextGeneration) return false;
+    invalidateDailyBrief('Alltagsbrief nicht verfügbar. Neu laden zum Wiederholen.');
     throw error;
   }
   // A zone can be revisited, and overlapping reads can finish out of order.
@@ -530,9 +535,215 @@ function renderZoneGuide() {
     root.append(li);
   }
 }
+// Keep invalidation local to this view: never erase unsaved configuration/editor data.
+function invalidateDailyBrief(message = 'Alltagsbrief derzeit nicht verfügbar. Neu laden zum Wiederholen.', retainView = false) {
+  const root = byId('daily-brief');
+  if (!root) return;
+  root._invalidBriefContexts ||= new WeakSet();
+  if (contextData && typeof contextData === 'object') root._invalidBriefContexts.add(contextData);
+  const focusWasInside = root.contains(document.activeElement);
+  // Keep only presentation state, never a candidate or evidence. Reapply it
+  // after a matching fresh response; errors, zone changes and edits discard it.
+  if (retainView && root._briefRenderKey) {
+    root._briefSuspendedView = {key: root._briefRenderKey, scope: root._briefScope,
+      open: !!root.querySelector('details')?.open,
+      focus: root.querySelector('details > summary') === document.activeElement ? 'summary' :
+        root.querySelector('a[data-pattern-id]') === document.activeElement ? 'candidate' : null};
+  } else if (!retainView) {
+    root._briefSuspendedView = null;
+  }
+  root._briefRenderKey = null;
+  root.replaceChildren();
+  root.textContent = message;
+  if (focusWasInside) { root.tabIndex = -1; root.focus(); }
+}
+
+function renderDailyBrief() {
+  const root = byId('daily-brief');
+  if (!root) return;
+  const object = value => value && typeof value === 'object' && !Array.isArray(value);
+  const integer = value => Number.isSafeInteger(value) && value >= 0;
+  const closed = value => object(value) && value.allowed === false &&
+    Array.isArray(value.actions) && value.actions.length === 0;
+  // Python bounds Unicode code points, not JavaScript UTF-16 code units.
+  const shortString = (value, size) => typeof value === 'string' &&
+    value.length <= size * 2 && Array.from(value).length <= size;
+  const boundedText = (value, size = 500) => typeof value === 'string'
+    ? Array.from(value.slice(0, size * 2)).slice(0, size).join('').replace(/[\u0000-\u001f\u007f]/g, '').trim() : '';
+  const textRows = value => Array.isArray(value)
+    ? value.slice(0, 8).map(item => boundedText(item)).filter(Boolean) : [];
+  const renderedContext = contextData;
+  const inventory = selectionDraft?.inventory;
+  const brief = contextData?.daily_brief;
+  if (!object(brief) || !object(inventory) || !object(contextData) ||
+      root._invalidBriefContexts?.has(contextData) ||
+      brief.schema !== 'pilotsuite-daily-brief-v1' ||
+      inventory.zone_id !== selectionZone || brief.zone_id !== selectionZone ||
+      !integer(inventory.revision) || !integer(brief.revision) ||
+      !integer(contextData.revision) || brief.revision !== inventory.revision ||
+      contextData.revision !== inventory.revision ||
+      (contextData.zone_id !== undefined && contextData.zone_id !== selectionZone) ||
+      !closed(brief.execution)) {
+    invalidateDailyBrief('Alltagsbrief nicht für den aktuellen Zonenstand bestätigt. Neu laden zum Wiederholen.');
+    return;
+  }
+  if (selectionDraft.dirty === true) {
+    invalidateDailyBrief('Ungespeicherte Auswahl: Alltagsbrief nach Speichern oder Verwerfen erneut laden.');
+    return;
+  }
+  // Cross-check the projection against its existing parent response. This is
+  // transport/UI consistency validation, not a second detector or permission owner.
+  const sourceSet = value => {
+    if (!Array.isArray(value) || value.length > 20 || value.some(id =>
+        typeof id !== 'string' || id !== id.trim() || id.length > 255 || !/^[a-z0-9_]+\.[a-z0-9_]+$/.test(id))) return null;
+    const result = new Set(value);
+    return result.size === value.length ? result : null;
+  };
+  const preferenceMatches = value => object(value) &&
+    ((value.preference === null && value.state === 'unreviewed') ||
+     (value.preference === 'accepted' && value.state === 'review_requested'));
+  const currentBasis = value => {
+    if (!object(value) || inventory.enabled !== true || contextData.enabled !== true ||
+        contextData.eligible !== true || contextData.config?.learning !== true ||
+        contextData.collection_state !== 'collecting' || brief.truncated !== false ||
+        !['sampled', 'partial'].includes(brief.coverage_state) ||
+        !preferenceMatches(value)) return false;
+    const sources = sourceSet(value.source_ids);
+    const roles = sourceSet(contextData.config?.roles?.presence);
+    const collecting = sourceSet(contextData.collecting_sources);
+    if (!sources?.size || !roles?.size || !collecting?.size ||
+        !Array.isArray(inventory.items) || inventory.items.length > 2000 ||
+        !Array.isArray(contextData.reviews) || contextData.reviews.length > 200) return false;
+    for (const id of sources) {
+      const items = inventory.items.filter(item => object(item) && item.entity_id === id);
+      if (!roles.has(id) || !collecting.has(id) || items.length !== 1 ||
+          items[0].decision !== 'relevant' || !['on', 'off'].includes(items[0].state)) return false;
+    }
+    const matches = contextData.reviews.filter(review => object(review) &&
+      review.pattern_id === value.pattern_id && review.zone_id === selectionZone &&
+      review.revision === inventory.revision);
+    if (matches.length !== 1 || matches[0].schema !== 'pilotsuite-review-v1' ||
+        matches[0].risk !== 'read_only' || !closed(matches[0].execution) ||
+        !preferenceMatches(matches[0]) || matches[0].preference !== value.preference ||
+        matches[0].state !== value.state) return false;
+    const originalSources = sourceSet(matches[0].sources);
+    return originalSources?.size === sources.size && [...sources].every(id => originalSources.has(id));
+  };
+  let candidate = null;
+  if (brief.candidate !== null && brief.candidate !== undefined) {
+    const value = brief.candidate;
+    const stats = value?.statistics;
+    const window = stats?.window_local;
+    if (!object(value) || !closed(value.execution) || !currentBasis(value) ||
+        value.basis_kind !== 'retained_review' || value.navigation !== 'pattern_workbench' ||
+        value.basis?.zone_id !== selectionZone || value.basis?.revision !== inventory.revision ||
+        !shortString(value.pattern_id, 128) || !value.pattern_id ||
+        !shortString(value.title, 240) || !value.title.trim() ||
+        !['unreviewed', 'review_requested'].includes(value.state) ||
+        !object(stats) || !integer(stats.activation_count) || stats.activation_count < 1 ||
+        !integer(stats.distinct_day_count) || stats.distinct_day_count < 1 ||
+        stats.distinct_day_count > stats.activation_count || !object(window) ||
+        !integer(window.start_hour) || !integer(window.end_hour) ||
+        window.start_hour >= window.end_hour || window.end_hour > 24 ||
+        typeof stats.timezone !== 'string' || stats.timezone.length > 128 ||
+        !Array.isArray(brief.withheld_reasons) || brief.withheld_reasons.length > 0) {
+      invalidateDailyBrief('Der Prüfkandidat hat keine konsistente Grundlage. Neu laden zum Wiederholen.');
+      return;
+    }
+    candidate = {id: value.pattern_id, title: boundedText(value.title, 240),
+      evidence: `${stats.activation_count} Aktivierungen an ${stats.distinct_day_count} Tagen · ` +
+        `${window.start_hour}–${window.end_hour} Uhr ${boundedText(stats.timezone, 128)} · aufbewahrte Belege`};
+  }
+  const counts = object(brief.excluded) ? brief.excluded : {};
+  const model = {zone: selectionZone, revision: inventory.revision, candidate,
+    observations: Array.isArray(brief.observations) ? brief.observations.slice(0, 8)
+      .map(item => boundedText(item?.summary)).filter(Boolean) : [],
+    reasons: textRows(brief.withheld_reasons), cautions: textRows(brief.cautions),
+    limits: textRows(brief.limits),
+    dismissed: integer(counts.dismissed) ? counts.dismissed : null,
+    deferred: integer(counts.deferred) ? counts.deferred : null};
+  const renderKey = JSON.stringify(model);
+  const navigateCurrentBrief = event => {
+    // Editing/feedback may update the surrounding app before this view renders.
+    // Recheck only navigation relevance; this is never an execution grant.
+    if (contextData !== renderedContext || selectionDraft?.inventory !== inventory ||
+        selectionZone !== model.zone || inventory.revision !== model.revision ||
+        contextData?.revision !== model.revision || selectionDraft?.dirty === true ||
+        root._invalidBriefContexts?.has(contextData) || !currentBasis(brief.candidate)) {
+      event.preventDefault();
+      invalidateDailyBrief('Der Prüfstand hat sich geändert. Alltagsbrief nach Speichern oder Verwerfen erneut laden.');
+      return;
+    }
+    const target = byId('pattern-workbench');
+    if (!target) return;
+    if (target.tagName === 'DETAILS') target.open = true;
+    target.tabIndex = -1;
+    target.focus();
+  };
+  // Keep the DOM/focus, but refresh the handler to the latest verified response.
+  if (root._briefRenderKey === renderKey) {
+    const link = root.querySelector('a[data-pattern-id]');
+    if (link) link.onclick = navigateCurrentBrief;
+    return;
+  }
+  const scope = JSON.stringify([model.zone, model.revision]);
+  const suspended = root._briefSuspendedView;
+  const resume = suspended?.key === renderKey && suspended?.scope === scope ? suspended : null;
+  root._briefSuspendedView = null;
+  const wasOpen = root._briefScope === scope && (root.querySelector('details')?.open || resume?.open);
+  const focusWasInside = root.contains(document.activeElement);
+  root.replaceChildren();
+  const paragraph = (value, muted = false) => {
+    const p = document.createElement('p');
+    if (muted) p.className = 'muted';
+    p.textContent = value;
+    root.append(p);
+    return p;
+  };
+  paragraph('Bestätigtes Inventar: ' + (model.observations.join(' · ') || 'derzeit nicht auswertbar.'));
+  if (candidate) {
+    const p = paragraph('');
+    const strong = document.createElement('strong'); strong.textContent = 'Zur Prüfung: ';
+    const link = document.createElement('a');
+    link.href = '#pattern-workbench'; link.textContent = candidate.title;
+    link.dataset.patternId = candidate.id;
+    link.onclick = navigateCurrentBrief;
+    p.append(strong, link);
+    paragraph(candidate.evidence, true);
+    paragraph('In der Musterwerkbank prüfen. Keine Ausführung oder Freigabe.', true);
+  } else {
+    paragraph('Derzeit kein ausreichend belegter Prüfkandidat.');
+  }
+  for (const reason of model.reasons) paragraph(reason, true);
+  for (const caution of model.cautions) paragraph('Hinweis: ' + caution, true);
+  if (model.dismissed === null || model.deferred === null) {
+    paragraph('Zurückgestellte Muster: Anzahl nicht bestätigt.', true);
+  } else if (model.dismissed || model.deferred) {
+    paragraph(`Nicht erneut vorgeschlagen: ${model.dismissed} abgelehnt, ${model.deferred} vertagt.`, true);
+  }
+  if (model.limits.length) {
+    const details = document.createElement('details');
+    details.open = Boolean(wasOpen);
+    const summary = document.createElement('summary'); summary.textContent = 'Grundlage und Grenzen';
+    details.append(summary);
+    for (const limit of model.limits) {
+      const p = document.createElement('p'); p.textContent = limit; details.append(p);
+    }
+    root.append(details);
+  }
+  root._briefRenderKey = renderKey;
+  root._briefScope = scope;
+  if (focusWasInside) { root.tabIndex = -1; root.focus(); }
+  // Do not steal focus if the user moved it elsewhere while the request ran.
+  if (resume?.focus && document.activeElement === root) {
+    const target = root.querySelector(resume.focus === 'summary' ? 'details > summary' : 'a[data-pattern-id]');
+    target?.focus({preventScroll: true});
+  }
+}
 function renderLearning() {
   renderRoutineDrafts();
   renderZoneGuide();
+  renderDailyBrief();
   if (!contextData?.config) return;
   const cfg = contextData.config;
   const moduleRoot = byId('module-overview'); moduleRoot.replaceChildren();

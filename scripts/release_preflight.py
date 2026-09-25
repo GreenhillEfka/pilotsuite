@@ -62,13 +62,34 @@ def preflight(root: Path, candidate: str, published: str) -> dict:
                                 "Store version/source match", "live and Ingress acceptance"]}
 
 
+
+def check_source(root: Path, candidate: str, published: str) -> dict:
+    """CI permits unchanged published app trees, never silent version reuse."""
+    current = inspect_release(root, candidate)
+    previous_commit = git(root, "rev-parse", "--verify", "--end-of-options",
+                          f"{published}^{{commit}}")
+    previous_version = git(root, "show", f"{previous_commit}:VERSION")
+    if current["version"] != previous_version:
+        return preflight(root, current["commit"], previous_commit)
+    git(root, "merge-base", "--is-ancestor", previous_commit, current["commit"])
+    previous_tree = git(root, "rev-parse", f"{previous_commit}:pilotsuite")
+    if current["app_tree"] != previous_tree:
+        raise ValueError("changed application tree reuses a published version")
+    return {"source_check": "unchanged_published_application", "candidate": current,
+            "previous_release": {"version": previous_version, "commit": previous_commit},
+            "deployment_authorized": False}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate", required=True, help="committed release candidate")
     parser.add_argument("--published", required=True, help="last published release commit, not installed version")
+    parser.add_argument("--allow-unchanged", action="store_true",
+                        help="CI only: allow an identical published app tree")
     args = parser.parse_args()
     try:
-        result = preflight(ROOT, args.candidate, args.published)
+        check = check_source if args.allow_unchanged else preflight
+        result = check(ROOT, args.candidate, args.published)
     except (ValueError, subprocess.CalledProcessError) as exc:
         parser.exit(1, f"Release source check failed: {exc}\n")
     print(json.dumps(result, indent=2))

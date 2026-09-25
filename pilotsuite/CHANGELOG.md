@@ -2,6 +2,32 @@
 
 All notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.24] - 2026-09-25
+
+### Added
+- Read-only Alltagsbrief in the existing zone context and UI: one retained review
+  candidate, bounded inventory summary, evidence limits and explicit withholding.
+- Same-zone/revision/source validation; rejected or deferred patterns stay excluded.
+  Coverage and chronological evidence are checked before candidate selection.
+- Real-store API regression tests and a full-application browser CI flow for
+  navigation, reload races, errors, zone isolation and unsaved draft preservation.
+
+### Fixed
+- Clear stale daily candidates on same-zone reload, zone change and failed reads;
+  recheck navigation basis at activation without saving or discarding user edits.
+- Preserve keyboard focus and open explanations when equal projections refresh;
+  validate bounded Unicode text consistently across Python and JavaScript.
+- Daily-brief tests now run under the repository's unittest discovery; correct a
+  missing zone_id in a synthetic inventory without weakening production checks.
+- CI compares against the last published source, not an older installation receipt,
+  and rejects a changed application tree that reuses a published version.
+
+### Boundaries
+- No new store, learner, collection, HA configuration scan, consent or execution.
+  Retained evidence is not today's forecast, causal proof or verified comfort gain.
+- Local component tests, full CI, scoped backup, installation and authenticated
+  household acceptance remain distinct gates. Apply remains denied.
+
 ## [0.1.0-alpha.23] - 2026-09-24
 
 ### Added

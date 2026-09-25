@@ -1,15 +1,13 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Alpha.23 Prüfkompass is implemented and published through merged PR #52. Exact
-  candidate and main CI passed. Do not recreate the feature or bump its version.
-- Next: fresh native HA app read and complete the pending installation/runtime
-  verification under RELEASE_RUNBOOK.md. Skip installation if already current.
-  Prior scoped backup and conflicting Store offer readings are in
-  RELEASE_STATE.json.pending_release; recheck actual availability/freshness.
-- The last completed deployment receipt is Alpha.22; it is not a fresh live reading.
-  Current HA-MCP tools are not exposed in the documentation continuation.
-  Authenticated UI, app config-read capability and data preservation stay separate.
+- Alpha.23 is installed/started and native readiness was rechecked on 2026-09-25.
+  Do not repeat its deployment or recreate the Prüfkompass.
+- Continue Alpha.24 candidate PR #54: cumulative R2 daily-brief hardening integrated
+  in the full source, actual API/store checks and full-app browser CI flow. Finish
+  exact CI and the established prepublication backup/Store release routine.
+- GitHub and HA-MCP access work again. Real Ingress, config-read capability, data
+  preservation and actual comfort benefit remain separate product acceptance gates.
 - The user resumed hourly autonomous package development on 2026-09-24; see
   DEVELOPMENT_MANDATE.md. Existing scope/consent/actuation boundaries remain.
 - After verified delivery, prioritize a useful or reasonably rejected proposal in
@@ -37,7 +35,7 @@ governed execution owner exists; the read-only alpha cannot generate own actions
 
 Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
 Alpha.16 has historical user acceptance of its guide/workbench. Alpha.23 is
-published; its installation/live UI acceptance is unverified. Temporal review remains
+installed; its authenticated live UI acceptance remains unverified. Temporal review remains
 a read-only preparation and never grants action permission.
 Real learning and second-zone acceptance remain prerequisites for actuation.
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.

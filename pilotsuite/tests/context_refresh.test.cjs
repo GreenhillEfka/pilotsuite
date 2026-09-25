@@ -12,6 +12,7 @@ function setup() {
   const scope = {
     selectionZone: 'synthetic_a', contextGeneration: 0, contextData: null,
     renders: 0, historyChecks: 0,
+    byId: () => null, // This transport-only harness has no brief DOM; browser tests cover it.
     json: () => new Promise((resolve, reject) => requests.push({resolve, reject})),
     renderLearning: () => scope.renders++,
     historyCheckRevision: () => scope.historyChecks++,
