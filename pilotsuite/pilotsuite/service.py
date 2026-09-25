@@ -117,6 +117,27 @@ class PilotSuiteService:
                 report['review_compass'] = with_automation_review(current['review_compass'], current, report)
                 return report
 
+    async def import_existing_automation(self, zone_id, automation_id, zone_revision):
+        """Read and normalize one explicitly selected HA automation without taking ownership."""
+        import re
+        from pilotsuite.core.automation_import import import_automation
+        if (not isinstance(automation_id, str)
+                or not re.fullmatch(r'automation\.[a-z0-9_]+', automation_id)
+                or type(zone_revision) is not int):
+            raise InvalidSelection('Valid automation_id and zone_revision required')
+        async with self._projection_lock:
+            inventory = await self.selection_inventory(zone_id)
+            if inventory['revision'] != zone_revision:
+                raise SelectionConflict('Zone changed; reload before importing automation')
+            inventory_ids = {i['entity_id'] for i in inventory['items']}
+        config = await self.client.automation_config(automation_id)
+        async with self._projection_lock:
+            current = await self.selection_inventory(zone_id)
+            if current['revision'] != zone_revision:
+                raise SelectionConflict('Zone changed during automation import; retry')
+        return import_automation(automation_id, config, zone_id=zone_id,
+                                 zone_revision=zone_revision, inventory_ids=inventory_ids)
+
     async def start(self) -> None:
         await self.selections.initialize()
         await self.zones.bootstrap(self.settings.golden_zone_area_ids)
