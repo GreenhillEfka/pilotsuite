@@ -1,0 +1,136 @@
+{
+  "schema": "pilotsuite-release-receipt-v1",
+  "verified_date": "2026-09-25",
+  "repository": "GreenhillEfka/pilotsuite",
+  "app_slug": "0d79c5e8_pilotsuite",
+  "receipt_scope": "Fresh native source/CI, prepublication scoped backup, Store update and runtime receipt. Not authenticated live UI or independent image/data attestation.",
+  "release": {
+    "version": "0.1.0-alpha.24",
+    "commit": "6f22100dcfbee87bdedc8288b1821971bad17d53",
+    "tree": "a13f332d9e5cc58787e7481eaee6f5c035c467b9",
+    "app_tree": "528396dc07e35b2df1e349322f6c0b49e9dee6cb",
+    "pull_request": 54,
+    "candidate_commit": "d875b5437ef0daf0bad912fbb13db2de062e3ed0",
+    "candidate_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/36117146697",
+    "candidate_ci_conclusion": "success",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/36117395171",
+    "ci_conclusion": "success",
+    "source_artifact_id": 10854594599,
+    "source_artifact_sha256": "0f9ef05010b644a62e3c3bd1db10848c7df63ddd9577196caaa7e1bf18880876",
+    "source_preflight": "passed_against_published_alpha23",
+    "tests": {
+      "python": 308,
+      "javascript": 48,
+      "browser_steps_passed": 5,
+      "amd64_build": "success"
+    }
+  },
+  "published_source": {
+    "version": "0.1.0-alpha.24",
+    "commit": "6f22100dcfbee87bdedc8288b1821971bad17d53",
+    "tree": "a13f332d9e5cc58787e7481eaee6f5c035c467b9",
+    "app_tree": "528396dc07e35b2df1e349322f6c0b49e9dee6cb",
+    "pull_request": 54,
+    "candidate_commit": "d875b5437ef0daf0bad912fbb13db2de062e3ed0",
+    "candidate_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/36117146697",
+    "candidate_ci_conclusion": "success",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/36117395171",
+    "ci_conclusion": "success",
+    "source_artifact_id": 10854594599,
+    "source_artifact_sha256": "0f9ef05010b644a62e3c3bd1db10848c7df63ddd9577196caaa7e1bf18880876",
+    "source_preflight": "passed_against_published_alpha23",
+    "tests": {
+      "python": 308,
+      "javascript": 48,
+      "browser_steps_passed": 5,
+      "amd64_build": "success"
+    }
+  },
+  "backup": {
+    "id": "ad3c24bb",
+    "date": "2026-09-25T09:13:57.670074+00:00",
+    "previous_version": "0.1.0-alpha.23",
+    "size_bytes": 54138880,
+    "completed_before_publication": true,
+    "native_details_verified": true,
+    "only_pilotsuite": true,
+    "homeassistant_included": false,
+    "database_included": false,
+    "folders": [],
+    "protected": false,
+    "agent_errors": {},
+    "failed_addons": [],
+    "failed_agent_ids": [],
+    "failed_folders": [],
+    "archive_downloaded": false,
+    "restore_drill_performed": false
+  },
+  "store_refresh": {
+    "method": "native_ha_manage_app_check_updates_without_slug_or_repository",
+    "calls": 1,
+    "success": true,
+    "offered_version_verified": "0.1.0-alpha.24",
+    "other_app_updates_performed": false
+  },
+  "installation": {
+    "previous_version": "0.1.0-alpha.23",
+    "installed_version": "0.1.0-alpha.24",
+    "offered_version": "0.1.0-alpha.24",
+    "state": "started",
+    "update_available": false,
+    "native_update_calls": 1,
+    "additional_restart_or_rebuild_calls": 0,
+    "options_unchanged": true,
+    "auto_update": true,
+    "hard_read_only": true,
+    "ready": true,
+    "stream_connected": true,
+    "snapshot_fresh": true,
+    "zone_resolved": true,
+    "partial_capabilities": [
+      "presence",
+      "light"
+    ],
+    "independent_persisted_data_check": false,
+    "independent_installed_image_check": false,
+    "source_association": "canonical_repository_version_app_tree; no independent Supervisor checkout/image attestation"
+  },
+  "ingress_acceptance": {
+    "status": "pending_authenticated_session",
+    "synthetic_full_app_browser": "passed_exact_PR_and_main_CI",
+    "screenshots_visually_checked_widths": [
+      390,
+      1440
+    ],
+    "proxy_bypass_or_permission_change": false
+  },
+  "pending_release": null,
+  "development_candidate": null,
+  "next_task": "Verify the delivered daily brief in an authenticated real Ingress session within the already consented Golden Zone: one useful or reasonably withheld candidate, then existing workbench navigation without writes. No new consent, automation scan or actuation. Do not repeat deployment.",
+  "previous_user_accepted_release": {
+    "version": "0.1.0-alpha.16",
+    "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
+    "ui_acceptance": {
+      "version": "0.1.0-alpha.16",
+      "status": "user_reported_pass",
+      "date": "2026-09-23",
+      "scope": [
+        "zone_guide",
+        "zone_navigation",
+        "pattern_workbench"
+      ],
+      "independent_network_capture": false
+    }
+  },
+  "history": {
+    "path": "docs/RELEASE_HISTORY_2026-09-25_PRE_ALPHA24.json",
+    "blob": "9f07e2b984e1cf0f236f6c2cc4b3a15cb62d7122",
+    "previous_main_commit": "6f22100dcfbee87bdedc8288b1821971bad17d53"
+  },
+  "unchanged_boundaries": [
+    "no HA configuration, automation, roles or learning-consent edits",
+    "no other app, Core, Supervisor or host update",
+    "no scheduler or permission change",
+    "no additional execution capability"
+  ]
+}

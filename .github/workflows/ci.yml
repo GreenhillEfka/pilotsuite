@@ -45,7 +45,7 @@ jobs:
       - name: Install runtime dependencies
         run: python -m pip install --disable-pip-version-check --requirement pilotsuite/requirements.txt
       - name: Compile Python
-        run: python -m compileall -q pilotsuite/pilotsuite
+        run: python -m compileall -q pilotsuite/pilotsuite pilotsuite/tests
       - name: Run unit tests
         env:
           PYTHONPATH: pilotsuite
@@ -110,6 +110,10 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_daily_brief_browser.cjs
+      - name: Exercise zone foundation against the isolated actual application
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_foundation_browser.cjs
       - name: Save synthetic UI review screenshots
         uses: actions/upload-artifact@v4
         with:

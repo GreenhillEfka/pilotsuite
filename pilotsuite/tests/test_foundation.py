@@ -8,6 +8,11 @@ class FoundationTests(unittest.TestCase):
           {"entity_id":"sensor.lux"},{"entity_id":"light.main"},
           {"entity_id":"climate.room"},{"entity_id":"sensor.temp"},
           {"entity_id":"sensor.rh"},{"entity_id":"media_player.room"}]}
+        kinds={"input_boolean":"input_boolean", "light":"light", "climate":"climate", "media_player":"media_player"}
+        for item in inventory["items"]:
+            entity=item["entity_id"]
+            item.update(decision="relevant",state="on",suggested_role=kinds.get(entity.split(".")[0],
+                "illuminance" if entity=="sensor.lux" else "humidity" if entity=="sensor.rh" else "temperature"))
         report={"effective_roles":{"presence":["input_boolean.living_presence"],"illuminance":["sensor.lux"],
           "light":["light.main"],"climate":["climate.room"],"temperature":["sensor.temp"],
           "humidity":["sensor.rh"],"media":["media_player.room"]},"config":{"roles":{}}}
@@ -26,7 +31,8 @@ class FoundationTests(unittest.TestCase):
         self.assertEqual(["input_boolean","timer","input_select"],
                          [h["domain"] for h in result["helper_plan"]])
         self.assertTrue(all(c["state"]=="blocked" for c in result["correlations"]))
-        self.assertEqual("pilotsuite_hz_weird_anwesenheit",result["helper_plan"][0]["key"])
+        self.assertEqual("pilotsuite_hz_weird_" + __import__("hashlib").sha256(b"HZ Weird !").hexdigest()[:12] + "_anwesenheit",result["helper_plan"][0]["key"])
+        self.assertEqual("PilotSuite · hz_weird_" + __import__("hashlib").sha256(b"HZ Weird !").hexdigest()[:12] + " · Anwesenheit",result["helper_plan"][0]["name"])
 
 if __name__=="__main__":
     unittest.main()

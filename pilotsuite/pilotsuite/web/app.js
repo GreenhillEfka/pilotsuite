@@ -226,7 +226,7 @@ function renderSelection() {
 
 function selectionChanged() {
   text('selection-message', `${Object.keys(selectionDraft.changes).length} geänderte Entitäten. Nur bestätigte Entitäten werden ausgewertet. ${selectionDraft.dirty ? 'Ungespeichert.' : 'Keine Änderungen.'}`);
-  renderSelection(); renderZoneView(); renderDailyBrief();
+  renderSelection(); renderZoneView(); renderDailyBrief(); renderFoundationJourney();
 }
 
 async function loadSelection(zone) {
@@ -537,6 +537,7 @@ function renderZoneGuide() {
 }
 // Keep invalidation local to this view: never erase unsaved configuration/editor data.
 function invalidateDailyBrief(message = 'Alltagsbrief derzeit nicht verfügbar. Neu laden zum Wiederholen.', retainView = false) {
+  invalidateFoundationJourney();
   const root = byId('daily-brief');
   if (!root) return;
   root._invalidBriefContexts ||= new WeakSet();
@@ -558,6 +559,61 @@ function invalidateDailyBrief(message = 'Alltagsbrief derzeit nicht verfügbar. 
   if (focusWasInside) { root.tabIndex = -1; root.focus(); }
 }
 
+const invalidFoundationContexts = new WeakSet();
+function invalidateFoundationJourney() {
+  if (contextData && typeof contextData === 'object') invalidFoundationContexts.add(contextData);
+  const root=byId('foundation-journey'), detail=byId('foundation-detail');
+  if (root) { root.replaceChildren(); root.textContent='Zonenbasis noch nicht bestätigt. Wird beim nächsten erfolgreichen Laden aktualisiert.'; }
+  if (detail) detail.replaceChildren();
+}
+function renderFoundationJourney() {
+  const root=byId('foundation-journey'), detail=byId('foundation-detail');
+  if (!root || !detail) return;
+  const f=contextData?.foundation, journey=f?.setup_journey;
+  const stale=!contextData || invalidFoundationContexts.has(contextData)
+    || f?.zone_id!==selectionZone || f?.revision!==contextData.revision;
+  if (stale || selectionDraft?.dirty || contextEditing || zoneFormOpen) {
+    root.textContent='Zonenbasis nicht bestätigt oder Bearbeitung offen. Keine Übernahme freigegeben.';
+    detail.replaceChildren(); return;
+  }
+  root.replaceChildren(); detail.replaceChildren();
+  if (!journey) { root.textContent='Zonenbasis derzeit nicht verfügbar.'; return; }
+  const labels={ready:'Quellen zugeordnet', attention:'Prüfen', unverified:'Ungeprüft', optional:'Optional',
+    planned:'Vorbereitet', locked:'Gesperrt', needs_sources:'Quellen fehlen'};
+  const modules={presence:'Anwesenheit',lighting:'Beleuchtung',media:'Musik',climate:'Raumklima'};
+  const roles={presence:'Anwesenheit',light:'Leuchten',climate:'Klimaregler',temperature:'Temperatur',
+    'one_of:illuminance/daylight_binary':'Lux oder Helligkeitsindikator'};
+  for (const step of (journey.steps || []).slice(0,5)) {
+    const card=document.createElement('article'); card.className='card';
+    const title=document.createElement('strong'); title.textContent=step.title;
+    const state=document.createElement('span'); state.className='tag'; state.textContent=labels[step.state]||'Ungeprüft';
+    const p=document.createElement('small'); p.textContent=step.summary;
+    card.append(title,state,p); root.append(card);
+  }
+  const note=document.createElement('p');
+  note.textContent='Planungsansicht, keine laufende Zonensteuerung. Timer, Helferanlage und Automationsübernahme bleiben gesperrt.';
+  detail.append(note);
+  const counts=f.helper_reconciliation?.counts;
+  if (counts) {
+    const p=document.createElement('p');
+    p.textContent=`Helferhinweise: ${counts.inspect||0} exakte Registertreffer prüfen · ${counts.unverified||0} Bestand ungeklärt · ${counts.conflict||0} Namenskonflikte.`;
+    detail.append(p);
+  }
+  if (f.presence_contract) {
+    const p=document.createElement('p');
+    p.textContent=`Zugeordneter Raumstatus: ${f.presence_contract.logical_owner||'keiner'} · ${(f.presence_contract.raw_sources||[]).length} weitere Quellen. Keine geprüfte Timerfunktion.`;
+    detail.append(p);
+  }
+  if (f.capability_matrix) {
+    const list=document.createElement('ul');
+    for (const item of (f.capability_matrix.items||[]).slice(0,4)) {
+      const li=document.createElement('li');
+      li.textContent=`${modules[item.module]||item.module}: ${labels[item.state]||'Ungeprüft'}${(item.missing||[]).length?' · fehlt '+item.missing.map(x=>roles[x]||x).join(', '):''}`;
+      list.append(li);
+    }
+    detail.append(list);
+  }
+}
 function renderDailyBrief() {
   const root = byId('daily-brief');
   if (!root) return;
@@ -744,6 +800,7 @@ function renderLearning() {
   renderRoutineDrafts();
   renderZoneGuide();
   renderDailyBrief();
+  renderFoundationJourney();
   if (!contextData?.config) return;
   const cfg = contextData.config;
   const moduleRoot = byId('module-overview'); moduleRoot.replaceChildren();

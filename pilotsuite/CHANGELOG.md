@@ -1,8 +1,47 @@
 # Changelog
 
-All notable changes follow [Semantic Versioning](https://semver.org/).
+## [0.1.0-alpha.26] - 2026-09-25
+
+### Added
+- German zone-foundation preparation view with explicit missing-source and
+  helper-inspection states. Configuration readiness is not live control readiness.
+- Explicit, transient API read of an existing automation with bounded source
+  fingerprint, detached original configuration and static reference coverage.
+- Preparatory import/mapping/diff/transform, helper and comfort-policy primitives.
+  These are not a running presence timer, adaptive controller or migration executor.
+
+### Fixed
+- Reproduce and fix the literal-newline import-test failure and the metadata-vs-
+  unknown-field diff error; compile test sources as well as application sources.
+- Do not authorize helper reuse or creation from registry names/absence. Inspect
+  the global registry, not just a zone's selected candidates, without HA I/O on GET.
+- Exclude ignored, missing, unavailable and mistyped sources from preparation;
+  prevent normalized/truncated zone keys from colliding in proposed helper IDs.
+- Bound automation import size/depth, reject nonfinite JSON, isolate mutable views,
+  share review concurrency, and recheck zone revision/inventory after the read.
+- Do not silently discard unsupported transformation edits or verify identity from
+  configuration equality alone. Preserve unknown original metadata.
+- Remove stale setup displays during errors, zone changes and unsaved edits;
+  translate internal status labels. Add actual-app foundation browser regression.
+- Restore release-note history and the Alpha.25 published-source baseline.
+
+### Boundaries
+- All HA execution remains hard-read-only. No helper creation, automation takeover,
+  persisted migration ledger, new learning consent or device control is introduced.
+- Correlation rows are input plans, not new learned/validated correlations. Comfort
+  policy functions are isolated examples, not connected media/heating controllers.
+- Live Ingress acceptance, physical sensor quality and real comfort gain remain
+  distinct from CI, source identity and native app-runtime checks.
 
 ## [0.1.0-alpha.25] - 2026-09-25
+
+- Explicit opt-in logical presence helpers and multi-source role selection.
+- Separate ambient-light binary indicators from controllable light state.
+- Climate/media/atmosphere roles and initial read-only foundation projection.
+- No PilotSuite helper provisioning or actuation. This entry restores the missing
+  historical heading; the earlier Alpha.24 notes below are preserved verbatim.
+
+## [0.1.0-alpha.24] - 2026-09-25
 
 ### Added
 - Read-only Alltagsbrief in the existing zone context and UI: one retained review
@@ -105,11 +144,14 @@ All notable changes follow [Semantic Versioning](https://semver.org/).
 
 ## [0.1.0-alpha.15] - 2026-09-23
 
-- Direct navigation, consistent German labels, responsive forms and editing feedback.
-- Clear import reasons, date validation and isolation of stale zone/context responses.
-- Pending reads can no longer visually undo newer feedback; expanded browser regressions.
-- Consistent release markers, permanent release runbook and read-only source preflight.
-- No schema, consent, role or hard read-only boundary change.
+- Direkte Bereichsnavigation, konsistente deutsche Begriffe und mobile Formulare.
+- Bearbeitungs- und Feedbackbestätigungen, Importgründe und klare Datumsvalidierung.
+- Keine fremden Lernangaben nach Zonenwechsel; Tastaturfokus besser erhalten.
+- Erweiterte Browserregression für Navigation und drei Bildschirmbreiten.
+- Verspätete Kontextantworten überschreiben keine neueren Anzeigen oder Feedbacks.
+- Konsistente Versionsmarker; verbindlicher Release-Ablauf und lesende Quellprüfung.
+
+All notable changes follow [Semantic Versioning](https://semver.org/).
 
 ## [0.1.0-alpha.14] - 2026-09-23
 
