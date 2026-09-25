@@ -28,7 +28,7 @@ function bounded(promise,label,ms=15000){let timer;return Promise.race([promise,
     browser=await chromium.launch({headless:true,...(process.env.PILOTSUITE_CHROMIUM?{executablePath:process.env.PILOTSUITE_CHROMIUM}:{})});
     const page=await browser.newPage({viewport:{width:390,height:844}});
     const network=[],errors=[];page.on('request',r=>network.push(r.url()));page.on('pageerror',e=>errors.push(e.message));
-    await page.setContent('<!doctype html><html lang="de"><meta charset="utf-8"><style>body{font:16px system-ui;margin:16px}p{overflow-wrap:anywhere}</style><h1>Synthetische Komponentenprüfung</h1><div id="daily-brief"></div><div id="selection-message"></div><details id="pattern-workbench"><summary>Werkbank-Testziel</summary></details><input id="outside" value="Ungespeicherter Text"></html>');
+    await page.setContent('<!doctype html><html lang="de"><meta charset="utf-8"><style>body{font:16px system-ui;margin:16px}p{overflow-wrap:anywhere}h1{font-size:1.25rem;overflow-wrap:anywhere}</style><h1>Synthetische Komponentenprüfung</h1><div id="daily-brief"></div><div id="selection-message"></div><details id="pattern-workbench"><summary>Werkbank-Testziel</summary></details><input id="outside" value="Ungespeicherter Text"></html>');
     const prelude=`${selections}\nlet selectionZone='a',contextGeneration=0;
       const byId=id=>document.getElementById(id);
       let contextData=${JSON.stringify(value.report)};
