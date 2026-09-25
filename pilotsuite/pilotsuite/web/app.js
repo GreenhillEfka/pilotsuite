@@ -874,7 +874,7 @@ byId('pattern-filter').addEventListener('change', renderLearning);
 function renderRolePreview() {
   const parts = Object.keys(roleKinds).filter(k => k !== 'reference_temperature').map(role => {
     const count = byId(`role-${role}`).querySelectorAll('input:checked').length;
-    const labels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', daylight_binary:'Ausreichend Tages-/Raumlicht', presence:'Präsenz / Bewegung / Raumstatus', light:'Leuchtenzustand'};
+    const labels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', daylight_binary:'Ausreichend Tages-/Raumlicht', presence:'Präsenz / Bewegung', light:'Leuchtenzustand'};
     return `${labels[role]}: ${count} Hauptsensoren → ${count ? 'automatischer Referenzwert' : 'keine Auswertung'}`;
   });
   text('role-preview', parts.join(' · '));
