@@ -55,7 +55,8 @@ def build_foundation(inventory, report):
         helpers.append({"domain":"input_boolean","key":f"pilotsuite_{key}_anwesenheit","name":f"PilotSuite · {key} · Anwesenheit",
                         "purpose":"Einheitlicher, expliziter Raumstatus; Rohsensoren bleiben Belege."})
     helpers.append({"domain":"timer","key":f"pilotsuite_{key}_anwesenheitsnachlauf","name":f"PilotSuite · {key} · Anwesenheitsnachlauf",
-                    "purpose":"Nachlauf mit Neustart-/Fristprüfung; Ablauf allein beweist keine Abwesenheit.",\n                    "config":{"duration":"00:05:00","restore":True}})
+                    "purpose":"Nachlauf mit Neustart-/Fristprüfung; Ablauf allein beweist keine Abwesenheit.",
+                    "config":{"duration":"00:05:00","restore":True}})
     if not atmosphere:
         helpers.append({"domain":"input_select","key":f"pilotsuite_{key}_atmosphaere","name":f"PilotSuite · {key} · Atmosphäre",
                         "purpose":"Expliziter Nutzerwunsch; keine automatisch behauptete Emotion."})
