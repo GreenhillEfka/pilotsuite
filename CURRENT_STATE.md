@@ -1,48 +1,38 @@
 # PilotSuite current state
 
-## 2026-09-25 — Alpha.25 installed and runtime-verified
+## 2026-09-25 — Alpha.26 release closure, Alpha.25 still installed
 
-Canonical GreenhillEfka/pilotsuite, app 0d79c5e8_pilotsuite. PR #57 merged as
-a6d6e329eee15ee97c5e732dd963ca8a531444e3. Candidate CI and main CI #36128782821
-passed all jobs. Fresh backup 70e14c12 was completed before publication and verified:
-only PilotSuite Alpha.24, 54,179,840 bytes, no HA/database/folders/failures. Exactly
-one Store refresh and one PilotSuite update followed.
+Canonical repository GreenhillEfka/pilotsuite; app 0d79c5e8_pilotsuite.
+Active PR #59, feat/zone-foundation-provisioning. No new repository or setup loop.
+Alpha.25 metadata was freshly confirmed installed/offered/started with original
+options and auto_update=true. Alpha.26 is not published by this development commit.
 
-Fresh metadata: Alpha.25 installed/offered, started, auto_update=true, options
-unchanged. Startup/readiness logs: hard_read_only, ready, stream connected, snapshot
-fresh, Golden Zone resolved. Humidity/motion/presence/light remain partial.
+The complete PR source was obtained from CI run 36138938438 artifact 10866005818;
+ZIP SHA256 3876c9496da70751f1fb8cdc9cdca9bb3f49c81520dc2d75e43a83a75b7704d0
+and the bundle checksum verified. Exact candidate c363220137260f6fc03d51cc783183348d1607f6
+was checked out. The full native test-job log identified the still-broken literal
+newline in test_automation_import.py. A local full-suite run after that syntax fix
+identified the separate diff bug: alias was mislabeled as an unknown field.
+The previous timer-namespace/zone-fixture diagnoses were not proof of these failures.
 
-Alpha.25 adds explicit logical presence-helper roles, clearer multi-source role
-selection, ambient-light-vs-controllable-light separation, climate/media/atmosphere
-roles and the deterministic read-only zone-foundation/correlation projection.
-Execution is still denied; no helper provisioning or device actuation is claimed.
+Release closure fixes those errors plus stale/false setup readiness, registry-only
+helper assumptions, detached and bounded imports, numeric guards and missing
+identity verification. No new executor, state store or learning consent was added.
 
-Separately, four exactly identified stale sound-synchronisation references in existing
-music automations were backed up and repaired to corresponding existing input_boolean
-helpers. Old references are now absent and automation enabled states were preserved.
-The stale Shutdown Wohnbereich scene remains intentionally unresolved where successor
-entities are ambiguous.
+## Delivered vs prepared
 
-## What shipped
+Alpha.25: roles and initial foundation projection; runtime read-only observation.
+Alpha.26 candidate: German visual planning surface, guarded explicit transient
+existing-automation API read, helper inventory hints and isolated policy/diff/model
+primitives. A list of presence states is NOT an operating presence state machine;
+module overlap is NOT proven execution ownership; a transition record is NOT a
+persisted migration journal. The broad takeover/comfort vision remains incomplete.
+See docs/ALPHA26_RELEASE_REVIEW.md and IMPLEMENTATION_STATUS.md for exact boundaries.
 
-Reconciled existing R2 with saved candidate work, preserving concurrent stronger
-release source gates. Current-source/evidence/preference checks, bounded derived
-brief and safe rendering; stale candidates disappear on loading/errors/zone changes
-and unsaved edits. Matching fresh replies restore presentation without stealing focus.
-Ten real-store API checks, six discovery regressions, canonical component and full-app
-browser tests complement the existing suite. The CI overflow was isolated to a
-synthetic heading and corrected without relaxing the assertion or changing app CSS.
-Local 308 Python, 48 JS and ten component checks passed; exact pinned remote CI passed.
-Synthetic full-app screenshots at 390/1440 were visually reviewed.
+## Next action
 
-## Next task
-
-Authenticated real Ingress acceptance: a useful or reasonably withheld daily brief
-in the already consented Golden Zone, then existing workbench navigation without
-writes. No new consent, automation scan or execution to obtain acceptance. UI,
-config-read capability, data preservation and image attestation remain separately
-open. Do not repeat the completed delivery or recreate connector setup.
-
-RELEASE_STATE.json is the current receipt; its preceding file is preserved byte-for-
-byte in RELEASE_HISTORY_2026-09-25_PRE_ALPHA24.json. Final documentation PR/main CI
-receipts belong in the PR comments, not another documentation/version loop.
+Freeze PR59; finish exact remote tests and release using RELEASE_RUNBOOK.md.
+A fresh app-only backup must complete before publication because auto_update is on.
+Do not change other apps, house configuration, role assignments or learning consent.
+After delivery, implement and fault-test one bounded helper executor in the existing
+PlanStore path. Do not add another contract-only module or claim HA/SQLite atomicity.

@@ -1,11 +1,14 @@
 """Semantic, non-executable diff between imported HA automation and desired PilotSuite schema."""
 from __future__ import annotations
-import json
+from copy import deepcopy
+from .automation_import import ALLOWED_ROOT
+from .automation_transform import transformed_config
 
 def semantic_diff(snapshot, desired):
     """Describe changes without generating an HA mutation."""
     src=snapshot.get("source",{}).get("config",{})
     if not isinstance(desired,dict): raise ValueError("desired config must be an object")
+    transformed_config(snapshot, desired)  # Same validation as the proposed transform.
     fields=("triggers","conditions","actions","mode")
     aliases={"triggers":"trigger","conditions":"condition","actions":"action"}
     changes=[]
@@ -13,8 +16,8 @@ def semantic_diff(snapshot, desired):
         old=src.get(field,src.get(aliases.get(field,""), [] if field!="mode" else "single"))
         new=desired.get(field,old)
         if old!=new:
-            changes.append({"field":field,"before":old,"after":new})
-    untouched=sorted(set(src)-set(fields)-set(aliases.values()))
+            changes.append({"field":field,"before":deepcopy(old),"after":deepcopy(new)})
+    untouched=sorted(set(src)-ALLOWED_ROOT)
     return {"schema":"pilotsuite-automation-semantic-diff-v1",
             "entity_id":snapshot.get("entity_id"),"source_fingerprint":snapshot.get("source",{}).get("fingerprint"),
             "changes":changes,"preserved_unknown_fields":untouched,
@@ -24,7 +27,7 @@ def semantic_diff(snapshot, desired):
 
 def takeover_transaction(snapshot,diff,*,approve=False):
     blockers=[]
-    if not approve: blockers.append("explicit_approval_required")
+    if approve is not True: blockers.append("explicit_approval_required")
     if diff.get("source_fingerprint")!=snapshot.get("source",{}).get("fingerprint"):
         blockers.append("fingerprint_mismatch")
     if not diff.get("changes"): blockers.append("no_change")

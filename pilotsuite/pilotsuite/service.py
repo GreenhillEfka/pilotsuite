@@ -118,25 +118,30 @@ class PilotSuiteService:
                 return report
 
     async def import_existing_automation(self, zone_id, automation_id, zone_revision):
-        """Read and normalize one explicitly selected HA automation without taking ownership."""
+        """Explicit transient read; shares review concurrency and no HA writes."""
         import re
         from pilotsuite.core.automation_import import import_automation
-        if (not isinstance(automation_id, str)
+        if (not isinstance(automation_id, str) or len(automation_id) > 255
                 or not re.fullmatch(r'automation\.[a-z0-9_]+', automation_id)
-                or type(zone_revision) is not int):
+                or type(zone_revision) is not int or zone_revision < 0):
             raise InvalidSelection('Valid automation_id and zone_revision required')
-        async with self._projection_lock:
-            inventory = await self.selection_inventory(zone_id)
-            if inventory['revision'] != zone_revision:
-                raise SelectionConflict('Zone changed; reload before importing automation')
-            inventory_ids = {i['entity_id'] for i in inventory['items']}
-        config = await self.client.automation_config(automation_id)
-        async with self._projection_lock:
-            current = await self.selection_inventory(zone_id)
-            if current['revision'] != zone_revision:
-                raise SelectionConflict('Zone changed during automation import; retry')
-        return import_automation(automation_id, config, zone_id=zone_id,
-                                 zone_revision=zone_revision, inventory_ids=inventory_ids)
+        if self._automation_review_lock.locked():
+            raise HomeAssistantError('An automation lookup is already running')
+        async with self._automation_review_lock:
+            async with self._projection_lock:
+                inventory = await self.selection_inventory(zone_id)
+                if inventory['revision'] != zone_revision:
+                    raise SelectionConflict('Zone changed; reload before importing automation')
+                inventory_ids = {i['entity_id'] for i in inventory['items']}
+            config = await self.client.automation_config(automation_id)
+            result = import_automation(automation_id, config, zone_id=zone_id,
+                                       zone_revision=zone_revision, inventory_ids=inventory_ids)
+            async with self._projection_lock:
+                current = await self.selection_inventory(zone_id)
+                if (current['revision'] != zone_revision or
+                        {i['entity_id'] for i in current['items']} != inventory_ids):
+                    raise SelectionConflict('Zone changed during automation import; retry')
+                return result
 
     async def start(self) -> None:
         await self.selections.initialize()

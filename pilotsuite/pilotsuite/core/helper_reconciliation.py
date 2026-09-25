@@ -1,28 +1,33 @@
-"""Inventory-aware reconciliation of planned zone helpers; pure/read-only."""
+"""Non-authoritative helper inventory hints. No creation/ownership authorization."""
 from __future__ import annotations
+from copy import deepcopy
+
 
 def reconcile_helpers(foundation, catalog):
-    """Classify planned helpers as reuse/create/conflict without guessing aliases."""
-    by_id={i.get("entity_id"):i for i in catalog if isinstance(i,dict) and isinstance(i.get("entity_id"),str)}
-    by_name={}
-    for item in catalog:
-        if not isinstance(item,dict): continue
-        name=(item.get("name") or "").strip().casefold()
-        if name: by_name.setdefault(name,[]).append(item)
-    rows=[]
-    for helper in foundation.get("helper_plan",[]):
-        domain,key=helper.get("domain"),helper.get("key")
-        entity_id=f"{domain}.{key}" if domain and key else None
-        exact=by_id.get(entity_id)
-        if exact:
-            state="reuse"; reason="exact_entity_id"
+    """Registry hints cannot prove absence in HA helper collections or semantics."""
+    by_id = {i["entity_id"]: i for i in catalog
+             if isinstance(i, dict) and isinstance(i.get("entity_id"), str)}
+    by_name = {}
+    for item in by_id.values():
+        name = item.get("name")
+        if isinstance(name, str) and name.strip():
+            by_name.setdefault(name.strip().casefold(), []).append(item)
+    rows = []
+    for helper in foundation.get("helper_plan", []):
+        entity_id = f"{helper['domain']}.{helper['key']}"
+        exact = by_id.get(entity_id)
+        label = helper.get("name", "").strip().casefold()
+        if exact is not None:
+            state, reason = "inspect", "exact_id_found_configuration_and_ownership_unverified"
+        elif label and by_name.get(label):
+            state, reason = "conflict", "name_match_requires_explicit_resolution"
         else:
-            # Names are hints only. Never silently reuse a similar/duplicate helper.
-            label=(helper.get("name") or "").strip().casefold()
-            hints=by_name.get(label,[]) if label else []
-            state="conflict" if hints else "create"
-            reason="ambiguous_name_match" if hints else "no_exact_existing_helper"
-        rows.append({**helper,"entity_id":entity_id,"state":state,"reason":reason})
-    return {"schema":"pilotsuite-helper-reconciliation-v1","items":rows,
-            "counts":{k:sum(1 for r in rows if r["state"]==k) for k in ("reuse","create","conflict")},
-            "execution":{"allowed":False,"actions":[]}}
+            state, reason = "unverified", "registry_absence_does_not_prove_helper_absence"
+        rows.append({**deepcopy(helper), "entity_id": entity_id, "state": state,
+                     "reason": reason, "ownership_verified": False})
+    return {"schema": "pilotsuite-helper-reconciliation-v1",
+            "zone_id": foundation.get("zone_id"), "revision": foundation.get("revision"),
+            "basis": "entity_registry_only", "items": rows,
+            "counts": {k: sum(r["state"] == k for r in rows)
+                       for k in ("reuse", "create", "conflict", "inspect", "unverified")},
+            "execution": {"allowed": False, "actions": []}}
