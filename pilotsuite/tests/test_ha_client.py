@@ -289,5 +289,29 @@ class HomeAssistantClientTests(unittest.IsolatedAsyncioTestCase):
             await HomeAssistantClient._receive_json(ErrorSocket())
 
 
+    async def test_bounded_timer_write_transport_emits_only_allowlisted_commands(self):
+        key="pilotsuite_hz_living_anwesenheitsnachlauf"
+        socket=_Socket([{"type":"auth_required"},{"type":"auth_ok"},
+                        {"id":1,"success":True,"result":{"id":key}}])
+        client=HomeAssistantClient("ws://example.invalid/websocket","synthetic");client._session=_Session(socket)
+        await client.helper_create_timer(key=key,name="PilotSuite · hz_living · Anwesenheitsnachlauf",
+                                         duration="00:05:00",restore=True)
+        self.assertEqual("timer/create",socket.sent[-1]["type"])
+        self.assertEqual(key,socket.sent[-1]["id"])
+
+        socket=_Socket([{"type":"auth_required"},{"type":"auth_ok"},
+                        {"id":1,"success":True,"result":None}])
+        client._session=_Session(socket)
+        await client.helper_delete_timer(key)
+        self.assertEqual({"id":1,"type":"timer/delete","timer_id":key},socket.sent[-1])
+
+    async def test_bounded_timer_write_rejects_non_pilotsuite_identity_before_network(self):
+        client=HomeAssistantClient("ws://example.invalid/websocket","synthetic")
+        client._session=_Session(_Socket([]))
+        with self.assertRaises(HomeAssistantError):
+            await client.helper_create_timer(key="foreign_timer",name="x",duration="00:05:00",restore=True)
+        self.assertEqual([],client._session.socket.sent)
+
+
 if __name__ == "__main__":
     unittest.main()
