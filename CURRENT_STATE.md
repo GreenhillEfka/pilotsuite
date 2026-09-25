@@ -1,69 +1,72 @@
 # PilotSuite current state
 
-## 2026-09-25 — Alpha.26 installed and runtime-verified
+## 2026-09-25 — Alpha.27 installed and runtime-verified
 
-Canonical GreenhillEfka/pilotsuite; app 0d79c5e8_pilotsuite. PR59 release commit
-ede80bd4d7024aaa146c8d5bff53031905da9165; root tree
-80ff429ec9fc26139a8a8121f3287516aa707cea; app tree
-e9506c40047db1f8bfd4e4f6e08b643d0b03fb70. Exact candidate eb7c7f4deea8f5e2a2a8d885c93f2e5939fb87a8
-CI36147092132 and main CI36148039084 passed all jobs: tests, six browser steps,
-reproducible source and amd64 build. Local full suite: 355 Python and 48 JavaScript.
+Canonical GreenhillEfka/pilotsuite; app0d79c5e8_pilotsuite. Existing PR61 release
+commit f7b3267a3f2785433c1ca5048a180a8a24f45d3b; root tree
+c0fc13a5d13502ba2ec60db4288174b75fb13153; app tree
+13645b666be8279ac7252b1dbbfe4f3f5346872c. Exact candidate
+249d1ea354a9987ded774a919132574bfa814196 CI36184691444 and main CI36193063595 passed
+all four jobs: Python/JavaScript tests, seven browser steps, reproducible source and
+amd64 build. Full checksum-verified checkout manually reviewed; local rerun passed
+386 Python and 48 JavaScript tests. No candidate code change was needed this turn.
 
-Before publication, native snapshot/list and backup/details verified backup45805440:
-only PilotSuite Alpha.25, 54,210,560 bytes, no HA/database/folders or reported failures.
-No live restore drill. Exactly one native Store refresh and one PilotSuite update
-followed. Fresh metadata confirms installed/offered Alpha.26, started, no pending
-update, auto_update=true and original options. Runtime startup/readiness confirms
-hard_read_only, ready, stream connected, fresh snapshot and resolved zone.
-Humidity/motion/presence/light remain partial; temperature/illuminance available.
-No other app, household configuration, roles or learning consent changed this turn.
+Before publication, native snapshot/list and backup/details verified backup74c7be8d:
+2026-09-25T21:42:31.584660+00:00, only PilotSuite Alpha.26, 54,220,800 bytes, no
+HA/database/folders or reported failures, unprotected local agent. This verifies
+completed backup metadata/scope, not archive extraction, off-device resilience or a
+live restore drill. Publication followed at2026-09-25T21:43:14Z.
 
-## What is actually connected
+Exactly one native Store refresh and one PilotSuite update completed. Fresh metadata
+confirms installed/offered Alpha.27, started, no pending update, auto_update=true and
+all four options unchanged. No separate restart/rebuild, other-app update, household
+configuration/role/consent change or actuator call. Startup and repeated readiness
+logs confirm hard_read_only, ready, connected stream, fresh snapshot and resolved
+zone. Temperature/illuminance are available; humidity/motion/presence/light remain
+partial as before, not a transport regression.
 
-German Zonenbasis planning cards; strict source/relevance checks; stale-view
-invalidation on errors/zone changes/unsaved edits; global cached registry hints
-without inferred creation or ownership; bounded transient automation-read API with
-original fingerprint, static-reference limits and concurrency/revision checks.
-No automatic scan or additional learning collection. Original changelog history
-and the published-source baseline were repaired.
+## Newly delivered maintenance slice
 
-## What is NOT completed
+Integrated versions/maintenance page, three bundled release notes, exact-identity
+cached HA update state and native installation handoff; not installation history,
+self-update or arbitrary downgrade. PlanStore owns private checksummed local
+zone-configuration savepoints, explicit preview/hash-bound paused restore,
+before-point, stale guard, durable idempotency and SQLite rollback. Restored zones'
+learning consents are cleared; newer additional zones and existing evidence/review
+text survive. Detected database bootstrap failure serves guarded rescue UI without
+overwriting the original file or starting HA processing.
 
-Presence contracts, comfort-policy examples, mapping/diff/transform and migration
-primitives remain preparations. No running presence timer, helper executor,
-autonomous lighting/music/climate controller, persisted adoption journal or actual
-HA automation takeover. Details: docs/ALPHA26_RELEASE_REVIEW.md.
+Explicit existing-helper storage inspection maps immutable registry/collection IDs,
+including renamed helpers, and exposes safe fields and timer restore warnings.
+Groups/templates are not falsely marked configuration-verified. No helper is created,
+adopted or assigned ownership. Historical Golden Zone option is relabelled
+first-start-only without changing options or real zones. Details:
+docs/MAINTENANCE_AND_RECOVERY.md.
 
-Remote browser screenshots at390/1440 were checksum-verified and visually reviewed.
-They exercise the actual application with synthetic data, NOT authenticated household
-Ingress. Narrow German card word wrapping needs refinement; no overflow observed.
-Local full-shell Chromium was blocked by administrator policy and not bypassed.
-Source/version association is not independent image or database attestation.
+## Acceptance boundaries and remaining work
 
-## Active Alpha.27 candidate — maintenance and existing helpers
+Candidate remote maintenance screenshots at390/1440 were checksum-verified and
+visually reviewed; no maintenance-page overflow observed. CI exercises the actual
+app with synthetic data, including stale/confirmed restore and corrupt-DB rescue.
+Local full-shell browser navigation remains blocked by administrator policy and was
+not bypassed. One supported native GET /api/v1/maintenance after installation
+returned403, Ingress access required. That route was stopped, not retried or weakened.
+Authenticated household Ingress and helper-collection reads by the app's own principal
+remain unverified. No household savepoint restore was invoked. Store source/version/
+app-tree association is not independent image or database attestation.
 
-Integrated last-three bundled versions, cached exact-identity HA update state and
-native install handoff. PlanStore owns private checksummed zone-configuration
-savepoints and preview/hash-bound paused restore, with prior point, stale guard,
-idempotent completion and SQLite rollback. Existing evidence/text are not restored.
-Newer extra zones survive; restored learning consents are revoked. Detected database
-bootstrap failure serves guarded rescue UI without overwriting the original file.
-Explicit existing-helper storage inspection handles renamed IDs and timer restore
-settings, without adopting/creating helpers. Bootstrap Golden Zone label clarified.
-Full details and acceptance boundaries: docs/MAINTENANCE_AND_RECOVERY.md.
-Local full suite: 386 Python and 48 JS passed. Full browser navigation is blocked by
-local administrator policy; exact remote CI includes a mandatory new actual-app
-maintenance/recovery browser step. No live restore has occurred.
+No running presence timer, helper executor, autonomous light/music/climate controller,
+persisted adoption journal or actual HA automation takeover. Existing planning,
+role/zone/evidence views and transient automation-read facilities remain the baseline.
+The prior foundation-card narrow German wrapping follow-up remains separate.
 
-## Next bounded deliverable after maintenance
+Next, Issue56: ONE real bounded helper executor through existing PlanStore, including
+full UI/application integration and disposable-HA timeout/lost-response/restart/
+conflict tests before household writes. Keep existing HA automations responsible
+until separately backed-up, reviewed and verified takeover. No disconnected
+contract-only modules and no repeated Alpha.27 deployment.
 
-Issue56: implement one real helper executor through existing PlanStore, including
-complete UI/application integration and disposable-HA timeout/restart/conflict tests.
-Then verify one real zonal basis without guessing mappings or expanding learning.
-Keep existing HA automations responsible until a separate backed-up takeover is
-reviewed and verified. No additional contract-only modules. Do not replay this release.
-
-RELEASE_STATE.json retains the completed Alpha.26 receipt until Alpha.27 is
-actually delivered. This maintenance candidate changes the app and needs its own
-exact source/CI and scoped deployment gates. Final documentation CI status belongs
-in the PR discussion, not another status-only release loop.
+RELEASE_STATE.json is the completed Alpha.27 receipt. The corrected Alpha.26 receipt
+is retained at f7b3267a3f2785433c1ca5048a180a8a24f45d3b:docs/RELEASE_STATE.json.
+This handoff changes no application files or version. Final documentation PR/main CI
+status belongs in its discussion, not another status-only release loop.

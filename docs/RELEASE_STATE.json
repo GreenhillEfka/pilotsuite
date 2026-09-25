@@ -4,31 +4,31 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.26",
-    "commit": "ede80bd4d7024aaa146c8d5bff53031905da9165",
-    "tree": "80ff429ec9fc26139a8a8121f3287516aa707cea",
-    "app_tree": "e9506c40047db1f8bfd4e4f6e08b643d0b03fb70",
-    "pull_request": 59,
-    "candidate_commit": "eb7c7f4deea8f5e2a2a8d885c93f2e5939fb87a8",
-    "candidate_ci_run_id": 36147092132,
-    "ci_run_id": 36148039084,
+    "version": "0.1.0-alpha.27",
+    "commit": "f7b3267a3f2785433c1ca5048a180a8a24f45d3b",
+    "tree": "c0fc13a5d13502ba2ec60db4288174b75fb13153",
+    "app_tree": "13645b666be8279ac7252b1dbbfe4f3f5346872c",
+    "pull_request": 61,
+    "candidate_commit": "249d1ea354a9987ded774a919132574bfa814196",
+    "candidate_ci_run_id": 36184691444,
+    "ci_run_id": 36193063595,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.26",
-    "commit": "ede80bd4d7024aaa146c8d5bff53031905da9165",
-    "tree": "80ff429ec9fc26139a8a8121f3287516aa707cea",
-    "app_tree": "e9506c40047db1f8bfd4e4f6e08b643d0b03fb70",
-    "pull_request": 59,
-    "ci_run_id": 36148039084,
+    "version": "0.1.0-alpha.27",
+    "commit": "f7b3267a3f2785433c1ca5048a180a8a24f45d3b",
+    "tree": "c0fc13a5d13502ba2ec60db4288174b75fb13153",
+    "app_tree": "13645b666be8279ac7252b1dbbfe4f3f5346872c",
+    "pull_request": 61,
+    "ci_run_id": 36193063595,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "45805440",
-    "name": "PilotSuite Alpha.25 before Alpha.26",
-    "date": "2026-09-25T14:30:27.317622+00:00",
-    "size_bytes": 54210560,
-    "app_version": "0.1.0-alpha.25",
+    "backup_id": "74c7be8d",
+    "name": "PilotSuite Alpha.26 before Alpha.27",
+    "date": "2026-09-25T21:42:31.584660+00:00",
+    "size_bytes": 54220800,
+    "app_version": "0.1.0-alpha.26",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -39,6 +39,9 @@
     "failed_folders": [],
     "failed_agent_ids": [],
     "agent_errors": {},
+    "agent_ids": [
+      "hassio.local"
+    ],
     "protected": false,
     "completion_verified_before_publication": true,
     "verification": [
@@ -46,26 +49,22 @@
       "native backup/details"
     ],
     "restore_drill_performed": false,
-    "receipt_correction": "Re-read native backup/details on 2026-09-25: previous handoff transcribed the wrong date and size; scope unchanged."
+    "verification_boundary": "completed metadata and scope; no archive extraction, off-device copy or live restore drill"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.26",
-    "offered_version": "0.1.0-alpha.26",
+    "installed_version": "0.1.0-alpha.27",
+    "offered_version": "0.1.0-alpha.27",
     "state": "started",
     "auto_update": true,
     "update_available": false,
     "store_refresh_calls": 1,
     "update_calls": 1,
     "options_unchanged": true,
-    "options": {
-      "log_level": "info",
-      "golden_zone_area_ids": [
-        "erdkeller"
-      ],
-      "refresh_interval_seconds": 30,
-      "audit_retention": 5000
-    },
-    "source_association": "repository/version/app-tree, not independent image attestation"
+    "source_association": "repository/version/app-tree, not independent image attestation",
+    "explicit_restart_calls": 0,
+    "rebuild_calls": 0,
+    "other_app_update_calls": 0,
+    "options_verification": "All four configured option values compared before and after; values not republished."
   },
   "runtime": {
     "mode": "hard_read_only",
@@ -83,43 +82,62 @@
       "presence",
       "light"
     ],
-    "verification": "native app metadata and startup/readiness logs"
+    "verification": "native app metadata, exact Alpha.27 hard_read_only startup and repeated post-start readiness logs"
   },
   "tests": {
-    "local_python_passed": 355,
+    "local_python_passed": 386,
     "local_javascript_passed": 48,
-    "exact_candidate_and_main_ci": "all jobs successful",
-    "browser_steps": 6,
+    "local_python_version": "3.13.5",
+    "local_node_version": "22.16.0",
+    "local_aiohttp_version": "3.13.3",
+    "ci_python_version": "3.14",
+    "ci_aiohttp_requirement": "3.13.5",
+    "exact_candidate_and_main_ci": "all four jobs successful",
+    "browser_steps": 7,
     "container_platform": "linux/amd64",
     "local_full_app_browser": "blocked by administrator policy, not bypassed",
-    "remote_full_app_browser": "passed including new foundation regression"
+    "remote_full_app_browser": "passed including maintenance/savepoint/rescue actual-app regression"
   },
   "ui_review": {
-    "artifact_id": 10870351755,
-    "run_id": 36147092132,
-    "sha256": "4f51abceb130cf542a46de590c75427133e83a3d2f8c54538465ebe6fb92a0c7",
+    "artifact_id": 10885447317,
+    "run_id": 36184691444,
+    "sha256": "8b14334b693b9b0cb956cc0f0311c629e8be6fe2712b5ac98cd938a42a9f5f24",
     "basis": "synthetic actual application, not household Ingress",
+    "viewed_screenshots": [
+      "maintenance-390.png",
+      "maintenance-1440.png"
+    ],
     "viewed_widths": [
       390,
       1440
     ],
-    "known_follow_up": "Improve awkward narrow-card German word wrapping; no overflow observed"
-  },
-  "pending_release": {
-    "version": "0.1.0-alpha.27",
-    "state": "development",
-    "scope": "maintenance_savepoints_existing_helpers",
-    "native_ha_writes": false
+    "known_follow_up": "Prior narrow foundation-card German word wrapping remains separate; no maintenance-page overflow observed."
   },
   "ingress_acceptance": {
     "status": "pending_authenticated_household_session",
-    "proxy_bypass_or_permission_change": false
+    "native_proxy_probe": {
+      "method": "GET",
+      "path": "/api/v1/maintenance",
+      "attempts": 1,
+      "status_code": 403,
+      "response": "Ingress access required"
+    },
+    "route_retried": false,
+    "proxy_bypass_or_permission_change": false,
+    "app_principal_helper_collection_acceptance": "not verified; no household inspection or restore invoked"
   },
   "household_changes_this_delivery": [],
   "history": {
-    "previous_release_commit": "a6d6e329eee15ee97c5e732dd963ca8a531444e3",
-    "previous_closure_receipt_at": "ede80bd4d7024aaa146c8d5bff53031905da9165:docs/RELEASE_STATE.json",
+    "previous_release_commit": "ede80bd4d7024aaa146c8d5bff53031905da9165",
+    "previous_closure_receipt_at": "f7b3267a3f2785433c1ca5048a180a8a24f45d3b:docs/RELEASE_STATE.json",
     "older_receipt_path": "docs/RELEASE_HISTORY_2026-09-25_PRE_ALPHA26.json"
   },
-  "next_task": "Continue Issue56 with ONE bounded helper executor in the existing PlanStore mutation path, fault-tested in disposable HA before household writes. Do not repeat Alpha26 delivery or add another contract-only module."
+  "next_task": "Continue Issue56 with ONE bounded helper executor in the existing PlanStore mutation path, full UI integration and disposable-HA timeout/restart/conflict tests before household writes. Alpha27 delivery is complete; do not repeat it or add another contract-only module.",
+  "source_review": {
+    "candidate_artifact_id": 10885528257,
+    "sha256": "57c04cc6d4575647ae6fa9bc53c6de838112efbaf715498f3455a9dbdb149b2f",
+    "complete_checkout": true,
+    "candidate_and_app_trees_verified": true,
+    "method": "manual source review and fresh local test rerun; no independent automated code-review result"
+  }
 }
