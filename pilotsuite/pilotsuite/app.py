@@ -130,6 +130,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post('/api/v1/zones/{zone_id}/history', _history_view)
     app.router.add_post('/api/v1/zones/{zone_id}/history/import', _history_import)
     app.router.add_get('/api/v1/zones/{zone_id}/context', _context_get)
+    app.router.add_post('/api/v1/zones/{zone_id}/helpers/provision', _helper_provision)
     app.router.add_patch('/api/v1/zones/{zone_id}/context', _context_patch)
     app.router.add_get('/api/v1/zones/{zone_id}/context/export', _context_export)
     app.router.add_post('/api/v1/zones/{zone_id}/feedback', _pattern_feedback)
@@ -336,7 +337,7 @@ def main() -> None:
     settings = Settings.load()
     configure_logging(settings.log_level)
     LOGGER.info(
-        "Starting PilotSuite version=%s architecture=%s mode=hard_read_only",
+        "Starting PilotSuite version=%s architecture=%s mode=bounded_helper_provisioning",
         VERSION,
         ARCHITECTURE_VERSION,
     )
@@ -403,6 +404,20 @@ async def _context_payload(service, zone_id, export=False):
         {'id': 'action-execution', 'name': 'Freigegebene HA-Aktionen', 'kind': 'planned', 'state': 'blocked'},
     ]
     return report
+
+
+async def _helper_provision(request):
+    from pilotsuite.ha.client import HomeAssistantError
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise InvalidSelection("invalid JSON") from exc
+    try:
+        result = await request.app[SERVICE_KEY].provision_helper(request.match_info["zone_id"], payload)
+    except HomeAssistantError as exc:
+        return web.json_response({"error":"helper_provisioning_unavailable","message":str(exc)},
+                                 status=503,headers={"Cache-Control":"no-store"})
+    return web.json_response(result,headers={"Cache-Control":"no-store"})
 
 
 async def _context_get(request):
