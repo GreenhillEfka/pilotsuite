@@ -14,7 +14,7 @@ from pilotsuite.domain.moods import calculate_moods
 from pilotsuite.domain.neurons import build_neurons
 from pilotsuite.domain.synapses import build_suggestions
 from pilotsuite.ha.world import WorldModel
-from pilotsuite.service import PilotSuiteService
+from pilotsuite.service import PilotSuiteService, apply_role_overrides
 
 
 def scope(value="12", unit="°C", kind="temperature"):
@@ -56,6 +56,18 @@ class SemanticTests(unittest.TestCase):
         self.assertEqual(results[0].id, results[1].id)
         self.assertNotEqual(results[0].severity, results[1].severity)
         self.assertIsNone(results[0].confidence)
+
+    def test_input_boolean_becomes_presence_only_when_explicitly_assigned(self):
+        helper_scope = {"entities": [{"entity_id": "input_boolean.room_presence", "area_id": "room",
+            "registry": {}, "state": {"state": "on", "attributes": {"friendly_name": "Room presence"}}}]}
+        original = build_neurons(helper_scope)
+        self.assertEqual("input_boolean", original[0].kind)
+        untouched = apply_role_overrides(original, {"presence": []})
+        self.assertEqual("input_boolean", untouched[0].kind)
+        assigned = apply_role_overrides(original, {"presence": ["input_boolean.room_presence"]})
+        self.assertEqual("presence", assigned[0].kind)
+        self.assertIs(assigned[0].value, True)
+        self.assertEqual("input_boolean", original[0].kind)
 
 
 class IngressTests(unittest.IsolatedAsyncioTestCase):
