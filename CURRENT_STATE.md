@@ -1,38 +1,53 @@
 # PilotSuite current state
 
-## 2026-09-25 — Alpha.26 release closure, Alpha.25 still installed
+## 2026-09-25 — Alpha.26 installed and runtime-verified
 
-Canonical repository GreenhillEfka/pilotsuite; app 0d79c5e8_pilotsuite.
-Active PR #59, feat/zone-foundation-provisioning. No new repository or setup loop.
-Alpha.25 metadata was freshly confirmed installed/offered/started with original
-options and auto_update=true. Alpha.26 is not published by this development commit.
+Canonical GreenhillEfka/pilotsuite; app 0d79c5e8_pilotsuite. PR59 release commit
+ede80bd4d7024aaa146c8d5bff53031905da9165; root tree
+80ff429ec9fc26139a8a8121f3287516aa707cea; app tree
+e9506c40047db1f8bfd4e4f6e08b643d0b03fb70. Exact candidate eb7c7f4deea8f5e2a2a8d885c93f2e5939fb87a8
+CI36147092132 and main CI36148039084 passed all jobs: tests, six browser steps,
+reproducible source and amd64 build. Local full suite: 355 Python and 48 JavaScript.
 
-The complete PR source was obtained from CI run 36138938438 artifact 10866005818;
-ZIP SHA256 3876c9496da70751f1fb8cdc9cdca9bb3f49c81520dc2d75e43a83a75b7704d0
-and the bundle checksum verified. Exact candidate c363220137260f6fc03d51cc783183348d1607f6
-was checked out. The full native test-job log identified the still-broken literal
-newline in test_automation_import.py. A local full-suite run after that syntax fix
-identified the separate diff bug: alias was mislabeled as an unknown field.
-The previous timer-namespace/zone-fixture diagnoses were not proof of these failures.
+Before publication, native snapshot/list and backup/details verified backup45805440:
+only PilotSuite Alpha.25, 54,394,880 bytes, no HA/database/folders or reported failures.
+No live restore drill. Exactly one native Store refresh and one PilotSuite update
+followed. Fresh metadata confirms installed/offered Alpha.26, started, no pending
+update, auto_update=true and original options. Runtime startup/readiness confirms
+hard_read_only, ready, stream connected, fresh snapshot and resolved zone.
+Humidity/motion/presence/light remain partial; temperature/illuminance available.
+No other app, household configuration, roles or learning consent changed this turn.
 
-Release closure fixes those errors plus stale/false setup readiness, registry-only
-helper assumptions, detached and bounded imports, numeric guards and missing
-identity verification. No new executor, state store or learning consent was added.
+## What is actually connected
 
-## Delivered vs prepared
+German Zonenbasis planning cards; strict source/relevance checks; stale-view
+invalidation on errors/zone changes/unsaved edits; global cached registry hints
+without inferred creation or ownership; bounded transient automation-read API with
+original fingerprint, static-reference limits and concurrency/revision checks.
+No automatic scan or additional learning collection. Original changelog history
+and the published-source baseline were repaired.
 
-Alpha.25: roles and initial foundation projection; runtime read-only observation.
-Alpha.26 candidate: German visual planning surface, guarded explicit transient
-existing-automation API read, helper inventory hints and isolated policy/diff/model
-primitives. A list of presence states is NOT an operating presence state machine;
-module overlap is NOT proven execution ownership; a transition record is NOT a
-persisted migration journal. The broad takeover/comfort vision remains incomplete.
-See docs/ALPHA26_RELEASE_REVIEW.md and IMPLEMENTATION_STATUS.md for exact boundaries.
+## What is NOT completed
 
-## Next action
+Presence contracts, comfort-policy examples, mapping/diff/transform and migration
+primitives remain preparations. No running presence timer, helper executor,
+autonomous lighting/music/climate controller, persisted adoption journal or actual
+HA automation takeover. Details: docs/ALPHA26_RELEASE_REVIEW.md.
 
-Freeze PR59; finish exact remote tests and release using RELEASE_RUNBOOK.md.
-A fresh app-only backup must complete before publication because auto_update is on.
-Do not change other apps, house configuration, role assignments or learning consent.
-After delivery, implement and fault-test one bounded helper executor in the existing
-PlanStore path. Do not add another contract-only module or claim HA/SQLite atomicity.
+Remote browser screenshots at390/1440 were checksum-verified and visually reviewed.
+They exercise the actual application with synthetic data, NOT authenticated household
+Ingress. Narrow German card word wrapping needs refinement; no overflow observed.
+Local full-shell Chromium was blocked by administrator policy and not bypassed.
+Source/version association is not independent image or database attestation.
+
+## Next bounded deliverable
+
+Issue56: implement one real helper executor through existing PlanStore, including
+complete UI/application integration and disposable-HA timeout/restart/conflict tests.
+Then verify one real zonal basis without guessing mappings or expanding learning.
+Keep existing HA automations responsible until a separate backed-up takeover is
+reviewed and verified. No additional contract-only modules. Do not replay this release.
+
+RELEASE_STATE.json is the completed delivery receipt. This handoff changes only
+root documentation; no new app version or deployment is required. Final documentation
+CI status goes in its PR discussion rather than another status-only commit loop.
