@@ -254,7 +254,7 @@ class PilotSuiteService:
             kind = attributes.get("device_class") or registry.get("device_class") or domain
             if domain == "binary_sensor" and kind == "light":
                 kind = "daylight_binary"
-            recommended = domain in {"sensor", "binary_sensor", "light", "climate", "cover", "fan", "media_player"} and not registry.get("entity_category")
+            recommended = domain in {"sensor", "binary_sensor", "light", "climate", "cover", "fan", "media_player", "input_boolean", "input_select"} and not registry.get("entity_category")
             items.append({"entity_id": entity_id,
                           "name": registry.get("name") or attributes.get("friendly_name") or entity_id,
                           "state": item["state"].get("state"),
