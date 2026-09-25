@@ -9,7 +9,7 @@
 | `refresh_interval_seconds` | `30` | Full snapshot reconciliation interval |
 | `audit_retention` | `5000` | Maximum retained PilotSuite audit events |
 
-Home Assistant device/configuration access remains read-only. Local PilotSuite zone configuration can be edited and restored after explicit preview/confirmation. There is no option enabling Home Assistant mutations.
+Home Assistant device/automation control remains closed. Alpha.28 has one deliberately narrow exception: after explicit in-app confirmation it may create or exactly reuse the planned PilotSuite presence-delay timer through Home Assistant's supported helper WebSocket API. The transaction reads the helper collection before and after the write, never blindly retries an unknown outcome, and never adopts or deletes pre-existing helpers. Generic HA mutations remain unavailable.
 
 ## First start
 
@@ -19,7 +19,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Policy mode: hard read-only
-- Release: `0.1.0-alpha.27`
+- Release: `0.1.0-alpha.28`
 
 ## Habitus zones and entity selection
 
