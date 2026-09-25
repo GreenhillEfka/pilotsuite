@@ -598,8 +598,18 @@ function renderFoundationJourney() {
     card.append(title,state,p); root.append(card);
   }
   const note=document.createElement('p');
-  note.textContent='Planungsansicht, keine laufende Zonensteuerung. Timer, Helferanlage und Automationsübernahme bleiben gesperrt.';
+  note.textContent='Planungsansicht. Ausschließlich der geplante Anwesenheits-Nachlauftimer kann nach ausdrücklicher Bestätigung geprüft angelegt werden; Automationsübernahme und Geräteaktionen bleiben gesperrt.';
   detail.append(note);
+  const provision=byId('helper-provisioning'), button=byId('helper-provision');
+  const action=(f.provisioning?.execution?.actions||[]).find(a=>a.domain==='timer');
+  if (provision && button) {
+    provision.hidden=!action;
+    button.disabled=!action || selectionBusy || selectionDraft?.dirty || contextEditing || zoneFormOpen;
+    button.dataset.key=action?.key||'';
+    text('helper-provisioning-message', action
+      ? 'Ein einzelner Timer. Vorher wird der aktuelle Helferbestand gelesen; danach wird unabhängig zurückgelesen. Bei unklarem Ergebnis erfolgt keine blinde Wiederholung.'
+      : 'Für diese Zone ist derzeit kein ausführbarer Timer geplant.');
+  }
   const counts=f.helper_reconciliation?.counts;
   if (counts) {
     const p=document.createElement('p');
@@ -1028,3 +1038,24 @@ for (const link of document.querySelectorAll('a[href="maintenance"], #release-in
     }
   });
 }
+
+byId('helper-provision')?.addEventListener('click', async () => {
+  const button=byId('helper-provision'), key=button?.dataset.key;
+  const f=contextData?.foundation;
+  if (!key || !f || f.zone_id!==selectionZone || f.revision!==contextData?.revision ||
+      selectionDraft?.dirty || contextEditing || zoneFormOpen || selectionBusy) return;
+  if (!window.confirm('Diesen einen PilotSuite-Anwesenheits-Nachlauftimer jetzt in Home Assistant geprüft anlegen bzw. bei exakt passendem Bestand wiederverwenden? Es werden keine Automationen oder Geräte geschaltet.')) return;
+  selectionBusy=true; button.disabled=true;
+  text('helper-provisioning-message','Bereitstellung läuft: Bestand lesen → anwenden → unabhängig prüfen …');
+  try {
+    const result=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/helpers/provision`,{
+      method:'POST',body:JSON.stringify({revision:f.revision,helpers:[{domain:'timer',key}],confirm:true})
+    });
+    text('helper-provisioning-message',result.created
+      ? `Verifiziert angelegt: ${result.entity_id}. Transaktion ${result.transaction_id}.`
+      : `Exakt vorhandenen Timer verifiziert wiederverwendet: ${result.entity_id}. Keine Neuanlage.`);
+    await load();
+  } catch(error) {
+    text('helper-provisioning-message',`Nicht als erfolgreich bestätigt: ${error.message}. Keine automatische Wiederholung; Home-Assistant-Bestand vor erneutem Versuch prüfen.`);
+  } finally { selectionBusy=false; renderSelection(); renderFoundationJourney(); }
+});
