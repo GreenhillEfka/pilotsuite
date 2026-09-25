@@ -41,6 +41,9 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(before, await self.service.context.get(zone['zone_id']))
         self.assertEqual(zone['revision'], data['revision'])
         self.assertEqual(0, data['event_count'])
+        self.assertEqual('pilotsuite-zone-foundation-v1', data['foundation']['schema'])
+        self.assertFalse(data['foundation']['execution']['allowed'])
+        self.assertEqual([], data['foundation']['execution']['actions'])
         self.assertEqual(400, (await self.client.get('/api/v1/zones/unknown/context')).status)
 
     async def test_create_compose_rename_conflicts_and_disable(self):
