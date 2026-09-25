@@ -3,64 +3,40 @@
 Canonical: GreenhillEfka/pilotsuite / HA app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume — Alpha.27 delivered, 2026-09-25
+## Resume — Alpha.28 delivered, 2026-09-26
 
-Existing PR61 merged as f7b3267a3f2785433c1ca5048a180a8a24f45d3b. Exact candidate
-CI36184691444 and main CI36193063595 passed all four jobs, including seven browser
-steps. Fresh PilotSuite-only backup74c7be8d completed and was verified BEFORE
-publication. One native check_updates, one PilotSuite update; no extra restart.
-Alpha.27 is installed/offered/started, with hard_read_only startup and repeated
-ready/connected/fresh/zone-resolved logs. All options and auto_update=true unchanged.
-No other app, household configuration, roles or learning permission changed.
-Do not repeat backup/update/rebuild/restart or connector configuration to resume.
-Full identities and acceptance boundaries are in RELEASE_STATE.json.
+PR63 squash-merged as 8897bdf8b74a745bc0a60f2d7618723e2b035b87; root tree
+72c4f12e222aaeee188cf7f12fd6972134cc10a8; app tree
+d6fb8b2437dbb8185ada5ec968b080896e4331bf. Candidate CI36194932567 and main
+CI36195056251 passed all four jobs. Fresh PilotSuite-only backup1122b3d9 completed
+and backup/details verified BEFORE publication: only Alpha.27, 54,251,520 bytes,
+no HA/database/folders or reported failures. One native Store refresh and one
+PilotSuite update. Alpha.28 installed/offered/started, update_available=false,
+auto_update=true and options unchanged. Startup says mode=bounded_helper_provisioning;
+readiness is ready/stream/fresh/zone-resolved. No extra restart/rebuild, other-app
+update, household helper creation, automation edit, actuator call or learning change.
+Do not repeat this delivery to resume.
 
-## What this release actually adds
+## New bounded capability
 
-Existing maintenance service/UI: last three bundled package release notes and
-cached exact-identity HA update status, with a native installation handoff. These
-are not three installed versions, a self-updater or a downgrade selector.
-PlanStore owns private checksummed zone-configuration savepoints and explicit
-hash-bound restore with a before-point, SQLite rollback and idempotent receipt.
-Restored zones are paused and learning consents cleared; newer additional zones
-and existing evidence/review text survive. Detected database startup failure serves
-an Ingress-guarded rescue view without overwriting the database. Explicit existing
-storage-helper inspection handles renamed IDs and timer restore settings, never
-creation/adoption or ownership by name. Bootstrap option labels, not values, changed.
-Scope: docs/MAINTENANCE_AND_RECOVERY.md and IMPLEMENTATION_STATUS.md.
+Alpha.28 opens exactly one HA write: the current zone foundation's planned
+PilotSuite presence-delay timer. It requires exact zone revision and a second explicit
+in-app confirmation. The executor reads the timer collection before writing, exactly
+reuses a matching existing helper without adoption, rejects mismatches, creates only
+through timer/create, then independently reads the collection again. A lost/timeout
+response is never blindly replayed. Rollback deletes only an identity whose creation
+response was positively confirmed by this same transaction and whose pre-image proved
+absence. PlanStore durably journals approval/outcome. HA and local journal are not an
+atomic transaction. Generic PlanStore apply, automations, actuators and learning writes
+remain closed. No real household timer was created during release.
 
-## Acceptance still separate
+## Next implementation
 
-386 Python and 48 JavaScript tests rerun locally. Exact remote CI used the declared
-runtime dependencies; maintenance screenshots at390/1440 were checksum-verified and
-visually reviewed. This is synthetic actual-app testing, not household Ingress.
-One native GET /api/v1/maintenance returned403, Ingress access required; route stopped
-without retries, header/port/peer changes or weakened authentication. Authenticated
-household browser and the app principal's helper-collection capability remain
-unverified. No household savepoint restore or live disaster-recovery drill occurred.
-Source/version/app-tree association is not independent installed-image attestation.
-Partial humidity/motion/presence/light capabilities are not transport failures.
-
-## Invariants and next implementation
-
-HA owns device execution. PilotSuite owns zones/roles/bounded evidence and review
-intent through existing ContextStore/PlanStore; no second learner or store. No
-implicit learning, unscoped writes, guessed replacements or inferred ownership.
-Preserve manual overrides, unknown original config fields and existing identities.
-Registry absence cannot prove helper-collection absence. No HA .storage edits,
-Ingress bypass or credentials/household data in public code, logs or handoffs.
-
-Issue56 remains open: implement ONE actual bounded helper executor in the existing
-PlanStore mutation path, with scoped plan/approval, before-image, apply, independent
-read-back and action-specific recovery. Test timeout, lost response, restart and
-concurrent edits in disposable HA before household writes. HA and SQLite are not
-one atomic transaction; never blindly replay an unknown-outcome write or delete
-pre-existing helpers. Complete UI-to-application integration before claiming
-provisioned zones. Then presence timing and controlled existing-automation adoption.
-Alpha.27 does not operate presence timers or light/music/climate controllers.
-Refine narrow foundation-card German wrapping within the next behavioral version.
-
-Keep a complete checkout, compile application AND tests, run full local tests before
-one pinned change set, then exact remote CI and the unchanged release runbook.
-Documentation-only handoffs do not justify another release. Final documentation CI
-receipts belong in PR comments, not another status-only commit loop.
+First perform authenticated household UI/app-principal acceptance of the new helper
+path without bypassing Ingress. Actual helper creation remains an explicit user action
+inside PilotSuite. After the bounded timer executor is proven on one zone, continue
+Issue56 with presence timing semantics: confirmed/pending/free/unknown, restart/deadline
+reconciliation and no timer-finished-alone absence claim. Existing HA automations remain
+responsible until a separate backed-up takeover is reviewed. Then lighting; media and
+climate later. Preserve manual overrides, identities, unknown fields and no implicit
+learning/ownership. No direct .storage edits, guessed replacements or blind retries.
