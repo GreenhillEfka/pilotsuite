@@ -130,6 +130,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_delete('/api/v1/zones/{zone_id}/drafts/{draft_id}', _routine_drafts)
     app.router.add_post('/api/v1/zones/{zone_id}/drafts/{draft_id}/automation-review', _automation_review)
     app.router.add_post('/api/v1/zones/{zone_id}/drafts/{draft_id}/automation-inspection', _automation_review)
+    app.router.add_post('/api/v1/zones/{zone_id}/automations/import', _automation_import)
     register_review_notes(app, SERVICE_KEY)
     app.router.add_get("/api/v1/world", _world)
     app.router.add_get("/api/v1/golden-zone", _golden_zone)
@@ -489,6 +490,22 @@ async def _automation_review(request):
             'message': 'Automationsvergleich derzeit nicht verfügbar. Erneut versuchen.'}, status=503,
             headers={'Cache-Control': 'no-store'})
     return web.json_response(result, headers={'Cache-Control': 'no-store'})
+
+
+async def _automation_import(request):
+    from pilotsuite.ha.client import HomeAssistantError
+    try: payload = await request.json()
+    except ValueError as exc: raise InvalidSelection('Invalid JSON') from exc
+    if not isinstance(payload,dict) or set(payload) != {'automation_id','zone_revision'}:
+        raise InvalidSelection('automation_id and zone_revision required')
+    try:
+        result=await request.app[SERVICE_KEY].import_existing_automation(
+            request.match_info['zone_id'], payload['automation_id'], payload['zone_revision'])
+    except HomeAssistantError:
+        return web.json_response({'error':'automation_import_unavailable',
+          'message':'Automation derzeit nicht lesbar. Keine Übernahme erfolgt.'},status=503,
+          headers={'Cache-Control':'no-store'})
+    return web.json_response(result,headers={'Cache-Control':'no-store'})
 
 
 async def _history_request(request, importing=False):
