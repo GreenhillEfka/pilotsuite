@@ -358,13 +358,15 @@ async def _context_payload(service, zone_id, export=False):
     report['candidates'] = [i for i in inventory['items'] if i['decision'] == 'relevant']
     # Surface legacy automatic defaults so opening/saving cannot silently clear them.
     roles = dict(report['config']['roles'])
-    for kind in ('temperature', 'humidity', 'illuminance', 'light'):
+    for kind in ('temperature', 'humidity', 'illuminance', 'daylight_binary', 'light'):
         ids = [i['entity_id'] for i in report['candidates'] if i['suggested_role'] == kind
                and i['entity_id'] not in roles.get('reference_temperature', [])]
         if kind not in roles:
             roles[kind] = ids if kind == 'light' or len(ids) == 1 else []
     report['effective_roles'] = roles
-    from pilotsuite.core.guide import zone_guide
+    from pilotsuite.core.foundation import build_foundation
+    report['foundation'] = build_foundation(inventory, report)
+        from pilotsuite.core.guide import zone_guide
     zone_result = next((z for z in service._zone_results if z['zone_id'] == zone_id), {})
     report['guide'] = zone_guide(inventory, report, await service.status(), zone_result.get('summary', {}))
     from pilotsuite.core.daily_brief import build_daily_brief
