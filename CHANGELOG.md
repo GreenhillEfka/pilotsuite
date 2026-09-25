@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.0-alpha.27] - 2026-09-25
+
+### Added
+- Integrated maintenance page and installed-version card: last three bundled
+  release notes, cached identity-checked HA update status, and explicit native HA
+  installation handoff. No silent self-update or new Supervisor privileges.
+- Verified local zone-configuration savepoints through the existing PlanStore.
+  Preview-bound, idempotent restore captures a before-point, preserves newer extra
+  zones and leaves restored zones paused with learning disabled. No HA config or
+  app binary is restored; evidence/review text are not part of a savepoint.
+- Ingress-protected rescue page remains available on detected database startup
+  failure; no automatic overwrite/restore. Full app recovery stays with native HA.
+- Explicit existing-helper inspection: stable registry/storage ID matching handles
+  renamed input helpers. Timer restore/default duration, number bounds and select
+  options are shown without adoption or writes. Flow helpers remain visible as
+  requiring separate configuration inspection.
+
+### Clarified
+- Historical golden_zone_area_ids means bootstrap areas only. Existing Habitus
+  zones are managed in the app, not by changing this first-start option.
+- Local configuration points are not full app backups, off-device backups,
+  database repair, old-version installers or learning-history recovery.
+
 ## [0.1.0-alpha.26] - 2026-09-25
 
 ### Added

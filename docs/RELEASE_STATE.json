@@ -26,10 +26,12 @@
   "backup": {
     "backup_id": "45805440",
     "name": "PilotSuite Alpha.25 before Alpha.26",
-    "date": "2026-09-25T14:32:22.382345+00:00",
-    "size_bytes": 54394880,
+    "date": "2026-09-25T14:30:27.317622+00:00",
+    "size_bytes": 54210560,
     "app_version": "0.1.0-alpha.25",
-    "app_slugs": ["0d79c5e8_pilotsuite"],
+    "app_slugs": [
+      "0d79c5e8_pilotsuite"
+    ],
     "homeassistant_included": false,
     "database_included": false,
     "folders": [],
@@ -39,8 +41,12 @@
     "agent_errors": {},
     "protected": false,
     "completion_verified_before_publication": true,
-    "verification": ["native snapshot list", "native backup/details"],
-    "restore_drill_performed": false
+    "verification": [
+      "native snapshot list",
+      "native backup/details"
+    ],
+    "restore_drill_performed": false,
+    "receipt_correction": "Re-read native backup/details on 2026-09-25: previous handoff transcribed the wrong date and size; scope unchanged."
   },
   "installation": {
     "installed_version": "0.1.0-alpha.26",
@@ -53,7 +59,9 @@
     "options_unchanged": true,
     "options": {
       "log_level": "info",
-      "golden_zone_area_ids": ["erdkeller"],
+      "golden_zone_area_ids": [
+        "erdkeller"
+      ],
       "refresh_interval_seconds": 30,
       "audit_retention": 5000
     },
@@ -65,8 +73,16 @@
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
-    "capabilities_available": ["temperature", "illuminance"],
-    "capabilities_partial": ["humidity", "motion", "presence", "light"],
+    "capabilities_available": [
+      "temperature",
+      "illuminance"
+    ],
+    "capabilities_partial": [
+      "humidity",
+      "motion",
+      "presence",
+      "light"
+    ],
     "verification": "native app metadata and startup/readiness logs"
   },
   "tests": {
@@ -83,10 +99,18 @@
     "run_id": 36147092132,
     "sha256": "4f51abceb130cf542a46de590c75427133e83a3d2f8c54538465ebe6fb92a0c7",
     "basis": "synthetic actual application, not household Ingress",
-    "viewed_widths": [390, 1440],
+    "viewed_widths": [
+      390,
+      1440
+    ],
     "known_follow_up": "Improve awkward narrow-card German word wrapping; no overflow observed"
   },
-  "pending_release": null,
+  "pending_release": {
+    "version": "0.1.0-alpha.27",
+    "state": "development",
+    "scope": "maintenance_savepoints_existing_helpers",
+    "native_ha_writes": false
+  },
   "ingress_acceptance": {
     "status": "pending_authenticated_household_session",
     "proxy_bypass_or_permission_change": false

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import sqlite3
 from datetime import UTC, datetime
 from dataclasses import replace
 from typing import Any
@@ -59,6 +60,7 @@ class PilotSuiteService:
         self._projection_lock = asyncio.Lock()
         self._tasks: list[asyncio.Task[Any]] = []
         self._connected = False
+        self._rescue_error = None
         self._stream_connected = False
         self._last_error: str | None = None
         self._last_refresh_at: str | None = None
@@ -143,9 +145,65 @@ class PilotSuiteService:
                     raise SelectionConflict('Zone changed during automation import; retry')
                 return result
 
+    async def inspect_existing_helpers(self, zone_id, revision):
+        from pilotsuite.core.helper_inspection import SIMPLE_HELPERS, candidates, inspect
+        if type(revision) is not int or revision < 0:
+            raise InvalidSelection('Zonenrevision erforderlich')
+        if self._automation_review_lock.locked():
+            raise HomeAssistantError('Eine Bestandsprüfung läuft bereits')
+        async with self._automation_review_lock:
+            async with self._projection_lock:
+                inventory = await self.selection_inventory(zone_id)
+                if inventory['revision'] != revision:
+                    raise SelectionConflict('Zone geändert; neu laden')
+                rows = candidates(inventory, await self.world.helper_registry())
+                config = await self.context.get(zone_id)
+            collections = {}
+            try:
+                async with asyncio.timeout(60):
+                    for platform in sorted({r['platform'] for r in rows} & SIMPLE_HELPERS):
+                        collections[platform] = await self.client.helper_collection(platform)
+            except TimeoutError as exc:
+                raise HomeAssistantError('Helferprüfung hat zu lange gedauert') from exc
+            async with self._projection_lock:
+                current = await self.selection_inventory(zone_id)
+                if (current['revision'] != revision or
+                        candidates(current, await self.world.helper_registry()) != rows):
+                    raise SelectionConflict('Bestand während der Prüfung geändert; neu laden')
+                return {'zone_id': zone_id, 'revision': revision, 'items': inspect(rows, collections, config['roles']),
+                        'scope': 'helpers_in_zone_inventory', 'persisted': False,
+                        'ha_execution': False, 'checked_at': datetime.now(UTC).isoformat()}
+
+    @staticmethod
+    def _recent_versions():
+        from pilotsuite.core.maintenance import release_history
+        return [{k: row[k] for k in ('version', 'date', 'running')} for row in release_history()]
+
+    async def maintenance(self):
+        from pilotsuite.core.maintenance import APP_PATH, BACKUP_PATH, HELPERS_PATH, release_history
+        status = await self.status()
+        try:
+            points = await self.plans.savepoints()
+            point_error = False
+        except (OSError, InvalidSelection):
+            points, point_error = [], True
+        return {"version": VERSION, "rescue_mode": self._rescue_error is not None,
+                "release_history": release_history(), "history_kind": "bundled_release_notes",
+                "update": await self.world.maintenance_update(fresh=status['ready']),
+                "savepoints": points, "savepoint_error": point_error,
+                "native": {"app": APP_PATH, "backups": BACKUP_PATH, "helpers": HELPERS_PATH},
+                "bootstrap": {"option": "golden_zone_area_ids", "applies": "first_start_only"},
+                "ha_execution": False}
+
     async def start(self) -> None:
-        await self.selections.initialize()
-        await self.zones.bootstrap(self.settings.golden_zone_area_ids)
+        try:
+            await self.selections.initialize()
+            await self.zones.bootstrap(self.settings.golden_zone_area_ids)
+        except (sqlite3.DatabaseError, RuntimeError) as exc:
+            # Keep a narrow recovery UI available; never replace a broken/newer DB.
+            self._rescue_error = type(exc).__name__
+            LOGGER.error("Local database unavailable; recovery UI only (%s)", self._rescue_error)
+            return
         await self.client.start()
         await self.audit.append(
             "runtime.start",
@@ -229,11 +287,14 @@ class PilotSuiteService:
             capabilities[name] = {"status": state, "entity_count": len(members), "valid_count": len(valid)}
         return {
             "ready": ready,
+            "rescue_mode": self._rescue_error is not None,
             "capabilities": capabilities,
             "selection": self._selection_summary,
             "version": VERSION,
             "architecture": ARCHITECTURE_VERSION,
             "mode": "hard_read_only",
+            "app_update": await self.world.maintenance_update(fresh=ready),
+            "recent_versions": self._recent_versions(),
             "home_assistant": {
                 "connected": self._connected,
                 "event_stream_connected": self._stream_connected,

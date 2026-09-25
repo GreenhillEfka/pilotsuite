@@ -71,6 +71,19 @@ class WorldModel:
                      'disabled': value.get('disabled_by') is not None}
                     for key, value in sorted(self._entities.items())]
 
+    async def maintenance_update(self, *, fresh):
+        from pilotsuite.core.maintenance import update_view
+        async with self._lock:
+            return update_view(list(self._entities.values()), self._states, fresh=fresh)
+
+    async def helper_registry(self):
+        """Only registry identity fields; no states, options, tokens or config blobs."""
+        async with self._lock:
+            return [{"entity_id": eid, "area_id": self._entity_area_id(row),
+                     "platform": row.get("platform"), "unique_id": row.get("unique_id"),
+                     "disabled": row.get("disabled_by") is not None}
+                    for eid, row in sorted(self._entities.items())]
+
     async def scope(self, area_ids: tuple[str, ...], extra_entity_ids: tuple[str, ...] = ()) -> dict[str, Any]:
         requested = set(area_ids)
         async with self._lock:

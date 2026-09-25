@@ -24,3 +24,15 @@ one read, not perpetual validity. No new learning or authority follows import. S
 Next: ONE actual bounded helper executor in existing PlanStore with full application
 and UI integration, restart/timeout/conflict tests and action-specific recovery. Test
 against disposable HA before household writes; do not claim cross-system atomicity.
+
+
+## Alpha.27 candidate (not a deployment receipt)
+
+Integrated maintenance/API/UI: three bundled version notes, authoritative cached
+HA update-entity identity check, native installation link; local configuration
+savepoint creation/preview/paused restore with private files, checksum, before-point,
+transaction rollback and idempotent replay; guarded rescue page on DB bootstrap
+failure; explicit inspection of existing storage helpers, never ownership by name.
+Golden Zone bootstrap label fixed without changing option values or live zones.
+Local 386 Python/48 JS passed; remote browser/deployment acceptance pending.
+No HA provisioning or automation takeover enabled. Scope: MAINTENANCE_AND_RECOVERY.md.

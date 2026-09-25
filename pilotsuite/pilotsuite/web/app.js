@@ -42,6 +42,12 @@ function renderStatus(status) {
     text('habitus-detail', `${status.habitus.suggestion_count} Vorschläge · ${status.selection.evaluated_count} ausgewertet, ${status.selection.excluded_count} durch Auswahl ausgeschlossen`);
   }
   text("release-state", status.version);
+  const updates={current:'Laut Home Assistant aktuell',available:'Neue Version verfügbar',
+    installing:'Installation läuft in Home Assistant',skipped:'Neue Version übersprungen',
+    version_mismatch:'Versionsabgleich erforderlich',unknown:'Updateinformation nicht bestätigt'};
+  if(byId('release-update-state'))text('release-update-state',updates[status.app_update?.state]||updates.unknown);
+  if(byId('recent-versions'))text('recent-versions','Letzte Paketversionen: '+(status.recent_versions||[]).map(r=>r.version).join(' · '));
+  if(byId('release-install'))byId('release-install').hidden=status.app_update?.install_available!==true;
 }
 
 function renderMoods(items) {
@@ -110,6 +116,7 @@ function formatTime(value) {
 }
 
 async function load() {
+  if(byId('release-install'))byId('release-install').hidden=true;
   byId("error").hidden = true;
   const [status, suggestions] = await Promise.all([
     json("api/v1/status"),
@@ -1010,3 +1017,14 @@ byId('learning-reset').addEventListener('click', async () => {
   } catch(error) { text('context-message',`Löschen nicht bestätigt: ${error.message}`); }
   finally { selectionBusy=false; renderSelection(); renderLearning(); }
 });
+
+// Leaving for maintenance must not silently discard a zone/role/selection draft.
+for (const link of document.querySelectorAll('a[href="maintenance"], #release-install')) {
+  link.addEventListener('click', event => {
+    if (selectionBusy || contextEditing || zoneFormOpen || selectionDraft?.dirty) {
+      event.preventDefault();
+      text('edit-status', 'Bitte Bearbeitung zuerst speichern oder abbrechen, bevor du die Wartung öffnest.');
+      byId('edit-status').hidden = false;
+    }
+  });
+}

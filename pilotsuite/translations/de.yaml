@@ -3,8 +3,8 @@ configuration:
     name: Protokollstufe
     description: Detailgrad der Laufzeitprotokolle. Zugangsdaten werden immer entfernt.
   golden_zone_area_ids:
-    name: Golden-Zone-Bereichs-IDs
-    description: Exakte Home-Assistant-Bereichs-IDs für den ersten begrenzten Geltungsbereich.
+    name: Startbereiche (nur Ersteinrichtung)
+    description: Nur beim allerersten Start verwendet. Bestehende Habitus-Zonen verwaltest du in PilotSuite; diese Option ändert sie nicht.
   refresh_interval_seconds:
     name: Aktualisierungsintervall
     description: Sekunden zwischen vollständigen Abgleichen mit Home Assistant.

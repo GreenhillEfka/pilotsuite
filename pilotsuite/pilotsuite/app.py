@@ -17,6 +17,7 @@ from pilotsuite.core.settings import Settings
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
 from pilotsuite.review_notes_api import register_review_notes
+from pilotsuite.maintenance_api import register_maintenance
 
 
 LOGGER = logging.getLogger(__name__)
@@ -34,6 +35,13 @@ async def ingress_guard(request: web.Request, handler: Any) -> web.StreamRespons
     if not local_probe and request.remote not in settings.ingress_allowed_peers:
         raise web.HTTPForbidden(text="Ingress access required")
     normalized = re.sub(r"/{2,}", "/", request.path)
+    if request.app[SERVICE_KEY]._rescue_error is not None:
+        recovery_paths = {'/', '/maintenance', '/health', '/health/ready', '/version', '/api/v1/status',
+                          '/api/v1/maintenance', '/assets/maintenance.js', '/assets/maintenance.css', '/assets/styles.css'}
+        if request.method not in {'GET', 'HEAD'} or normalized not in recovery_paths:
+            return web.json_response({'error': 'rescue_mode',
+                'message': 'Lokale Datenbank nicht verfügbar. Wartung öffnen; nichts wurde überschrieben.'},
+                status=503, headers={'Cache-Control': 'no-store'})
     if normalized != request.path:
         # Resolve internally: redirects can lose the Supervisor's external prefix.
         request = request.clone(rel_url=request.rel_url.with_path(normalized, keep_query=True))
@@ -99,6 +107,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     service = PilotSuiteService(resolved)
     app = web.Application(middlewares=[request_context, ingress_guard], client_max_size=128 * 1024)
     app[SERVICE_KEY] = service
+    register_maintenance(app, SERVICE_KEY, WEB_DIR)
     app.on_startup.append(_startup)
     app.on_cleanup.append(_cleanup)
     app.router.add_get("/", _index)
@@ -218,8 +227,9 @@ async def _cleanup(app: web.Application) -> None:
     await app[SERVICE_KEY].close()
 
 
-async def _index(_: web.Request) -> web.FileResponse:
-    return web.FileResponse(WEB_DIR / "index.html")
+async def _index(request: web.Request) -> web.FileResponse:
+    name = "maintenance.html" if request.app[SERVICE_KEY]._rescue_error else "index.html"
+    return web.FileResponse(WEB_DIR / name)
 
 
 async def _javascript(_: web.Request) -> web.FileResponse:

@@ -35,6 +35,7 @@ jobs:
           python scripts/release_preflight.py --candidate "$CANDIDATE_SHA" --published "$PUBLISHED_SHA" --allow-unchanged
       - name: Check frontend syntax and selection model
         run: |
+          node --check pilotsuite/pilotsuite/web/maintenance.js
           node --check pilotsuite/pilotsuite/web/app.js
           node --check pilotsuite/pilotsuite/web/history.js
           node --check pilotsuite/pilotsuite/web/drafts.js
@@ -114,6 +115,10 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_foundation_browser.cjs
+      - name: Exercise maintenance, savepoints and rescue against disposable application
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_maintenance_browser.cjs
       - name: Save synthetic UI review screenshots
         uses: actions/upload-artifact@v4
         with:
