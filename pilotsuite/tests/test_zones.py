@@ -44,7 +44,7 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(0, data['event_count'])
         self.assertEqual('pilotsuite-zone-foundation-v1', data['foundation']['schema'])
         self.assertFalse(data['foundation']['execution']['allowed'])
-        self.assertEqual('preview_only', data['foundation']['provisioning']['transaction']['state'])
+        self.assertEqual('explicit_single_helper', data['foundation']['provisioning']['transaction']['state'])\n        self.assertTrue(data['foundation']['provisioning']['execution']['allowed'])
         self.assertFalse(data['foundation']['provisioning']['execution']['allowed'])
         self.assertEqual([], data['foundation']['execution']['actions'])
         self.assertEqual(400, (await self.client.get('/api/v1/zones/unknown/context')).status)
