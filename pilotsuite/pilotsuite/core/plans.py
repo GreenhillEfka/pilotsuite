@@ -37,7 +37,8 @@ class ReadOnlyRelease(RuntimeError):
 
 class PlanStore(ReviewNotesMixin, SavepointsMixin):
     def __init__(self, data_dir: Path, audit: AuditLog, context=None) -> None:
-        self._path = data_dir / "plans.jsonl"\n        self._helper_path = data_dir / "helper_transactions.jsonl"
+        self._path = data_dir / "plans.jsonl"
+        self._helper_path = data_dir / "helper_transactions.jsonl"
         self._audit = audit
         self._lock = asyncio.Lock()
         self._context = context
