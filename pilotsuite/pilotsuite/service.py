@@ -28,6 +28,15 @@ from pilotsuite.ha.world import WorldModel
 LOGGER = logging.getLogger(__name__)
 
 
+def apply_role_overrides(neurons, roles):
+    """Apply only explicit semantic role assignments; never infer helper meaning."""
+    presence_helpers = set(roles.get('presence', []))
+    return [
+        replace(n, kind='presence') if n.entity_id in presence_helpers and n.kind == 'input_boolean' else n
+        for n in neurons
+    ]
+
+
 class PilotSuiteService:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -288,11 +297,7 @@ class PilotSuiteService:
             cfg = await self.context.get(zone['zone_id'])
             # A logical HA helper may be explicitly assigned as the zone presence
             # owner. It is never inferred as presence merely because it is boolean.
-            presence_helpers = set(cfg['roles'].get('presence', []))
-            zone_neurons = [
-                replace(n, kind='presence') if n.entity_id in presence_helpers and n.kind == 'input_boolean' else n
-                for n in zone_neurons
-            ]
+            zone_neurons = apply_role_overrides(zone_neurons, cfg['roles'])
             summary, climate_neurons = context_summary(zone_neurons, cfg['roles'])
             presence = [n.entity_id for n in zone_neurons if n.entity_id in cfg['roles'].get('presence', []) and n.kind in {'presence', 'occupancy', 'motion'} and n.quality == 'good']
             if cfg['learning'] and presence:
