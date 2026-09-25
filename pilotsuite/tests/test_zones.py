@@ -304,10 +304,11 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         service=self.app[SERVICE_KEY]
         service.client.automation_config=AsyncMock(return_value={
             'alias':'Existing room logic',
-            'triggers':[{'trigger':'state','entity_id':'binary_sensor.motion'}],
+            'triggers':[{'trigger':'state','entity_id':'sensor.hot'}],
             'actions':[{'action':'light.turn_on','target':{'entity_id':'light.room'}}]})
-        inventory=await service.selection_inventory('a')
-        response=await self.client.post('/api/v1/zones/a/automations/import',json={
+        zone=await self.create()
+        inventory=await service.selection_inventory(zone['zone_id'])
+        response=await self.client.post(f"/api/v1/zones/{zone['zone_id']}/automations/import",json={
             'automation_id':'automation.existing_room_logic','zone_revision':inventory['revision']})
         self.assertEqual(200,response.status)
         data=await response.json()
