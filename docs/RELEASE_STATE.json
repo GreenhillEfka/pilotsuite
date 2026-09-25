@@ -4,22 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.28",
-    "commit": "8897bdf8b74a745bc0a60f2d7618723e2b035b87",
-    "tree": "72c4f12e222aaeee188cf7f12fd6972134cc10a8",
-    "app_tree": "d6fb8b2437dbb8185ada5ec968b080896e4331bf",
-    "pull_request": 63,
-    "candidate_commit": "1ba8c7f60ae48ff9eba803f22b317842433af73e",
-    "candidate_ci_run_id": 36194932567,
-    "ci_run_id": 36195056251,
+    "version": "0.1.0-alpha.31",
+    "commit": "75caa39df10a7eb25a0a3c85c0a526475d18b03b",
+    "tree": "d651049d4afbae883f642c5786930ac9cb6e7772",
+    "app_tree": "05557cea66e5a9ca99489331f6f39f05839b1bcf",
+    "pull_request": 67,
+    "candidate_commit": "e24fa91a70ae840554af2a1374fae2773905f6b8",
+    "candidate_ci_run_id": 36201287332,
+    "ci_run_id": 36201656060,
+    "ci_conclusion": "success"
+  },
+  "published_source": {
+    "version": "0.1.0-alpha.31",
+    "commit": "75caa39df10a7eb25a0a3c85c0a526475d18b03b",
+    "tree": "d651049d4afbae883f642c5786930ac9cb6e7772",
+    "app_tree": "05557cea66e5a9ca99489331f6f39f05839b1bcf",
+    "pull_request": 67,
+    "candidate_commit": "e24fa91a70ae840554af2a1374fae2773905f6b8",
+    "candidate_ci_run_id": 36201287332,
+    "ci_run_id": 36201656060,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "1122b3d9",
-    "name": "PilotSuite Alpha.27 before Alpha.28",
-    "date": "2026-09-25T22:06:09.564034+00:00",
-    "size_bytes": 54251520,
-    "app_version": "0.1.0-alpha.27",
+    "backup_id": "319e9e3b",
+    "name": "PilotSuite Alpha.30 before Alpha.31",
+    "date": "2026-09-26T00:17:26.615880+00:00",
+    "size_bytes": 54261760,
+    "app_version": "0.1.0-alpha.30",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -30,13 +41,21 @@
     "failed_folders": [],
     "failed_agent_ids": [],
     "agent_errors": {},
+    "agent_ids": [
+      "hassio.local"
+    ],
     "protected": false,
     "completion_verified_before_publication": true,
-    "restore_drill_performed": false
+    "verification": [
+      "native snapshot list",
+      "native backup/details"
+    ],
+    "restore_drill_performed": false,
+    "verification_boundary": "Completed metadata and scope; no archive extraction or off-device resilience claim"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.28",
-    "offered_version": "0.1.0-alpha.28",
+    "installed_version": "0.1.0-alpha.31",
+    "offered_version": "0.1.0-alpha.31",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -45,46 +64,70 @@
     "options_unchanged": true,
     "explicit_restart_calls": 0,
     "rebuild_calls": 0,
-    "other_app_update_calls": 0
+    "other_app_update_calls": 0,
+    "source_association": "repository/version/app-tree; not independent installed-image attestation"
   },
   "runtime": {
-    "mode": "bounded_helper_provisioning",
+    "mode": "presence_adoption_review",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
-    "verification": "native metadata and exact Alpha.28 startup/readiness logs"
+    "capabilities_available": [
+      "temperature",
+      "illuminance"
+    ],
+    "capabilities_partial": [
+      "humidity",
+      "motion",
+      "presence",
+      "light"
+    ],
+    "verification": "Native metadata, exact Alpha31 startup and repeated subsequent readiness logs"
   },
   "tests": {
-    "candidate_python_passed": 394,
-    "candidate_javascript_passed": 48,
+    "local_python_passed": 405,
+    "local_javascript_passed": 53,
     "candidate_and_main_ci": "all four jobs successful",
-    "browser_steps": 7,
-    "container_platform": "linux/amd64"
+    "browser_suites": 8,
+    "container_platform": "linux/amd64",
+    "workspace_widths": [
+      390,
+      768,
+      1440
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "local_browser": "Navigation denied by administrator policy; no bypass",
+    "remote_browser": "Passed all existing suites and new actual-app workspace regression"
   },
-  "helper_executor": {
-    "scope": "one current planned PilotSuite presence-delay timer per explicit confirmation",
-    "before_image": true,
-    "independent_readback": true,
-    "blind_retry_on_unknown_outcome": false,
-    "preexisting_delete": false,
-    "generic_plan_apply": false,
-    "household_helper_created_during_delivery": false
+  "ui_review": {
+    "artifact_id": 10891478892,
+    "run_id": 36201287332,
+    "sha256": "d6e282e135d20191a24e63de175d0b3be4f02b7d5e71bdf129de484f411b722f",
+    "basis": "Actual application with synthetic fixture data, not household Ingress",
+    "viewed_screenshots": [
+      "workspace-cockpit-light-1440.png",
+      "workspace-modules-dark-1440.png",
+      "workspace-cockpit-dark-390.png",
+      "workspace-cockpit-light-768.png",
+      "workspace-config-1440.png"
+    ]
+  },
+  "acceptance_boundaries": {
+    "authenticated_household_ux": "not directly tested",
+    "full_accessibility_audit": false,
+    "backend_helper_presence_certification": false,
+    "new_action_capabilities": false,
+    "ingress_authentication_weakened": false,
+    "completed_deep_research_report_used": false
   },
   "household_changes_this_delivery": [],
-  "next_task": "Authenticated household acceptance of the bounded helper path, then Issue56 presence timing/restart reconciliation. Do not repeat Alpha28 delivery.",
-  "published_source": {
-    "version": "0.1.0-alpha.30",
-    "commit": "f79cf5ddd01cf222880da6d432d279d1837e8821",
-    "tree": "99b9e23d927ac60e14ce2449f8c47ca2ea2c0a7c",
-    "app_tree": "c0bbd3306f5d0383094e9f2e62fed697d63f7630",
-    "pull_request": 66,
-    "ci_run_id": 36197260946
+  "history": {
+    "previous_release_commit": "f79cf5ddd01cf222880da6d432d279d1837e8821",
+    "previous_receipt_at": "75caa39df10a7eb25a0a3c85c0a526475d18b03b:docs/RELEASE_STATE.json"
   },
-  "candidate": {
-    "version": "0.1.0-alpha.31",
-    "state": "workspace_implementation_pending_exact_ci_and_delivery",
-    "scope": "UX only; canonical stores and action capabilities unchanged"
-  },
-  "receipt_note": "The older Alpha28 release/installation fields are historical. Source/live Alpha30 were verified at UX resume. A completed Alpha31 receipt must be recorded after exact CI, backup and installation, not inferred from this candidate."
+  "next_task": "Assess real workspace usability; separately fault-test existing helper/presence backend before household takeover. Do not repeat Alpha31 deployment for documentation."
 }
