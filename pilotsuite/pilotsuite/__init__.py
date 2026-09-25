@@ -1,5 +1,5 @@
 """PilotSuite v21 package."""
 
-VERSION = "0.1.0-alpha.27"
+VERSION = "0.1.0-alpha.28"
 ARCHITECTURE_VERSION = "v21"
 READ_ONLY_RELEASE = True

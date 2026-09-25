@@ -196,6 +196,43 @@ class HomeAssistantClient:
         except (TimeoutError, ClientError, RecursionError) as exc:
             raise HomeAssistantError('Helper inspection unavailable') from exc
 
+    async def helper_create_timer(self, *, key: str, name: str, duration: str, restore: bool):
+        """Create exactly one timer through HA's supported storage collection API."""
+        import re
+        if (not re.fullmatch(r"pilotsuite_[a-z0-9_]{1,80}", key or "")
+                or not isinstance(name, str) or not 1 <= len(name) <= 120
+                or not re.fullmatch(r"\d{2}:\d{2}:\d{2}", duration or "")
+                or type(restore) is not bool):
+            raise HomeAssistantError("Invalid bounded timer create request")
+        await self.start()
+        try:
+            async with asyncio.timeout(20):
+                async with self._session.ws_connect(self._ws_url, heartbeat=30, max_msg_size=128*1024) as socket:
+                    await self._authenticate(socket)
+                    result = await self._command(socket, 1, {"type":"timer/create","name":name,"id":key,
+                                                            "duration":duration,"restore":restore})
+                    if not isinstance(result, dict) or result.get("id") != key:
+                        raise HomeAssistantError("Timer create response did not confirm identity")
+                    return result
+        except TimeoutError as exc:
+            raise HomeAssistantError("Timer create outcome unknown") from exc
+        except ClientError as exc:
+            raise HomeAssistantError("Timer create connection failed") from exc
+
+    async def helper_delete_timer(self, key: str):
+        """Rollback only a transaction-owned timer identity selected by the caller."""
+        import re
+        if not re.fullmatch(r"pilotsuite_[a-z0-9_]{1,80}", key or ""):
+            raise HomeAssistantError("Invalid bounded timer delete request")
+        await self.start()
+        try:
+            async with asyncio.timeout(20):
+                async with self._session.ws_connect(self._ws_url, heartbeat=30, max_msg_size=128*1024) as socket:
+                    await self._authenticate(socket)
+                    return await self._command(socket, 1, {"type":"timer/delete","timer_id":key})
+        except (TimeoutError, ClientError) as exc:
+            raise HomeAssistantError("Timer rollback outcome unknown") from exc
+
     async def listen(
         self, callback: StateCallback, stop_event: asyncio.Event,
         connection_callback: Callable[[bool], Awaitable[None]] | None = None,

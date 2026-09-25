@@ -38,6 +38,7 @@ class ReadOnlyRelease(RuntimeError):
 class PlanStore(ReviewNotesMixin, SavepointsMixin):
     def __init__(self, data_dir: Path, audit: AuditLog, context=None) -> None:
         self._path = data_dir / "plans.jsonl"
+        self._helper_path = data_dir / "helper_transactions.jsonl"
         self._audit = audit
         self._lock = asyncio.Lock()
         self._context = context
@@ -212,6 +213,24 @@ class PlanStore(ReviewNotesMixin, SavepointsMixin):
         raise ReadOnlyRelease(
             f"PilotSuite {VERSION} cannot execute Home Assistant mutations"
         )
+
+    async def helper_transaction(self, event: str, details: dict[str, Any], transaction_id: str | None = None) -> str:
+        """Durably journal a bounded HA mutation without claiming cross-system atomicity."""
+        txid = transaction_id or str(uuid.uuid4())
+        record = {"type": "helper_transaction", "event": event, "transaction_id": txid,
+                  "release": VERSION, "at": datetime.now(UTC).isoformat(), "details": redact(details)}
+        encoded = json.dumps(record, separators=(",", ":"), sort_keys=True)
+        async with self._lock:
+            await asyncio.to_thread(self._append_helper_sync, encoded)
+        await self._audit.append("helper." + event, outcome=details.get("outcome", "pending"),
+                                 details={"transaction_id": txid, **redact(details)}, correlation_id=txid)
+        return txid
+
+    def _append_helper_sync(self, encoded: str) -> None:
+        with self._helper_path.open("a", encoding="utf-8") as handle:
+            handle.write(encoded + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
 
     def _append_sync(self, encoded: str) -> None:
         with self._path.open("a", encoding="utf-8") as handle:

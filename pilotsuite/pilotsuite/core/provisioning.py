@@ -1,9 +1,10 @@
-"""Revision-bound helper provisioning contracts; no HA write transport lives here."""
+"""Bounded helper provisioning for one explicit PilotSuite-owned timer."""
 from __future__ import annotations
 from dataclasses import dataclass
 from .selections import InvalidSelection, SelectionConflict
 
-ALLOWED_HELPERS = {"input_boolean", "timer", "input_select"}
+ALLOWED_HELPERS = {"timer"}
+DEFAULT_TIMER = {"duration": "00:05:00", "restore": True}
 
 @dataclass(frozen=True)
 class ProvisionRequest:
@@ -12,46 +13,59 @@ class ProvisionRequest:
     helpers: tuple[tuple[str, str], ...]
 
 def provision_request(inventory, foundation, payload):
-    """Validate an explicit request against the exact derived helper plan."""
-    if not isinstance(payload, dict) or set(payload) != {"revision", "helpers"}:
-        raise InvalidSelection("revision and helpers required; unknown fields rejected")
+    if not isinstance(payload, dict) or set(payload) != {"revision", "helpers", "confirm"}:
+        raise InvalidSelection("revision, helpers and confirm required; unknown fields rejected")
+    if payload["confirm"] is not True:
+        raise InvalidSelection("explicit confirmation required")
     if type(payload["revision"]) is not int or payload["revision"] < 0:
         raise InvalidSelection("revision must be a nonnegative integer")
     if payload["revision"] != inventory.get("revision") or foundation.get("revision") != inventory.get("revision"):
         raise SelectionConflict("Zone changed; reload helper plan before provisioning")
     helpers = payload["helpers"]
-    if not isinstance(helpers, list) or len(helpers) > 8:
-        raise InvalidSelection("helpers must be a list of at most 8 planned helpers")
+    if not isinstance(helpers, list) or len(helpers) != 1:
+        raise InvalidSelection("exactly one planned helper may be provisioned per transaction")
     planned = {(h.get("domain"), h.get("key")) for h in foundation.get("helper_plan", [])
                if isinstance(h, dict) and h.get("domain") in ALLOWED_HELPERS}
-    requested = []
-    for item in helpers:
-        if not isinstance(item, dict) or set(item) != {"domain", "key"}:
-            raise InvalidSelection("each helper requires domain and key")
-        pair = (item["domain"], item["key"])
-        if pair not in planned:
-            raise InvalidSelection("helper is not part of the current zone foundation plan")
-        requested.append(pair)
-    if len(set(requested)) != len(requested):
-        raise InvalidSelection("duplicate helper request")
-    return ProvisionRequest(str(inventory["zone_id"]), payload["revision"], tuple(sorted(requested)))
+    item = helpers[0]
+    if not isinstance(item, dict) or set(item) != {"domain", "key"}:
+        raise InvalidSelection("helper requires domain and key")
+    pair = (item["domain"], item["key"])
+    if pair not in planned:
+        raise InvalidSelection("helper is not part of the current executable zone foundation plan")
+    return ProvisionRequest(str(inventory["zone_id"]), payload["revision"], (pair,))
+
+def desired_helper(foundation, domain, key):
+    matches=[h for h in foundation.get("helper_plan",[]) if h.get("domain")==domain and h.get("key")==key]
+    if len(matches)!=1:
+        raise InvalidSelection("helper plan changed; reload")
+    helper=dict(matches[0])
+    if domain!="timer":
+        raise InvalidSelection("this release provisions only the presence-delay timer")
+    helper["config"]={**DEFAULT_TIMER, **helper.get("config",{})}
+    return helper
+
+def exact_timer(row, helper):
+    if not isinstance(row,dict) or row.get("id")!=helper["key"]:
+        return False
+    cfg=helper["config"]
+    return row.get("name")==helper["name"] and row.get("duration")==cfg["duration"] and row.get("restore") is cfg["restore"]
 
 def provisioning_preview(inventory, foundation):
-    """Expose ownership and rollback rules before a write capability exists."""
+    executable=[h for h in foundation.get("helper_plan",[]) if h.get("domain") in ALLOWED_HELPERS]
     return {
-      "schema": "pilotsuite-helper-provisioning-v1",
+      "schema": "pilotsuite-helper-provisioning-v2",
       "zone_id": inventory.get("zone_id"), "revision": inventory.get("revision"),
       "helpers": foundation.get("helper_plan", []),
-      "ownership": {
-        "namespace": "pilotsuite_<zone>_<purpose>",
+      "ownership": {"namespace": "pilotsuite_<zone>_<purpose>",
         "existing_matching_helpers": "reuse_before_create",
         "foreign_helpers": "never_take_ownership_implicitly",
-        "delete_policy": "never_delete_foreign_or_preexisting_helper",
-      },
-      "transaction": {
-        "state": "preview_only", "backup_required": True,
+        "delete_policy": "never_delete_foreign_or_preexisting_helper"},
+      "transaction": {"state": "explicit_single_helper", "before_image_required": True,
         "optimistic_revision_required": True, "post_write_verification_required": True,
-        "rollback": "remove_only_helpers_created_by_the_same_verified_transaction",
-      },
-      "execution": {"allowed": False, "actions": []},
-    }
+        "unknown_outcome": "read_back_never_blind_retry",
+        "rollback": "delete_only_helper_created_and_verified_by_same_transaction"},
+      "execution": {"allowed": bool(executable), "actions": [
+        {"domain":h["domain"],"key":h["key"],"operation":"create_or_verified_reuse"} for h in executable]},
+      "limits": ["Alpha.28 executes only one planned presence-delay timer per confirmation.",
+                 "Existing helpers are never renamed, deleted or adopted by name.",
+                 "No automation, actuator, learning-consent or generic PlanStore action is enabled."]};
