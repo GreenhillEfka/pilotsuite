@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.0-alpha.30] - 2026-09-26
+
+### Added
+- Controlled Presence Adoption review: derives the exact presence owner, raw sources
+  and PilotSuite timer for a zone, asks Home Assistant for related automations, reads
+  each related configuration and produces a fresh fingerprint-bound structural plan.
+- Existing automations that directly write the logical owner or PilotSuite timer are
+  classified as conflicts. Templates, indirect targets, blueprints and unsupported
+  structures remain explicit blockers rather than guessed semantics.
+- Adoption output is read-only and execution-closed. It never enables, disables,
+  edits or deletes an automation and never treats configuration structure as runtime
+  proof. A later takeover requires a separate backup-bound approval and fresh recheck.
+
+### Boundaries
+- Alpha.30 does not activate Presence Runtime automatically and does not remove the
+  existing automation authority. No lighting/media/climate control is introduced.
+
 ## [0.1.0-alpha.29] - 2026-09-26
 
 ### Added
