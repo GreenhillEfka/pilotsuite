@@ -29,20 +29,20 @@ def context_summary(neurons, roles):
         elif members and kind in {'temperature', 'humidity'}:
             climate.append(members[0])
     summary['reference_temperature'] = [{'source': n.entity_id, 'value': n.value, 'unit': n.unit, 'quality': n.quality} for n in neurons if n.entity_id in references and n.kind=='temperature']
-    for label, kinds in [('presence', ROLE_KINDS['presence']), ('light', {'light'})]:
+    for label, kinds in [('presence', ROLE_KINDS['presence']), ('daylight_binary', ROLE_KINDS['daylight_binary']), ('light', {'light'})]:
         members = [n for n in neurons if n.kind in kinds]
         candidate_count = len(members)
         expected = roles.get(label, [])
-        if label == 'presence' or label in roles:
+        if label in {'presence', 'daylight_binary'} or label in roles:
             members = [n for n in members if n.entity_id in expected]
         missing = len(expected)-len(members) if expected else 0
         valid = [n for n in members if n.quality == 'good' and type(n.value) is bool]
         on = sum(n.value is True for n in valid)
-        summary[label] = {'status': 'not_selected' if not expected and candidate_count and (label == 'presence' or label in roles) else 'unavailable' if missing and not members else 'not_present' if not members else 'unavailable' if not valid else 'partial' if missing or len(valid)<len(members) else 'available',
+        summary[label] = {'status': 'not_selected' if not expected and candidate_count and (label in {'presence', 'daylight_binary'} or label in roles) else 'unavailable' if missing and not members else 'not_present' if not members else 'unavailable' if not valid else 'partial' if missing or len(valid)<len(members) else 'available',
                           'sources': [n.entity_id for n in members], 'requested_sources': expected,
                           'aggregation': 'any_on', 'on': on, 'valid': len(valid), 'total': len(members)+missing,
                           'active': True if on else None if missing or len(valid)<len(members) or not members else False}
-    for kind in ('temperature', 'humidity', 'illuminance', 'presence', 'light'):
+    for kind in ('temperature', 'humidity', 'illuminance', 'presence', 'daylight_binary', 'light'):
         info = summary[kind]
         info['reference'] = {'value': info.get('value', info.get('active')),
                              'unit': info.get('unit'), 'sources': info['sources'],
