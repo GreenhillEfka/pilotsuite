@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.capabilities import capability_matrix
 from pilotsuite.domain.models import Neuron
 from pilotsuite.domain.moods import calculate_moods
 from pilotsuite.domain.synapses import build_suggestions
@@ -65,3 +66,10 @@ class CapabilityTests(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(state["ready"])
             self.assertFalse(state["golden_zone"]["resolved"])
             self.assertEqual("not_present", state["capabilities"]["motion"]["status"])
+
+
+class ZoneComfortMatrixTests(unittest.TestCase):
+    def test_lighting_accepts_lux_or_binary_daylight_but_not_light_alone(self):
+        self.assertEqual("needs_sources", capability_matrix({"light":["light.x"]})["items"][1]["state"])
+        self.assertEqual("ready", capability_matrix({"light":["light.x"],"illuminance":["sensor.lux"]})["items"][1]["state"])
+        self.assertEqual("ready", capability_matrix({"light":["light.x"],"daylight_binary":["binary_sensor.bright"]})["items"][1]["state"])
