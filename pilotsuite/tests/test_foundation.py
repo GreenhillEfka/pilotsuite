@@ -27,6 +27,7 @@ class FoundationTests(unittest.TestCase):
                          [h["domain"] for h in result["helper_plan"]])
         self.assertTrue(all(c["state"]=="blocked" for c in result["correlations"]))
         self.assertEqual("pilotsuite_hz_weird_anwesenheit",result["helper_plan"][0]["key"])
+        self.assertEqual("PilotSuite · hz_weird · Anwesenheit",result["helper_plan"][0]["name"])
 
 if __name__=="__main__":
     unittest.main()
