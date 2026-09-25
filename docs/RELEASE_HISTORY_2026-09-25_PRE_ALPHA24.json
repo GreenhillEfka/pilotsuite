@@ -1,0 +1,229 @@
+{
+  "schema": "pilotsuite-release-receipt-v1",
+  "verified_date": "2026-09-24",
+  "repository": "GreenhillEfka/pilotsuite",
+  "app_slug": "0d79c5e8_pilotsuite",
+  "release": {
+    "version": "0.1.0-alpha.22",
+    "commit": "7990f5a3225aec53548dd8cb5bc79e74707b9fd9",
+    "tree": "a73c3ada0695becd5823d1e0c386a06151cd5279",
+    "app_tree": "0d427053cdf246e63e044a11c15494f18dbeab08",
+    "pull_request": 50,
+    "candidate_commit": "ca6ba76f90c706cd3f7158aa07eec1605c81089a",
+    "candidate_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35928225010",
+    "candidate_ci_conclusion": "success",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35929637405",
+    "ci_conclusion": "success",
+    "source_association": "canonical_repository_offered_version_and_unchanged_tested_app_tree",
+    "independent_store_checkout_verified": false,
+    "pre_deployment_main_commit": "7990f5a3225aec53548dd8cb5bc79e74707b9fd9",
+    "pre_deployment_main_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35929637405",
+    "pre_deployment_main_ci_conclusion": "success"
+  },
+  "store_refresh": {
+    "tool": "ha_manage_app",
+    "arguments": {
+      "action": "check_updates"
+    },
+    "success": true,
+    "offered_before": "0.1.0-alpha.21",
+    "offered_after": "0.1.0-alpha.22",
+    "credentials_or_permissions_changed": false,
+    "previously_denied_custom_bridge_retried": false
+  },
+  "backup": {
+    "id": "33908293",
+    "date": "2026-09-23T22:36:25.821711+00:00",
+    "previous_version": "0.1.0-alpha.21",
+    "size_bytes": 54005760,
+    "completed": true,
+    "completed_before_publication": true,
+    "native_details_verified": true,
+    "only_pilotsuite": true,
+    "homeassistant_included": false,
+    "database_included": false,
+    "folders": [],
+    "protected": false,
+    "failed_components": [],
+    "restore_drill_performed": false,
+    "rollback": {
+      "service": "hassio.restore_partial",
+      "data": {
+        "slug": "33908293",
+        "apps": [
+          "0d79c5e8_pilotsuite"
+        ],
+        "homeassistant": false,
+        "folders": []
+      },
+      "target_version": "0.1.0-alpha.21"
+    }
+  },
+  "installation": {
+    "installed": "0.1.0-alpha.22",
+    "offered": "0.1.0-alpha.22",
+    "state": "started",
+    "update_available": false,
+    "update_calls_in_continuation": 1,
+    "additional_restart_requested": false,
+    "options_unchanged_by_metadata_comparison": true,
+    "auto_update_observed": true,
+    "auto_update_changed": false,
+    "other_apps_updated": false,
+    "ha_configuration_changed": false,
+    "learning_consents_changed": false,
+    "runtime_verified": [
+      "target_version_in_startup_log",
+      "hard_read_only",
+      "ready",
+      "stream_connected",
+      "snapshot_fresh",
+      "zone_resolved"
+    ],
+    "deployment_status": "alpha22_installed_runtime_verified_browser_acceptance_pending"
+  },
+  "ingress_acceptance": {
+    "version": "0.1.0-alpha.22",
+    "status": "pending",
+    "reason": "authenticated_live_browser_acceptance_not_performed_in_this_continuation",
+    "previous_temporal_ui_acceptance": "pending_on_alpha18",
+    "config_read_capability": "not_verified_on_live_addon_admin_required_no_escalation",
+    "independent_live_migration_inspection": "not_performed"
+  },
+  "next_task": "Finish exact Alpha.24 PR #54 CI, then use RELEASE_RUNBOOK.md: fresh PilotSuite-only backup before publication, expected-head merge, exact main CI and one matching native Store update if needed. Alpha.23 is already installed; do not repeat its deployment. No household, consent, rights or scheduler changes.",
+  "previous_user_accepted_release": {
+    "version": "0.1.0-alpha.16",
+    "commit": "208b5d31532c5f4ad38a6227b51028aeacacc9fd",
+    "ui_acceptance": {
+      "version": "0.1.0-alpha.16",
+      "status": "user_reported_pass",
+      "date": "2026-09-23",
+      "scope": [
+        "zone_guide",
+        "zone_navigation",
+        "pattern_workbench"
+      ],
+      "independent_network_capture": false
+    }
+  },
+  "receipt_scope": "Top-level release/backup/installation and pending_release are preserved historical Alpha.22/23 handoff records. current_observation supersedes their stale live-status/access claims. published_source is the last published source reference for CI, independent of installation. development_candidate is not a deployment receipt.",
+  "pending_release": {
+    "version": "0.1.0-alpha.23",
+    "status": "published_installation_unverified",
+    "commit": "dfecb464f9f67eb1dd3e393b8ecc99e9ca208814",
+    "tree": "3b3125e3643e3fda6a851a2bdc2851693a4dfc0e",
+    "app_tree": "38ef81068ff75f135bce6734a43e2caca3c09b8c",
+    "pull_request": 52,
+    "candidate_commit": "cf445355868cbe1448f402be19207f66beae5898",
+    "candidate_ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35990039222",
+    "candidate_ci_conclusion": "success",
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35991187908",
+    "ci_conclusion": "success",
+    "merged_at": "2026-09-24T11:07:25Z",
+    "source_verification": {
+      "method": "GitHub git tree plus SHA256-verified source-only CI bundle",
+      "workflow_run": 35991187908,
+      "artifact_id": 10804665498,
+      "artifact_sha256": "5b30aaa45a620a04e5b80f66a14bde742dc2970033b9975299d86155b8d117ff",
+      "candidate_and_release_tree_equal": true,
+      "independent_installed_image_verified": false,
+      "supersedes_incorrect_merge_message_app_tree": true
+    },
+    "tests": {
+      "python_passed": 247,
+      "javascript_passed": 48,
+      "synthetic_browser_flows_passed": 3,
+      "amd64_build": "success",
+      "authenticated_live_ui": "pending"
+    },
+    "prepublication_backup": {
+      "id": "5c40193c",
+      "previous_version": "0.1.0-alpha.22",
+      "date": "2026-09-24T11:02:07.031215+00:00",
+      "size_bytes": 54118400,
+      "completed_before_publication": true,
+      "native_details_verified_in_preceding_run": true,
+      "evidence_origin": "Native backup/details and snapshot/list responses in the preceding conversation; not a new live read in this handoff.",
+      "only_pilotsuite": true,
+      "homeassistant_included": false,
+      "database_included": false,
+      "folders": [],
+      "protected": false,
+      "failed_components": [],
+      "archive_downloaded": false,
+      "restore_drill_performed": false,
+      "current_existence_and_freshness_reverified": false
+    },
+    "store_offer_history": {
+      "native_refresh_succeeded_in_preceding_run": true,
+      "target_offered_and_read_back_in_preceding_run": true,
+      "later_prior_metadata_reported_alpha22_offer": true,
+      "current_offered_version_verified": false,
+      "note": "Prior offer responses are inconsistent. Refresh also changed unrelated catalog metadata, not installed apps. Read current installed/offered metadata before any update; do not treat earlier Store output as current."
+    },
+    "installation": {
+      "last_observed_installed": "0.1.0-alpha.22",
+      "last_observed_state": "started",
+      "live_checked_in_this_handoff": false,
+      "target_installation_verified": false,
+      "assistant_alpha23_update_calls": 0,
+      "auto_update_last_observed": true,
+      "automatic_installation_since_last_read": "unknown",
+      "options_changed_by_this_handoff": false
+    },
+    "continuation_access": {
+      "github_read": "available",
+      "ha_mcp_tools": "not_exposed_in_this_invocation",
+      "ha_permission_denial_observed": false,
+      "scope_or_credentials_changed": false
+    },
+    "next_step": "Read current PilotSuite installed/offered metadata through HA-MCP. If Alpha.23 is installed, skip backup/update/rebuild/restart and verify runtime. Otherwise reverify the matching scoped recovery point, exact source/CI and offer under RELEASE_RUNBOOK.md; perform at most one matching native update, then record runtime separately from UI acceptance."
+  },
+  "published_source": {
+    "version": "0.1.0-alpha.23",
+    "commit": "dfecb464f9f67eb1dd3e393b8ecc99e9ca208814",
+    "tree": "3b3125e3643e3fda6a851a2bdc2851693a4dfc0e",
+    "app_tree": "38ef81068ff75f135bce6734a43e2caca3c09b8c",
+    "pull_request": 52,
+    "ci_url": "https://github.com/GreenhillEfka/pilotsuite/actions/runs/35991187908",
+    "ci_conclusion": "success"
+  },
+  "current_observation": {
+    "date": "2026-09-25",
+    "installed": "0.1.0-alpha.23",
+    "offered": "0.1.0-alpha.23",
+    "state": "started",
+    "update_available": false,
+    "auto_update": true,
+    "source": "native ha_get_app and PilotSuite readiness logs",
+    "readiness_log_last_label": "2026-09-25T09:31:59Z",
+    "ready": true,
+    "stream_connected": true,
+    "snapshot_fresh": true,
+    "zone_resolved": true,
+    "partial_capabilities": [
+      "presence",
+      "light"
+    ],
+    "startup_log_rechecked": false,
+    "options_changed": false,
+    "update_calls": 0,
+    "backup_calls": 0,
+    "historical_installation_receipt": "PR #54 initial body and WORK_PACKAGE_DAILY_BRIEF.md",
+    "authenticated_live_ingress_acceptance": "pending",
+    "independent_image_attestation": false
+  },
+  "development_candidate": {
+    "version": "0.1.0-alpha.24",
+    "pull_request": 54,
+    "branch": "feat/zone-daily-brief",
+    "based_on_commit": "6b1e9cbb4b02c4da86ae751e9772b95b07c1b9bd",
+    "status": "integrated_candidate_not_published",
+    "exact_ci": "pending",
+    "prepublication_backup": "required_before_merge",
+    "installed": false,
+    "local_full_app_browser": "blocked_by_local_browser_administrator_policy_not_bypassed",
+    "local_component_browser_tests": 35,
+    "authenticated_live_ui": "pending"
+  }
+}

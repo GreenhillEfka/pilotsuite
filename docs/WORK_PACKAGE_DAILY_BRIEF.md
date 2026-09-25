@@ -59,17 +59,18 @@ absence. Never infer a new light action from an activity pattern alone.
    scoped-backup gates in RELEASE_RUNBOOK.md. Alpha.23 stays the installed baseline
    until a subsequent release is explicitly verified; no second install in this start.
 
-## Current stage — 2026-09-25
+## Current stage — 2026-09-25: delivered
 
-The existing PR #54 now integrates cumulative R2 hardening into the full verified
-source checkout. Alpha.24 is prepared, not published or installed. Stage 1 backend
-and stage 2 UI integration have local unit/component evidence; real-store API tests
-and a stage 3 full-app browser CI flow are included. The latter could not run locally
-because browser policy blocks localhost navigation, and must pass exact remote CI.
-Authenticated real usefulness remains unverified; no consent expansion to obtain it.
+Stages 1 and 2 are integrated in the canonical source. Stage 3 synthetic actual API,
+component and full-app browser checks passed in exact PR CI 36117146697 and main CI
+36117395171. Stage 4 completed under the unchanged runbook: fresh scoped Alpha.23
+backup ad3c24bb before publication, expected-head merge of PR #54, one native Store
+refresh and one PilotSuite update. Alpha.24 is installed/started, hard_read_only,
+ready/connected/fresh/zone-resolved, with unchanged options and consent.
 
-See DAILY_BRIEF_HARDENING.md and current PR comments for checks. The old CI failure
-was a missing zone_id in a synthetic inventory; it was reproduced and fixed. The
-previous five free test functions were not collected by unittest; R2's classes are.
-Stage 4 retains RELEASE_RUNBOOK.md and a fresh prepublication PilotSuite-only backup.
-No additional Alpha.23 update, HA configuration change or scheduler change occurred.
+The original uncollected test functions and fixture zone_id defect were corrected.
+A new CI layout diagnostic isolated overflow to the synthetic heading, corrected
+without weakening the assertion. The stronger published-source checks were retained.
+The outstanding part of stage 3 is authenticated real usefulness in the already
+consented Golden Zone. No proxy workaround, scope expansion or actuator call.
+RELEASE_STATE.json / DAILY_BRIEF_HARDENING.md hold the exact evidence and limits.

@@ -54,19 +54,31 @@ restoration, competing loads, errors, unsaved selection, preferences, connection
 zone isolation and responsive layout. Fixture controls use stdin, never an HTTP
 backdoor. Production ingress peers/ports/credentials are unchanged.
 
-This reconciliation passed 308 Python and 48 JavaScript cases locally with
-Python 3.13.5 / aiohttp 3.13.3 / Node 22.16.0, not pinned CI Python 3.14 / aiohttp
-3.13.5 / Playwright 1.62.1. Existing SQLite ResourceWarnings are not a warning-free
-claim. Playwright is absent in this local environment, so no fresh local browser
-run is claimed. Earlier isolated browser receipts are historical; local HTTP browser
-navigation had been administrator-blocked and was not bypassed. Exact new-head CI
-is required; earlier b994fc8 CI cannot certify these additions.
+This reconciliation passed 308 Python and 48 JavaScript cases locally. Ten actual-
+owner component cases also passed with the already installed Playwright driver and
+Chromium 144; a newer local npm install did not complete and was not substituted
+for CI. Local Python/aiohttp differ from pinned CI versions. Existing SQLite
+ResourceWarnings are not a warning-free claim. The previously blocked local HTTP
+browser route was not bypassed.
 
-## Delivery
+Exact final candidate d875b5437ef0daf0bad912fbb13db2de062e3ed0 passed all jobs in
+36117146697. Release 6f22100dcfbee87bdedc8288b1821971bad17d53 has the identical root
+and app trees and passed exact main CI 36117395171, including all five browser
+steps and amd64. CI diagnosis proved the 390px overflow came only from the synthetic
+H1 heading (scroll width 411px); its wrapping/font size was corrected. No mobile
+assertion, production style or access check was relaxed. Actual-app synthetic
+screenshots at 390/1440 were downloaded, SHA256-verified and visually reviewed.
 
-Fresh completed PilotSuite-only backup before publication because auto_update=true;
-expected-head merge, exact main CI and existing native Store update routine follow.
-No HA option, consent, actuation, scheduler, other app or host change belongs here.
-Authenticated live Ingress, app configuration-read capability, data/image attestation
-and demonstrated household usefulness stay separate from synthetic CI evidence.
-The preceding detailed integration record remains in Git at b994fc8b610df9a67669520795c0691950ef46ba.
+## Delivery completed, live UI acceptance separate
+
+Fresh PilotSuite-only Alpha.23 backup ad3c24bb completed before publication;
+native details verified no HA/database/folders/failures/key requirement. One native
+Store refresh and one normal update installed Alpha.24. Startup and readiness logs
+confirm hard_read_only, ready, stream, fresh snapshot and resolved Golden Zone;
+metadata confirms unchanged options and no remaining update. No extra restart or
+changes to another app, HA configuration, roles, consent, permissions or scheduler.
+
+RELEASE_STATE.json records source/CI, backup and runtime separately from pending
+authenticated live Ingress, config-read capability, independent data/image checks
+and demonstrated household usefulness. No archived backup was downloaded/restored.
+Earlier detailed integration evidence remains in Git at b994fc8b610df9a67669520795c0691950ef46ba.
