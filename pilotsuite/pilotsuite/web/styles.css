@@ -150,3 +150,8 @@ input[type="number"], input[type="datetime-local"] { width: 100%; min-width: 0; 
 #learning-section > .selection-tools > button { flex: 0 1 auto; }
 #learning-section > .selection-tools { align-items: center; }
 @media (max-width: 560px) { #learning-section > .selection-tools > button { flex: 1 1 100%; } }
+
+/* Version and setup cards must wrap as phrases rather than narrow columns. */
+.status-grid > .card {min-width:0;overflow-wrap:anywhere;}
+#recent-versions {line-height:1.5;}
+@media(max-width:540px){#foundation-journey{grid-template-columns:1fr;}}

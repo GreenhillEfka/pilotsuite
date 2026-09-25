@@ -5,11 +5,11 @@
 | Option | Default | Meaning |
 |---|---:|---|
 | `log_level` | `info` | Runtime log level; secrets are redacted regardless |
-| `golden_zone_area_ids` | `[erdkeller]` | Exact Home Assistant area IDs included in the first proving scope |
+| `golden_zone_area_ids` | `[erdkeller]` | Start areas only for the first initialization; edit later Habitus zones in the app |
 | `refresh_interval_seconds` | `30` | Full snapshot reconciliation interval |
 | `audit_retention` | `5000` | Maximum retained PilotSuite audit events |
 
-This release is always read-only. There is intentionally no option that can enable Home Assistant mutations.
+Home Assistant device/configuration access remains read-only. Local PilotSuite zone configuration can be edited and restored after explicit preview/confirmation. There is no option enabling Home Assistant mutations.
 
 ## First start
 
@@ -19,7 +19,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Policy mode: hard read-only
-- Release: `0.1.0-alpha.26`
+- Release: `0.1.0-alpha.27`
 
 ## Habitus zones and entity selection
 
@@ -96,3 +96,28 @@ Details werden erst durch deinen ausdrücklichen Prüfaufruf gelesen. Ein Lesest
 wird für die Navigation höchstens fünf Minuten verwendet; danach ist eine neue
 Prüfung nötig. Ändert sich die Grundlage, bleibt dein Text erhalten. Die Rangfolge
 ist eine Arbeitshilfe, keine Risiko- oder Sicherheitsbewertung. Apply bleibt gesperrt.
+
+
+## Versionen, Speicherpunkte und Rescue (Alpha.27)
+
+Unter **Installierte Version → Versionen · Speicherpunkte · Rescue** stehen die
+letzten drei Paketversionen, der über HA gemeldete Updatezustand und der Zugang zur
+nativen Installation. Die Installationsbestätigung erfolgt in Home Assistant; vor
+einem Update ist weiter eine frische geprüfte PilotSuite-only-App-Sicherung nötig.
+
+**Speicherpunkt erstellen** sichert Zonen, Auswahl, Rollen und Lernparameter lokal.
+**Wiederherstellung prüfen** zeigt den Umfang. Erst nach Bestätigung werden die
+gespeicherten Zonen zurückgesetzt und pausiert; Lernfreigaben werden nicht
+zurückgespielt. Vorher entsteht automatisch ein weiterer Speicherpunkt. Neuere
+zusätzliche Zonen bleiben erhalten. Lernhistorie/Prüftexte, HA-Helfer/Automationen
+und App-Versionen sind nicht Bestandteil dieser lokalen Konfigurationspunkte.
+
+**Vorhandene Helfer prüfen** liest gezielt die Speicher-Konfiguration vorhandener
+Input-Helfer und Timer einer Zone. Umbenennungen werden über stabile Kennungen
+erkannt. Gruppen/Templates bleiben als separat zu prüfen sichtbar. Keine
+Duplikate, Neuanlagen oder automatische Eigentums-/Lernfreigaben.
+
+Bei erkannter beschädigter oder nicht kompatibler Datenbank bleibt eine begrenzte
+Rescue-Seite erreichbar; sie überschreibt nichts. Für volle App-/Datenwiederherstellung
+die native HA-Sicherung verwenden und ausschließlich PilotSuite auswählen.
+Details: `docs/MAINTENANCE_AND_RECOVERY.md` im kanonischen Repository.

@@ -3,8 +3,8 @@ configuration:
     name: Log level
     description: Runtime log verbosity. Credentials are always redacted.
   golden_zone_area_ids:
-    name: Golden Zone area IDs
-    description: Exact Home Assistant area IDs used for the initial bounded scope.
+    name: Initial areas (first setup only)
+    description: Used only on the first start. Manage existing Habitus zones in PilotSuite; this option does not modify them.
   refresh_interval_seconds:
     name: Refresh interval
     description: Seconds between full Home Assistant snapshot reconciliations.

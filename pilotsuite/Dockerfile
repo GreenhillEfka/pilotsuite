@@ -1,6 +1,6 @@
 FROM ghcr.io/home-assistant/base-python:3.14-alpine3.24-2026.06.1
 
-ARG BUILD_VERSION="0.1.0-alpha.26"
+ARG BUILD_VERSION="0.1.0-alpha.27"
 ARG BUILD_ARCH="unknown"
 
 LABEL \
@@ -23,6 +23,7 @@ RUN python -c "from zoneinfo import ZoneInfo; ZoneInfo('Europe/Berlin')"
 RUN pip install --no-cache-dir --requirement requirements.txt
 
 COPY pilotsuite ./pilotsuite
+COPY CHANGELOG.md ./pilotsuite/CHANGELOG.md
 COPY run.sh /run.sh
 RUN chmod 0755 /run.sh
 

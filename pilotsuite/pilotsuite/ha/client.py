@@ -177,6 +177,25 @@ class HomeAssistantClient:
         except (TimeoutError, ClientError, RecursionError) as exc:
             raise HomeAssistantError('Automation details unavailable') from exc
 
+    async def helper_collection(self, helper_type):
+        """Read only four supported storage collections; no generic command proxy."""
+        from pilotsuite.core.helper_inspection import SIMPLE_HELPERS
+        if helper_type not in SIMPLE_HELPERS:
+            raise HomeAssistantError('Unsupported helper collection')
+        await self.start()
+        try:
+            async with asyncio.timeout(20):
+                async with self._session.ws_connect(self._ws_url, heartbeat=30,
+                                                    max_msg_size=1024*1024) as socket:
+                    await self._authenticate(socket)
+                    rows = await self._command(socket, 1, {'type': helper_type + '/list'})
+                    if (not isinstance(rows, list) or len(rows) > 2000 or
+                            any(not isinstance(row, dict) or not isinstance(row.get('id'), str) for row in rows)):
+                        raise HomeAssistantError('Invalid helper collection response')
+                    return rows
+        except (TimeoutError, ClientError, RecursionError) as exc:
+            raise HomeAssistantError('Helper inspection unavailable') from exc
+
     async def listen(
         self, callback: StateCallback, stop_event: asyncio.Event,
         connection_callback: Callable[[bool], Awaitable[None]] | None = None,

@@ -34,7 +34,16 @@ absence cannot prove helper-collection absence. Preserve manual overrides, unkno
 original config fields, existing entity identity and the user's house logic.
 No HA .storage edits, ingress/peer/header/port bypass, or credentials in code/logs.
 
-## Next implementation, not another concept loop
+## Active Alpha.27 maintenance slice (not installed yet)
+
+The latest explicit request adds existing-helper inspection, last-three versions,
+update/native install entry, local savepoints and rescue recovery. Implemented in
+the candidate through existing PlanStore/service/UI; see
+docs/MAINTENANCE_AND_RECOVERY.md. No HA helper executor or runtime actuation.
+First-start Golden Zone option is relabelled, not changed in the household.
+Close this scoped package through exact CI and the existing release routine.
+
+## Following implementation, not another concept loop
 
 Implement ONE actual bounded helper executor in the canonical PlanStore mutation
 path: scoped plan/approval, backup, apply, independent read-back, action-specific
@@ -48,5 +57,4 @@ Improve mobile foundation-card word wrapping within that new version, not Alpha.
 Use native GitHub job logs and a complete checkout for diagnosis; the earlier
 newline fix was an unchanged blob. Compile application AND test sources, run full
 local tests before a single pinned change set, then exact remote CI. Keep the
-published-source/app-tree release gate and existing runbook. No new release just
-for this documentation receipt. Final docs CI receipts belong in PR comments.
+published-source/app-tree release gate and existing runbook. Documentation-only changes alone do not justify another release. Final docs CI receipts belong in PR comments.

@@ -55,6 +55,24 @@ class _Session:
 
 
 class HomeAssistantClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_helper_collection_is_allowlisted_read_only_and_bounded(self):
+        socket = _Socket([{'type':'auth_required'},{'type':'auth_ok'},
+                          {'id':1,'success':True,'result':[{'id':'original','restore':False}]}])
+        client = HomeAssistantClient('ws://example.invalid/websocket','synthetic')
+        client._session = _Session(socket)
+        self.assertEqual('original',(await client.helper_collection('timer'))[0]['id'])
+        self.assertEqual({'id':1,'type':'timer/list'},socket.sent[-1])
+        before=list(socket.sent)
+        for invalid in ('timer/create','input_text','automation',None):
+            with self.assertRaises(HomeAssistantError):await client.helper_collection(invalid)
+        self.assertEqual(before,socket.sent)
+
+    async def test_helper_collection_rejects_malformed_rows(self):
+        for result in ({},[{'name':'missing_id'}],[{'id':'x'}]*2001):
+            socket=_Socket([{'type':'auth_required'},{'type':'auth_ok'},{'id':1,'success':True,'result':result}])
+            client=HomeAssistantClient('ws://example.invalid/websocket','synthetic');client._session=_Session(socket)
+            with self.assertRaises(HomeAssistantError):await client.helper_collection('timer')
+
     async def test_malformed_text_frame_is_a_domain_error(self):
         class MalformedSocket:
             async def receive(self, timeout):

@@ -365,3 +365,19 @@ closed. Contract: docs/REVIEW_COMPASS.md. Live acceptance is separate from tests
 
 The user's express resumed development mandate supersedes historical pause/next
 slice instructions, not the release runbook or household consent boundaries.
+
+
+## ADR-032 — Maintenance recovery stays narrow and native install remains native
+
+Accepted 2026-09-25 for the explicit versions/savepoints/rescue/existing-helper request.
+The canonical PlanStore owns local configuration points and preview-bound paused
+restore; no HA configuration is written. Restore always captures a before-point,
+keeps newer additional zones, revokes restored learning consents, advances revisions
+and records idempotent completion. No evidence/raw credential/full-DB backup export.
+Detected DB bootstrap failures keep only an Ingress-protected recovery page alive;
+never auto-replace the database. Native HA remains responsible for cold app backup,
+version installation and full app recovery; expose clear links, not a fake self-
+updater requiring broader Supervisor rights. Existing helpers are inspected only
+on explicit user request and matched by immutable storage identity. The historical
+Golden Zone option is first-start bootstrap, not a second live zone editor.
+Contract and limits: docs/MAINTENANCE_AND_RECOVERY.md.

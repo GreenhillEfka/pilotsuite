@@ -20,6 +20,7 @@ from .audit import AuditLog, redact
 from .selections import InvalidSelection, SelectionConflict
 from .review_notes import ReviewNotesMixin, notes_view
 from .review_compass import build_review_compass
+from .savepoints import SavepointsMixin
 
 DRAFT_TEXT_FIELDS = ('title', 'goal', 'trigger', 'conditions', 'exceptions', 'manual_override')
 TARGET_DOMAINS = {'light', 'switch', 'fan', 'climate', 'cover', 'media_player'}
@@ -34,7 +35,7 @@ class ReadOnlyRelease(RuntimeError):
     pass
 
 
-class PlanStore(ReviewNotesMixin):
+class PlanStore(ReviewNotesMixin, SavepointsMixin):
     def __init__(self, data_dir: Path, audit: AuditLog, context=None) -> None:
         self._path = data_dir / "plans.jsonl"
         self._audit = audit

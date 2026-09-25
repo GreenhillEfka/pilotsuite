@@ -10,7 +10,7 @@ CI36147092132 and main CI36148039084 passed all jobs: tests, six browser steps,
 reproducible source and amd64 build. Local full suite: 355 Python and 48 JavaScript.
 
 Before publication, native snapshot/list and backup/details verified backup45805440:
-only PilotSuite Alpha.25, 54,394,880 bytes, no HA/database/folders or reported failures.
+only PilotSuite Alpha.25, 54,210,560 bytes, no HA/database/folders or reported failures.
 No live restore drill. Exactly one native Store refresh and one PilotSuite update
 followed. Fresh metadata confirms installed/offered Alpha.26, started, no pending
 update, auto_update=true and original options. Runtime startup/readiness confirms
@@ -40,7 +40,22 @@ Ingress. Narrow German card word wrapping needs refinement; no overflow observed
 Local full-shell Chromium was blocked by administrator policy and not bypassed.
 Source/version association is not independent image or database attestation.
 
-## Next bounded deliverable
+## Active Alpha.27 candidate — maintenance and existing helpers
+
+Integrated last-three bundled versions, cached exact-identity HA update state and
+native install handoff. PlanStore owns private checksummed zone-configuration
+savepoints and preview/hash-bound paused restore, with prior point, stale guard,
+idempotent completion and SQLite rollback. Existing evidence/text are not restored.
+Newer extra zones survive; restored learning consents are revoked. Detected database
+bootstrap failure serves guarded rescue UI without overwriting the original file.
+Explicit existing-helper storage inspection handles renamed IDs and timer restore
+settings, without adopting/creating helpers. Bootstrap Golden Zone label clarified.
+Full details and acceptance boundaries: docs/MAINTENANCE_AND_RECOVERY.md.
+Local full suite: 386 Python and 48 JS passed. Full browser navigation is blocked by
+local administrator policy; exact remote CI includes a mandatory new actual-app
+maintenance/recovery browser step. No live restore has occurred.
+
+## Next bounded deliverable after maintenance
 
 Issue56: implement one real helper executor through existing PlanStore, including
 complete UI/application integration and disposable-HA timeout/restart/conflict tests.
@@ -48,6 +63,7 @@ Then verify one real zonal basis without guessing mappings or expanding learning
 Keep existing HA automations responsible until a separate backed-up takeover is
 reviewed and verified. No additional contract-only modules. Do not replay this release.
 
-RELEASE_STATE.json is the completed delivery receipt. This handoff changes only
-root documentation; no new app version or deployment is required. Final documentation
-CI status goes in its PR discussion rather than another status-only commit loop.
+RELEASE_STATE.json retains the completed Alpha.26 receipt until Alpha.27 is
+actually delivered. This maintenance candidate changes the app and needs its own
+exact source/CI and scoped deployment gates. Final documentation CI status belongs
+in the PR discussion, not another status-only release loop.
