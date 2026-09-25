@@ -4,37 +4,30 @@ Canonical long-term context for humans and AI contributors. Current repository
 receipts plus newer explicit user decisions take precedence over older chat/status
 prose. Read CURRENT_STATE.md and docs/RELEASE_STATE.json before acting.
 
-## Resume point — 2026-09-24
+## Resume point — 2026-09-25
 
-**Alpha.23 Prüfkompass is implemented, merged through PR #52 and published.**
-Release `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814` passed exact main CI 35991187908;
-candidate `cf445355868cbe1448f402be19207f66beae5898` passed CI 35990039222.
-247 Python tests, 48 JavaScript tests, three synthetic browser flows and amd64 build
-passed. Actual app tree: `38ef81068ff75f135bce6734a43e2caca3c09b8c`. The tree was checked
-against Git and the source-only CI bundle; the different hash in the merge message
-is a transcription error, not a second release. No image attestation is implied.
+Alpha.23 is already installed and started. Fresh native app metadata and readiness
+logs confirm ready/connected/fresh/zone-resolved; presence and light remain partial.
+Do not repeat its backup, Store refresh, update or restart. GitHub and HA-MCP reads
+work together again; native GitHub writes also work. Do not recreate access setup.
 
-**Installation is unverified.** This continuation exposes GitHub but no HA-MCP.
-No live HA check or update occurred here. Prior reads observed Alpha.22/started;
-auto_update was true, so do not assume it is still Alpha.22. Prior Store readings
-were inconsistent after a successful Alpha.23 offer. Native backup 5c40193c covered
-Alpha.22 before publication: 54,118,400 bytes, 2026-09-24T11:02:07.031215+00:00,
-PilotSuite only, no HA/database/folders/errors/key requirement. Recheck availability
-and freshness; do not silently reuse an older Alpha.21 recovery point.
+Continue **PR #54 / feat/zone-daily-brief**, originally at
+`6b1e9cbb4b02c4da86ae751e9772b95b07c1b9bd`. Cumulative R2 hardening is integrated in
+the complete SHA256-verified CI source checkout, not another engine or local-only
+mock. Alpha.24 markers are prepared, not published or installed. Real-store API
+checks complement 41 projector tests; the former five free test functions were
+not collected by unittest. The old PR CI failed, and its fixture defect is fixed.
 
-One next task: resume the existing native release routine with a fresh app read.
-Installed Alpha.23 means skip backup/update/rebuild/restart; otherwise follow exact
-source/CI/backup/offer gates for one matching update, then runtime verification.
-Do not recreate the feature or release it under another version to finish delivery.
-`docs/RELEASE_STATE.json` retains the completed Alpha.22 receipt; `pending_release`
-records Alpha.23 publication/preparation only, not installation. No permission
-weakening, new tokens, alternate bridge or unconsented household scan.
+See docs/DAILY_BRIEF_HARDENING.md for exact scope and test limitations. Local full-app
+browser navigation was administrator-blocked; that route was not bypassed. The
+regular CI now includes the full actual-app daily-brief flow. Local component
+browser checks do not substitute for that CI or authenticated household acceptance.
 
-The user resumed hourly package development on 2026-09-24; see
-[DEVELOPMENT_MANDATE.md](docs/DEVELOPMENT_MANDATE.md). This supersedes old paused-task
-instructions, not household consent boundaries. No scheduler change was made in
-this handoff. First finish delivery; then demonstrate real usefulness in the
-already consented Golden Zone. No additional review administration for its own sake.
+Next: complete exact PR CI, then follow the existing RELEASE_RUNBOOK.md. With
+Auto-Update enabled, a fresh completed PilotSuite-only backup is required BEFORE
+publishing Alpha.24. Never use an old Alpha.22 archive as that recovery point.
+RELEASE_STATE.json separates published_source, current_observation and development
+from historical receipts. No new scheduler, consent, rights or actuation changes.
 
 ## Identity and invariants
 
@@ -84,4 +77,4 @@ No unrestricted services, direct HA .storage edits, automatic automation creatio
 full Recorder mirror, mandatory LLM stack or broad unconsented learning.
 
 Earlier handoffs and their measurements remain in Git at `dfecb464f9f67eb1dd3e393b8ecc99e9ca208814`
-and older commits. This handoff changes documentation only; no app or version change.
+and older commits. The current change continues the existing daily-brief package and prepares Alpha.24.

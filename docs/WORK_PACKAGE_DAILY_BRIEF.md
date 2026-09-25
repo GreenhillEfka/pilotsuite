@@ -59,9 +59,17 @@ absence. Never infer a new light action from an activity pattern alone.
    scoped-backup gates in RELEASE_RUNBOOK.md. Alpha.23 stays the installed baseline
    until a subsequent release is explicitly verified; no second install in this start.
 
-## Current stage
+## Current stage — 2026-09-25
 
-Package opened; implementation and tests have not yet been claimed. This is a work
-coordination note, not an atomic global agent lock. Re-read PR/head before writing;
-no competing implementation or force update. Next: implement stage 1 and record
-actual checks, then continue the same PR for UI integration.
+The existing PR #54 now integrates cumulative R2 hardening into the full verified
+source checkout. Alpha.24 is prepared, not published or installed. Stage 1 backend
+and stage 2 UI integration have local unit/component evidence; real-store API tests
+and a stage 3 full-app browser CI flow are included. The latter could not run locally
+because browser policy blocks localhost navigation, and must pass exact remote CI.
+Authenticated real usefulness remains unverified; no consent expansion to obtain it.
+
+See DAILY_BRIEF_HARDENING.md and current PR comments for checks. The old CI failure
+was a missing zone_id in a synthetic inventory; it was reproduced and fixed. The
+previous five free test functions were not collected by unittest; R2's classes are.
+Stage 4 retains RELEASE_RUNBOOK.md and a fresh prepublication PilotSuite-only backup.
+No additional Alpha.23 update, HA configuration change or scheduler change occurred.

@@ -6,12 +6,13 @@ const vm = require('node:vm');
 
 // Exercise the actual browser read function with deterministic deferred transport.
 const app = fs.readFileSync(path.join(__dirname, '../pilotsuite/web/app.js'), 'utf8');
-const source = app.slice(app.indexOf('async function loadContext()'), app.indexOf('function renderLearning()'));
+const source = app.slice(app.indexOf('async function loadContext()'), app.indexOf('function renderZoneGuide()'));
 function setup() {
   const requests = [];
   const scope = {
     selectionZone: 'synthetic_a', contextGeneration: 0, contextData: null,
-    renders: 0, historyChecks: 0,
+    renders: 0, historyChecks: 0, invalidations: [],
+    invalidateDailyBrief: message => scope.invalidations.push(message),
     json: () => new Promise((resolve, reject) => requests.push({resolve, reject})),
     renderLearning: () => scope.renders++,
     historyCheckRevision: () => scope.historyChecks++,

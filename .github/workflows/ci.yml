@@ -31,14 +31,8 @@ jobs:
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
-          PUBLISHED_SHA="$(python -c 'import json; print(json.load(open("docs/RELEASE_STATE.json"))["release"]["commit"])')"
-          CANDIDATE_VERSION="$(git show "${CANDIDATE_SHA}:VERSION")"
-          PUBLISHED_VERSION="$(git show "${PUBLISHED_SHA}:VERSION")"
-          if [ "$CANDIDATE_VERSION" = "$PUBLISHED_VERSION" ]; then
-            echo "No new release number: source preflight not applicable. This does not authorize delivery."
-          else
-            python scripts/release_preflight.py --candidate "$CANDIDATE_SHA" --published "$PUBLISHED_SHA"
-          fi
+          PUBLISHED_SHA="$(python -c 'import json; d=json.load(open("docs/RELEASE_STATE.json")); print(d.get("published_source", d["release"])["commit"])')"
+          python scripts/release_preflight.py --candidate "$CANDIDATE_SHA" --published "$PUBLISHED_SHA" --allow-unchanged
       - name: Check frontend syntax and selection model
         run: |
           node --check pilotsuite/pilotsuite/web/app.js
@@ -106,6 +100,10 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_review_compass_browser.cjs
+      - name: Exercise daily brief against the isolated actual application
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_daily_brief_browser.cjs
       - name: Save synthetic UI review screenshots
         uses: actions/upload-artifact@v4
         with:
