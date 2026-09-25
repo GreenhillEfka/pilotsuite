@@ -1,60 +1,66 @@
 # PilotSuite AI Context
 
 Canonical: GreenhillEfka/pilotsuite / HA app 0d79c5e8_pilotsuite / architecture v21.
-Read CURRENT_STATE.md, docs/RELEASE_STATE.json and RELEASE_RUNBOOK.md first.
+Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume — Alpha.26 delivered, 2026-09-25
+## Resume — Alpha.27 delivered, 2026-09-25
 
-PR59 merged as ede80bd4d7024aaa146c8d5bff53031905da9165. Exact candidate CI
-36147092132 and main CI 36148039084 passed all jobs. Fresh PilotSuite-only backup
-45805440 completed and was verified BEFORE publication. One native check_updates,
-one PilotSuite update. Alpha.26 is installed/offered/started; startup and readiness
-logs confirm hard_read_only, ready, connected stream, fresh snapshot, resolved zone.
-Options and auto_update=true unchanged; no other app, household config or learning
-permission was changed. Partial capabilities are NOT transport failure.
-Do not repeat backup/update/rebuild/restart or reconfigure connectors just to resume.
-All identities, scope and distinct acceptance boundaries are in RELEASE_STATE.json.
+Existing PR61 merged as f7b3267a3f2785433c1ca5048a180a8a24f45d3b. Exact candidate
+CI36184691444 and main CI36193063595 passed all four jobs, including seven browser
+steps. Fresh PilotSuite-only backup74c7be8d completed and was verified BEFORE
+publication. One native check_updates, one PilotSuite update; no extra restart.
+Alpha.27 is installed/offered/started, with hard_read_only startup and repeated
+ready/connected/fresh/zone-resolved logs. All options and auto_update=true unchanged.
+No other app, household configuration, roles or learning permission changed.
+Do not repeat backup/update/rebuild/restart or connector configuration to resume.
+Full identities and acceptance boundaries are in RELEASE_STATE.json.
 
-## Honest implementation boundary
+## What this release actually adds
 
-Alpha.26 delivers a German planning view, current-source validation, non-authoritative
-helper inventory hints and guarded explicit transient automation reads. It does NOT
-run presence timers, provision helpers, control light/music/heating, persist an
-adoption journal or automatically take over existing automations. Preparatory policy,
-state-list, diff and mapping functions are not those complete capabilities. Issue56
-remains open. See docs/ALPHA26_RELEASE_REVIEW.md and IMPLEMENTATION_STATUS.md.
+Existing maintenance service/UI: last three bundled package release notes and
+cached exact-identity HA update status, with a native installation handoff. These
+are not three installed versions, a self-updater or a downgrade selector.
+PlanStore owns private checksummed zone-configuration savepoints and explicit
+hash-bound restore with a before-point, SQLite rollback and idempotent receipt.
+Restored zones are paused and learning consents cleared; newer additional zones
+and existing evidence/review text survive. Detected database startup failure serves
+an Ingress-guarded rescue view without overwriting the database. Explicit existing
+storage-helper inspection handles renamed IDs and timer restore settings, never
+creation/adoption or ownership by name. Bootstrap option labels, not values, changed.
+Scope: docs/MAINTENANCE_AND_RECOVERY.md and IMPLEMENTATION_STATUS.md.
 
-## Invariants
+## Acceptance still separate
 
-HA owns device state/execution. PilotSuite owns zones/roles/bounded evidence and
-review intent through existing ContextStore/PlanStore; no second learner/store.
-No implicit learning, unscoped writes, guessed entity replacements or ownership.
-Registry ID/name matches cannot establish helper configuration/ownership; registry
-absence cannot prove helper-collection absence. Preserve manual overrides, unknown
-original config fields, existing entity identity and the user's house logic.
-No HA .storage edits, ingress/peer/header/port bypass, or credentials in code/logs.
+386 Python and 48 JavaScript tests rerun locally. Exact remote CI used the declared
+runtime dependencies; maintenance screenshots at390/1440 were checksum-verified and
+visually reviewed. This is synthetic actual-app testing, not household Ingress.
+One native GET /api/v1/maintenance returned403, Ingress access required; route stopped
+without retries, header/port/peer changes or weakened authentication. Authenticated
+household browser and the app principal's helper-collection capability remain
+unverified. No household savepoint restore or live disaster-recovery drill occurred.
+Source/version/app-tree association is not independent installed-image attestation.
+Partial humidity/motion/presence/light capabilities are not transport failures.
 
-## Active Alpha.27 maintenance slice (not installed yet)
+## Invariants and next implementation
 
-The latest explicit request adds existing-helper inspection, last-three versions,
-update/native install entry, local savepoints and rescue recovery. Implemented in
-the candidate through existing PlanStore/service/UI; see
-docs/MAINTENANCE_AND_RECOVERY.md. No HA helper executor or runtime actuation.
-First-start Golden Zone option is relabelled, not changed in the household.
-Close this scoped package through exact CI and the existing release routine.
+HA owns device execution. PilotSuite owns zones/roles/bounded evidence and review
+intent through existing ContextStore/PlanStore; no second learner or store. No
+implicit learning, unscoped writes, guessed replacements or inferred ownership.
+Preserve manual overrides, unknown original config fields and existing identities.
+Registry absence cannot prove helper-collection absence. No HA .storage edits,
+Ingress bypass or credentials/household data in public code, logs or handoffs.
 
-## Following implementation, not another concept loop
+Issue56 remains open: implement ONE actual bounded helper executor in the existing
+PlanStore mutation path, with scoped plan/approval, before-image, apply, independent
+read-back and action-specific recovery. Test timeout, lost response, restart and
+concurrent edits in disposable HA before household writes. HA and SQLite are not
+one atomic transaction; never blindly replay an unknown-outcome write or delete
+pre-existing helpers. Complete UI-to-application integration before claiming
+provisioned zones. Then presence timing and controlled existing-automation adoption.
+Alpha.27 does not operate presence timers or light/music/climate controllers.
+Refine narrow foundation-card German wrapping within the next behavioral version.
 
-Implement ONE actual bounded helper executor in the canonical PlanStore mutation
-path: scoped plan/approval, backup, apply, independent read-back, action-specific
-recovery. Test timeout, lost response, restart and concurrent edits in disposable HA
-before real household writes. HA and SQLite are not one atomic transaction. Never
-blindly replay a write with unknown outcome or delete pre-existing/foreign helpers.
-Implement and test the full UI-to-application path before claiming provisioned zones.
-Then presence timing, followed by controlled existing-automation adoption.
-Improve mobile foundation-card word wrapping within that new version, not Alpha.26.
-
-Use native GitHub job logs and a complete checkout for diagnosis; the earlier
-newline fix was an unchanged blob. Compile application AND test sources, run full
-local tests before a single pinned change set, then exact remote CI. Keep the
-published-source/app-tree release gate and existing runbook. Documentation-only changes alone do not justify another release. Final docs CI receipts belong in PR comments.
+Keep a complete checkout, compile application AND tests, run full local tests before
+one pinned change set, then exact remote CI and the unchanged release runbook.
+Documentation-only handoffs do not justify another release. Final documentation CI
+receipts belong in PR comments, not another status-only commit loop.
