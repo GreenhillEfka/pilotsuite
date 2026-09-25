@@ -49,7 +49,9 @@ jobs:
       - name: Run unit tests
         env:
           PYTHONPATH: pilotsuite
-        run: python -m unittest discover -s pilotsuite/tests -v
+        run: |
+          python scripts/validate_test_discovery.py
+          python -m unittest discover -s pilotsuite/tests -v
 
   container:
     runs-on: ubuntu-latest
@@ -100,6 +102,10 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_review_compass_browser.cjs
+      - name: Exercise daily brief component with canonical-owner projections
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_daily_brief_component.cjs
       - name: Exercise daily brief against the isolated actual application
         env:
           PILOTSUITE_SCREENSHOTS: ui-review

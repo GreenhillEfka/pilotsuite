@@ -226,7 +226,7 @@ function renderSelection() {
 
 function selectionChanged() {
   text('selection-message', `${Object.keys(selectionDraft.changes).length} geänderte Entitäten. Nur bestätigte Entitäten werden ausgewertet. ${selectionDraft.dirty ? 'Ungespeichert.' : 'Keine Änderungen.'}`);
-  renderSelection(); renderZoneView();
+  renderSelection(); renderZoneView(); renderDailyBrief();
 }
 
 async function loadSelection(zone) {
@@ -495,7 +495,7 @@ function renderCompactSummary(result) {
 async function loadContext() {
   const zone = selectionZone;
   const generation = ++contextGeneration;
-  invalidateDailyBrief('Alltagsbrief wird neu geprüft …');
+  invalidateDailyBrief('Alltagsbrief wird neu geprüft …', true);
   let result;
   try { result = await json(`api/v1/zones/${encodeURIComponent(zone)}/context`); }
   catch (error) {
@@ -536,12 +536,22 @@ function renderZoneGuide() {
   }
 }
 // Keep invalidation local to this view: never erase unsaved configuration/editor data.
-function invalidateDailyBrief(message = 'Alltagsbrief derzeit nicht verfügbar. Neu laden zum Wiederholen.') {
+function invalidateDailyBrief(message = 'Alltagsbrief derzeit nicht verfügbar. Neu laden zum Wiederholen.', retainView = false) {
   const root = byId('daily-brief');
   if (!root) return;
   root._invalidBriefContexts ||= new WeakSet();
   if (contextData && typeof contextData === 'object') root._invalidBriefContexts.add(contextData);
   const focusWasInside = root.contains(document.activeElement);
+  // Keep only presentation state, never a candidate or evidence. Reapply it
+  // after a matching fresh response; errors, zone changes and edits discard it.
+  if (retainView && root._briefRenderKey) {
+    root._briefSuspendedView = {key: root._briefRenderKey, scope: root._briefScope,
+      open: !!root.querySelector('details')?.open,
+      focus: root.querySelector('details > summary') === document.activeElement ? 'summary' :
+        root.querySelector('a[data-pattern-id]') === document.activeElement ? 'candidate' : null};
+  } else if (!retainView) {
+    root._briefSuspendedView = null;
+  }
   root._briefRenderKey = null;
   root.replaceChildren();
   root.textContent = message;
@@ -677,7 +687,10 @@ function renderDailyBrief() {
     return;
   }
   const scope = JSON.stringify([model.zone, model.revision]);
-  const wasOpen = root._briefScope === scope && root.querySelector('details')?.open;
+  const suspended = root._briefSuspendedView;
+  const resume = suspended?.key === renderKey && suspended?.scope === scope ? suspended : null;
+  root._briefSuspendedView = null;
+  const wasOpen = root._briefScope === scope && (root.querySelector('details')?.open || resume?.open);
   const focusWasInside = root.contains(document.activeElement);
   root.replaceChildren();
   const paragraph = (value, muted = false) => {
@@ -721,6 +734,11 @@ function renderDailyBrief() {
   root._briefRenderKey = renderKey;
   root._briefScope = scope;
   if (focusWasInside) { root.tabIndex = -1; root.focus(); }
+  // Do not steal focus if the user moved it elsewhere while the request ran.
+  if (resume?.focus && document.activeElement === root) {
+    const target = root.querySelector(resume.focus === 'summary' ? 'details > summary' : 'a[data-pattern-id]');
+    target?.focus({preventScroll: true});
+  }
 }
 function renderLearning() {
   renderRoutineDrafts();

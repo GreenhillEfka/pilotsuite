@@ -10,7 +10,8 @@ focus/draft preservation use the existing context transport and evidence owners.
 No migration, new collector or execution permission. Read-only Apply stays denied.
 
 The original failed CI and uncollected test functions are corrected. 41 projector
-unit cases plus six actual API/store cases are included in normal unittest discovery.
+unit cases plus ten actual API/store cases are included in normal unittest discovery.
+Six discovery regressions and an explicit CI check prevent silently uncollected tests.
 The full-application browser flow is added to regular CI. Local browser access to
 the fixture server was administrator-blocked; only isolated component checks ran
 locally. Exact PR/main CI, publication, installation and real Ingress acceptance
