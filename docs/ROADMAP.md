@@ -1,21 +1,18 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Alpha.23 is installed/started and native readiness was rechecked on 2026-09-25.
-  Do not repeat its deployment or recreate the Prüfkompass.
-- Continue Alpha.24 candidate PR #54: cumulative R2 daily-brief hardening integrated
-  in the full source, actual API/store checks and full-app browser CI flow. Finish
-  exact CI and the established prepublication backup/Store release routine.
-- GitHub and HA-MCP access work again. Real Ingress, config-read capability, data
-  preservation and actual comfort benefit remain separate product acceptance gates.
-- The user resumed hourly autonomous package development on 2026-09-24; see
-  DEVELOPMENT_MANDATE.md. Existing scope/consent/actuation boundaries remain.
-- After verified delivery, prioritize a useful or reasonably rejected proposal in
-  the already consented Golden Zone. Validate a second unlike zone only within its
-  separately confirmed data scope. Comfort benefit precedes more review machinery.
-- Preserve the canonical repository/read-only boundary. Distinguish transport,
-  snapshot freshness, physical sensor validity and domain completeness. The existing
-  source normalization, entity/role curation and evidence workbench remain shared.
+- Alpha.24 is installed, started and runtime-verified after exact PR/main CI and a
+  fresh prepublication PilotSuite-only backup. PR #54 is complete; do not repeat
+  installation or reimplement the daily brief. Exact receipts: RELEASE_STATE.json.
+- Next: authenticated real Ingress acceptance of one useful or reasonably withheld
+  brief in the already consented Golden Zone and existing workbench navigation.
+  Config-read capability, independent data/image checks and comfort benefit stay separate.
+- GitHub reads/writes and native HA-MCP operations worked together. No new access setup.
+- The resumed development mandate remains unchanged; no scheduler was changed here.
+  Validate a second unlike zone only within its separately confirmed data scope.
+- Preserve the canonical repository/read-only boundary and shared owners. Transport,
+  snapshot freshness, physical sensor validity and domain completeness differ.
+  Comfort benefit precedes additional review administration.
 
 ## 0.2 — consented read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
@@ -34,7 +31,7 @@ governed execution owner exists; the read-only alpha cannot generate own actions
 ## 0.3 — governed action pilot
 
 Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
-Alpha.16 has historical user acceptance of its guide/workbench. Alpha.23 is
+Alpha.16 has historical user acceptance of its guide/workbench. Alpha.24 is
 installed; its authenticated live UI acceptance remains unverified. Temporal review remains
 a read-only preparation and never grants action permission.
 Real learning and second-zone acceptance remain prerequisites for actuation.

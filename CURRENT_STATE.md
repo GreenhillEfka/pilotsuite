@@ -1,50 +1,46 @@
 # PilotSuite current state
 
-## 2026-09-25 — Alpha.24 reconciliation in existing PR #54
+## 2026-09-25 — Alpha.24 installed and runtime-verified
 
-Canonical repository GreenhillEfka/pilotsuite; branch feat/zone-daily-brief.
-Native GitHub reads AND source-object writes work again, as does HA-MCP.
-Do not restart connector setup or create another implementation/repository.
+Canonical GreenhillEfka/pilotsuite, app 0d79c5e8_pilotsuite. PR #54 merged as
+6f22100dcfbee87bdedc8288b1821971bad17d53, root a13f332d9e5cc58787e7481eaee6f5c035c467b9,
+app tree 528396dc07e35b2df1e349322f6c0b49e9dee6cb. Exact PR CI 36117146697 and main CI
+36117395171 passed all jobs: Python/JS, five browser steps, source and amd64 build.
+The complete release source bundle was SHA256-verified and preflight passed against
+published Alpha.23. Repository/version/app-tree association is not image attestation.
 
-Fresh app metadata: Alpha.23 installed/offered, started, update_available=false,
-auto_update=true. No backup, Store refresh, update, restart, options, roles,
-learning, actuation or scheduler change was made for this source integration.
-Earlier readiness observations are historical, not a new live UI/data check.
-Authenticated Ingress and independent persisted-data/image acceptance remain open.
+Backup ad3c24bb completed before publication: only Alpha.23 app/data/options under
+the standard App backup contract, 54,138,880 bytes, 2026-09-25T09:13:57.670074+00:00.
+Native snapshot/list and backup/details confirmed no HA/database/folders/failures
+or key requirement. No archive download, live restore drill or independent DB check.
 
-## Source reconciliation, not replacement
+One native check_updates without slug/repository offered Alpha.24. One native update
+installed it. Fresh metadata: Alpha.24 installed/offered, started, no pending update,
+unchanged options and auto_update=true. Startup/readiness: hard_read_only, ready,
+connected stream, fresh snapshot, resolved Golden Zone; presence/light remain partial.
+No separate restart/rebuild, other app, host/Core/Supervisor, HA configuration,
+automation, role, learning-consent, permission or scheduler change.
 
-Remote head b994fc8b610df9a67669520795c0691950ef46ba already contained R2 and
-passed exact CI 36110294548. Artifact 10852638016 matched SHA256
-f24c608c0e16b0d2de48c5bd198674c69de177618799eb40722bbc33b91b88a9.
-Saved local candidate b9a520ce047610d611efea25be872f766b655375 shared its base
-6b1e9cbb4b02c4da86ae751e9772b95b07c1b9bd but contained additional UI/test work.
-Only those missing changes are carried forward. The stronger published_source /
---allow-unchanged release gate and its four regressions are preserved unchanged.
+## What shipped
 
-Runtime: retain only focus/expanded-state during context reload, never old
-candidates; restore presentation only on matching fresh response without stealing
-focus. Unsaved selection invalidates the brief immediately. Read-only stays closed.
-Tests: ten real-store API cases, six discovery regressions and explicit CI guard,
-plus canonical-owner component and full-app browser fixtures. No second collector,
-store, API or learner. All five version markers and both changelogs remain Alpha.24.
+Reconciled existing R2 with saved candidate work, preserving concurrent stronger
+release source gates. Current-source/evidence/preference checks, bounded derived
+brief and safe rendering; stale candidates disappear on loading/errors/zone changes
+and unsaved edits. Matching fresh replies restore presentation without stealing focus.
+Ten real-store API checks, six discovery regressions, canonical component and full-app
+browser tests complement the existing suite. The CI overflow was isolated to a
+synthetic heading and corrected without relaxing the assertion or changing app CSS.
+Local 308 Python, 48 JS and ten component checks passed; exact pinned remote CI passed.
+Synthetic full-app screenshots at 390/1440 were visually reviewed.
 
-Local Python 3.13.5 / aiohttp 3.13.3: 308 tests passed. Node 22.16.0: 48 passed.
-Playwright is absent in this local environment; no fresh local browser result is
-claimed. Prior full-app local navigation was administrator-blocked, not bypassed.
-The earlier green remote head does not certify this reconciliation: exact new-head
-CI is required. See docs/DAILY_BRIEF_HARDENING.md for scope and acceptance boundaries.
+## One next task
 
-## Exact next step
+Authenticated real Ingress acceptance: a useful or reasonably withheld daily brief
+in the already consented Golden Zone, then existing workbench navigation without
+writes. No new consent, automation scan or execution to obtain acceptance. UI,
+config-read capability, data preservation and image attestation remain separately
+open. Do not repeat the completed delivery or recreate connector setup.
 
-Verify this reconciliation on PR #54's exact CI. Before publication, complete and
-verify a fresh PilotSuite-only Alpha.23 backup using RELEASE_RUNBOOK.md; preserve
-auto_update=true. Recheck expected head/base and merge without force, check exact
-main CI, then the native Store offer and one matching update only when necessary.
-Do not repeat Alpha.23 deployment or create another version for unfinished delivery.
-
-Final candidate/release/backup/runtime receipts belong in PR #54 and RELEASE_STATE.
-Source CI, installed runtime, authenticated Ingress, configuration-read capability,
-data/image attestation and real comfort benefit remain separate acceptance items.
-Previous complete receipts remain in Git; published_source is independent of the
-older top-level installation history in docs/RELEASE_STATE.json.
+RELEASE_STATE.json is the current receipt; its preceding file is preserved byte-for-
+byte in RELEASE_HISTORY_2026-09-25_PRE_ALPHA24.json. Final documentation PR/main CI
+receipts belong in the PR comments, not another documentation/version loop.
