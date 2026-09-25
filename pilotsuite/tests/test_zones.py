@@ -46,7 +46,6 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(data['foundation']['execution']['allowed'])
         self.assertEqual('explicit_single_helper', data['foundation']['provisioning']['transaction']['state'])
         self.assertTrue(data['foundation']['provisioning']['execution']['allowed'])
-        self.assertFalse(data['foundation']['provisioning']['execution']['allowed'])
         self.assertEqual([], data['foundation']['execution']['actions'])
         self.assertEqual(400, (await self.client.get('/api/v1/zones/unknown/context')).status)
 
