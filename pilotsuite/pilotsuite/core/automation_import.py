@@ -1,6 +1,13 @@
 """Import existing HA automations into PilotSuite's review schema without taking execution ownership."""
 from __future__ import annotations
-import hashlib,json,re
+import hashlib,json,re\nfrom .ha_references import entity_references
+from .selections import InvalidSelection
+
+ALLOWED_ROOT={"id","alias","description","mode","max","max_exceeded","trace","triggers","trigger","conditions","condition","actions","action","variables"}
+
+"""Import existing HA automations into PilotSuite's review schema without taking execution ownership."""
+from __future__ import annotations
+import hashlib,json,re\nfrom .ha_references import entity_references
 from .selections import InvalidSelection
 
 ALLOWED_ROOT={"id","alias","description","mode","max","max_exceeded","trace","triggers","trigger","conditions","condition","actions","action","variables"}
@@ -26,7 +33,7 @@ def import_automation(entity_id, config, *, zone_id, zone_revision, inventory_id
         raise InvalidSelection("invalid zone revision")
     # Preserve unknown HA fields in source_config; schema fields are projections only.
     encoded=json.dumps(config,sort_keys=True,separators=(",",":"),ensure_ascii=False)
-    refs=sorted(_refs(config))
+    refs=sorted(entity_references(config))
     zone_refs=sorted(set(refs)&set(inventory_ids))
     external_refs=sorted(set(refs)-set(inventory_ids))
     triggers=config.get("triggers",config.get("trigger",[]))
