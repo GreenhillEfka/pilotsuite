@@ -1,25 +1,27 @@
 # PilotSuite current state
 
-## 2026-09-25 — Alpha.24 installed and runtime-verified
+## 2026-09-25 — Alpha.25 installed and runtime-verified
 
-Canonical GreenhillEfka/pilotsuite, app 0d79c5e8_pilotsuite. PR #54 merged as
-6f22100dcfbee87bdedc8288b1821971bad17d53, root a13f332d9e5cc58787e7481eaee6f5c035c467b9,
-app tree 528396dc07e35b2df1e349322f6c0b49e9dee6cb. Exact PR CI 36117146697 and main CI
-36117395171 passed all jobs: Python/JS, five browser steps, source and amd64 build.
-The complete release source bundle was SHA256-verified and preflight passed against
-published Alpha.23. Repository/version/app-tree association is not image attestation.
+Canonical GreenhillEfka/pilotsuite, app 0d79c5e8_pilotsuite. PR #57 merged as
+a6d6e329eee15ee97c5e732dd963ca8a531444e3. Candidate CI and main CI #36128782821
+passed all jobs. Fresh backup 70e14c12 was completed before publication and verified:
+only PilotSuite Alpha.24, 54,179,840 bytes, no HA/database/folders/failures. Exactly
+one Store refresh and one PilotSuite update followed.
 
-Backup ad3c24bb completed before publication: only Alpha.23 app/data/options under
-the standard App backup contract, 54,138,880 bytes, 2026-09-25T09:13:57.670074+00:00.
-Native snapshot/list and backup/details confirmed no HA/database/folders/failures
-or key requirement. No archive download, live restore drill or independent DB check.
+Fresh metadata: Alpha.25 installed/offered, started, auto_update=true, options
+unchanged. Startup/readiness logs: hard_read_only, ready, stream connected, snapshot
+fresh, Golden Zone resolved. Humidity/motion/presence/light remain partial.
 
-One native check_updates without slug/repository offered Alpha.24. One native update
-installed it. Fresh metadata: Alpha.24 installed/offered, started, no pending update,
-unchanged options and auto_update=true. Startup/readiness: hard_read_only, ready,
-connected stream, fresh snapshot, resolved Golden Zone; presence/light remain partial.
-No separate restart/rebuild, other app, host/Core/Supervisor, HA configuration,
-automation, role, learning-consent, permission or scheduler change.
+Alpha.25 adds explicit logical presence-helper roles, clearer multi-source role
+selection, ambient-light-vs-controllable-light separation, climate/media/atmosphere
+roles and the deterministic read-only zone-foundation/correlation projection.
+Execution is still denied; no helper provisioning or device actuation is claimed.
+
+Separately, four exactly identified stale sound-synchronisation references in existing
+music automations were backed up and repaired to corresponding existing input_boolean
+helpers. Old references are now absent and automation enabled states were preserved.
+The stale Shutdown Wohnbereich scene remains intentionally unresolved where successor
+entities are ambiguous.
 
 ## What shipped
 
@@ -33,7 +35,7 @@ synthetic heading and corrected without relaxing the assertion or changing app C
 Local 308 Python, 48 JS and ten component checks passed; exact pinned remote CI passed.
 Synthetic full-app screenshots at 390/1440 were visually reviewed.
 
-## One next task
+## Next task
 
 Authenticated real Ingress acceptance: a useful or reasonably withheld daily brief
 in the already consented Golden Zone, then existing workbench navigation without
