@@ -14,8 +14,8 @@ from .selections import InvalidSelection, SelectionConflict
 from .history import retrospective
 
 ROLE_KINDS = {'temperature': {'temperature'}, 'humidity': {'humidity'},
-              'illuminance': {'illuminance'}, 'light': {'light'},
-              'presence': {'motion', 'occupancy', 'presence'}, 'reference_temperature': {'temperature'}}
+              'illuminance': {'illuminance'}, 'daylight_binary': {'daylight_binary'}, 'light': {'light'},
+              'presence': {'motion', 'occupancy', 'presence', 'input_boolean'}, 'climate': {'climate'}, 'media': {'media_player'}, 'atmosphere': {'input_select'}, 'reference_temperature': {'temperature'}}
 RETENTION = 14 * 86400
 MAX_EVIDENCE = 5000
 ACTIVITY_RULE_ID = 'activity-v1'

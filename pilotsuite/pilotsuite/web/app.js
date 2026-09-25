@@ -869,12 +869,12 @@ function renderLearning() {
     root.append(card);
   }
 }
-const roleKinds = {temperature:['temperature'], humidity:['humidity'], illuminance:['illuminance'], light:['light'], presence:['motion','occupancy','presence'], reference_temperature:['temperature']};
+const roleKinds = {temperature:['temperature'], humidity:['humidity'], illuminance:['illuminance'], daylight_binary:['daylight_binary'], light:['light'], presence:['motion','occupancy','presence','input_boolean'], climate:['climate'], media:['media_player'], atmosphere:['input_select'], reference_temperature:['temperature']};
 byId('pattern-filter').addEventListener('change', renderLearning);
 function renderRolePreview() {
   const parts = Object.keys(roleKinds).filter(k => k !== 'reference_temperature').map(role => {
     const count = byId(`role-${role}`).querySelectorAll('input:checked').length;
-    const labels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', presence:'Präsenz / Bewegung', light:'Licht'};
+    const labels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', daylight_binary:'Ausreichend Tages-/Raumlicht', presence:'Präsenz / Bewegung', light:'Leuchtenzustand', climate:'Heiz-/Klimaregler', media:'Medienplayer', atmosphere:'Atmosphärenwunsch'};
     return `${labels[role]}: ${count} Hauptsensoren → ${count ? 'automatischer Referenzwert' : 'keine Auswertung'}`;
   });
   text('role-preview', parts.join(' · '));
@@ -894,6 +894,11 @@ byId('context-edit').addEventListener('click', async () => {
         const label=document.createElement('label'); const input=document.createElement('input'); input.type='checkbox'; input.value=item.entity_id; input.checked=current.includes(item.entity_id);
         input.addEventListener('change', renderRolePreview);
         label.append(input, document.createTextNode(item.name || item.entity_id)); select.append(label);
+        const hint=document.createElement('small');
+        hint.textContent = item.suggested_role === 'input_boolean'
+          ? 'Logischer HA-Helfer · zählt nach ausdrücklicher Zuordnung als eine Präsenzquelle.'
+          : item.entity_id;
+        label.append(hint);
       }
     }
     renderRolePreview();

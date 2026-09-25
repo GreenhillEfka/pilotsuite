@@ -51,6 +51,12 @@ class NeuronTests(unittest.TestCase):
         self.assertEqual("temperature", neuron.kind)
         self.assertEqual("good", neuron.quality)
 
+    def test_binary_light_sensor_is_not_a_controllable_light_state(self) -> None:
+        observed = build_neurons({"entities": [{"entity_id": "binary_sensor.room_bright", "area_id": "room",
+            "registry": {}, "state": {"state": "on", "attributes": {"device_class": "light"}}}]})[0]
+        self.assertEqual("daylight_binary", observed.kind)
+        self.assertIs(observed.value, True)
+
 
 if __name__ == "__main__":
     unittest.main()

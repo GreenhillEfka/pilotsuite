@@ -217,12 +217,16 @@
           <div class="selection-tools">
             <fieldset class="role-group"><legend>Hauptsensoren Temperatur</legend><div id="role-temperature" class="role-choices"></div></fieldset>
             <fieldset class="role-group"><legend>Hauptsensoren Feuchte</legend><div id="role-humidity" class="role-choices"></div></fieldset>
-            <fieldset class="role-group"><legend>Hauptsensoren Präsenz / Bewegung (Anzeige und Lernen)</legend><div id="role-presence" class="role-choices"></div></fieldset>
-            <fieldset class="role-group"><legend>Hauptsensoren Helligkeit</legend><div id="role-illuminance" class="role-choices"></div></fieldset>
-            <fieldset class="role-group"><legend>Hauptquellen Lichtzustand</legend><div id="role-light" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Präsenz / Bewegung / Raumstatus (Mehrfachauswahl)</legend><div id="role-presence" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Hauptsensoren Helligkeit (Lux)</legend><div id="role-illuminance" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Binär: ausreichend Tages-/Raumlicht</legend><div id="role-daylight_binary" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Hauptquellen Leuchtenzustand</legend><div id="role-light" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Heiz-/Klimaregler</legend><div id="role-climate" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Medienplayer</legend><div id="role-media" class="role-choices"></div></fieldset>
+            <fieldset class="role-group"><legend>Atmosphärenwunsch (explizit)</legend><div id="role-atmosphere" class="role-choices"></div></fieldset>
             <fieldset class="role-group"><legend>Externe Vergleichstemperatur (optional)</legend><div id="role-reference_temperature" class="role-choices"></div></fieldset>
           </div>
-          <p id="role-preview" role="status"></p><p>Aus den Hauptsensoren entsteht automatisch ein virtueller Zonen-Referenzwert. Keine weitere Referenzauswahl nötig. Sensorgruppen anhaken. Temperatur/Feuchte/Helligkeit: Median mit Min/Max; Präsenz: mindestens ein aktiver Sensor. Externe Vergleichstemperaturen werden nicht mitgemittelt. Präsenz und Lernen verwenden dieselbe Hauptsensorgruppe; Lernen benötigt zusätzlich deine Freigabe. Abgewählte Hauptsensoren werden nicht ersatzweise herangezogen. Ein Wechsel der Lernquellen löscht deren bisherige Belege und das Musterfeedback dieser Zone.</p>
+          <p id="role-preview" role="status"></p><p>Aus den Hauptsensoren entsteht automatisch ein virtueller Zonen-Referenzwert. Keine weitere Referenzauswahl nötig. Mehrere Quellen pro Rolle können gleichzeitig angehakt werden. Ein vorhandener logischer Anwesenheits-Helfer darf bewusst als eine Quelle gewählt werden; seine Rohsensoren nicht zusätzlich als unabhängige Belege zählen. Ein binärer Sensor mit Geräteklasse „light“ beschreibt erkannte Umgebungshelligkeit und wird nicht als eingeschaltete Leuchte behandelt. Temperatur/Feuchte/Helligkeit: Median mit Min/Max; Präsenz: mindestens ein aktiver Sensor. Externe Vergleichstemperaturen werden nicht mitgemittelt. Präsenz und Lernen verwenden dieselbe Hauptsensorgruppe; Lernen benötigt zusätzlich deine Freigabe. Abgewählte Hauptsensoren werden nicht ersatzweise herangezogen. Ein Wechsel der Lernquellen löscht deren bisherige Belege und das Musterfeedback dieser Zone.</p>
           <details><summary>Lernalgorithmus einstellen</summary>
             <p>Aktivitätsmuster v1: deterministische Häufigkeitsanalyse. Einstellungen gelten nur für diese Zone. Höhere Mindestzahlen erzeugen weniger Kandidaten, sind aber kein statistischer Vertrauenswert.</p>
             <label>Mindestaktivierungen pro Zeitfenster<input id="detector-events" type="number" min="5" max="100" step="1" required value="5"></label>

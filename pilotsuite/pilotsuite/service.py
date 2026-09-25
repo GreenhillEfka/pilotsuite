@@ -28,6 +28,15 @@ from pilotsuite.ha.world import WorldModel
 LOGGER = logging.getLogger(__name__)
 
 
+def apply_role_overrides(neurons, roles):
+    """Apply only explicit semantic role assignments; never infer helper meaning."""
+    presence_helpers = set(roles.get('presence', []))
+    return [
+        replace(n, kind='presence') if n.entity_id in presence_helpers and n.kind == 'input_boolean' else n
+        for n in neurons
+    ]
+
+
 class PilotSuiteService:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -243,7 +252,9 @@ class PilotSuiteService:
             attributes = attributes if isinstance(attributes, dict) else {}
             domain = entity_id.split(".", 1)[0]
             kind = attributes.get("device_class") or registry.get("device_class") or domain
-            recommended = domain in {"sensor", "binary_sensor", "light", "climate", "cover", "fan", "media_player"} and not registry.get("entity_category")
+            if domain == "binary_sensor" and kind == "light":
+                kind = "daylight_binary"
+            recommended = domain in {"sensor", "binary_sensor", "light", "climate", "cover", "fan", "media_player", "input_boolean", "input_select"} and not registry.get("entity_category")
             items.append({"entity_id": entity_id,
                           "name": registry.get("name") or attributes.get("friendly_name") or entity_id,
                           "state": item["state"].get("state"),
@@ -281,11 +292,14 @@ class PilotSuiteService:
             resolved.update(scope.get('resolved_area_ids', []))
             missing.update(scope.get('missing_area_ids', []))
             raw.update({item['entity_id']: item for item in scope['entities']})
-            entities = [item for item in scope['entities'] if selected['decisions'].get(item['entity_id']) == 'relevant' and item['entity_id'].split('.')[0] in {'sensor', 'binary_sensor', 'light', 'switch', 'climate', 'cover', 'fan', 'media_player'}]
+            entities = [item for item in scope['entities'] if selected['decisions'].get(item['entity_id']) == 'relevant' and item['entity_id'].split('.')[0] in {'sensor', 'binary_sensor', 'input_boolean', 'light', 'switch', 'climate', 'cover', 'fan', 'media_player'}]
             if selected['active']:
                 active_ids.append(zone['zone_id'])
             zone_neurons = build_neurons({**scope, 'entities': entities})
             cfg = await self.context.get(zone['zone_id'])
+            # A logical HA helper may be explicitly assigned as the zone presence
+            # owner. It is never inferred as presence merely because it is boolean.
+            zone_neurons = apply_role_overrides(zone_neurons, cfg['roles'])
             summary, climate_neurons = context_summary(zone_neurons, cfg['roles'])
             presence = [n.entity_id for n in zone_neurons if n.entity_id in cfg['roles'].get('presence', []) and n.kind in {'presence', 'occupancy', 'motion'} and n.quality == 'good']
             if cfg['learning'] and presence:

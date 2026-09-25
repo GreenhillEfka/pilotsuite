@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0-alpha.24] - 2026-09-25
+## [0.1.0-alpha.25] - 2026-09-25
 
 ### Added
 - Read-only Alltagsbrief in the existing zone context and UI: one retained review
