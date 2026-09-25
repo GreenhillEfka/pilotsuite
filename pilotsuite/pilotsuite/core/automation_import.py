@@ -13,7 +13,7 @@ def _refs(value):
         for item in value: found.update(_refs(item))
     elif isinstance(value,dict):
         for k,v in value.items():
-            found.update(_refs(k)); found.update(_refs(v))
+            found.update(_refs(v))
     return found
 
 def import_automation(entity_id, config, *, zone_id, zone_revision, inventory_ids):
