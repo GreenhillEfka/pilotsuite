@@ -11,15 +11,13 @@
 - Action-specific recovery deletes only a timer whose creation response was positively
   confirmed in the same transaction and whose pre-image proved the identity absent.
   Pre-existing or foreign helpers are never deleted, renamed or adopted by name.
-- Zonenbasis UI exposes the single timer action with a second explicit confirmation
-  and reports verified reuse/create versus unresolved outcome.
+- Zonenbasis UI exposes the single timer action with a second explicit confirmation.
 
 ### Tested
-- Added regression coverage for explicit confirmation, stale zone revisions,
-  concurrent edits before write, pre-existing conflicts, lost create responses,
-  verified rollback, durable transaction journal recreation and allowlisted WS writes.
+- Explicit confirmation, stale revisions, concurrent edits, pre-existing conflicts,
+  lost responses, verified rollback, journal recreation and allowlisted WS writes.
 
-## [0.1.0-alpha.28] - 2026-09-25
+## [0.1.0-alpha.27] - 2026-09-25
 
 ### Added
 - Integrated maintenance page and installed-version card: last three bundled
