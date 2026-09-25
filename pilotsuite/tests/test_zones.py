@@ -306,8 +306,8 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
             'alias':'Existing room logic',
             'triggers':[{'trigger':'state','entity_id':'binary_sensor.motion'}],
             'actions':[{'action':'light.turn_on','target':{'entity_id':'light.room'}}]})
-        inventory=await service.selection_inventory('hz_test')
-        response=await self.client.post('/api/v1/zones/hz_test/automations/import',json={
+        inventory=await service.selection_inventory('a')
+        response=await self.client.post('/api/v1/zones/a/automations/import',json={
             'automation_id':'automation.existing_room_logic','zone_revision':inventory['revision']})
         self.assertEqual(200,response.status)
         data=await response.json()
