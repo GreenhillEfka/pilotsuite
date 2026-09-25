@@ -134,7 +134,7 @@
     if(focused)[...cards.querySelectorAll('button')].find(b=>b.dataset.psZone===focused)?.focus({preventScroll:true});
   }
   function renderModules(force=false){const ok=valid();const f=ok?contextData.foundation:null;
-    const key=JSON.stringify([ok,f,activeModule,status?.ready]);if(!force&&modulesKey===key)return;modulesKey=key;
+    const key=JSON.stringify([ok,f,activeModule,status?.ready]);if(!force&&key===modulesKey)return;modulesKey=key;
     moduleCards.replaceChildren();moduleDetail.replaceChildren();roleSummary.replaceChildren();
     if(!ok){moduleCards.append(E('p','Zonenstand nicht bestätigt oder Bearbeitung offen. Nach erfolgreichem Laden wird die Quellenansicht aktualisiert.','ps-empty'));return;}
     const configured=contextData.config?.roles||{},validated=f.validated_roles||{};
@@ -168,7 +168,7 @@
     for(const row of d.automations.slice(0,50)){const p=E('p');p.append(E('strong',row.automation_id),document.createTextNode(row.classification==='conflict'?' · Schreiberkonflikt prüfen':' · Entitätsbezug prüfen'));root.append(p);}
     root.append(E('p','Nur Strukturprüfung. Kein Treffer ist kein Nachweis für Konfliktfreiheit. Templates, indirekte Aufrufe und reales Laufzeitverhalten bleiben gesondert zu prüfen.','ps-warning'));
   }
-  function viewForHash(hash){const id=decodeURIComponent(hash.slice(1));if(id.startsWith('ps-')&&M.views.includes(id.slice(3)))return id.slice(3);const node=$(id);return node?.closest('[data-ps-view]')?.dataset.psView.split(' ')[0]||null;}
+  function viewForHash(hash){const id=decodeURIComponent(hash.slice(1));if(id.startsWith('ps-')&&M.views.includes(id.slice(3)))return id.slice(3);const node=$(id),owner=node?.closest('[data-ps-view]')?.dataset.psView.split(' ')[0];return owner?(activeView==='all'?'all':owner):null;}
   function navigate(view,{focus=false,hash=true}={}){if(!M.views.includes(view))return false;
     if(view!==activeView&&dirty()){announce('Bearbeitung läuft. Bitte speichern oder abbrechen, bevor du den Arbeitsbereich wechselst.');return false;}
     activeView=view;prefs.view=view;savePrefs();for(const panel of panels)panel.hidden=view!=='all'&&!panel.dataset.psView.split(' ').includes(view);
