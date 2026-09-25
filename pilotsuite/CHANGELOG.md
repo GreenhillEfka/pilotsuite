@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.0-alpha.29] - 2026-09-26
+
+### Added
+- Opt-in Presence Runtime Core per Habitus zone with exactly one explicitly selected
+  logical input_boolean owner, confirmed raw presence sources and the PilotSuite timer.
+- Deterministic occupied → grace → vacant / unknown reconciliation. Timer expiry only
+  permits vacancy when every configured raw source is independently clear in the same
+  evaluation; unknown/unavailable fails safe to unknown.
+- Reconciliation on source/timer events and stream reconnect, plus a tiny allowlist
+  limited to timer start/cancel and logical-owner on/off.
+- Revision-bound explicit enable/disable API. Runtime remains disabled by default.
+
+### Boundaries
+- Existing household automations remain authoritative until separately inspected,
+  backed up and explicitly adopted. Alpha.29 does not disable or rewrite them.
+- Lighting, media and climate are not consumers yet. No learning consent is inferred.
+
 ## [0.1.0-alpha.28] - 2026-09-25
 
 ### Added

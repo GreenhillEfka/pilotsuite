@@ -48,6 +48,9 @@ class PilotSuiteService:
         self.plans = PlanStore(settings.data_dir, self.audit, self.context)
         self.attribution = EventAttribution()
         self._learning_sources = {}
+        self._presence_runtime_enabled: set[str] = set()
+        self._presence_runtime: dict[str, dict[str, Any]] = {}
+        self._presence_runtime_lock = asyncio.Lock()
         self._history_lock = asyncio.Lock()
         self._automation_review_lock = asyncio.Lock()
         self._zone_results: list[dict[str, Any]] = []
@@ -247,6 +250,68 @@ class PilotSuiteService:
                  "create_response_confirmed":create_confirmed},txid)
             raise HomeAssistantError("Timer outcome is not safely resolved; no automatic retry or delete")
 
+    async def presence_runtime(self, zone_id):
+        async with self._projection_lock:
+            inventory=await self.selection_inventory(zone_id);cfg=await self.context.get(zone_id)
+            roles=cfg.get("roles",{});raw=[e for e in roles.get("presence",[]) if not e.startswith("input_boolean.")]
+            owners=[e for e in roles.get("presence",[]) if e.startswith("input_boolean.")]
+            from pilotsuite.core.foundation import build_foundation
+            foundation=build_foundation(inventory,{"effective_roles":roles,"config":cfg})
+            timer=next((f"timer.{h['key']}" for h in foundation.get("helper_plan",[]) if h.get("domain")=="timer"),None)
+            state=dict(self._presence_runtime.get(zone_id,{}))
+            return {"zone_id":zone_id,"revision":inventory["revision"],"enabled":zone_id in self._presence_runtime_enabled,
+                "owner":owners[0] if len(owners)==1 else None,"raw_sources":raw,"timer":timer,
+                "state":state.get("state","disabled" if zone_id not in self._presence_runtime_enabled else "unknown"),
+                "reason":state.get("reason","not_evaluated"),"last_evaluated_at":state.get("at"),
+                "execution":{"allowed":zone_id in self._presence_runtime_enabled and len(owners)==1 and bool(raw) and bool(timer)}}
+
+    async def configure_presence_runtime(self, zone_id, payload):
+        if (not isinstance(payload,dict) or set(payload)!={"revision","enabled","confirm"}
+                or type(payload["enabled"]) is not bool or payload["confirm"] is not True):
+            raise InvalidSelection("revision, enabled and explicit confirm required")
+        async with self._projection_lock:
+            inventory=await self.selection_inventory(zone_id)
+            if inventory["revision"]!=payload["revision"]: raise SelectionConflict("Zone changed; reload presence runtime")
+            cfg=await self.context.get(zone_id);roles=cfg.get("roles",{})
+            raw=[e for e in roles.get("presence",[]) if not e.startswith("input_boolean.")]
+            owners=[e for e in roles.get("presence",[]) if e.startswith("input_boolean.")]
+            if payload["enabled"] and (len(owners)!=1 or not raw):
+                raise InvalidSelection("Presence runtime requires exactly one logical owner and at least one raw source")
+            (self._presence_runtime_enabled.add if payload["enabled"] else self._presence_runtime_enabled.discard)(zone_id)
+        await self.audit.append("presence.runtime_configured",details={"zone_id":zone_id,"enabled":payload["enabled"]})
+        if payload["enabled"]: await self._reconcile_presence_zone(zone_id,"explicit_enable")
+        else: self._presence_runtime[zone_id]={"state":"disabled","reason":"explicit_disable","at":datetime.now(UTC).isoformat()}
+        return await self.presence_runtime(zone_id)
+
+    async def _reconcile_presence_zone(self, zone_id, reason):
+        if zone_id not in self._presence_runtime_enabled or not self._connected or not self._stream_connected: return
+        async with self._presence_runtime_lock:
+            async with self._projection_lock:
+                inventory=await self.selection_inventory(zone_id);cfg=await self.context.get(zone_id);roles=cfg.get("roles",{})
+                raw=[e for e in roles.get("presence",[]) if not e.startswith("input_boolean.")]
+                owners=[e for e in roles.get("presence",[]) if e.startswith("input_boolean.")]
+                from pilotsuite.core.foundation import build_foundation
+                foundation=build_foundation(inventory,{"effective_roles":roles,"config":cfg})
+                timer=next((f"timer.{h['key']}" for h in foundation.get("helper_plan",[]) if h.get("domain")=="timer"),None)
+                scope=await self.world.scope(tuple(),tuple(raw+owners+([timer] if timer else [])))
+                states={i["entity_id"]:i["state"].get("state") for i in scope["entities"]};revision=inventory["revision"]
+            if len(owners)!=1 or not raw or not timer or timer not in states:
+                self._presence_runtime[zone_id]={"state":"unknown","reason":"runtime_prerequisite_missing","at":datetime.now(UTC).isoformat()};return
+            from pilotsuite.core.presence_foundation import evaluate_presence
+            decision=evaluate_presence({e:states.get(e) for e in raw},states.get(timer))
+            async with self._projection_lock:
+                if (await self.selection_inventory(zone_id))["revision"]!=revision:return
+            try:
+                if decision.timer_action=="start": await self.client.call_bounded_service("timer","start",timer)
+                elif decision.timer_action=="cancel": await self.client.call_bounded_service("timer","cancel",timer)
+                desired="on" if decision.desired_owner is True else "off" if decision.desired_owner is False else None
+                if desired is not None and states.get(owners[0])!=desired:
+                    await self.client.call_bounded_service("input_boolean","turn_on" if desired=="on" else "turn_off",owners[0])
+            except HomeAssistantError:
+                self._presence_runtime[zone_id]={"state":"unknown","reason":"write_outcome_unknown","at":datetime.now(UTC).isoformat()};return
+            self._presence_runtime[zone_id]={"state":decision.state,"reason":decision.reason,"at":datetime.now(UTC).isoformat()}
+            await self.audit.append("presence.reconciled",details={"zone_id":zone_id,"state":decision.state,"reason":decision.reason,"trigger":reason})
+
     @staticmethod
     def _recent_versions():
         from pilotsuite.core.maintenance import release_history
@@ -365,7 +430,7 @@ class PilotSuiteService:
             "selection": self._selection_summary,
             "version": VERSION,
             "architecture": ARCHITECTURE_VERSION,
-            "mode": "bounded_helper_provisioning",
+            "mode": "presence_runtime_opt_in",
             "app_update": await self.world.maintenance_update(fresh=ready),
             "recent_versions": self._recent_versions(),
             "home_assistant": {
@@ -505,6 +570,7 @@ class PilotSuiteService:
         async with self._projection_lock:
             await self.world.update_state(event_data)
             entity_id = event_data.get("entity_id")
+            presence_zones=list(self._presence_runtime_enabled)
             if any(item.entity_id == entity_id for item in self._neurons):
                 await self._derive()
                 old, new = event_data.get('old_state'), event_data.get('new_state')
@@ -528,6 +594,10 @@ class PilotSuiteService:
                         if context is not None:
                             context['captured_at'] = datetime.now(UTC).isoformat()
                         await self.context.record(zone_id, entity_id, occurred, origin, context=context)
+        for zone_id in presence_zones:
+            runtime=await self.presence_runtime(zone_id)
+            watched=set(runtime.get("raw_sources",[])+([runtime.get("timer")] if runtime.get("timer") else []))
+            if entity_id in watched: await self._reconcile_presence_zone(zone_id,"state_change")
 
     async def _on_service_call(self, event: dict[str, Any]) -> None:
         # Context correlation is useful only for zones with explicit active
@@ -542,6 +612,7 @@ class PilotSuiteService:
         if connected:
             # Resynchronize after subscription, including every reconnect.
             await self.refresh(reason="stream_connected")
+            for zone_id in list(self._presence_runtime_enabled): await self._reconcile_presence_zone(zone_id,"stream_reconnect")
         else:
             self.attribution.clear()
             async with self._projection_lock:

@@ -233,6 +233,24 @@ class HomeAssistantClient:
         except (TimeoutError, ClientError) as exc:
             raise HomeAssistantError("Timer rollback outcome unknown") from exc
 
+    async def call_bounded_service(self, domain: str, service: str, entity_id: str):
+        """Call only the presence-runtime service allowlist; never expose a generic proxy."""
+        import re
+        allowed={("timer","start"),("timer","cancel"),("input_boolean","turn_on"),("input_boolean","turn_off")}
+        if (domain,service) not in allowed or not isinstance(entity_id,str) or len(entity_id)>255:
+            raise HomeAssistantError("Unsupported bounded presence service")
+        if not entity_id.startswith(domain+".") or not re.fullmatch(r"[a-z_]+\.[a-z0-9_]+",entity_id):
+            raise HomeAssistantError("Invalid bounded presence target")
+        await self.start()
+        try:
+            async with asyncio.timeout(20):
+                async with self._session.ws_connect(self._ws_url,heartbeat=30,max_msg_size=128*1024) as socket:
+                    await self._authenticate(socket)
+                    return await self._command(socket,1,{"type":"call_service","domain":domain,"service":service,
+                        "target":{"entity_id":entity_id},"return_response":False})
+        except (TimeoutError,ClientError) as exc:
+            raise HomeAssistantError("Presence service outcome unknown") from exc
+
     async def listen(
         self, callback: StateCallback, stop_event: asyncio.Event,
         connection_callback: Callable[[bool], Awaitable[None]] | None = None,
