@@ -869,12 +869,12 @@ function renderLearning() {
     root.append(card);
   }
 }
-const roleKinds = {temperature:['temperature'], humidity:['humidity'], illuminance:['illuminance'], daylight_binary:['daylight_binary'], light:['light'], presence:['motion','occupancy','presence','input_boolean'], reference_temperature:['temperature']};
+const roleKinds = {temperature:['temperature'], humidity:['humidity'], illuminance:['illuminance'], daylight_binary:['daylight_binary'], light:['light'], presence:['motion','occupancy','presence','input_boolean'], climate:['climate'], media:['media_player'], atmosphere:['input_select'], reference_temperature:['temperature']};
 byId('pattern-filter').addEventListener('change', renderLearning);
 function renderRolePreview() {
   const parts = Object.keys(roleKinds).filter(k => k !== 'reference_temperature').map(role => {
     const count = byId(`role-${role}`).querySelectorAll('input:checked').length;
-    const labels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', daylight_binary:'Ausreichend Tages-/Raumlicht', presence:'Präsenz / Bewegung', light:'Leuchtenzustand'};
+    const labels = {temperature:'Temperatur', humidity:'Feuchte', illuminance:'Helligkeit', daylight_binary:'Ausreichend Tages-/Raumlicht', presence:'Präsenz / Bewegung', light:'Leuchtenzustand', climate:'Heiz-/Klimaregler', media:'Medienplayer', atmosphere:'Atmosphärenwunsch'};
     return `${labels[role]}: ${count} Hauptsensoren → ${count ? 'automatischer Referenzwert' : 'keine Auswertung'}`;
   });
   text('role-preview', parts.join(' · '));
