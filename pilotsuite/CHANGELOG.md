@@ -17,7 +17,7 @@
   backed up and explicitly adopted. Alpha.29 does not disable or rewrite them.
 - Lighting, media and climate are not consumers yet. No learning consent is inferred.
 
-## [0.1.0-alpha.29] - 2026-09-25
+## [0.1.0-alpha.28] - 2026-09-25
 
 ### Added
 - One bounded helper executor in the existing PlanStore path: explicit revision-bound
