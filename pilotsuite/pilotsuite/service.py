@@ -250,6 +250,37 @@ class PilotSuiteService:
                  "create_response_confirmed":create_confirmed},txid)
             raise HomeAssistantError("Timer outcome is not safely resolved; no automatic retry or delete")
 
+    async def presence_adoption_review(self, zone_id, payload):
+        """Fresh structural review of existing HA automations touching the presence runtime."""
+        from pilotsuite.core.presence_adoption import adoption_targets, adoption_plan, validate_automation_ids
+        from pilotsuite.domain.automation_inspection import inspect_automation
+        if not isinstance(payload,dict) or set(payload)!={"revision"} or type(payload["revision"]) is not int:
+            raise InvalidSelection("revision required")
+        if self._automation_review_lock.locked(): raise HomeAssistantError("An automation review is already running")
+        async with self._automation_review_lock:
+            runtime=await self.presence_runtime(zone_id)
+            if runtime["revision"]!=payload["revision"]: raise SelectionConflict("Zone changed; reload adoption review")
+            refs=adoption_targets(runtime)
+            if not runtime.get("owner") or not runtime.get("raw_sources") or not runtime.get("timer"):
+                raise InvalidSelection("Complete presence owner, raw sources and timer before adoption review")
+            relations=await self.client.related_automations(refs)
+            ids=validate_automation_ids(sorted({a for values in relations.values() for a in values}))
+            inspections=[]
+            synthetic={"current_pattern":{"sources":runtime["raw_sources"]},
+                       "fields":{"target_ids":[runtime["owner"],runtime["timer"]]}}
+            for automation_id in ids:
+                config=await self.client.automation_config(automation_id)
+                inspections.append(inspect_automation(config,synthetic,automation_id,None))
+            current=await self.presence_runtime(zone_id)
+            if current["revision"]!=payload["revision"] or adoption_targets(current)!=refs:
+                raise SelectionConflict("Presence basis changed during review; retry")
+            result=adoption_plan(zone_id,payload["revision"],current,inspections)
+            await self.plans.helper_transaction("presence_adoption_review",
+                {"outcome":"reviewed","zone_id":zone_id,"revision":payload["revision"],
+                 "fingerprint":result["fingerprint"],"related":result["summary"]["related"],
+                 "conflicts":result["summary"]["conflicts"]})
+            return result
+
     async def presence_runtime(self, zone_id):
         async with self._projection_lock:
             inventory=await self.selection_inventory(zone_id);cfg=await self.context.get(zone_id)
@@ -430,7 +461,7 @@ class PilotSuiteService:
             "selection": self._selection_summary,
             "version": VERSION,
             "architecture": ARCHITECTURE_VERSION,
-            "mode": "presence_runtime_opt_in",
+            "mode": "presence_adoption_review",
             "app_update": await self.world.maintenance_update(fresh=ready),
             "recent_versions": self._recent_versions(),
             "home_assistant": {
