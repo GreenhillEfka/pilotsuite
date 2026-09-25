@@ -313,5 +313,20 @@ class HomeAssistantClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([],client._session.socket.sent)
 
 
+    async def test_presence_service_transport_is_tiny_allowlist(self):
+        key="timer.pilotsuite_room_anwesenheitsnachlauf"
+        socket=_Socket([{"type":"auth_required"},{"type":"auth_ok"},{"id":1,"success":True,"result":None}])
+        client=HomeAssistantClient("ws://example.invalid/websocket","token");client._session=_Session(socket)
+        await client.call_bounded_service("timer","start",key)
+        self.assertEqual("call_service",socket.sent[-1]["type"])
+        self.assertEqual({"entity_id":key},socket.sent[-1]["target"])
+        before=list(socket.sent)
+        for domain,service,target in [("light","turn_on","light.room"),("timer","finish",key),
+                                      ("input_boolean","turn_on","input_boolean.Bad-ID")]:
+            with self.assertRaises(HomeAssistantError):
+                await client.call_bounded_service(domain,service,target)
+        self.assertEqual(before,socket.sent)
+
+
 if __name__ == "__main__":
     unittest.main()
