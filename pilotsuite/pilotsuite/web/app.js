@@ -558,6 +558,30 @@ function invalidateDailyBrief(message = 'Alltagsbrief derzeit nicht verfügbar. 
   if (focusWasInside) { root.tabIndex = -1; root.focus(); }
 }
 
+function renderFoundationJourney() {
+  const root=byId('foundation-journey'), detail=byId('foundation-detail');
+  if (!root || !detail) return;
+  root.replaceChildren(); detail.replaceChildren();
+  const f=contextData?.foundation, journey=f?.setup_journey;
+  if (!journey) { root.textContent='Zonenbasis wird geladen …'; return; }
+  for (const step of journey.steps || []) {
+    const card=document.createElement('article'); card.className='card';
+    const title=document.createElement('strong'); title.textContent=step.title;
+    const state=document.createElement('span'); state.className='tag'; state.textContent=step.state;
+    const p=document.createElement('small'); p.textContent=step.summary;
+    card.append(title,state,p); root.append(card);
+  }
+  const rec=f?.helper_reconciliation;
+  if (rec) {
+    const p=document.createElement('p');
+    p.textContent=`Helfer: ${rec.counts?.reuse||0} wiederverwenden · ${rec.counts?.create||0} geplant · ${rec.counts?.conflict||0} Konflikte.`;
+    detail.append(p);
+  }
+  const pc=f?.presence_contract;
+  if (pc) {
+    const p=document.createElement('p'); p.textContent=`Anwesenheit: ${pc.logical_owner||'noch kein logischer Raumstatus'} · ${(pc.raw_sources||[]).length} Rohquellen.`; detail.append(p);
+  }
+}
 function renderDailyBrief() {
   const root = byId('daily-brief');
   if (!root) return;
@@ -744,6 +768,7 @@ function renderLearning() {
   renderRoutineDrafts();
   renderZoneGuide();
   renderDailyBrief();
+  renderFoundationJourney();
   if (!contextData?.config) return;
   const cfg = contextData.config;
   const moduleRoot = byId('module-overview'); moduleRoot.replaceChildren();
