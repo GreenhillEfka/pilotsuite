@@ -8,7 +8,7 @@ class AutomationImportTests(unittest.TestCase):
       inventory_ids={"binary_sensor.motion","light.room"})
   self.assertEqual("execution_owner",s["ownership"]["home_assistant"])
   self.assertEqual(["custom_future_field"],s["source"]["unknown_root_fields"])
-  self.assertEqual([],s["projection"]["external_references"])
+  self.assertEqual([],s["projection"]["external_references"])\n  self.assertNotIn("light.turn_on",s["projection"]["external_references"])
   self.assertFalse(s["execution"]["allowed"])
  def test_takeover_requires_fresh_source_revision_and_approval(self):
   s=import_automation("automation.x",{"alias":"x"},zone_id="z",zone_revision=1,inventory_ids=set())
