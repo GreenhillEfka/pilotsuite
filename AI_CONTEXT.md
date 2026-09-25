@@ -3,33 +3,37 @@
 Canonical repository receipts plus newer explicit user decisions take precedence
 over older chat/status prose. Read CURRENT_STATE.md and docs/RELEASE_STATE.json first.
 
-## Resume point — 2026-09-25: Alpha.24 delivered
+## Resume point — 2026-09-25: Alpha.25 delivered
 
-PR #54 is merged. Alpha.24 is installed through the normal Home Assistant Store,
-started and runtime-verified: hard_read_only, ready, connected, fresh, zone-resolved.
-Presence/light remain partial, distinct from transport readiness. Do not repeat
-backup/Store/update/rebuild/restart just to resume. GitHub reads AND writes and native
-HA-MCP operations worked in the same conversation; no access reconfiguration needed.
+Alpha.25 is installed through the normal Home Assistant Store and started. Release
+commit `a6d6e329eee15ee97c5e732dd963ca8a531444e3`; PR #57 candidate CI and main CI
+#36128782821 passed all jobs including Python/JS, browser, source and amd64 build.
+Fresh pre-publication PilotSuite-only backup `70e14c12` contains only Alpha.24,
+54,179,840 bytes, no HA/database/folders/failures. One Store refresh and one
+PilotSuite update installed Alpha.25; options and auto_update remained unchanged.
+Runtime logs confirm hard_read_only, ready, connected stream, fresh snapshot and
+resolved Golden Zone. Humidity/motion/presence/light remain partial capabilities.
 
-Release 6f22100dcfbee87bdedc8288b1821971bad17d53; app tree
-528396dc07e35b2df1e349322f6c0b49e9dee6cb. Exact candidate CI 36117146697 and main CI
-36117395171 passed: 308 Python, 48 JavaScript, five browser steps and amd64 build.
-Fresh PilotSuite-only Alpha.23 backup ad3c24bb was completed and natively verified
-before publication. One native Store refresh, one PilotSuite update, unchanged
-options/auto_update, no other app or household/consent/permission/scheduler changes.
-Details and separate acceptance boundaries: RELEASE_STATE.json / PR #54.
+Alpha.25 starts Issue #56 structurally: explicit logical input_boolean presence
+helpers are valid only after role assignment; multi-source selection is explicit;
+binary ambient-light indicators are separated from controllable light state; climate,
+media and explicit atmosphere roles are available; a deterministic read-only
+zone-foundation projection reports presence/light/media/climate readiness, bounded
+cross-context correlations and stable helper recommendations. It does not create HA
+helpers or actuate devices; execution remains denied.
 
-R2 and the missing saved-candidate changes were reconciled, not reimplemented.
-Bounded daily brief, consistent sources/evidence/preferences, stale-read prevention,
-focus/unsaved-input preservation and unittest-discovery checks are delivered.
-The stronger published_source / same-version app-tree release gate remains intact.
-Local component evidence and synthetic full-app CI are not authenticated household
-acceptance. No production proxy, peer, port or authentication workaround occurred.
+During household hardening, four exactly identified stale
+`binary_sensor.*_sound_syncronisation` references in existing music automations were
+backed up and migrated to the already-existing corresponding
+`input_boolean.*_sound_synchronisation` helpers. Post-search found zero old
+references; automation enabled states were preserved. Do not guess replacements for
+the still-stale Shutdown Wohnbereich scene: several missing targets lack a proven
+one-to-one successor.
 
-Next: authenticated real Ingress acceptance of one useful or reasonably withheld
-brief in the already consented Golden Zone and navigation to its existing workbench.
-No automatic automation scan, new consent or actuation to obtain that evidence.
-Do not create another review engine or release merely to restate completed delivery.
+Next development continues Issue #56: governed helper provisioning/ownership,
+presence timer foundation, systematic reuse/repair plan for existing HA logic,
+daylight-relative lighting, then media/climate policies. Existing HA logic remains
+owner until a revision-bound takeover is explicitly verified.
 
 ## Identity and invariants
 
