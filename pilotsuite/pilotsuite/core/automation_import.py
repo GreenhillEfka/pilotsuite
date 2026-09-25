@@ -1,27 +1,12 @@
 """Import existing HA automations into PilotSuite's review schema without taking execution ownership."""
 from __future__ import annotations
-import hashlib,json,re\nfrom .ha_references import entity_references
+import hashlib
+import json
+import re
+from .ha_references import entity_references
 from .selections import InvalidSelection
 
 ALLOWED_ROOT={"id","alias","description","mode","max","max_exceeded","trace","triggers","trigger","conditions","condition","actions","action","variables"}
-
-"""Import existing HA automations into PilotSuite's review schema without taking execution ownership."""
-from __future__ import annotations
-import hashlib,json,re\nfrom .ha_references import entity_references
-from .selections import InvalidSelection
-
-ALLOWED_ROOT={"id","alias","description","mode","max","max_exceeded","trace","triggers","trigger","conditions","condition","actions","action","variables"}
-
-def _refs(value):
-    found=set()
-    if isinstance(value,str):
-        found.update(re.findall(r"\b[a-z_]+\.[a-z0-9_]+\b",value))
-    elif isinstance(value,list):
-        for item in value: found.update(_refs(item))
-    elif isinstance(value,dict):
-        for k,v in value.items():
-            found.update(_refs(v))
-    return found
 
 def import_automation(entity_id, config, *, zone_id, zone_revision, inventory_ids):
     """Create a normalized immutable review snapshot; never executable."""
@@ -31,7 +16,6 @@ def import_automation(entity_id, config, *, zone_id, zone_revision, inventory_id
         raise InvalidSelection("automation config must be an object")
     if type(zone_revision) is not int or zone_revision < 0:
         raise InvalidSelection("invalid zone revision")
-    # Preserve unknown HA fields in source_config; schema fields are projections only.
     encoded=json.dumps(config,sort_keys=True,separators=(",",":"),ensure_ascii=False)
     refs=sorted(entity_references(config))
     zone_refs=sorted(set(refs)&set(inventory_ids))
