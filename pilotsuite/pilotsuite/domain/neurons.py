@@ -67,6 +67,8 @@ def build_neurons(scope: dict[str, Any]) -> list[Neuron]:
         device_class = attrs.get("device_class") or registry.get("device_class")
         domain = entity_id.split(".", 1)[0]
         kind = str(device_class or domain)
+        if domain == "binary_sensor" and kind == "light":
+            kind = "daylight_binary"
         quality = _quality(raw_state)
         value = _value(raw_state, str(device_class or ""), domain, quality)
         unit = _optional_string(attrs.get("unit_of_measurement"))
