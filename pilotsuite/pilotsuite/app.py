@@ -373,6 +373,8 @@ async def _context_payload(service, zone_id, export=False):
     report['foundation']['presence_contract'] = presence_contract(report['foundation'])
     from pilotsuite.core.helper_reconciliation import reconcile_helpers
     report['foundation']['helper_reconciliation'] = reconcile_helpers(report['foundation'], report['candidates'])
+    from pilotsuite.core.setup_journey import setup_journey
+    report['foundation']['setup_journey'] = setup_journey(report['foundation'])
     from pilotsuite.core.guide import zone_guide
     zone_result = next((z for z in service._zone_results if z['zone_id'] == zone_id), {})
     report['guide'] = zone_guide(inventory, report, await service.status(), zone_result.get('summary', {}))
