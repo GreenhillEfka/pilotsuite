@@ -147,7 +147,7 @@
     context(zone,revision){if(!zone||!Number.isSafeInteger(revision))return;
       if(basis&&(basis.zone!==zone||basis.revision!==revision)){serial++;if(!changed()&&!pendingSave){data=null;initial='';loadedBasis=null;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();}notice('Zonenstand geändert. Bestand erneut laden.');}
       basis={zone,revision};updateButtons();},
-    dirty:()=>busy||pendingSave||changed(),
+    dirty:()=>busy||!!pendingSave||changed(),
     invalidate(){serial++;loadedBasis=null;reports?.replaceChildren();planPanel?.replaceChildren();notice('Datenstand nicht bestätigt. Bestand neu laden; offene Auswahl bleibt erhalten.');updateButtons();}
   };
 })();

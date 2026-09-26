@@ -6,7 +6,7 @@ retain their visible selection and offer an explicit read-only recovery instead 
 write replay. Older-revision previews cannot be applied. The existing canonical
 owners and HA execution boundaries are unchanged.
 
-Validation: 454 Python and 56 JavaScript tests passed locally; four additional
+Validation: 454 Python and 56 JavaScript tests passed locally; six additional
 synthetic full-app browser scenarios await exact candidate CI. No local browser
 acceptance or household-name write is claimed. RELEASE_STATE.json remains the
 actual Alpha.32 delivery receipt until a verified installation.

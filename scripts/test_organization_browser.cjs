@@ -174,5 +174,19 @@ const fs=require('node:fs/promises');
   assert.equal((await command({action:'snapshot'})).name_writes,4);
   assert.deepEqual(errors,[]);
   console.log('ok 9 - lost acknowledgement recovers by GET without replay or extra HA writes');
+
+  await page.locator('.org-plan-history').filter({hasText:'Vorschau – noch nicht ausgeführt · names'}).first().click();
+  await page.waitForFunction(()=>document.getElementById('org-plan').textContent.includes('älteren Zonenstand'));
+  assert.equal(await page.locator('#org-apply-names').count(),0);
+  assert.equal((await command({action:'snapshot'})).name_writes,4);
+  console.log('ok 10 - older revision previews remain readable without an apply confirmation');
+  await page.locator('#org-load').click();await page.locator('.org-plan-history').first().waitFor();
+  await page.route(historyRoute,async route=>{const response=await route.fetch();const body=await response.json();body.zone_id='synthetic-foreign';await route.fulfill({response,json:body});});
+  await page.locator('.org-plan-history').first().click();
+  await page.waitForFunction(()=>document.getElementById('org-message').textContent.includes('nicht zur aktuellen Zone'));
+  assert.equal(await page.locator('#org-plan').innerText(),'');
+  assert.equal((await command({action:'snapshot'})).name_writes,4);
+  await page.unroute(historyRoute);assert.deepEqual(errors,[]);
+  console.log('ok 11 - foreign response identities are rejected without mutation');
  }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
 })().catch(error=>{console.error(error);process.exitCode=1;});

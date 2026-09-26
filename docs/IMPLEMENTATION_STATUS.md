@@ -3,7 +3,7 @@
 Implemented: request-basis checks for all organization plan responses; stale preview
 confirmation withheld; visible assignment retention after uncertain saves; explicit
 canonical read recovery without replay. Existing 454 Python / 56 JS tests pass;
-four new full-app browser regressions await CI. No new HA write capability.
+six new full-app browser regressions await CI. No new HA write capability.
 Installed evidence remains RELEASE_STATE.json. Next: candidate CI and gated delivery.
 
 # PilotSuite capability and acceptance ledger
