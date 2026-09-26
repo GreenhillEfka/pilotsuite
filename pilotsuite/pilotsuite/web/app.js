@@ -967,7 +967,7 @@ byId('context-edit').addEventListener('click', async () => {
       if (!candidates.length) select.textContent='Keine bestätigten Sensoren dieses Typs.';
       for (const item of candidates) {
         const label=document.createElement('label'); const input=document.createElement('input'); input.type='checkbox'; input.value=item.entity_id; input.checked=current.includes(item.entity_id);
-        input.addEventListener('change', renderRolePreview);
+        input.addEventListener('change',()=>{select.closest('.role-group').dataset.psTouched='true';renderRolePreview();});
         label.append(input, document.createTextNode(item.name || item.entity_id)); select.append(label);
         const hint=document.createElement('small');
         hint.textContent = item.suggested_role === 'input_boolean'

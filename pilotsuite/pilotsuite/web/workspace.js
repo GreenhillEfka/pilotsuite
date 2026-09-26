@@ -98,7 +98,7 @@
     const label=E('label','Quellen suchen','ps-role-search'),input=E('input');input.type='search';input.setAttribute('aria-label',M.roles[key]+' durchsuchen');input.placeholder='Name oder Entitäts-ID';label.append(input);
     const n=E('p','','ps-role-count');n.setAttribute('role','status');choices.before(label,n);
     input.addEventListener('input',()=>filterRole(group));
-    choices.addEventListener('change',()=>{group.dataset.psTouched='true';filterRole(group);renderDiff();});
+    choices.addEventListener('change',()=>{filterRole(group);renderDiff();});
   }
   const diffPanel=E('details','','ps-diff');diffPanel.id='ps-config-diff';diffPanel.open=true;diffPanel.append(E('summary','Änderungsvorschau'),E('div'));
   form.querySelector('fieldset').insertBefore(diffPanel,form.querySelector('fieldset').lastElementChild);
