@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.1.0-alpha.32] - 2026-09-26
+
+### Bestand & Ordnung
+- Global manually confirmed function bindings for presence sources, existing room
+  status, timer, duration parameter, manual override, automation blocker and existing
+  automations. Use stable domain/platform/unique_id identity, not names as ownership.
+- Explicit automation-first inspection without requiring a preconfigured owner/timer:
+  nested direct references, timer event_data and literal template dependencies,
+  inherited disabled/dynamic branches, for/timer mechanisms and bounded replacement
+  suggestions with reasons. Unknown coverage stays explicit; no template execution.
+- Existing ContextStore persists bindings under the shared zone revision, preserving
+  learning roles, evidence, consent and unknown configuration keys. Savepoints include
+  optional bindings with backward-compatible validation. No database schema migration.
+- Foundation and helper inspection consume manually bound existing helpers, including
+  area-less identities; existing for logic no longer forces a duplicate PilotSuite timer.
+- PlanStore owns confirmed helper display-name cleanup and guarded undo, with durable
+  before-images, independent native registry readback and no blind replay after restart
+  or lost response. Shared-zone helpers and identity/name conflicts block unilateral edits.
+- Configuration workspace includes search, manual selection, structural findings,
+  candidate repair previews, standard naming proposals, plan status and explicit apply.
+
+### Safety and boundaries
+- Repair previews are stored but cannot write automation configuration. Technical
+  Entity-ID migration is blocked until consumer coverage can be established. No labels,
+  areas, values, generic HA service proxy, new helper or learning grant is introduced.
+- Fail-close the older presence activation endpoint until timer event and authority
+  takeover behavior is separately accepted. HA timer expiry is not a `finished` state.
+- Name updates are not cross-system atomic or an HA compare-and-swap. Partial/unknown
+  results remain visible; previous names can only be restored after a separate preview.
+
 ## [0.1.0-alpha.31] - 2026-09-26
 
 ### Workspace redesign

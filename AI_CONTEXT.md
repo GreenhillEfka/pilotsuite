@@ -1,49 +1,37 @@
 # PilotSuite AI context
 
-Canonical: GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
-Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
+Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite. Read CURRENT_STATE,
+docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first. Do not start a new repo.
 
-## Resume - Alpha.31 UX delivered, 2026-09-26
+## Alpha.32 candidate — 2026-09-26
 
-PR67 is merged as 75caa39df10a7eb25a0a3c85c0a526475d18b03b. Exact candidate
-CI36201287332 and release-main CI36201656060 passed all four jobs, including eight
-browser suites. Local complete checkout: 405 Python and 53 JavaScript tests passed.
-Final root d651049d4afbae883f642c5786930ac9cb6e7772; application tree
-05557cea66e5a9ca99489331f6f39f05839b1bcf, reread from the remote tree and local Git.
+User asked to finish inventory recognition, manual semantic assignment, cleanup and
+controlled migration after the interrupted prior turn. Live Alpha31 and main
+75c101b22da5e31ee12a1c7d211bfb09d1583825 were verified; no open PR or unfinished
+remote implementation existed. Full source bundle artifact10892532197 was checksum-
+verified and cloned, with a local before-archive. No household mutation was performed.
 
-Fresh completed PilotSuite-only backup319e9e3b was checked with snapshot/list and
-backup/details BEFORE publication. One normal Store refresh and one scoped update
-completed. Installed/offered Alpha31, started, no update pending; all four options
-and auto_update=true preserved. Startup identifies Alpha31 / presence_adoption_review.
-Repeated post-start logs show ready, stream connected, fresh snapshot and zone resolved.
-No explicit restart/rebuild or other-app update. Do not repeat deployment to resume.
+The candidate is a complete configuration-workspace path: global helper/catalog choice,
+automation-first bounded references/repair suggestions, persistent manual bindings,
+existing for/timer planning, and confirmed helper display-name cleanup with readback,
+durable status and guarded undo. Existing ContextStore and PlanStore remain canonical;
+no second learner/database or schema migration. Role/evidence/consent data survive.
+Bindings are semantic organization, not new learning or control grants.
 
-## Implemented workspace
+Repair plans are stored but cannot execute automation writes. Technical-ID migration
+shows proposals/collisions and stays blocked because selected automation review cannot
+prove complete consumer coverage. Do not claim all migration/repair execution is done.
+Older presence activation is now fail-closed pending separate timer/authority acceptance;
+this package must not be described as a tested replacement presence controller.
 
-Cockpit, Zonenmodule, Konfiguration, Verlaeufe, Werkbank and System; measured zone
-cards and filters; four module source/reference/implementation diagrams; searchable
-canonical role forms and before/after roles/consent/detector preview; local light/dark/
-system theme, density and technical IDs; sidebar/mobile navigation with dirty guards.
-The original document/forms/listeners and canonical stores remain authoritative.
-workspace-model.js is pure presentation; workspace.js adapts existing renderers;
-workspace_api.py injects assets into the one HTML document; rescue remains minimal.
-No new permission, data migration, collector, runtime activation or household edit.
+Implementation, UX, safety boundaries and follow-up: docs/ORGANIZATION_AND_MIGRATION.md.
+Use native HA APIs only, no .storage edits or Ingress bypass. Registry name updates are
+not HA/SQLite atomic and not a native compare-and-swap; never blindly replay unknown
+outcomes or claim an unknown-response result authorizes rollback. Shared bindings and
+identity/name changes block unilateral cleanup.
 
-## Acceptance boundaries and next work
-
-Checksum-verified CI screenshot artifact10891478892 was visually reviewed at desktop,
-tablet and phone sizes in both themes. Actual-app tests use synthetic data, not an
-authenticated household session. Local browser navigation was denied by administrator
-policy and not bypassed. No Ingress header/peer/port change or new proxy probe.
-No completed Deep Research report was available; docs/UX_WORKSPACE.md records the
-actual source/reference basis, not an invented report or blanket WCAG certification.
-
-State/dependency diagrams are models, NOT verified live presence/timer operation.
-This UX release does not certify Alpha28-30 helper transport or runtime correctness.
-Do not activate or take over household automations based on ready-looking cards.
-Continue with household usability feedback and a separate fault-tested backend package;
-keep existing HA automation authority and manual overrides until scoped verified takeover.
-Unknown results never justify blind retry, inferred ownership, false absence or deletion.
-
-Final documentation CI receipts belong in the PR discussion, not another status-only
-commit/release loop. This handoff does not change any application file or version.
+Before delivery: full local Python/JS/compile and exact remote CI incl new actual-app
+browser flow; then fresh completed PilotSuite-only native backup BEFORE publication
+(auto_update=true). One normal Store update; source/main CI and runtime rechecked.
+Household names, automations, sources and learning grants remain unchanged by release.
+Record final delivery separately; do not repeatedly redeploy to write documentation.

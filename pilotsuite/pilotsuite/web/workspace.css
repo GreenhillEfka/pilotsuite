@@ -57,3 +57,19 @@
 @media print{.ps-sidebar,.ps-workspace-ready button{display:none!important;}.ps-workspace-ready main,.ps-workspace-ready .topbar,.ps-workspace-ready footer{margin:0;}}
 
 .ps-module-card meter{width:100%;height:10px;margin-top:auto;accent-color:var(--ps-accent);}
+
+/* Existing inventory organization uses the workspace vocabulary, not a parallel dashboard. */
+.org-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0;}
+.org-role-grid>details{border:1px solid var(--ps-line);border-radius:12px;padding:14px;background:var(--ps-soft);}
+.org-role-grid summary{font-weight:650;min-height:36px;cursor:pointer;}.org-role-grid label{display:grid;gap:6px;margin:12px 0;}
+.org-candidates{display:grid;gap:8px;max-height:320px;overflow:auto;}.org-candidates button{display:grid;text-align:left;gap:4px;min-width:0;background:var(--ps-panel);}
+.org-candidates button[aria-pressed=true]{border:2px solid var(--ps-accent);background:var(--ps-tint);}
+.org-candidates code,.org-finding code,.org-name-row code{font-size:.75rem;overflow-wrap:anywhere;word-break:break-word;}
+.org-candidates small{font-weight:400;color:var(--ps-muted);}.org-picked{display:flex;flex-wrap:wrap;gap:6px;}
+.ps-workspace-ready .org-chip{font-size:.74rem;border-radius:24px;overflow-wrap:anywhere;}
+.org-finding{display:grid;gap:10px;padding:16px;margin:12px 0;border:1px solid var(--ps-line);border-radius:12px;}
+.org-finding details{font-size:.8rem;overflow-wrap:anywhere;}.org-name-row{display:grid;grid-template-columns:24px 1fr;gap:8px;margin:16px 0;}.org-name-row code{grid-column:2;}
+.org-plan-change{display:grid;gap:6px;padding:12px;border-left:3px solid var(--ps-accent);background:var(--ps-soft);overflow-wrap:anywhere;}
+#org-plan{margin:22px 0;}#org-plan button{margin:8px 8px 8px 0;}.org-plan-history{display:block;margin:8px 0;font-size:.8rem;}
+#ps-organization select{max-width:100%;}#org-message:empty{display:none;}
+@media(max-width:800px){.org-role-grid{grid-template-columns:1fr;}.org-finding select{width:100%;}}

@@ -40,7 +40,10 @@ def validate_detector(value):
     return result
 
 
-class ContextStore:
+from .organization_store import OrganizationContextMixin
+
+
+class ContextStore(OrganizationContextMixin):
     def __init__(self, selections):
         self.selections = selections
         self.path = selections.path
@@ -105,7 +108,7 @@ class ContextStore:
                 db.execute('DELETE FROM coverage_checks WHERE zone_id=?', (zone_id,))
             if reset or source_changed or context_changed:
                 db.execute('DELETE FROM activity_context WHERE zone_id=?', (zone_id,))
-            value = {'context_learning': context_enabled,
+            value = {**old, 'context_learning': context_enabled,
                      'context_consented_at': (now if context_enabled and (not old['context_learning'] or source_changed or context_changed) else old['context_consented_at']) if not reset else None,
                      'roles': roles, 'detector': validate_detector({**old['detector'], **detector}) if detector is not None else old['detector'], 'learning': learning and not reset,
                      'consented_at': now if learning and (source_changed or not old['learning']) and not reset else old['consented_at']}

@@ -25,7 +25,7 @@ def provision_request(inventory, foundation, payload):
     if not isinstance(helpers, list) or len(helpers) != 1:
         raise InvalidSelection("exactly one planned helper may be provisioned per transaction")
     planned = {(h.get("domain"), h.get("key")) for h in foundation.get("helper_plan", [])
-               if isinstance(h, dict) and h.get("domain") in ALLOWED_HELPERS}
+               if isinstance(h, dict) and h.get("domain") in ALLOWED_HELPERS and h.get("create_allowed", True)}
     item = helpers[0]
     if not isinstance(item, dict) or set(item) != {"domain", "key"}:
         raise InvalidSelection("helper requires domain and key")
@@ -51,7 +51,7 @@ def exact_timer(row, helper):
     return row.get("name")==helper["name"] and row.get("duration")==cfg["duration"] and row.get("restore") is cfg["restore"]
 
 def provisioning_preview(inventory, foundation):
-    executable=[h for h in foundation.get("helper_plan",[]) if h.get("domain") in ALLOWED_HELPERS]
+    executable=[h for h in foundation.get("helper_plan",[]) if h.get("domain") in ALLOWED_HELPERS and h.get("create_allowed", True)]
     return {
       "schema": "pilotsuite-helper-provisioning-v2",
       "zone_id": inventory.get("zone_id"), "revision": inventory.get("revision"),

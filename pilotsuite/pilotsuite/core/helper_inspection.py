@@ -12,13 +12,14 @@ SAFE_FIELDS = {"input_boolean": ("initial",), "timer": ("duration", "restore"),
                "input_select": ("options", "initial")}
 
 
-def candidates(inventory, registry):
+def candidates(inventory, registry, bindings=None):
     items = {i['entity_id']: i for i in inventory['items']}
+    bound_ids = {r['entity_id'] for rows in (bindings or {}).get('assignments', {}).values() for r in rows if r.get('entity_id')}
     result = []
     for row in registry:
-        if row['entity_id'] in items and row.get('platform') in SIMPLE_HELPERS | FLOW_HELPERS:
-            result.append({**row, 'name': items[row['entity_id']]['name'],
-                           'decision': items[row['entity_id']]['decision']})
+        if (row['entity_id'] in items or row['entity_id'] in bound_ids) and row.get('platform') in SIMPLE_HELPERS | FLOW_HELPERS:
+            result.append({**row, 'name': items.get(row['entity_id'], {}).get('name', row['entity_id']),
+                           'decision': items.get(row['entity_id'], {}).get('decision', 'manually_bound')})
     if len(result) > 200:
         raise InvalidSelection('Zu viele Helfer für eine Prüfung; Zone eingrenzen')
     return result

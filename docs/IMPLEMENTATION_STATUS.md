@@ -1,33 +1,21 @@
-# PilotSuite capability and acceptance ledger
+# PilotSuite capability ledger
 
-## Installed Alpha.31 - 2026-09-26
+## Alpha.32 candidate — 2026-09-26
 
-Exact release, CI, backup, installation and runtime receipt: RELEASE_STATE.json.
-PR67 delivered the requested UX redesign; this handoff changes no app files.
-
-| Area | Delivered scope |
+| Capability | Scope |
 |---|---|
-| Cockpit | Measured zone values, connection state, selection counts and search/filter |
-| Zonenmodule | Four module cards with source/reference/implementation diagrams |
-| Configuration | Existing forms; module/source filters, retained checks, before/after preview |
-| History | Existing explicit recorder/statistics charts, tables and activity heatmaps |
-| Workbench | Existing evidence, learning, routine drafts and review-note editors |
-| Appearance | Browser-local light/dark/system theme, density and ID visibility |
-| Navigation | Desktop sidebar, mobile bottom bar, supported full view and dirty-edit guards |
-| Presence review | Existing structural read on explicit click; no takeover or activation |
-| Action capability / canonical stores | Unchanged; no new permission, collector or migration |
-| Local tests | 405 Python and 53 JavaScript tests passed |
-| Candidate/release-main CI | All four jobs and eight browser suites passed |
-| UI review | Checksum-verified actual-app synthetic screenshots at phone/tablet/desktop widths |
-| Installation | Alpha31 installed/offered, started, no update pending; options unchanged |
-| Runtime | Alpha31 startup and repeated ready/stream/fresh/zone logs verified |
-| Household Ingress / accessibility audit | Separate; not claimed completed |
+| Existing Alpha31 UX | Retained six workspaces and all previous forms |
+| Inventory analysis | Explicit selected automations; nested/event/literal-template refs |
+| Manual ontology | Global typed function assignment, stable identity, shared revision |
+| Existing helper reuse | for/timer alternatives; outside-area binding and inspection |
+| Naming cleanup | Confirmed native display-name updates, before-image/readback/undo |
+| Plan durability | Existing PlanStore/SQLite, partial/unknown status, no blind replay |
+| Repair preview | Persisted exact-reference plan after fresh fingerprint check; no writes |
+| Technical ID migration | Proposal/collision view only; consumer coverage insufficient |
+| Habitus learning | Existing detector unchanged; no inferred source/consent/actuation |
+| Presence takeover | Activation fail-closed pending timer/authority acceptance |
+| Household edits during delivery | None |
+| Installation / CI | Candidate; completed receipt recorded only after actual gates |
 
-Backup319e9e3b was completed and scope-verified before publication. One Store refresh
-and one update only; no extra restart/rebuild or unrelated app update. No household
-configuration, learning consent, helper provision or presence-runtime activation.
-
-Diagrams describe structure and configured source usability, not a live timer or
-verified controller. This UX task does not certify Alpha28-30 helper/runtime behavior.
-Follow up with real usability feedback and separately fault-tested backend behavior;
-never infer authority or conflict freedom from a green-looking card or a missing match.
+See ORGANIZATION_AND_MIGRATION.md for the architecture, workflow, tests and remaining
+behavioral work. A green inventory card, stored plan or matching name is no authority.

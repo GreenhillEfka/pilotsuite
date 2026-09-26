@@ -19,6 +19,7 @@ from pilotsuite.service import PilotSuiteService
 from pilotsuite.review_notes_api import register_review_notes
 from pilotsuite.maintenance_api import register_maintenance
 from pilotsuite.workspace_api import register_workspace, workspace_page
+from pilotsuite.organization_api import register_organization
 
 
 LOGGER = logging.getLogger(__name__)
@@ -110,6 +111,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app[SERVICE_KEY] = service
     register_maintenance(app, SERVICE_KEY, WEB_DIR)
     register_workspace(app, WEB_DIR)
+    register_organization(app, SERVICE_KEY, WEB_DIR)
     app.on_startup.append(_startup)
     app.on_cleanup.append(_cleanup)
     app.router.add_get("/", _index)
@@ -384,6 +386,8 @@ async def _context_payload(service, zone_id, export=False):
         if kind not in roles:
             roles[kind] = ids if kind == 'light' or len(ids) == 1 else []
     report['effective_roles'] = roles
+    from pilotsuite.core.organization import binding_view
+    report['organization'] = binding_view(report['config'], await service.world.organization_catalog()) if 'organization' in report['config'] else None
     from pilotsuite.core.foundation import build_foundation
     report['foundation'] = build_foundation(inventory, report)
     from pilotsuite.core.provisioning import provisioning_preview
