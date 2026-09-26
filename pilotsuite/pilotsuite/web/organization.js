@@ -9,25 +9,34 @@
   const timingLabels={observe:'Nur beobachten / noch nicht zugeordnet',existing_for:'Bestehender for:-Nachlauf',timer:'Vorhandener Timer',external:'Andere Bestandslogik'};
   const statusLabels={present:'Vorhanden',missing:'Referenz fehlt',disabled:'Deaktiviert',unavailable:'Nicht verfügbar',snapshot_stale:'Datenstand nicht aktuell'};
   const outcomeLabels={preview:'Vorschau – noch nicht ausgeführt',applying:'Unterbrochen oder noch in Bearbeitung – nicht wiederholen',verified:'Änderung zurückgelesen',attention:'Teilweise / unklar – Einzelstatus prüfen',unchanged:'Bereits einheitlich'};
-  let root,message,form,reports,planPanel,history,data=null,basis=null,loadedBasis=null,draft={},initial='',busy=false,serial=0,afterSave,scanOffset=0;
+  let root,message,form,reports,planPanel,history,data=null,basis=null,loadedBasis=null,draft={},initial='',busy=false,serial=0,afterSave,scanOffset=0,pendingSave=false;
   const selections={}, searches={};
   const encode=()=>JSON.stringify({assignments:Object.fromEntries(Object.entries(draft).map(([k,v])=>[k,[...v].sort()])),timing:form?.querySelector('#org-timing')?.value||'observe'});
   const changed=()=>data!==null&&initial!==encode();
   const notice=t=>{if(message)message.textContent=t;};
-  const request=async(path,options={})=>{const response=await fetch(path,{headers:{'Content-Type':'application/json'},...options});const d=await response.json();if(!response.ok)throw Error(d.message||'Zugriff nicht bestätigt');return d;};
+  const request=async(path,options={})=>{const response=await fetch(path,{headers:{'Content-Type':'application/json'},...options});const d=await response.json();if(!response.ok){const error=Error(d.message||'Zugriff nicht bestätigt');error.status=response.status;throw error;}return d;};
   const path=()=>`api/v1/zones/${encodeURIComponent(basis.zone)}/organization`;
   const assertCurrent=()=>{if(!data||!basis||!loadedBasis||loadedBasis.zone!==basis.zone||loadedBasis.revision!==basis.revision)throw Error('Zonenstand geändert. Bestand neu laden; Entwurf bleibt sichtbar.');};
+  const ticket=()=>({zone:basis.zone,revision:basis.revision,serial});
+  const current=t=>t.serial===serial&&t.zone===basis?.zone&&t.revision===basis?.revision;
+  async function requestPlan(suffix,options={}){
+    assertCurrent();const t=ticket(),response=await request(path()+suffix,options);
+    if(!current(t))return;
+    if(response.state!=='unchanged'&&response.zone_id!==t.zone)throw Error('Plan gehört nicht zur aktuellen Zone. Bestand erneut laden.');
+    drawPlan(response);
+  }
   async function run(fn){if(busy)return;busy=true;updateButtons();try{await fn();}catch(error){notice(error.message);}finally{busy=false;updateButtons();}}
-  function updateButtons(){if(!root)return;root.querySelectorAll('input,select').forEach(e=>{if(busy){if(e.dataset.orgWasDisabled===undefined)e.dataset.orgWasDisabled=String(e.disabled);e.disabled=true;}else if(e.dataset.orgWasDisabled!==undefined){e.disabled=e.dataset.orgWasDisabled==='true';delete e.dataset.orgWasDisabled;}});root.querySelectorAll('button[data-org-write]').forEach(b=>b.disabled=busy||!data||!loadedBasis||loadedBasis.zone!==basis?.zone||loadedBasis.revision!==basis?.revision);const save=root.querySelector('#org-save');if(save)save.disabled=busy||!changed();}
-  async function load(){if(selectionBusy||contextEditing||zoneFormOpen||selectionDraft?.dirty){notice('Andere Bearbeitung zuerst speichern oder abbrechen.');return;}if(changed()){notice('Entwurf zuerst speichern oder verwerfen.');return;}return run(async()=>{
+  function updateButtons(){if(!root)return;root.querySelectorAll('input,select').forEach(e=>{if(busy||pendingSave){if(e.dataset.orgWasDisabled===undefined)e.dataset.orgWasDisabled=String(e.disabled);e.disabled=true;}else if(e.dataset.orgWasDisabled!==undefined){e.disabled=e.dataset.orgWasDisabled==='true';delete e.dataset.orgWasDisabled;}});root.querySelectorAll('button[data-org-write]').forEach(b=>b.disabled=busy||!data||!loadedBasis||loadedBasis.zone!==basis?.zone||loadedBasis.revision!==basis?.revision);const save=root.querySelector('#org-save');if(save)save.disabled=busy||pendingSave||!changed();const load=root.querySelector('#org-load');if(load)load.textContent=pendingSave?'Gespeicherten Stand prüfen':'Bestand & Zuordnungen laden';}
+  async function load(){if(selectionBusy||contextEditing||zoneFormOpen||selectionDraft?.dirty){notice('Andere Bearbeitung zuerst speichern oder abbrechen.');return;}if(changed()&&!pendingSave){notice('Entwurf zuerst speichern oder verwerfen.');return;}return run(async()=>{
+    if(pendingSave){if(!window.confirm('Gespeicherten Stand nur lesen und bei Erfolg anstelle der sichtbaren lokalen Auswahl anzeigen? Es wird nichts erneut gespeichert.'))return;const savedZone=pendingSave.zone;await afterSave();if(basis.zone!==savedZone)throw Error('Andere Zone geöffnet; lokale Auswahl bleibt sichtbar.');}
     const current={...basis},generation=++serial;
     const response=await request(path());
     if(generation!==serial||current.zone!==basis.zone||current.revision!==basis.revision)return;
     if(response.zone_id!==current.zone||response.revision!==current.revision)throw Error('Serverstand hat sich geändert. Zonenansicht aktualisieren.');
-    data=response;loadedBasis=current;scanOffset=0;render();notice('Globaler Bestand geladen. Zuordnung ist keine Steuerungs- oder Lernfreigabe.');
+    data=response;loadedBasis=current;pendingSave=false;scanOffset=0;render();notice('Globaler Bestand geladen. Zuordnung ist keine Steuerungs- oder Lernfreigabe.');
   });}
   function chosen(role,eid){const row=data.catalog.find(r=>r.entity_id===eid);return row?`${row.name} · ${eid}`:eid+' · Identität ungeklärt';}
-  function choose(role,eid){if(busy)return;const max=data.roles[role].max;
+  function choose(role,eid){if(busy||pendingSave)return;const max=data.roles[role].max;
     if(draft[role].has(eid))draft[role].delete(eid);
     else if(max===1)draft[role]=new Set([eid]);
     else if(draft[role].size<max)draft[role].add(eid);
@@ -52,17 +61,25 @@
     }form.append(groups);
     const actions=E('div','','selection-tools');const save=B('Funktionszuordnung speichern',()=>run(async()=>{
       assertCurrent();if(!window.confirm('Diese Funktionszuordnung speichern? Bestehende Lernquellen, Lernfreigaben und HA-Steuerung bleiben unverändert.'))return;
-      const payload={revision:data.revision,...JSON.parse(encode()),confirm:true};
-      const result=await request(path(),{method:'PATCH',body:JSON.stringify(payload)});
-      if(result.zone_id!==basis.zone)throw Error('Zonenwechsel während des Speicherns; aktuellen Stand neu laden.');
-      initial=encode();notice('Funktionszuordnung gespeichert. Keine Haussteuerung aktiviert.');
-      data=null;loadedBasis=null;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();
-      await afterSave();
-      const fresh=await request(path());
-      if(fresh.zone_id!==basis.zone||fresh.revision!==basis.revision)throw Error('Gespeichert; aktuellen Bestand bitte erneut laden.');
-      data=fresh;loadedBasis={...basis};render();
-      notice('Funktionszuordnung gespeichert und erneut geladen. Keine Haussteuerung aktiviert.');
-    }));save.id='org-save';actions.append(save,B('Entwurf verwerfen',()=>{if(busy)return;if(data)render();notice('Lokaler Entwurf verworfen.');}));form.append(actions);
+      const origin=ticket(),payload={revision:data.revision,...JSON.parse(encode()),confirm:true};
+      pendingSave=origin;
+      let acknowledged=false;
+      try{
+        const result=await request(path(),{method:'PATCH',body:JSON.stringify(payload)});
+        acknowledged=true;
+        if(!current(origin)||result.zone_id!==origin.zone||result.saved!==true)throw Error('Speicherantwort passt nicht mehr zur Ansicht.');
+        // Keep the visible draft until the canonical reload has actually succeeded.
+        await afterSave();
+        const refreshed=ticket(),fresh=await request(path());
+        if(!current(refreshed)||fresh.zone_id!==origin.zone||fresh.revision!==basis.revision)throw Error('Nachladen nicht bestätigt.');
+        data=fresh;loadedBasis={...basis};pendingSave=false;render();
+        notice('Funktionszuordnung gespeichert und erneut geladen. Keine Haussteuerung aktiviert.');
+      }catch(error){
+        if(!acknowledged&&error.status>=400&&error.status<500){pendingSave=false;throw error;}
+        loadedBasis=null;
+        notice('Speicherstand noch nicht abgeglichen. Auswahl bleibt sichtbar; nicht erneut speichern. „Gespeicherten Stand prüfen“ liest nur den aktuellen Stand.');
+      }
+    }));save.id='org-save';actions.append(save,B('Entwurf verwerfen',()=>{if(busy)return;if(pendingSave){notice('Speicherstand zuerst über „Gespeicherten Stand prüfen“ abgleichen.');return;}if(data)render();notice('Lokaler Entwurf verworfen.');}));form.append(actions);
     const analysis=B('Ausgewählte Automationen analysieren',()=>run(async()=>{
       assertCurrent();const generation=++serial,zid=basis.zone,rev=data.revision;
       const response=await request(path()+'/analyze',{method:'POST',body:JSON.stringify({revision:rev,automation_ids:[...draft.presence_automations]})});
@@ -88,8 +105,8 @@
       if(row.shared_zone_ids?.length)names.append(E('p','Gemeinsam genutzt mit '+row.shared_zone_ids.join(', ')+'. Einseitige Umbenennung gesperrt; gemeinsamen Namensraum klären.','ps-warning'));
       names.append(E('p',`Technische Ziel-ID: ${row.proposed_entity_id}. ${row.entity_id_change.collision?'Namenskollision. ':''}ID-Migration gesperrt: Skripte, Szenen, Dashboards, Helferkonfigurationen und externe Verbraucher noch nicht vollständig geprüft.`,'ps-muted'));}
     if(!data.naming.length)names.append(E('p','Zuerst vorhandene Helferfunktionen zuordnen und speichern.'));
-    const preview=B('Namensbereinigung prüfen',()=>run(async()=>{assertCurrent();if(changed())throw Error('Funktionszuordnung vor der Namensbereinigung speichern.');const response=await request(path()+'/names',{method:'POST',body:JSON.stringify({revision:data.revision,roles:[...names.querySelectorAll('input:checked')].map(x=>x.value)})});drawPlan(response);}));preview.id='org-name-preview';preview.dataset.orgWrite='preview';names.append(preview);form.append(names);
-    for(const p of data.plans){const b=B(`${outcomeLabels[p.state]||p.state} · ${p.kind} · ${p.id.slice(0,8)}`,()=>run(async()=>{assertCurrent();drawPlan(await request(path()+'/plans/'+p.id));}));b.className='org-plan-history';history.append(b);}
+    const preview=B('Namensbereinigung prüfen',()=>run(async()=>{assertCurrent();if(changed())throw Error('Funktionszuordnung vor der Namensbereinigung speichern.');await requestPlan('/names',{method:'POST',body:JSON.stringify({revision:data.revision,roles:[...names.querySelectorAll('input:checked')].map(x=>x.value)})});}));preview.id='org-name-preview';preview.dataset.orgWrite='preview';names.append(preview);form.append(names);
+    for(const p of data.plans){const b=B(`${outcomeLabels[p.state]||p.state} · ${p.kind} · ${p.id.slice(0,8)}`,()=>run(async()=>{assertCurrent();await requestPlan('/plans/'+p.id);}));b.className='org-plan-history';history.append(b);}
     initial=encode();updateButtons();
   }
   function drawReports(response){reports.replaceChildren();if(response.zone_id!==basis.zone||response.revision!==basis.revision)throw Error('Veraltete Analyse verworfen');
@@ -105,7 +122,7 @@
         panel.append(row);
       }
       panel.append(E('p','Grenzen: '+(report.limitations.join(', ')||'Nur direkte Strukturprüfung; keine nachgewiesene Verhaltensgleichheit'),'ps-warning'));
-      const repair=B('Gewählte Reparaturstellen prüfen',()=>run(async()=>{assertCurrent();drawPlan(await request(path()+'/repair-preview',{method:'POST',body:JSON.stringify({revision:data.revision,automation_id:report.automation_id,fingerprint:report.fingerprint,replacements})}));}));repair.dataset.orgWrite='preview';panel.append(repair);reports.append(panel);
+      const repair=B('Gewählte Reparaturstellen prüfen',()=>run(async()=>{assertCurrent();await requestPlan('/repair-preview',{method:'POST',body:JSON.stringify({revision:data.revision,automation_id:report.automation_id,fingerprint:report.fingerprint,replacements})});}));repair.dataset.orgWrite='preview';panel.append(repair);reports.append(panel);
     }
     updateButtons();
   }
@@ -116,9 +133,10 @@
       planPanel.append(E('p','Reparaturvorschau gespeichert. Die aufgeführten Stellen wurden erneut gegen die Automation geprüft. Dieser Release schreibt noch keine Automationskonfiguration; auch ein passender Ersatz ist noch kein Nachweis gleichen Verhaltens.','ps-warning'));return;
     }
     planPanel.append(E('p','Ändert nur die Anzeigenamen dieser Helfer. Entity-IDs, Werte, Bereiche, Labels und Verbraucher bleiben unverändert. HA und PilotSuite sind keine gemeinsame atomare Transaktion; Teilstände werden einzeln protokolliert. Anzeigenamen-basierte Vorlagen und Sprachassistenten können betroffen sein.','ps-muted'));
-    if(plan.state==='preview'){const l=E('label');const c=E('input');c.type='checkbox';c.id='org-confirm-names';l.append(c,document.createTextNode('Genau diese Anzeigenamen ändern'));const apply=B('Geprüften Namensplan anwenden',()=>run(async()=>{assertCurrent();if(changed())throw Error('Offenen Zuordnungsentwurf zuerst speichern oder verwerfen');if(!c.checked)return;drawPlan(await request(path()+'/plans/'+plan.id+'/apply',{method:'POST',body:JSON.stringify({sha256:plan.sha256,confirm:true})}));}));apply.id='org-apply-names';apply.disabled=true;c.addEventListener('change',()=>apply.disabled=!c.checked||busy);planPanel.append(l,apply);}
-    else {planPanel.append(B('Gespeicherten Planstatus laden',()=>run(async()=>{assertCurrent();drawPlan(await request(path()+'/plans/'+plan.id));})));
-      if(plan.operations.some(op=>op.outcome==='verified'&&op.write_response_confirmed))planPanel.append(B('Rücknahme prüfen',()=>run(async()=>{assertCurrent();drawPlan(await request(path()+'/plans/'+plan.id+'/restore-preview',{method:'POST',body:JSON.stringify({revision:basis.revision})}));})));
+    if(plan.state==='preview'&&plan.revision!==basis.revision){planPanel.append(E('p','Vorschau stammt aus einem älteren Zonenstand. Bitte einen neuen Plan prüfen.','ps-warning'));return;}
+    if(plan.state==='preview'){const l=E('label');const c=E('input');c.type='checkbox';c.id='org-confirm-names';l.append(c,document.createTextNode('Genau diese Anzeigenamen ändern'));const apply=B('Geprüften Namensplan anwenden',()=>run(async()=>{assertCurrent();if(changed())throw Error('Offenen Zuordnungsentwurf zuerst speichern oder verwerfen');if(!c.checked)return;await requestPlan('/plans/'+plan.id+'/apply',{method:'POST',body:JSON.stringify({sha256:plan.sha256,confirm:true})});}));apply.id='org-apply-names';apply.disabled=true;c.addEventListener('change',()=>apply.disabled=!c.checked||busy);planPanel.append(l,apply);}
+    else {planPanel.append(B('Gespeicherten Planstatus laden',()=>run(async()=>{assertCurrent();await requestPlan('/plans/'+plan.id);})));
+      if(plan.operations.some(op=>op.outcome==='verified'&&op.write_response_confirmed))planPanel.append(B('Rücknahme prüfen',()=>run(async()=>{assertCurrent();await requestPlan('/plans/'+plan.id+'/restore-preview',{method:'POST',body:JSON.stringify({revision:basis.revision})});})));
       if(plan.state!=='verified')planPanel.append(E('p','Nicht vollständig bestätigt. Bereits bestätigte Änderungen sind oben markiert. Unklare Operationen werden nicht automatisch wiederholt.','ps-warning'));
     }
   }
@@ -127,9 +145,9 @@
       message=E('p','','edit-status');message.id='org-message';message.setAttribute('role','status');form=E('div');form.id='org-form';reports=E('div');reports.id='org-reports';planPanel=E('section');planPanel.id='org-plan';planPanel.setAttribute('aria-label','Geprüfter Ordnungsplan');history=E('div');history.id='org-history';
       const loadButton=B('Bestand & Zuordnungen laden',load);loadButton.id='org-load';root.append(loadButton,message,form,reports,planPanel,E('h3','Gespeicherte Pläne'),history);},
     context(zone,revision){if(!zone||!Number.isSafeInteger(revision))return;
-      if(basis&&(basis.zone!==zone||basis.revision!==revision)){serial++;if(!changed()){data=null;initial='';loadedBasis=null;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();}notice('Zonenstand geändert. Bestand erneut laden.');}
+      if(basis&&(basis.zone!==zone||basis.revision!==revision)){serial++;if(!changed()&&!pendingSave){data=null;initial='';loadedBasis=null;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();}notice('Zonenstand geändert. Bestand erneut laden.');}
       basis={zone,revision};updateButtons();},
-    dirty:()=>busy||changed(),
-    invalidate(){serial++;loadedBasis=null;reports?.replaceChildren();notice('Datenstand nicht bestätigt. Bestand neu laden; offene Auswahl bleibt erhalten.');updateButtons();}
+    dirty:()=>busy||pendingSave||changed(),
+    invalidate(){serial++;loadedBasis=null;reports?.replaceChildren();planPanel?.replaceChildren();notice('Datenstand nicht bestätigt. Bestand neu laden; offene Auswahl bleibt erhalten.');updateButtons();}
   };
 })();

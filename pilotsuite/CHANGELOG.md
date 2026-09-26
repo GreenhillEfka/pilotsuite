@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.0-alpha.33] - 2026-09-26
+
+### Recoverable inventory editing
+- Bind name, repair, status and undo-preview responses to the requesting zone,
+  revision and invalidation generation. Late plans cannot revive old confirmations.
+- Keep manual assignments visible after failed post-save reloads or lost PATCH
+  acknowledgements. Lock write replay and provide an explicit read-only recovery.
+- Historical previews remain readable but cannot be applied at a newer revision.
+- Add full-application browser regressions for invalidation, cross-zone responses,
+  failed canonical reload and lost write acknowledgement. No new HA execution path.
+
 ## [0.1.0-alpha.32] - 2026-09-26
 
 ### Bestand & Ordnung

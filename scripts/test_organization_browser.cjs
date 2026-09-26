@@ -94,5 +94,85 @@ const fs=require('node:fs/promises');
   assert.equal((await command({action:'snapshot'})).name_writes,4);
   assert.equal(requests.some(u=>u.includes('presence-runtime')||u.includes('helpers/provision')),false);assert.deepEqual(errors,[]);
   console.log('ok 5 - reload persistence, local-cache privacy, responsive UI, stale revision preserves draft and no control activation');
+
+  // Reject a delayed plan even when the zone revision itself did not change.
+  await page.getByRole('button',{name:'Entwurf verwerfen',exact:true}).click();
+  await page.evaluate(()=>loadSelection(selectionZone));
+  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor();
+  const openNames=async()=>{
+   if(!await page.locator('#org-naming').evaluate(e=>e.open))await page.locator('#org-naming>summary').click();
+   await page.locator('[data-org-name-role=presence_status]').check();
+  };
+  await openNames();
+  let releasePlan,planArrived;
+  const arrived=new Promise(resolve=>planArrived=resolve);
+  const release=new Promise(resolve=>releasePlan=resolve);
+  const nameRoute='**/organization/names';
+  await page.route(nameRoute,async route=>{const response=await route.fetch();planArrived();await release;await route.fulfill({response});});
+  await page.locator('#org-name-preview').click();await arrived;
+  await page.evaluate(()=>window.PilotSuiteOrganization.invalidate());
+  releasePlan();await page.waitForFunction(()=>!window.PilotSuiteOrganization.dirty());
+  assert.equal(await page.locator('#org-confirm-names').count(),0);
+  assert.equal(await page.locator('#org-plan').innerText(),'');
+  await page.unroute(nameRoute);
+  console.log('ok 6 - invalidation rejects a delayed plan and cannot restore an obsolete confirmation');
+
+  // A history GET is bound to its request zone too, and never writes names.
+  await page.locator('#org-load').click();await page.locator('.org-plan-history').first().waitFor();
+  let releaseHistory,historyArrived;
+  const historyReady=new Promise(resolve=>historyArrived=resolve);
+  const historyRelease=new Promise(resolve=>releaseHistory=resolve);
+  const historyRoute='**/organization/plans/*';
+  await page.route(historyRoute,async route=>{const response=await route.fetch();historyArrived();await historyRelease;await route.fulfill({response});});
+  await page.locator('.org-plan-history').first().click();await historyReady;
+  await page.evaluate(()=>window.PilotSuiteOrganization.context('synthetic-other-zone',1));
+  releaseHistory();await page.waitForFunction(()=>!window.PilotSuiteOrganization.dirty());
+  assert.equal(await page.locator('#org-plan').innerText(),'');
+  await page.unroute(historyRoute);
+  await page.evaluate(()=>window.PilotSuiteOrganization.context(selectionZone,contextData.revision));
+  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor();
+  console.log('ok 7 - late history responses cannot cross zones');
+
+  // Successful PATCH followed by failed GET must keep local choices and lock replay.
+  await choose('manual_override','input_boolean.room_override');
+  let patchCount=0,failReload=false;
+  const inventoryRoute='**/organization';
+  await page.route(inventoryRoute,async route=>{
+   if(route.request().method()==='PATCH'){patchCount++;const response=await route.fetch();failReload=true;await route.fulfill({response});}
+   else if(failReload){failReload=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Synthetic reload failure'})});}
+   else await route.continue();
+  });
+  await page.locator('#org-save').click();
+  await page.waitForFunction(()=>document.getElementById('org-message').textContent.includes('Speicherstand noch nicht abgeglichen'));
+  assert.match(await page.locator('[data-org-group=manual_override]').innerText(),/input_boolean.room_override/);
+  assert.equal(await page.locator('#org-save').isDisabled(),true);
+  assert.equal(await page.evaluate(()=>window.PilotSuiteOrganization.dirty()),true);
+  await page.getByRole('button',{name:'Entwurf verwerfen',exact:true}).click();
+  assert.match(await page.locator('[data-org-group=manual_override]').innerText(),/input_boolean.room_override/);
+  await page.getByRole('button',{name:'Gespeicherten Stand prüfen',exact:true}).click();
+  await page.waitForFunction(()=>document.getElementById('org-message').textContent.includes('Globaler Bestand geladen')&&!window.PilotSuiteOrganization.dirty());
+  assert.equal(patchCount,1);
+  assert.match(await page.locator('[data-org-group=manual_override]').innerText(),/input_boolean.room_override/);
+  await page.unroute(inventoryRoute);
+  console.log('ok 8 - failed post-save reload preserves the draft; explicit recovery only reads');
+
+  // A lost PATCH response is ambiguous, not permission to repeat a write.
+  await page.locator('#org-timing').selectOption('existing_for');
+  let lostPatchCount=0;
+  await page.route(inventoryRoute,async route=>{
+   if(route.request().method()==='PATCH'){lostPatchCount++;await route.fetch();await route.abort('failed');}
+   else await route.continue();
+  });
+  await page.locator('#org-save').click();
+  await page.waitForFunction(()=>document.getElementById('org-message').textContent.includes('Speicherstand noch nicht abgeglichen'));
+  assert.equal(await page.locator('#org-timing').inputValue(),'existing_for');
+  assert.equal(await page.locator('#org-save').isDisabled(),true);
+  await page.locator('#org-load').click();
+  await page.waitForFunction(()=>!window.PilotSuiteOrganization.dirty());
+  assert.equal(lostPatchCount,1);assert.equal(await page.locator('#org-timing').inputValue(),'existing_for');
+  await page.unroute(inventoryRoute);
+  assert.equal((await command({action:'snapshot'})).name_writes,4);
+  assert.deepEqual(errors,[]);
+  console.log('ok 9 - lost acknowledgement recovers by GET without replay or extra HA writes');
  }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
 })().catch(error=>{console.error(error);process.exitCode=1;});

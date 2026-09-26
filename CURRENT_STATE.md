@@ -1,3 +1,21 @@
+# Current candidate — Alpha.33
+
+Recoverable inventory editing is implemented on the Alpha.32 source: stale plan
+responses cannot cross zones or revive invalidated confirmations; interrupted saves
+retain their visible selection and offer an explicit read-only recovery instead of
+write replay. Older-revision previews cannot be applied. The existing canonical
+owners and HA execution boundaries are unchanged.
+
+Validation: 454 Python and 56 JavaScript tests passed locally; four additional
+synthetic full-app browser scenarios await exact candidate CI. No local browser
+acceptance or household-name write is claimed. RELEASE_STATE.json remains the
+actual Alpha.32 delivery receipt until a verified installation.
+
+Next: complete exact candidate CI and scoped backup/source gates, then deliver once
+and verify runtime; authenticated household UI acceptance remains independent.
+
+---
+
 # PilotSuite current state
 
 ## 2026-09-26: Alpha.32 installed and runtime-verified

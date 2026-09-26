@@ -181,3 +181,17 @@ bleiben die Release-Gates; die Bedienung im Haushalt wird separat bestätigt.
 Diese Quellen wurden für die implementierten Registry-GET/UPDATE-Verträge und die
 Timer-/for-Grenzen geprüft. Ein späterer technischer Migrations-/Automationsschreibpfad
 benötigt eigene API-, Verbraucher- und Fehlerfalltests; dieses Dokument bescheinigt ihn nicht.
+
+## Unterbrochene Bearbeitung — Alpha.33
+
+Namens-, Reparatur-, Status- und Rücknahmeantworten sind an die anfragende Zone,
+Revision und lokale Gültigkeitsgeneration gebunden. Ein nachträglicher Wechsel oder
+Datenfehler verwirft die Antwort, auch bei unveränderter Revision. Eine historische
+Vorschau erhält bei neuerer Zonenrevision keine Anwenden-Schaltfläche.
+
+Nach einer verlorenen Speicherantwort oder gescheitertem Nachladen bleibt die lokale
+Zuordnung sichtbar und gegen erneutes Speichern gesperrt. „Gespeicherten Stand prüfen“
+liest ausschließlich. Erst nach ausdrücklicher Bestätigung und erfolgreichem Lesen
+ersetzt der gespeicherte Stand die sichtbare Auswahl. Netzwerkfehler sind kein Grund,
+PATCH oder einen Namensschreibaufruf automatisch zu wiederholen. Die Auswahl lebt nur
+in der offenen Ansicht; das bestehende Verlassen-Warnsignal bleibt aktiv.
