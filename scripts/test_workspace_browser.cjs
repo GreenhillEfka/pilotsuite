@@ -94,7 +94,16 @@ const path=require('node:path');
   console.log('ok 6 - no automatic recorder reads; display preferences survive reload without household state');
   await command({action:'comparison_fixture'});
   await page.evaluate(async()=>{await load();});
-  await nav('zone').click();await page.locator('[data-ps-module="climate"]').click();
+  await nav('zone').click();
+  // Fixture changed canonical roles/revision outside this browser session. A partial
+  // dashboard refresh must not validate its stale entity-selection basis.
+  assert.equal(await page.locator('.ps-module-card').count(),0);
+  assert.match(await page.locator('#ps-module-grid').innerText(),/Zonenstand nicht bestätigt/);
+  // Explicit browser reload re-reads both inventory and context through the real app.
+  await page.reload();
+  await page.waitForFunction(()=>contextData&&!selectionBusy&&
+    selectionDraft?.inventory?.revision===contextData.revision);
+  await page.locator('[data-ps-module="climate"]').click();
   assert.match(await page.locator('#ps-module-detail').innerText(),/Automatisch abgeleitet/);
   assert.match(await page.locator('#ps-temperature-comparison').innerText(),/10 °C/);
   assert.match(await page.locator('#ps-temperature-comparison').innerText(),/11,8 °C/);
