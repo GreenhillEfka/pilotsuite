@@ -25,7 +25,7 @@
   const fieldStatus=E('p','','ps-notice');fieldStatus.id='ps-notice';fieldStatus.setAttribute('role','status');fieldStatus.hidden=true;
   function announce(message){fieldStatus.textContent=message;fieldStatus.hidden=!message;}
   function dirty(){return !!(selectionBusy||contextEditing||zoneFormOpen||selectionDraft?.dirty||
-    (typeof routineDirty!=='undefined'&&routineDirty)||(typeof reviewNoteDirty!=='undefined'&&reviewNoteDirty)||(typeof historyBusy!=='undefined'&&historyBusy)||requestBusy);}
+    (typeof routineDirty!=='undefined'&&routineDirty)||(typeof reviewNoteDirty!=='undefined'&&reviewNoteDirty)||(typeof historyBusy!=='undefined'&&historyBusy)||requestBusy||window.PilotSuiteOrganization?.dirty());}
   function valid(){return !invalid && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty &&
     M.current(contextData,selectionDraft?.inventory,selectionZone) && !invalidFoundationContexts.has(contextData);}
   function savePrefs(){try{localStorage.setItem('pilotsuite.workspace.v1',JSON.stringify(prefs));}catch{announce('Darstellung gilt für diese Sitzung. Browser-Speicherung ist nicht verfügbar.');}}
@@ -67,6 +67,9 @@
   const editTools=E('div','','selection-tools');editTools.append($('context-edit'));
   rolePanel.append(E('h2','Hauptquellen & Lernfreigaben'),E('p','Eine Rollenpflege für alle Module. Suchfilter verändern keine Auswahl.'),roleSummary,editTools,$('context-form'));
   $('zone-setup').after(rolePanel);
+  const organizationPanel=mark(E('section','','panel'),'config');
+  rolePanel.after(organizationPanel);
+  window.PilotSuiteOrganization?.mount(organizationPanel,async()=>{await loadSelection(selectionZone);});
   $('learning-section').prepend(A('Sensorrollen und Lernfreigaben konfigurieren','#ps-roles'));
   // Keep outcomes visible in every view, including form conflicts and learning feedback.
   main.insertBefore($('context-message'),heading.nextSibling);
@@ -133,7 +136,7 @@
     }
     if(focused)[...cards.querySelectorAll('button')].find(b=>b.dataset.psZone===focused)?.focus({preventScroll:true});
   }
-  function renderModules(force=false){const ok=valid();const f=ok?contextData.foundation:null;
+  function renderModules(force=false){window.PilotSuiteOrganization?.context(selectionZone,contextData?.revision);const ok=valid();const f=ok?contextData.foundation:null;
     const key=JSON.stringify([ok,f,activeModule,status?.ready]);if(!force&&key===modulesKey)return;modulesKey=key;
     moduleCards.replaceChildren();moduleDetail.replaceChildren();roleSummary.replaceChildren();
     if(!ok){moduleCards.append(E('p','Zonenstand nicht bestätigt oder Bearbeitung offen. Nach erfolgreichem Laden wird die Quellenansicht aktualisiert.','ps-empty'));return;}
@@ -184,9 +187,18 @@
   },true);
   window.addEventListener('hashchange',()=>{let view;try{view=viewForHash(location.hash);}catch{return;}if(view&&!navigate(view,{hash:false}))history.replaceState(null,'','#ps-'+activeView);});
   for(const id of ['zone-new','zone-edit','context-edit'])$(id).addEventListener('click',event=>{if(activeView!=='config'&&activeView!=='all'&&!navigate('config')){event.preventDefault();event.stopImmediatePropagation();}},true);
-  const errors=new MutationObserver(()=>{if(!$('error').hidden){status=null;invalid=true;generation++;lastReview=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
+  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();status=null;invalid=true;generation++;lastReview=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
   $('context-cancel').addEventListener('click',()=>{if(!contextEditing&&!selectionBusy)loadContext().catch(()=>announce('Gespeicherte Rollen konnten nicht neu geladen werden. Erneut öffnen.'));});
   const observer=new MutationObserver(()=>{if(!form.hidden){setRoleFilter(roleFilter);renderDiff();}});observer.observe(form,{attributes:true,attributeFilter:['hidden']});
+  // Preserve organization drafts across legacy zone controls and background refreshes.
+  document.addEventListener('click',event=>{
+    if(window.PilotSuiteOrganization?.dirty() && event.target.closest('#zone-overview button, #zone-setup button, #ps-roles button, #refresh, #learning-section button')) {
+      event.preventDefault();event.stopImmediatePropagation();announce('Ordnungsentwurf zuerst speichern oder verwerfen.');
+    }
+  },true);
+  $('selection-zone').addEventListener('change',event=>{if(window.PilotSuiteOrganization?.dirty()){event.target.value=selectionZone;event.stopImmediatePropagation();announce('Ordnungsentwurf zuerst speichern oder verwerfen.');}},true);
+  window.addEventListener('beforeunload',event=>{if(window.PilotSuiteOrganization?.dirty()){event.preventDefault();event.returnValue='';}});
+  const oldWorkspaceLoad=load;load=function(...args){return window.PilotSuiteOrganization?.dirty()?Promise.resolve():oldWorkspaceLoad(...args);};
   // Narrow bridge to the existing renderer: no new polling, data owner or write endpoint.
   const oldStatus=renderStatus;renderStatus=function(s){oldStatus(s);status=s;renderCockpit();};
   const oldZone=renderZoneView;renderZoneView=function(){oldZone();renderCockpit();renderModules();};

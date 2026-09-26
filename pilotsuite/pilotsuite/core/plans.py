@@ -35,7 +35,10 @@ class ReadOnlyRelease(RuntimeError):
     pass
 
 
-class PlanStore(ReviewNotesMixin, SavepointsMixin):
+from .organization_store import OrganizationPlanMixin
+
+
+class PlanStore(ReviewNotesMixin, SavepointsMixin, OrganizationPlanMixin):
     def __init__(self, data_dir: Path, audit: AuditLog, context=None) -> None:
         self._path = data_dir / "plans.jsonl"
         self._helper_path = data_dir / "helper_transactions.jsonl"

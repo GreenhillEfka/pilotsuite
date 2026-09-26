@@ -23,7 +23,10 @@ class HomeAssistantError(RuntimeError):
     """Raised when Home Assistant rejects or cannot serve a request."""
 
 
-class HomeAssistantClient:
+from .organization import OrganizationClientMixin
+
+
+class HomeAssistantClient(OrganizationClientMixin):
     def __init__(self, ws_url: str, token: str) -> None:
         self._ws_url = ws_url
         self._token = token

@@ -8,7 +8,10 @@ from datetime import UTC, datetime
 from typing import Any
 
 
-class WorldModel:
+from .organization import OrganizationWorldMixin
+
+
+class WorldModel(OrganizationWorldMixin):
     def __init__(self) -> None:
         self._lock = asyncio.Lock()
         self._config: dict[str, Any] = {}

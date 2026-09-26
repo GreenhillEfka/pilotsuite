@@ -33,7 +33,7 @@ class WorkspaceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(before,await service.zones.list())
         self.assertEqual(405,(await self.client.post('/assets/workspace.js',json={})).status)
         service.settings=replace(service.settings,ingress_allowed_peers=('172.30.32.2',))
-        for path in ('/','/assets/workspace.js','/assets/workspace-model.js','/assets/workspace.css'):
+        for path in ('/','/assets/workspace.js','/assets/workspace-model.js','/assets/workspace.css','/assets/appearance.js'):
             self.assertEqual(403,(await self.client.get(path)).status)
     async def test_rescue_keeps_minimal_maintenance_page_and_does_not_load_workspace(self):
         self.app[SERVICE_KEY]._rescue_error='synthetic_database_failure'
@@ -41,4 +41,22 @@ class WorkspaceTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('assets/workspace.js',html)
         self.assertIn('maintenance',html)
         self.assertEqual(503,(await self.client.get('/assets/workspace.js')).status)
+    async def test_maintenance_reuses_themes_and_never_claims_verified_native_backup(self):
+        response=await self.client.get('/maintenance')
+        self.assertEqual(response.status,200)
+        html=await response.text()
+        for asset in ('workspace-model.js','workspace.css','appearance.js'):
+            self.assertEqual(html.count('assets/'+asset),1)
+            result=await self.client.get('/assets/'+asset)
+            self.assertEqual(result.status,200)
+            self.assertIn("script-src 'self'",result.headers['Content-Security-Policy'])
+        self.assertIn('id="maintenance-native-backup-card">Nicht direkt geprüft',html)
+        self.assertEqual((await self.client.post('/assets/appearance.js')).status,405)
+    async def test_rescue_theme_assets_do_not_open_write_or_workspace_routes(self):
+        self.app[SERVICE_KEY]._rescue_error='synthetic_database_failure'
+        for asset in ('workspace-model.js','workspace.css','appearance.js'):
+            self.assertEqual((await self.client.get('/assets/'+asset)).status,200)
+        self.assertEqual((await self.client.post('/api/v1/maintenance/savepoints',json={'label':'x'})).status,503)
+        self.assertEqual((await self.client.get('/assets/organization.js')).status,503)
+        self.assertEqual((await self.client.get('/assets/workspace.js')).status,503)
 if __name__=='__main__':unittest.main()

@@ -36,6 +36,11 @@ async function fixture(broken=false){
     await page.locator('a[href="maintenance"]:visible').first().click();
     await page.waitForFunction(()=>!document.getElementById('savepoint-create').disabled);
     assert.equal(await page.locator('#release-history details').count(),3);
+    assert.equal(await page.locator('#maintenance-native-backup-card').innerText(),'Nicht direkt geprüft');
+    await page.locator('#maintenance-theme').selectOption('dark');
+    await page.locator('#maintenance-density').selectOption('compact');
+    assert.equal(await page.locator('html').getAttribute('data-ps-theme'),'dark');
+    assert.equal(await page.locator('html').getAttribute('data-ps-density'),'compact');
     assert.match(await page.locator('#native-install').innerText(),/in Home Assistant installieren/);
     assert.deepEqual((await f.command({action:'snapshot'})).helper_reads,[]);
     console.log('ok 1 - version history, native install handoff, and unsaved-edit navigation guard');

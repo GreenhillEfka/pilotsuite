@@ -61,6 +61,32 @@ def build_foundation(inventory, report):
         helpers.append({"domain":"input_select","key":f"pilotsuite_{key}_atmosphaere","name":f"PilotSuite · {key} · Atmosphäre",
                         "purpose":"Expliziter Nutzerwunsch; keine automatisch behauptete Emotion."})
 
+    organization = report.get("organization")
+    binding_warnings = []
+    if isinstance(organization, dict):
+        # Semantic bindings are explicit planning inputs, not implicit learning/control grants.
+        assignments = organization.get("assignments", {})
+        def bound(role):
+            return [r for r in assignments.get(role, []) if r.get("entity_id") and not r.get("disabled")]
+        for role, entries in assignments.items():
+            for row in entries:
+                if not row.get("entity_id") or row.get("disabled"):
+                    binding_warnings.append({"role": role, "entity_id": row.get("saved_entity_id"), "reason": "binding_unresolved"})
+        raw_presence = [r["entity_id"] for r in bound("presence_sources")]
+        logical_presence = [r["entity_id"] for r in bound("presence_status")]
+        presence = raw_presence + logical_presence
+        # Do not propose duplicates for a missing/unavailable manually assigned identity.
+        helpers = [h for h in helpers if h["domain"] not in ("timer", "input_boolean")]
+        for role in ("presence_status", "presence_timer", "presence_duration", "manual_override", "automation_blocker"):
+            for row in assignments.get(role, []):
+                eid = row.get("entity_id") or row.get("saved_entity_id")
+                if not eid: continue
+                domain, _, object_id = eid.partition(".")
+                helpers.append({"domain": domain, "key": object_id, "name": row.get("name", eid),
+                                "purpose": "Vorhandene, manuell bestätigte Funktionszuordnung",
+                                "existing_entity_id": eid, "create_allowed": False, "semantic_role": role,
+                                "identity_resolved": bool(row.get("entity_id"))})
+
     modules = {
       "presence":{"state":"ready" if presence else "needs_sources",
                   "sources":presence,"logical_sources":logical_presence,"raw_sources":raw_presence},
@@ -84,7 +110,7 @@ def build_foundation(inventory, report):
     return {"stage":"planning_only", "basis":"confirmed_role_assignment_not_live_acceptance",
             "validated_roles":{role:selected(role) for role in roles if role in ROLE_KINDS},
             "schema":"pilotsuite-zone-foundation-v1","zone_id":zone_id,"revision":inventory.get("revision"),
-            "modules":modules,"correlations":[dict(c, implementation="planned", execution_allowed=False) for c in correlations],"helper_plan":helpers,"missing_sources":missing,
+            "organization": organization, "binding_warnings": binding_warnings, "modules":modules,"correlations":[dict(c, implementation="planned", execution_allowed=False) for c in correlations],"helper_plan":helpers,"missing_sources":missing,
             "execution":{"allowed":False,"actions":[]},
             "invariants":["Bestehende passende HA-Logik vor Neuanlage wiederverwenden.",
                           "Ein verantwortlicher Steuerpfad pro physischem Ziel.",

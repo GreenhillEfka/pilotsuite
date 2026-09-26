@@ -1,3 +1,25 @@
 main{max-width:1100px}h1{font-size:clamp(1.4rem,3vw,2.1rem)}.button-link{display:inline-block;padding:.65rem .9rem;border:1px solid var(--line);border-radius:.65rem}#savepoint-form{display:flex;gap:1rem;flex-wrap:wrap;align-items:end}#savepoints article,#helper-results article{padding:1rem 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}#savepoints h3,#helper-results h3{margin:.2rem 0}#release-history pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}#restore-review:focus{outline:2px solid currentColor}label:has(#restore-confirm){display:block;margin:1rem 0}button:disabled{cursor:not-allowed}#helper-zone{max-width:100%}@media(max-width:540px){.topbar{align-items:flex-start;gap:1rem;flex-direction:column}.selection-tools>*{max-width:100%}}
 
 #helper-results pre{white-space:pre-wrap;overflow-wrap:anywhere}#restore-review [disabled]{opacity:.6}
+
+/* Same semantic tokens and card language as the workspace, including rescue mode. */
+.ps-maintenance .topbar{flex-wrap:wrap;align-items:center;padding-block:16px;}
+.ps-maintenance .ps-brand{display:flex;flex-direction:column;align-items:flex-start;}
+.ps-maintenance .ps-appearance-controls{margin-left:auto;gap:12px;}
+.ps-maintenance .ps-appearance-controls label{font-size:.75rem;color:var(--ps-muted);}
+.ps-maintenance .ps-appearance-controls select{min-height:44px;}
+.ps-maintenance .ps-kpi strong{font-size:clamp(1rem,1.55vw,1.45rem);overflow-wrap:anywhere;}
+.ps-maintenance #maintenance-message{padding:14px 18px;background:var(--ps-soft);border:1px solid var(--ps-line);border-radius:12px;}
+.ps-maintenance #maintenance-version{display:inline-block;padding:8px 14px;background:var(--ps-tint);color:var(--ps-accent);border-radius:99px;}
+.ps-maintenance .button-link{min-height:44px;display:inline-flex;align-items:center;color:var(--ps-accent);background:var(--ps-tint);border:1px solid var(--ps-line);border-radius:11px;}
+.ps-maintenance #savepoints{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:16px;margin-top:20px;}
+.ps-maintenance #savepoints article,.ps-maintenance #helper-results article{padding:18px;border:1px solid var(--ps-line);border-radius:14px;background:var(--ps-soft);}
+.ps-maintenance #helper-results{display:grid;gap:14px;margin-top:16px;}
+.ps-maintenance #rescue-warning,.ps-maintenance #restore-review{border-color:var(--ps-warn);background:var(--ps-warning-bg);}
+.ps-maintenance #rescue-warning h2,.ps-maintenance #restore-review h2{color:var(--ps-warn);}
+.ps-maintenance #restore-apply{background:var(--ps-warning-bg);border-color:var(--ps-warn);color:var(--ps-warn);}
+.ps-maintenance details>summary{min-height:44px;padding-block:10px;cursor:pointer;}
+.ps-maintenance #release-history details{border-top:1px solid var(--ps-line);}
+.ps-maintenance #savepoint-form label{flex:1 1 250px;}
+.ps-maintenance [hidden]{display:none!important;}
+@media(max-width:800px){.ps-maintenance .ps-sidebar .ps-brand,.ps-maintenance .ps-sidebar-foot{display:none;}.ps-maintenance .topbar{align-items:stretch;}.ps-maintenance .ps-appearance-controls{margin-left:0;}.ps-maintenance .ps-nav a{justify-content:center;}.ps-maintenance #restore-review{scroll-margin-bottom:90px;}}

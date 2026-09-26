@@ -14,6 +14,33 @@ bounded helper/presence APIs are separate from this UX release; a structural dia
 or ready source card is not execution approval or proof of correct runtime behavior.
 The workspace does not activate presence control or take over an automation.
 
+## Bestand & Ordnung (Alpha.32)
+
+Unter **Konfiguration → Bestand & Ordnung → Bestand & Zuordnungen laden** wird der
+aktuelle globale Register-/Zustandsbestand angezeigt, auch Helfer ohne HA-Bereich.
+Vorhandene Automationen auswählen und analysieren: direkte Referenzen, Timer-Events,
+statische Template-Referenzen und for-Nachläufe werden mit Fundstellen gezeigt.
+Automatische Hinweise können manuell übernommen oder ersetzt werden. Speichern ändert
+nur das Funktionsprofil im bestehenden ContextStore; keine Lernfreigabe oder Steuerung.
+
+**Einheitliche Namen** erstellt einen dauerhaften Plan für ausgewählte gebundene Helfer.
+Erst die ausdrückliche Planbestätigung ändert deren Anzeigenamen. Entity-IDs, Labels,
+Bereiche, Werte und Automationskonfigurationen werden nicht verändert. Geteilte Helfer,
+Identitätswechsel und geänderte Ausgangsnamen blockieren eine einseitige Bereinigung.
+Vorherige Anzeigenamen stehen im Plan. Eine Rücknahme erfordert eine neue Vorschau
+und Bestätigung; spätere fremde Änderungen werden nicht überschrieben. Unklare
+Antworten werden nicht blind wiederholt. Ein Plan ist keine atomare HA/SQLite-Transaktion.
+
+Reparaturstellen und technische Ziel-IDs können geprüft werden. Automationsreparatur
+und technische ID-Migration sind in diesem Paket **nicht ausführbar**: ausgewählte
+Automationen liefern keine vollständige Abdeckung aller Verbraucher. Anzeigenamen-
+basierte Vorlagen und Sprachassistenten können auch bei reiner Namensbereinigung
+betroffen sein. Prüfe die Vorschau vor der Freigabe.
+
+Die ältere Präsenz-Aktivierungs-API ist bis zur gesonderten Abnahme der Timer-Ereignisse
+und Zuständigkeitsübergabe gesperrt. Eine Funktionszuordnung aktiviert sie nicht.
+Details: `docs/ORGANIZATION_AND_MIGRATION.md`.
+
 ## Workspace navigation
 
 Alpha.31 opens the Cockpit. Use Zonenmodule for source diagrams, Konfiguration for
@@ -35,7 +62,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.31`
+- Release: `0.1.0-alpha.32`
 
 ## Habitus zones and entity selection
 
@@ -92,7 +119,7 @@ Entwurfs-/Quellen-/Automationsstand gespeichert. Bei Änderungen bleiben sie erh
 werden aber als veraltet angezeigt; nach dem Neuladen ist der Automationsstand
 zunächst nicht erneut geprüft. Beim Speichern erfolgt eine neue lesende Prüfung.
 
-Der Editor behält deinen Text bei Konflikten und beim Neuladen des Prüfstands.
+Der Editor behält deinen Text bei Konflikten und beim Neuladen der Prüfgrundlage.
 Eine Bewertung ist keine Ausführungsfreigabe; HA-Automationen bleiben unverändert.
 Notizen bleiben beim Lernreset erhalten und lassen sich gezielt löschen/exportieren.
 Schema 8 ergänzt die bestehende Datenbank nach einer automatischen SQLite-Sicherung.

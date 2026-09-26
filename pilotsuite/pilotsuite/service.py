@@ -38,7 +38,10 @@ def apply_role_overrides(neurons, roles):
     ]
 
 
-class PilotSuiteService:
+from .organization_service import OrganizationServiceMixin
+
+
+class PilotSuiteService(OrganizationServiceMixin):
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self.audit = AuditLog(settings.data_dir, settings.audit_retention)
@@ -159,8 +162,10 @@ class PilotSuiteService:
                 inventory = await self.selection_inventory(zone_id)
                 if inventory['revision'] != revision:
                     raise SelectionConflict('Zone geändert; neu laden')
-                rows = candidates(inventory, await self.world.helper_registry())
                 config = await self.context.get(zone_id)
+                from .core.organization import binding_view
+                bindings = binding_view(config, await self.world.organization_catalog())
+                rows = candidates(inventory, await self.world.helper_registry(), bindings)
             collections = {}
             try:
                 async with asyncio.timeout(60):
@@ -171,10 +176,10 @@ class PilotSuiteService:
             async with self._projection_lock:
                 current = await self.selection_inventory(zone_id)
                 if (current['revision'] != revision or
-                        candidates(current, await self.world.helper_registry()) != rows):
+                        candidates(current, await self.world.helper_registry(), binding_view(await self.context.get(zone_id), await self.world.organization_catalog())) != rows):
                     raise SelectionConflict('Bestand während der Prüfung geändert; neu laden')
                 return {'zone_id': zone_id, 'revision': revision, 'items': inspect(rows, collections, config['roles']),
-                        'scope': 'helpers_in_zone_inventory', 'persisted': False,
+                        'scope': 'helpers_in_zone_inventory_and_explicit_bindings', 'persisted': False,
                         'ha_execution': False, 'checked_at': datetime.now(UTC).isoformat()}
 
     async def provision_helper(self, zone_id, payload):
@@ -188,6 +193,8 @@ class PilotSuiteService:
                 inventory = await self.selection_inventory(zone_id)
                 report = await self.context.report(zone_id)
                 report["effective_roles"] = report["config"]["roles"]
+                from .core.organization import binding_view
+                report["organization"] = binding_view(report["config"], await self.world.organization_catalog()) if "organization" in report["config"] else None
                 foundation = build_foundation(inventory, report)
                 request = provision_request(inventory, foundation, payload)
                 domain, key = request.helpers[0]
@@ -297,6 +304,8 @@ class PilotSuiteService:
                 "execution":{"allowed":zone_id in self._presence_runtime_enabled and len(owners)==1 and bool(raw) and bool(timer)}}
 
     async def configure_presence_runtime(self, zone_id, payload):
+        if isinstance(payload, dict) and payload.get("enabled") is True:
+            raise InvalidSelection("Steuerungsübernahme gesperrt: Timer-Ereignisse und bestehende Zuständigkeiten müssen vor Aktivierung separat abgenommen werden. Bestand & Ordnung bleibt nutzbar.")
         if (not isinstance(payload,dict) or set(payload)!={"revision","enabled","confirm"}
                 or type(payload["enabled"]) is not bool or payload["confirm"] is not True):
             raise InvalidSelection("revision, enabled and explicit confirm required")

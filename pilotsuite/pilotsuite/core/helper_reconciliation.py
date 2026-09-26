@@ -14,10 +14,12 @@ def reconcile_helpers(foundation, catalog):
             by_name.setdefault(name.strip().casefold(), []).append(item)
     rows = []
     for helper in foundation.get("helper_plan", []):
-        entity_id = f"{helper['domain']}.{helper['key']}"
+        entity_id = helper.get("existing_entity_id") or f"{helper['domain']}.{helper['key']}"
         exact = by_id.get(entity_id)
         label = helper.get("name", "").strip().casefold()
-        if exact is not None:
+        if helper.get("identity_resolved") is False:
+            state, reason = "unverified", "saved_identity_unresolved_do_not_replace_or_create"
+        elif exact is not None:
             state, reason = "inspect", "exact_id_found_configuration_and_ownership_unverified"
         elif label and by_name.get(label):
             state, reason = "conflict", "name_match_requires_explicit_resolution"

@@ -25,14 +25,14 @@ def provision_request(inventory, foundation, payload):
     if not isinstance(helpers, list) or len(helpers) != 1:
         raise InvalidSelection("exactly one planned helper may be provisioned per transaction")
     planned = {(h.get("domain"), h.get("key")) for h in foundation.get("helper_plan", [])
-               if isinstance(h, dict) and h.get("domain") in ALLOWED_HELPERS}
+               if isinstance(h, dict) and h.get("domain") in ALLOWED_HELPERS and h.get("create_allowed", True)}
     item = helpers[0]
     if not isinstance(item, dict) or set(item) != {"domain", "key"}:
         raise InvalidSelection("helper requires domain and key")
     pair = (item["domain"], item["key"])
     if pair not in planned:
         raise InvalidSelection("helper is not part of the current executable zone foundation plan")
-    return ProvisionRequest(str(inventory["zone_id"]), payload["revision"], (pair,))
+    raise SelectionConflict("Helferausführung benötigt einen separat verifizierten Transaktionspfad; vorhandene Funktionszuordnung ist verfügbar")
 
 def desired_helper(foundation, domain, key):
     matches=[h for h in foundation.get("helper_plan",[]) if h.get("domain")==domain and h.get("key")==key]
@@ -51,7 +51,6 @@ def exact_timer(row, helper):
     return row.get("name")==helper["name"] and row.get("duration")==cfg["duration"] and row.get("restore") is cfg["restore"]
 
 def provisioning_preview(inventory, foundation):
-    executable=[h for h in foundation.get("helper_plan",[]) if h.get("domain") in ALLOWED_HELPERS]
     return {
       "schema": "pilotsuite-helper-provisioning-v2",
       "zone_id": inventory.get("zone_id"), "revision": inventory.get("revision"),
@@ -60,12 +59,11 @@ def provisioning_preview(inventory, foundation):
         "existing_matching_helpers": "reuse_before_create",
         "foreign_helpers": "never_take_ownership_implicitly",
         "delete_policy": "never_delete_foreign_or_preexisting_helper"},
-      "transaction": {"state": "explicit_single_helper", "before_image_required": True,
+      "transaction": {"state": "blocked_pending_acceptance", "before_image_required": True,
         "optimistic_revision_required": True, "post_write_verification_required": True,
         "unknown_outcome": "read_back_never_blind_retry",
-        "rollback": "delete_only_helper_created_and_verified_by_same_transaction"},
-      "execution": {"allowed": bool(executable), "actions": [
-        {"domain":h["domain"],"key":h["key"],"operation":"create_or_verified_reuse"} for h in executable]},
-      "limits": ["Alpha.28 executes only one planned presence-delay timer per confirmation.",
+        "rollback": "not_available_no_write_performed"},
+      "execution": {"allowed": False, "actions": [], "reason": "legacy_control_path_not_accepted"},
+      "limits": ["Legacy creation is withheld pending transport, identity and recovery acceptance; use confirmed existing bindings.",
                  "Existing helpers are never renamed, deleted or adopted by name.",
                  "No automation, actuator, learning-consent or generic PlanStore action is enabled."]};

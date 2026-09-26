@@ -51,7 +51,7 @@ def validate_zones(zones):
         raise InvalidSelection("Ungültiger Speicherpunktumfang")
     seen = set()
     for zone in zones:
-        if not isinstance(zone, dict) or set(zone) != {"zone_id", "revision", "definition", "decisions", "roles", "detector"}:
+        if not isinstance(zone, dict) or set(zone) not in ({"zone_id", "revision", "definition", "decisions", "roles", "detector"}, {"zone_id", "revision", "definition", "decisions", "roles", "detector", "organization"}):
             raise InvalidSelection("Unbekanntes Speicherpunktformat")
         zid = zone["zone_id"]
         SelectionStore._zone(zid)
@@ -70,6 +70,9 @@ def validate_zones(zones):
                 for ids in roles.values()):
             raise InvalidSelection("Ungültige Rollen")
         validate_detector(zone["detector"])
+        if "organization" in zone:
+            from .organization import validate_saved
+            validate_saved(zone["organization"])
     encoded(zones)
     return zones
 
@@ -84,7 +87,8 @@ def capture(db):
         config = ContextStore.read(db, zid)
         zones.append({"zone_id": zid, "revision": selected["revision"],
                       "definition": json.loads(definition), "decisions": selected["decisions"],
-                      "roles": config["roles"], "detector": config["detector"]})
+                      "roles": config["roles"], "detector": config["detector"],
+                      **({"organization": config["organization"]} if "organization" in config else {})})
     return validate_zones(zones)
 
 
@@ -268,7 +272,8 @@ class SavepointsMixin:
                 definition = {**zone["definition"], "enabled": False}
                 config = {"roles": zone["roles"], "detector": zone["detector"],
                           "learning": False, "consented_at": None, "context_learning": False,
-                          "context_consented_at": None}
+                          "context_consented_at": None,
+                          **({"organization": zone["organization"]} if "organization" in zone else {})}
                 db.execute("INSERT OR REPLACE INTO habitus_zones VALUES (?,?)", (zid, json.dumps(definition)))
                 db.execute("INSERT OR REPLACE INTO zones VALUES (?,?)", (zid, revision))
                 db.execute("DELETE FROM selections WHERE zone_id=?", (zid,))
