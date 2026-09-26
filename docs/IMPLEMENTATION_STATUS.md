@@ -1,21 +1,25 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.36 candidate: consistent inventory snapshots
+## Installed Alpha.36 — consistent inventory snapshots
 
-Reproduced and fixed stale snapshot promotion after reconnect, mixed freshness across
-one inspection batch, and recommendations/previews surviving relevant catalog changes.
-The catalog guard includes metadata and availability while allowing normal available
-value changes. Repair preview refuses stale transport or changed catalog before any
-plan persistence. Existing non-executable repair semantics and general Apply remain.
-Seven new synthetic integration regressions cover the failures, HTTP 409, harmless
-value changes and absence of context/plan/HA mutations. All 475 Python tests pass.
-No household identifiers, configurations or live automations were modified.
+| Capability | Verified scope |
+|---|---|
+| Reconnect | Old snapshot never promoted solely by a later successful connection |
+| Batch failure | Lost readiness, including unread configurations, invalidates all batch findings |
+| Catalog integrity | Identity, metadata and availability changes conflict; normal values can change |
+| Repair preview | Fresh/unchanged inputs required before saving; no execution |
+| Regression | Seven synthetic tests, HTTP 409, no plan/context/HA writes on conflict |
+| Validation | 475 Python, 56 JavaScript, nine CI Chromium suites, amd64 build |
+| Delivery | PR 80; b8ebc1b; candidate CI 36272344492 and main CI 36272461571 green |
 
-Release/installation evidence remains separate in RELEASE_STATE.json. Alpha.35 was
-freshly verified installed/offered/started before work; Alpha.36 is not yet delivered.
-Next: complete exact candidate CI and the scoped-backup release gate, then deliver
-and perform the available read-only acceptance for the saved Erdkellerbereich and
-other existing zones. Authenticated UI acceptance must not be inferred from MCP.
+Fresh scoped backup 67fa033b contains only Alpha.35 app/data/options. One native Store
+refresh/update; Alpha.36 installed/offered/started with unchanged options/auto_update.
+Ready, stream, snapshot and zone resolution confirmed; presence_adoption_review retained.
+RELEASE_STATE.json owns current evidence. Actual Ingress remains open because the
+browser runtime is offline; app-principal rights and independent data/image checks
+are not inferred. No household configuration, learning or device action changed.
+
+Next: Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.
 
 ## Repository contract integrity after Alpha.35
 
@@ -27,9 +31,9 @@ other existing zones. Authenticated UI acceptance must not be inferred from MCP.
 | Runtime impact | None: no endpoint, payload, app tree, version, option or installation change |
 | Local regression | Validator plus 468 Python and 56 JavaScript tests pass |
 
-Final remote CI remains the merge gate. The installed Alpha.35 receipt is unchanged.
+The historical API-only package did not change the installed Alpha.35 app.
 
-## Installed Alpha.35 — cumulative inventory integrity
+## Previous delivery: Alpha.35 — cumulative inventory integrity
 
 | Capability | Delivered scope |
 |---|---|
@@ -46,7 +50,7 @@ four jobs. Backup c194bc96 contains only Alpha.34 app/data/options. Alpha.35 is
 installed/offered/started with unchanged options/auto_update and healthy readiness.
 Authenticated Alpha.35 Ingress remains open; see RELEASE_STATE.json.
 
-## Installed Alpha.34 — 2026-09-26
+## Previous delivery: Alpha.34 — 2026-09-26
 
 PR 74, release 20adb0e; exact source/CI/backup/runtime receipt: RELEASE_STATE.json.
 
