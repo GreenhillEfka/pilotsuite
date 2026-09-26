@@ -3,6 +3,15 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
+## Current candidate: recoverable inventory editing (Alpha.33)
+
+Alpha.32 remains the installed receipt in RELEASE_STATE.json until deployment is
+verified. Alpha.33 binds all organization-plan responses to request zone/revision/
+generation and preserves local bindings after uncertain saves. Explicit recovery
+reads the canonical configuration; it never retries PATCH or HA name writes.
+Next: exact candidate CI, scoped-backup gate, release and independent live acceptance.
+No new executor, consent, runtime activation or household operation is authorized.
+
 ## Resume: Alpha.32 delivered, 2026-09-26
 
 PR69 release e2c0fdeb05571fbddbac4dc7cddd5f6d03fe5a9c is installed/offered/started.
