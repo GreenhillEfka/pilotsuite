@@ -1,4 +1,31 @@
-# Current state — Alpha.33 delivered, 2026-09-26
+# Current state — Alpha.34 candidate, Alpha.33 installed
+
+## Current coherent package: inventory trigger integrity
+
+The existing inventory inspector missed dangling trigger-ID conditions even when
+all entity references were present. The same gap existed in routine detail reviews.
+Both now share a bounded structural projection with missing/partial/matched/disabled/
+inactive/unknown states, exact structural paths and no raw authored IDs or payloads.
+Shared trigger IDs and implicit integer indices are supported; blueprint, merged or
+dynamic catalogues remain unknown. No ID reference is not proof of unused behavior.
+
+The UI uses the same safe text renderer in both workspaces. Explicit analysis keeps
+unsaved choices and does not save configuration, create plans or invoke control.
+No migration, second learner/store, household change or broad Apply opening.
+Local 468 Python and 56 JavaScript tests pass. Fourteen new Python regressions cover
+identity cases, work bounds, both review surfaces and a read-only HTTP integration.
+The browser suite adds shared rendering, keyboard/mobile and nonmutation coverage;
+exact CI results belong in the package PR. RELEASE_STATE remains
+the actual Alpha.33 receipt until delivery; live Ingress acceptance stays separate.
+
+User-authorized development reads cover HA-wide configurations; productive learning
+consent is unchanged. There are four user-confirmed existing areas/zones, with
+Erdkellerbereich as the corrected use-case name; saved membership must be read from
+the canonical owner. Household audit findings are not copied into this repository.
+
+Next: exact candidate CI and scoped native release, then read-only diagnostic acceptance.
+
+## Previous delivered baseline — Alpha.33, 2026-09-26
 
 ## User package: recoverable inventory editing
 

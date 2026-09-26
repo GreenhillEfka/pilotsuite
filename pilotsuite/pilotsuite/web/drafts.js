@@ -34,12 +34,34 @@ function appendComparison(card, draft) {
   card.append(panel);
 }
 
+// Shared by the workbench and inventory inspector; text only, no mutation controls.
+function appendTriggerIntegrity(panel, report) {
+  if (!report || report.schema !== 'pilotsuite-trigger-integrity-v1') return;
+  const root=document.createElement('details');root.className='trigger-integrity';
+  const title=document.createElement('summary');title.textContent='Auslöser und Bedingungszweige';root.append(title);
+  const intro=document.createElement('p');
+  intro.textContent=`${report.trigger_count} Auslöser strukturell erfasst. ${report.catalogue_complete?'Statische Kennungen abgeglichen.':'Auslöserliste nicht vollständig auflösbar.'} Ein passender Verweis beweist weder Ausführung noch richtiges Verhalten.`;
+  root.append(intro);
+  const labels={matched:'Kennungen vorhanden',partial_match:'Ein Teil der Kennungen fehlt',missing:'Keine passende Auslöserkennung vorhanden',disabled_only:'Nur deaktivierte Auslöser passen',inactive:'Bedingung liegt in deaktiviertem Zweig',unknown:'Zuordnung nicht sicher prüfbar'};
+  for(const row of report.selectors || []) {
+    const p=document.createElement('p');p.dataset.triggerState=row.state;
+    p.textContent=`${row.path} · ${labels[row.state] || labels.unknown}${row.missing_count>0?' · fehlende Kennungen: '+row.missing_count:''}${row.matching_trigger_paths?.length?' · Bezüge: '+row.matching_trigger_paths.join(', '):''}`;
+    root.append(p);
+  }
+  if (!report.selectors?.length) {const p=document.createElement('p');p.textContent='Keine expliziten Trigger-ID-Bedingungen erkannt. Automationen benötigen diese nicht zwingend.';root.append(p);}
+  if (report.not_referenced_by_id?.length) {const p=document.createElement('p');p.textContent='Ohne erkannten ID-Bedingungsbezug: '+report.not_referenced_by_id.join(', ')+'. Das beweist keinen ungenutzten Auslöser: gemeinsame Aktionen, Templates und Standardzweige können ihn verarbeiten.';root.append(p);}
+  const note=document.createElement('p');note.className='ps-muted';
+  note.textContent='Nur statische Kennungen, keine Ablauf-Simulation. Verneinungen, Laufzeitbedingungen und manuelle Aufrufe gesondert prüfen. '+(report.limitations?.length?'Dynamische oder nicht aufgelöste Strukturen bleiben offen. ':'')+'Nächster Schritt: die Fundstelle und ihren Zweck in der vorhandenen HA-Automation prüfen. Keine automatische Reparatur.';
+  root.append(note);panel.append(root);
+}
+
 function appendInspection(panel, inspection, draft) {
   const root = document.createElement('section'); root.className = 'automation-inspection';
   const h = document.createElement('h5'); h.textContent = `Detailprüfung · ${inspection.entity_id}`;
   const changes = {first_read:'Erste Detailprüfung.',unchanged:'Konfiguration seit der letzten Detailprüfung unverändert.',changed:'Konfiguration seit der letzten Detailprüfung geändert – erneut fachlich prüfen.'};
   const note = document.createElement('p'); note.textContent = `${changes[inspection.change_status]} Nur Aufbau und direkte Bezüge geprüft. Werte, Nachrichten und Templates werden nicht ausgewertet oder angezeigt. Keine Aussage über tatsächliche Ausführung, Gleichwertigkeit oder Sicherheit.`;
   root.append(h,note);
+  appendTriggerIntegrity(root, inspection.trigger_integrity);
   const kinds = {state:'Zustand',numeric_state:'Zahlenwert',time:'Zeit',time_pattern:'Zeitraster',sun:'Sonne',event:'Ereignis',homeassistant:'HA-Start/Stopp',zone:'Zone',template:'Template',device:'Gerät',mqtt:'MQTT',calendar:'Kalender',webhook:'Webhook',tag:'Tag',geo_location:'Standort',trigger:'Auslöserbezug',and:'Alle Bedingungen',or:'Mindestens eine Bedingung',not:'Verneinung',service_call:'Dienstaufruf',choose:'Verzweigung',if:'Wenn/Dann',repeat:'Wiederholung',parallel:'Parallel',sequence:'Abfolge',delay:'Verzögerung',wait_template:'Template abwarten',wait_for_trigger:'Ereignis abwarten',variables:'Variablen',stop:'Abbruch',unsupported:'Nicht aufgeschlüsselt'};
   for (const [key,title] of [['triggers','Auslöser'],['conditions','Bedingungen'],['actions','Aktionen']]) {
     const heading = document.createElement('h6'); heading.textContent = title; root.append(heading);

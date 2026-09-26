@@ -188,5 +188,31 @@ const fs=require('node:fs/promises');
   assert.equal((await command({action:'snapshot'})).name_writes,4);
   await page.unroute(historyRoute);assert.deepEqual(errors,[]);
   console.log('ok 11 - foreign response identities are rejected without mutation');
+
+  // New analysis remains explicit, preserves unsaved choices and leaks no authored IDs.
+  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor();
+  await command({action:'trigger_integrity_case'});
+  await choose('automation_blocker','input_boolean.room_blocker');
+  const auditBefore=await command({action:'snapshot'});
+  await page.locator('#org-analyze').click();
+  await page.locator('#org-reports .trigger-integrity summary').click();
+  assert.match(await page.locator('[data-trigger-state=partial_match]').innerText(),/Ein Teil der Kennungen fehlt/);
+  assert.match(await page.locator('[data-trigger-state=missing]').innerText(),/Keine passende Auslöserkennung/);
+  assert.doesNotMatch(await page.locator('#org-reports').innerText(),/PRIVATE_TRIGGER_ID|onerror|missing-id/);
+  assert.equal(await page.locator('#org-reports img').count(),0);
+  assert.equal(await page.evaluate(()=>window.PilotSuiteOrganization.dirty()),true);
+  const auditAfter=await command({action:'snapshot'});
+  assert.deepEqual(auditAfter.config,auditBefore.config);assert.equal(auditAfter.name_writes,auditBefore.name_writes);
+  assert.equal(auditAfter.control_calls,0);assert.equal(auditAfter.helper_calls,0);
+  assert.equal(auditAfter.plan_count,auditBefore.plan_count);
+  // The same renderer is used by routine details, without another remote read.
+  await page.evaluate(()=>{const panel=document.createElement('section');panel.id='integrity-test-detail';document.body.append(panel);
+    appendInspection(panel,{entity_id:'automation.synthetic',change_status:'first_read',sections:{triggers:[],conditions:[],actions:[]},limitations:[],alignment:{source_trigger_references:[],target_action_references:[]},checklist:[],
+      trigger_integrity:{schema:'pilotsuite-trigger-integrity-v1',trigger_count:1,catalogue_complete:false,selectors:[{path:'/actions/0/if/0',state:'unknown',missing_count:null,matching_trigger_paths:[]}],not_referenced_by_id:[],limitations:['blueprint_not_expanded']}},{fields:{}});});
+  await page.locator('#integrity-test-detail .trigger-integrity summary').focus();await page.keyboard.press('Enter');
+  assert.match(await page.locator('#integrity-test-detail').innerText(),/Zuordnung nicht sicher prüfbar/);
+  for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
+  assert.deepEqual(errors,[]);
+  console.log('ok 12 - shared integrity review, text-only privacy, keyboard/mobile support and no saves or control');
  }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
 })().catch(error=>{console.error(error);process.exitCode=1;});

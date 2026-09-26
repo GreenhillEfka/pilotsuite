@@ -1,5 +1,14 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.34 candidate — trigger-ID integrity
+
+- One pure bounded projection reused by inventory and routine details.
+- Missing, partially matched, disabled, inactive and unknown ID references distinguished.
+- Only structural paths/counts returned; raw private labels/configuration excluded.
+- Explicit read-only review, safe text output, preserved local edits, no control/repair.
+- Delivery and actual installation remain recorded separately in RELEASE_STATE.json.
+
+
 ## Installed Alpha.33 — 2026-09-26
 
 PR 71, release 46ec340; exact source/CI/backup/runtime receipt: RELEASE_STATE.json.

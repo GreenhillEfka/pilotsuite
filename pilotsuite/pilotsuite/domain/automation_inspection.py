@@ -4,6 +4,7 @@ import json
 import re
 
 from pilotsuite.ha.client import HomeAssistantError
+from pilotsuite.core.trigger_integrity import inspect_trigger_integrity
 
 TRIGGERS = {'state','numeric_state','time','time_pattern','sun','event','homeassistant',
             'zone','template','device','mqtt','calendar','webhook','tag','geo_location'}
@@ -109,6 +110,7 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
             'config_fingerprint':fingerprint,
             'change_status':'first_read' if previous_fingerprint is None else 'unchanged' if fingerprint==previous_fingerprint else 'changed',
             'sections':sections,'limitations':sorted(warnings),
+            'trigger_integrity':inspect_trigger_integrity(config),
             'alignment':{'source_trigger_references':source_triggers,'target_action_references':action_targets,
                          'sources_without_direct_trigger_reference':sorted(sources-set(source_triggers)),
                          'targets_without_direct_action_reference':sorted(targets-set(action_targets)),

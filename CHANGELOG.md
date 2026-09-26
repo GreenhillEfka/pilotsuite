@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.34] - 2026-09-26
+
+- Bestand und Routine-Detailprüfung gleichen statische Auslöserkennungen mit Bedingungszweigen ab. Fehlende, teilweise passende, deaktivierte und unklare Bezüge bleiben getrennt.
+- Eine gemeinsame begrenzte Projektion liefert Fundstellen ohne private Triggernamen oder Rohkonfiguration; keine Ablauf- oder Sicherheitsgarantie.
+- Gemeinsame Textausgabe mit Tastaturbedienung; explizite Analyse erhält ungespeicherte Eingaben und führt keine Reparatur aus.
+- Synthetische Regressionen für implizite Indizes, gemeinsame IDs, deaktivierte Zweige, Templates, Warteauslöser, Datenpayloads und unveränderte Schreibgrenzen.
+
 ## [0.1.0-alpha.33] - 2026-09-26
 
 ### Recoverable inventory editing

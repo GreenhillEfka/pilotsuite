@@ -5,11 +5,12 @@ import logging
 from pathlib import Path
 import sys
 import tempfile
+from copy import deepcopy
 from aiohttp import web
 from pilotsuite.app import create_app,SERVICE_KEY
 from pilotsuite.core.settings import Settings
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'pilotsuite'/'tests'))
-from organization_support import seed
+from organization_support import seed,SAMPLE
 
 async def main():
     logging.basicConfig(level=logging.CRITICAL,stream=sys.stderr)
@@ -27,6 +28,13 @@ async def main():
                 if cmd['action']=='touch_revision':
                     rev=(await service.selections.get('room'))['revision']
                     await service.selections.patch('room',rev,{'binary_sensor.room_motion':'relevant'})
+                elif cmd['action']=='trigger_integrity_case':
+                    config=deepcopy(SAMPLE)
+                    config['triggers'][0]['id']='PRIVATE_TRIGGER_ID'
+                    config['actions'].append({'if':[{'condition':'trigger','id':['PRIVATE_TRIGGER_ID','missing-id']}],
+                        'then':[{'action':'light.turn_off','target':{'entity_id':'light.synthetic'}}],
+                        'else':[{'condition':'trigger','id':'<img src=x onerror=alert(1)>'}]})
+                    service.client.automation_config.return_value=config
                 elif cmd['action']!='snapshot': raise ValueError('Unsupported fixture command')
                 cfg=await service.context.get('room')
                 result={'config':cfg,'name_writes':service.client.organization_set_name.await_count,
