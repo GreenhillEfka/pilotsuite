@@ -3,7 +3,40 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.37 presence-lifecycle review delivered
+## Resume: Alpha.38 presence evidence and source clarity delivered
+
+Alpha.38 makes the existing event-to-learning handoff conservative: only frames
+accepted by WorldModel can become new evidence. Older/equal/duplicate, malformed or
+misaddressed frames and stale removals cannot leak into the learner. A valid delayed
+activity edge remains usable, but light/lux context is unknown unless every source
+timestamp exists and is no later than that activation. This is event-time consistency,
+not history reconstruction, simultaneity or causality.
+
+Workspace modules now use the same effective roles as the server. Derived single-source
+defaults are visibly derived and an unrelated save no longer persists them as manually
+confirmed; only an explicit group edit does. Optional independent comparison temperature
+is separate from the zone median and shows a difference only for complete, same-unit,
+independent values. Presence-first light/mood/media and bounded adaptation are documented
+as future stages, not installed control. Contract: docs/PRESENCE_FIRST_INTELLIGENCE.md.
+
+PR 84 release fcdebaebc1844b592914ecc2f2460ca5779e70fb; candidate tree
+67073b190cd9083ac6f3b43ad96427a6cd89367d and app tree
+1af77d9c800f1ec2ea98c63bf0edb75ec68c4e66. Candidate CI 36280638136 and
+release-main CI 36280792938 passed all four jobs. Local validation: 494 Python and
+59 JavaScript tests; all synthetic Chromium suites and amd64 container passed in CI.
+
+Fresh backup d4f477c9 contains only Alpha.37 app/data/options. Alpha.38 was already
+offered, so no Store refresh was made; one normal update installed it. It is
+installed/offered/started with options and auto_update unchanged. Startup/readiness
+logs report presence_adoption_review, connected stream, fresh snapshot and resolved
+zone. General Apply remains closed.
+
+Authenticated real Ingress acceptance remains open: the available cloud browser ended
+at 502 Bad Gateway / connection closed before HA loaded, including the single allowed
+reload. Do not retry alternate proxies, weaken access or infer UI acceptance from
+MCP/runtime health.
+
+## Previous delivery: Alpha.37 presence-lifecycle review
 
 The delivered package extends the existing explicit inventory analysis with
 two conservative, transient questions: boundary close can clear a plausible derived
@@ -57,4 +90,6 @@ Prior cumulative inventory, trigger integrity, context/plan isolation and explic
 confirmed metadata cleanup/undo remain intact. Technical-ID migration and automation
 repair execution remain unavailable. No household repair or cleanup was performed.
 
-Next: run authenticated read-only Alpha.37 lifecycle acceptance in saved Erdkellerbereich, then one unlike existing zone; no HA automation or learning change.
+Next: perform authenticated read-only Alpha.38 evidence and source-role acceptance in
+the saved Erdkellerbereich, then one unlike existing zone; no HA automation, learning
+or device change.

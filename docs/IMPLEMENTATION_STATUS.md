@@ -1,5 +1,27 @@
 # PilotSuite capability and acceptance ledger
 
+## Installed Alpha.38 — evidence integrity and coherent sources
+
+| Capability | Verified scope |
+|---|---|
+| Event admission | Only WorldModel-accepted frames can become new learning events |
+| Context time | Delayed activity retained; light/lux withheld on missing or later source timestamps |
+| Role integrity | Effective roles consistent; unrelated saves do not promote derived defaults |
+| Temperature | Optional independent comparison, separate from median; strict unit/completeness guard |
+| Boundaries | No new action, consent, collector, migration or household change |
+| Validation | 494 Python, 59 JavaScript; exact candidate/main Chromium and amd64 CI green |
+
+PR 84 release fcdebae; candidate CI 36280638136 and main CI 36280792938 passed
+all four jobs. Backup d4f477c9 contains only Alpha.37 app/data/options. Alpha.38 was
+already offered; one update installed it, with no Store refresh or explicit restart.
+Installed/offered/started; options and auto_update unchanged. Ready, stream, snapshot
+and zone resolution confirmed in unchanged presence_adoption_review mode. General
+Apply remains closed. Authenticated real Ingress remains open because the cloud
+session returned 502 connection closed before HA loaded, including one reload.
+
+Next: authenticated read-only Alpha.38 evidence and source-role acceptance in the
+saved Erdkellerbereich, then one unlike existing zone.
+
 ## Installed Alpha.37 — presence lifecycle questions
 
 | Capability | Verified scope |
