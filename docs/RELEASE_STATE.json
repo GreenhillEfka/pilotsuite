@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.31",
-    "commit": "75caa39df10a7eb25a0a3c85c0a526475d18b03b",
-    "tree": "d651049d4afbae883f642c5786930ac9cb6e7772",
-    "app_tree": "05557cea66e5a9ca99489331f6f39f05839b1bcf",
-    "pull_request": 67,
-    "candidate_commit": "e24fa91a70ae840554af2a1374fae2773905f6b8",
-    "candidate_ci_run_id": 36201287332,
-    "ci_run_id": 36201656060,
+    "version": "0.1.0-alpha.32",
+    "commit": "e2c0fdeb05571fbddbac4dc7cddd5f6d03fe5a9c",
+    "tree": "3b941b38076bddbc830f8db3e0adaeebd5a45e4f",
+    "app_tree": "efa460c35e83aecb4b8ed05033564525480aadab",
+    "pull_request": 69,
+    "candidate_commit": "2ff09a273c08c7cad2c83946eddfcdb06737619c",
+    "candidate_ci_run_id": 36249152522,
+    "ci_run_id": 36249569323,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.31",
-    "commit": "75caa39df10a7eb25a0a3c85c0a526475d18b03b",
-    "tree": "d651049d4afbae883f642c5786930ac9cb6e7772",
-    "app_tree": "05557cea66e5a9ca99489331f6f39f05839b1bcf",
-    "pull_request": 67,
-    "candidate_commit": "e24fa91a70ae840554af2a1374fae2773905f6b8",
-    "candidate_ci_run_id": 36201287332,
-    "ci_run_id": 36201656060,
+    "version": "0.1.0-alpha.32",
+    "commit": "e2c0fdeb05571fbddbac4dc7cddd5f6d03fe5a9c",
+    "tree": "3b941b38076bddbc830f8db3e0adaeebd5a45e4f",
+    "app_tree": "efa460c35e83aecb4b8ed05033564525480aadab",
+    "pull_request": 69,
+    "candidate_commit": "2ff09a273c08c7cad2c83946eddfcdb06737619c",
+    "candidate_ci_run_id": 36249152522,
+    "ci_run_id": 36249569323,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "319e9e3b",
-    "name": "PilotSuite Alpha.30 before Alpha.31",
-    "date": "2026-09-26T00:17:26.615880+00:00",
-    "size_bytes": 54261760,
-    "app_version": "0.1.0-alpha.30",
+    "backup_id": "c6e83d19",
+    "name": "PilotSuite Alpha.31 before Alpha.32",
+    "date": "2026-09-26T14:43:40.162411+00:00",
+    "size_bytes": 54292480,
+    "app_version": "0.1.0-alpha.31",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -51,17 +51,17 @@
       "native backup/details"
     ],
     "restore_drill_performed": false,
-    "verification_boundary": "Completed metadata and scope; no archive extraction or off-device resilience claim"
+    "archive_extraction_performed": false
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.31",
-    "offered_version": "0.1.0-alpha.31",
+    "installed_version": "0.1.0-alpha.32",
+    "offered_version": "0.1.0-alpha.32",
     "state": "started",
     "auto_update": true,
     "update_available": false,
+    "options_unchanged": true,
     "store_refresh_calls": 1,
     "update_calls": 1,
-    "options_unchanged": true,
     "explicit_restart_calls": 0,
     "rebuild_calls": 0,
     "other_app_update_calls": 0,
@@ -69,10 +69,15 @@
   },
   "runtime": {
     "mode": "presence_adoption_review",
+    "startup_at": "2026-09-26T16:49:46Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
+    "post_start_ready_at": [
+      "2026-09-26T16:49:47Z",
+      "2026-09-26T16:50:17Z"
+    ],
     "capabilities_available": [
       "temperature",
       "illuminance"
@@ -82,52 +87,44 @@
       "motion",
       "presence",
       "light"
-    ],
-    "verification": "Native metadata, exact Alpha31 startup and repeated subsequent readiness logs"
+    ]
   },
   "tests": {
-    "local_python_passed": 405,
-    "local_javascript_passed": 53,
-    "candidate_and_main_ci": "all four jobs successful",
-    "browser_suites": 8,
-    "container_platform": "linux/amd64",
-    "workspace_widths": [
-      390,
-      768,
-      1440
-    ],
-    "themes": [
-      "light",
-      "dark"
-    ],
-    "local_browser": "Navigation denied by administrator policy; no bypass",
-    "remote_browser": "Passed all existing suites and new actual-app workspace regression"
+    "local_python_passed": 454,
+    "local_javascript_passed": 56,
+    "candidate_and_release_main_ci": "all four jobs successful",
+    "browser_suites": 9,
+    "container_platform": "linux/amd64"
   },
   "ui_review": {
-    "artifact_id": 10891478892,
-    "run_id": 36201287332,
-    "sha256": "d6e282e135d20191a24e63de175d0b3be4f02b7d5e71bdf129de484f411b722f",
-    "basis": "Actual application with synthetic fixture data, not household Ingress",
+    "artifact_id": 10908731796,
+    "run_id": 36249152522,
+    "sha256": "83d9b27af019ecfd21c813d87639fb39ebd36b0d692f466d515d41e4cdfa6dc5",
     "viewed_screenshots": [
-      "workspace-cockpit-light-1440.png",
-      "workspace-modules-dark-1440.png",
-      "workspace-cockpit-dark-390.png",
-      "workspace-cockpit-light-768.png",
-      "workspace-config-1440.png"
-    ]
+      "maintenance-1440.png",
+      "maintenance-390.png",
+      "organization-1440.png",
+      "organization-390.png"
+    ],
+    "basis": "actual application with synthetic fixture data; not household Ingress"
   },
   "acceptance_boundaries": {
     "authenticated_household_ux": "not directly tested",
-    "full_accessibility_audit": false,
-    "backend_helper_presence_certification": false,
-    "new_action_capabilities": false,
+    "household_name_apply_or_undo": "not invoked; app-principal acceptance remains separate",
+    "technical_entity_id_migration": false,
+    "automation_repair_execution": false,
+    "new_adaptive_learner": false,
+    "legacy_helper_provisioning": "withheld",
+    "legacy_presence_activation": "withheld",
     "ingress_authentication_weakened": false,
-    "completed_deep_research_report_used": false
+    "local_browser": "administrator navigation restriction respected; remote CI used"
   },
   "household_changes_this_delivery": [],
   "history": {
-    "previous_release_commit": "f79cf5ddd01cf222880da6d432d279d1837e8821",
-    "previous_receipt_at": "75caa39df10a7eb25a0a3c85c0a526475d18b03b:docs/RELEASE_STATE.json"
+    "previous_main": "75c101b22da5e31ee12a1c7d211bfb09d1583825",
+    "previous_receipt_at": "75c101b22da5e31ee12a1c7d211bfb09d1583825:docs/RELEASE_STATE.json",
+    "superseded_failed_pr_head": "d374329a6d14fff28cf9156dfd2eaf060dac2798",
+    "offline_candidate_disposition": "compatible maintenance UI consolidated into PR69; not a wholesale replacement"
   },
-  "next_task": "Assess real workspace usability; separately fault-test existing helper/presence backend before household takeover. Do not repeat Alpha31 deployment for documentation."
+  "next_task": "Verify authenticated inventory/name-plan UX, then implement one consumer-aware repair executor with exact before/after and recovery tests. Preserve current runtime/learning authority. Do not redeploy Alpha32 for documentation."
 }
