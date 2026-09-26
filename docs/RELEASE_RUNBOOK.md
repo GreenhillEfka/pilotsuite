@@ -131,8 +131,12 @@ state and logs before any retry. Preserve all options, roles, consents and autom
 ## 5. Runtime acceptance and scoped recovery
 
 Read ha_get_app and ha_get_logs(source=supervisor, slug=0d79c5e8_pilotsuite).
-Require target installed/started, target in startup log, hard_read_only, connected
-stream, fresh snapshot, readiness and resolved Golden Zone. Allow initial connection
+Require target installed/started, target in startup log, unchanged authorized runtime
+mode and execution gates, connected stream, fresh snapshot, readiness and resolved
+zone. Compare mode to the fresh pre-update baseline and RELEASE_STATE; current
+presence_adoption_review must not be mislabeled hard_read_only. Separately verify
+READ_ONLY_RELEASE/general Apply and preserve already-existing bounded executors;
+an update never grants new execution authority. Allow initial connection
 setup to finish; do not misclassify its first not-ready line as a regression.
 
 If a regression requires recovery, restore only the pre-update PilotSuite app/data
@@ -173,7 +177,7 @@ prepending obsolete live versions and blockers.
   connected, fresh and zone-resolved. Options matched before/after. No extra restart,
   permissions change, other-app update, role/consent change or actor call occurred.
   Authenticated live browser and app automation/config capability acceptance remain
-  pending. This is the latest receipt and supersedes older Store-offer blockers.
+  pending. This is a historical example; RELEASE_STATE.json owns the latest receipt.
 - Alpha.18 update repeated the working routine: ha_get_app offered alpha.18 while
   alpha.17 ran; fresh hassio.backup_partial with apps [0d79c5e8_pilotsuite]; list
   completion; native backup/details verified b6c90eb0 and alpha.17 app/data/options;

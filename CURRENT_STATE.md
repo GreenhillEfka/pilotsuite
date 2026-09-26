@@ -1,94 +1,57 @@
-# Current state — Alpha.34 candidate, Alpha.33 installed
+# Current state — Alpha.34 delivered, 2026-09-26
 
-## Current coherent package: inventory trigger integrity
+## User package: inventory and trigger integrity
 
-The existing inventory inspector missed dangling trigger-ID conditions even when
-all entity references were present. The same gap existed in routine detail reviews.
-Both now share a bounded structural projection with missing/partial/matched/disabled/
-inactive/unknown states, exact structural paths and no raw authored IDs or payloads.
-Shared trigger IDs and implicit integer indices are supported; blueprint, merged or
-dynamic catalogues remain unknown. No ID reference is not proof of unused behavior.
+Existing entity-reference reviews missed conditions referencing nonexistent trigger
+IDs. PR 74 fixes that blind spot with one shared bounded projection for inventory and
+routine details. It distinguishes missing/partial/matched/disabled/inactive/unknown,
+respects inherited disabled status, supports implicit integer indices and shared IDs,
+and withholds certainty for unresolved catalogues. Wait triggers and data payloads
+are not automation trigger declarations; private authored IDs never leave the projection.
+No ID condition is required; no explicit reference does not prove an unused trigger.
 
-The UI uses the same safe text renderer in both workspaces. Explicit analysis keeps
-unsaved choices and does not save configuration, create plans or invoke control.
-No migration, second learner/store, household change or broad Apply opening.
-Local 468 Python and 56 JavaScript tests pass. Fourteen new Python regressions cover
-identity cases, work bounds, both review surfaces and a read-only HTTP integration.
-The browser suite adds shared rendering, keyboard/mobile and nonmutation coverage;
-exact CI results belong in the package PR. RELEASE_STATE remains
-the actual Alpha.33 receipt until delivery; live Ingress acceptance stays separate.
+Both existing workspaces share safe text rendering, exact structural locations and a
+manual next inspection step. Analysis keeps unsaved selections, never saves a config,
+creates a repair plan or controls HA. Existing revision/fingerprint and response
+isolation boundaries remain intact. No new module owner, database or learning path.
 
-User-authorized development reads cover HA-wide configurations; productive learning
-consent is unchanged. There are four user-confirmed existing areas/zones, with
-Erdkellerbereich as the corrected use-case name; saved membership must be read from
-the canonical owner. Household audit findings are not copied into this repository.
+## Source and validation
 
-Next: exact candidate CI and scoped native release, then read-only diagnostic acceptance.
-
-## Previous delivered baseline — Alpha.33, 2026-09-26
-
-## User package: recoverable inventory editing
-
-PR 71 release commit 46ec340adf333f54efa760cde2d80f059b9c0ca2 adds matching
-zone/revision/generation checks to all organization-plan responses. Late replies
-cannot revive invalidated confirmation controls. Older-revision previews remain
-readable without Apply. Lost save acknowledgements and failed post-save reloads
-retain the visible selection and prevent write replay. Explicit recovery reads the
-canonical configuration; open role groups and search terms remain visible.
-Existing ContextStore/PlanStore, backend authority and household behavior are unchanged.
-
-## Evidence
-
-Candidate 1a81070963706428baac29c7a0ad32b5164f439b: CI 36260320758 green.
-Exact release-main CI 36260420284 and 36260423409 green. All four jobs, nine browser
-suites; organization suite now has 11 checks including 6 new regression scenarios.
-454 Python and 56 JavaScript tests passed. Source preflight passed; repository tree
-295fed803c3b0caeb4c3747759a97c39de4e33ab, app tree c059bc65fe76af09c560ca819b7051f81feecece.
-Initial CI 36260055322 found a nonboolean dirty-state result, fixed; CI 36260188746
-exposed collapsed role groups after recovery, fixed. Neither failed run was released.
+Release 20adb0e6ddf61ab899366b8a24f66f67468df569, candidate 1866e17a2655b1a591c2730403fc3a9eeb764ce5.
+Repository tree 1e7a3aff09a84d3212592df7ef2e5183366e8850; app tree b456df3d8f821c3679ad62da237d6f2cc07c3c3f.
+Local 468 Python and 56 JavaScript tests passed, including 14 new Python regressions.
+Exact candidate CI 36263679166 and release-main CI 36263809521 are fully green:
+all four jobs, nine Chromium suites, amd64 build. Organization suite has 12 scenarios.
+Local browser could not start without Chromium; CI browser evidence is separate.
+Source preflight passed for the exact released commit.
 
 ## Actual installation
 
-Before publication, backup 1ea31dc2 completed: only PilotSuite Alpha.32 and app data/
-options, 54,323,200 bytes, local/unprotected, no failed parts, HA, database or folders.
-Native snapshot list and backup/details verified. Recovery is a targeted partial
-restore of that app only; it would discard PilotSuite changes since the backup.
-No archive download or restore drill. Exact receipt: docs/RELEASE_STATE.json.
+Fresh backup 09436e7c verified through native snapshot list and backup/details before
+publication: Alpha.33 app/data/options only, 54,312,960 bytes, local/unprotected,
+no HA/database/folders or failed parts. Targeted app-only partial restore would lose
+PilotSuite changes since that backup; no archive extraction or test restore.
+One native Store refresh and one update installed Alpha.34. Installed/offered/started,
+no pending update; all four options and auto_update unchanged. Startup version,
+connected stream, fresh snapshot, readiness and zone resolution confirmed in logs.
+Existing presence_adoption_review mode retained; hard_read_only is not claimed.
+General Apply remains READ_ONLY_RELEASE=True in exact tested code, no live Apply.
+No extra restart/rebuild, other-app action, household config, role, consent or actor
+change. Full deployment receipt is docs/RELEASE_STATE.json.
 
-One native Store refresh and one update installed Alpha.33. Installed/offered/started,
-no pending update. All four options and auto_update=true match before/after. Startup
-and post-start readiness logs confirm connected stream, fresh snapshot and resolved
-zone. Existing mode presence_adoption_review unchanged; hard_read_only is not claimed.
-The general Apply gate remains READ_ONLY_RELEASE=True in the exact tested source;
-existing denial tests pass. No real Apply request was made.
-No explicit restart/rebuild, other-app update, names, automations, actors or learning
-settings changed. A fresh transport projection does not certify physical sensor age.
+## Live inventory review and limits
 
-## Remaining acceptance and next step
+User-authorized development reads cover HA-wide entities and automations, separately
+from productive app learning consent. Native configuration validation, reference and
+registry reads were performed; concrete household findings stay in a private report,
+not this public repository. A syntactically valid HA config does not prove referential
+or behavioral integrity. Missing references are not permission to guess replacements.
+Four existing user-confirmed zones include Erdkellerbereich; their saved canonical
+membership is not inferred from names. No new zones or helpers were created.
 
-Synthetic CI is not authenticated household UX. The available browser had only an
-empty tab, no logged-in HA session. App-principal configuration/registry rights,
-independent installed-image attestation and comprehensive data preservation remain
-separate, unverified checks. Options equality and successful startup are narrower
-observations. No Ingress weakening or speculative alternate access was attempted.
+The fresh browser listing contains only about:blank, no authenticated HA session.
+True Ingress UI, app-principal config rights, independent installed-image attestation
+and comprehensive data preservation remain unverified. Options/startup confirm less.
 
-Next: authenticated read-only acceptance of inventory editing/recovery and existing
-routine explanation in the already authorized Erdkellerbereich use case. No extra imports,
-learning consent or execution. Do not repeat Alpha.33 installation.
-
-## Follow-up read-only acceptance — 2026-09-26
-
-The user corrected the real case label to **Erdkellerbereich**. Preserve technical
-identity; no HA area, entity, stored zone, option or automation was renamed.
-Native HA reads confirm existing presence/timing/light logic, so an additional
-PilotSuite helper set is not justified merely by the new display name. Household
-configurations and readings remain outside this public repository.
-
-A useful next inspection question is whether shutdown conditions respect still-active
-presence. Treat an explicitly authored shutdown rule as behavior to review, not an
-automatically repairable defect. This is a manual read-only assessment via HA-MCP,
-not a completed app-generated proposal or browser acceptance. The app's canonical
-zone endpoint continues to enforce Ingress (HTTP403); no alternate access attempted.
-Installed/offered Alpha.33 remains started and ready. No update/restart/backup was
-needed for this clarification. The next step above remains authenticated read-only
-acceptance, with the corrected case label and this concrete inspection question.
+Next: read-only acceptance of integrity findings against the four existing saved
+zones, starting with Erdkellerbereich; no inferred replacement or household writes.
