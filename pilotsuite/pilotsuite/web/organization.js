@@ -51,12 +51,12 @@
     for(const row of candidates.slice(0,30)){const b=B('',()=>choose(role,row.entity_id));b.dataset.orgCandidate=row.entity_id;b.dataset.orgRole=role;b.setAttribute('aria-pressed',String(draft[role].has(row.entity_id)));
       b.append(E('strong',row.name),E('code',row.entity_id),E('small',[row.area_id||'Ohne HA-Bereich',row.derived?'Abgeleiteter / logischer Status':row.platform||'Plattform unklar',row.state||'Kein Zustand',row.unit||''].join(' · ')));list.append(b);}node.append(list);
   }
-  function render(){scanOffset=0;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();
+  function render(){const view=new Map([...form.querySelectorAll('[data-org-group]')].map(e=>[e.dataset.orgGroup,{open:e.open,query:e.querySelector('input[type=search]')?.value||''}]));scanOffset=0;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();
     draft=Object.fromEntries(Object.keys(labels).map(k=>[k,new Set((data.bindings.assignments[k]||[]).map(r=>r.entity_id||r.saved_entity_id))]));
     const timingLabel=E('label','Nachlaufverfahren');const select=E('select');select.id='org-timing';for(const [v,t] of Object.entries(timingLabels)){const o=E('option',t);o.value=v;select.append(o);}select.value=data.bindings.timing;select.addEventListener('change',updateButtons);timingLabel.append(select);form.append(timingLabel);
     const groups=E('div','','org-role-grid');
-    for(const role of Object.keys(labels)){const group=E('details');group.dataset.orgGroup=role;group.open=['presence_status','presence_timer','presence_automations'].includes(role);
-      const summary=E('summary',labels[role]);group.append(summary);const label=E('label','Bestand durchsuchen');const search=E('input');search.type='search';search.setAttribute('aria-label',labels[role]+' im gesamten Bestand suchen');search.placeholder='Name, ID, Bereich oder Plattform …';label.append(search);searches[role]=search;
+    for(const role of Object.keys(labels)){const group=E('details');group.dataset.orgGroup=role;group.open=view.get(role)?.open??['presence_status','presence_timer','presence_automations'].includes(role);
+      const summary=E('summary',labels[role]);group.append(summary);const label=E('label','Bestand durchsuchen');const search=E('input');search.type='search';search.value=view.get(role)?.query||'';search.setAttribute('aria-label',labels[role]+' im gesamten Bestand suchen');search.placeholder='Name, ID, Bereich oder Plattform …';label.append(search);searches[role]=search;
       const choices=E('div');selections[role]=choices;search.addEventListener('input',()=>drawChoices(role));group.append(label,choices);groups.append(group);drawChoices(role);
     }form.append(groups);
     const actions=E('div','','selection-tools');const save=B('Funktionszuordnung speichern',()=>run(async()=>{
