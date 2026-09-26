@@ -1,4 +1,29 @@
-# Current state — Alpha.36 delivered, 2026-09-26
+# Current state — Alpha.37 candidate, 2026-09-27
+
+## Presence lifecycle review package
+
+The existing explicit inventory analysis now derives two bounded questions from
+literal current automation structure and current device-class metadata. It can show
+that a boundary-close branch clears a plausible bidirectionally set room-status helper,
+or that an activity edge is the only recognized start/refresh of a presence timer.
+Closing a door does not prove absence; continuous active motion supplies no new state
+edge. These remain intent questions, not automatic defect or safety claims.
+
+Stale snapshots, disabled/dynamic paths, ambiguous selectors and indirect targets do
+not become findings. Trigger IDs, raw config and private payloads are withheld. The
+existing inventory view adds one deterministic filter and a direct next review step.
+Nothing is stored or repaired; no learning or execution authority changes.
+
+Local repository validation passes with 484 Python and 56 JavaScript tests. A new
+full-app browser scenario covers both findings, private-ID removal, filtering and no
+ContextStore/PlanStore/HA/control mutation; exact CI browser and amd64 results remain
+pending. Alpha.36 remains installed and healthy. Alpha.37 is not published or installed
+until exact CI and a fresh scoped backup satisfy the release runbook.
+
+Next: pass exact Alpha.37 candidate CI and release gates, then perform authenticated
+read-only lifecycle acceptance in the saved Erdkellerbereich zone.
+
+## Previous delivery — Alpha.36, 2026-09-26
 
 ## Fixed: inconsistent inventory snapshots
 

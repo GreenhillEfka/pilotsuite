@@ -10,6 +10,7 @@ from copy import deepcopy
 from difflib import SequenceMatcher
 from .selections import InvalidSelection
 from .trigger_integrity import inspect_trigger_integrity
+from .presence_lifecycle import inspect_presence_lifecycle
 
 SCHEMA = 'pilotsuite-organization-v1'
 ENTITY = re.compile(r'[a-z_]+\.[a-z0-9_]+')
@@ -228,6 +229,7 @@ def analyze(automation_id, config, catalog, area_ids, fresh):
     return {'automation_id': automation_id, 'fingerprint': result['fingerprint'],
         'findings': findings, 'timing_methods': result['timing_methods'], 'limitations': result['limitations'],
         'trigger_integrity': inspect_trigger_integrity(config),
+        'presence_lifecycle': inspect_presence_lifecycle(config, catalog, fresh),
         'coverage': 'selected_automation_only', 'execution': {'allowed': False}}
 
 

@@ -381,3 +381,20 @@ updater requiring broader Supervisor rights. Existing helpers are inspected only
 on explicit user request and matched by immutable storage identity. The historical
 Golden Zone option is first-start bootstrap, not a second live zone editor.
 Contract and limits: docs/MAINTENANCE_AND_RECOVERY.md.
+
+## ADR-033 — Presence lifecycle findings are review questions, not defect verdicts
+
+Accepted 2026-09-27 as the first read-only usefulness follow-up to the inventory
+integrity package. The existing organization analysis may derive bounded questions
+from literal trigger selectors, current device-class metadata and direct service calls.
+It may highlight a boundary-close branch that clears a plausible bidirectionally set
+presence status, and an activity edge that starts a timeout without another visible
+refresh edge. Neither finding proves incorrect behavior, physical absence, continuous
+sensor coverage or runtime execution.
+
+Device classes, never names, carry source semantics. Stale catalogues, disabled or
+dynamically enabled paths, ambiguous boolean selector logic and indirect targets do
+not become findings. Authored trigger IDs and raw configuration stay private. Findings
+are transient, have no store or repair action and cannot change configuration, notes,
+learning, risk, preference or execution authority. Contract:
+docs/PRESENCE_LIFECYCLE_REVIEW.md.

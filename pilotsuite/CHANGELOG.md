@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.37] - 2026-09-27
+
+- Die bestehende Bestandsanalyse erkennt zwei strukturelle Präsenzfragen: Ein Türschluss kann einen bidirektional gesetzten Raumstatus ausschalten, und ein Nachlauftimer wird möglicherweise nur beim Bewegungsbeginn erneuert.
+- Hinweise beruhen ausschließlich auf statischen Trigger-Zweigen, Geräteklassen und direkten Dienstaufrufen. Dynamische, deaktivierte, veraltete oder mehrdeutige Strukturen werden nicht als Befund ausgegeben.
+- Ein eigener Filter und verständliche Fundstellen führen zur fachlichen Prüfung der vorhandenen HA-Automation. Keine Reparatur, Speicherung, Lernfreigabe oder Haussteuerung.
+- Neun neue Python-Regressionsfälle plus ein vollständiges Browser-Szenario prüfen Datenschutz, Mehrdeutigkeit, doppelte IDs, veraltete Snapshots und ausbleibende Mutationen.
+
 ## [0.1.0-alpha.36] - 2026-09-26
 
 - Bestandsprüfungen werten einen alten Snapshot nach einem Reconnect nicht mehr als frisch auf. Verbindungsverlust während eines Pakets entwertet sämtliche Referenzbefunde dieses Pakets, auch bei zwischenzeitlich nicht lesbaren Automationen.

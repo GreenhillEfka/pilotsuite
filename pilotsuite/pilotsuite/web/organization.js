@@ -23,7 +23,8 @@
   const current=t=>t.serial===serial&&t.zone===basis?.zone&&t.revision===basis?.revision;
   const triggerAttention=report=>(report?.trigger_integrity?.selectors||[]).some(row=>row.state!=='matched');
   const referenceAttention=report=>(report?.findings||[]).some(row=>row.status!=='present');
-  const reportAttention=report=>triggerAttention(report)||referenceAttention(report);
+  const lifecycleAttention=report=>(report?.presence_lifecycle?.findings||[]).some(row=>row.state==='review');
+  const reportAttention=report=>triggerAttention(report)||referenceAttention(report)||lifecycleAttention(report);
   function resetReports(){reportView={reports:new Map(),unread:new Map(),filter:'attention',mode:'selection',requested:0,total:0};reportReplacements.clear();reports?.replaceChildren();}
   async function requestPlan(suffix,options={}){
     assertCurrent();const t=ticket(),response=await request(path()+suffix,options);
@@ -126,23 +127,28 @@
   }
   function renderReports(){reports.replaceChildren();
     const allReports=[...reportView.reports.values()];const allUnread=[...reportView.unread.values()];
-    const missingCount=allReports.filter(referenceAttention).length,triggerCount=allReports.filter(triggerAttention).length;
+    const missingCount=allReports.filter(referenceAttention).length,triggerCount=allReports.filter(triggerAttention).length,lifecycleCount=allReports.filter(lifecycleAttention).length;
     const toolbar=E('section','','org-report-tools');
     const summary=E('p',reportView.mode==='inventory'
-      ?`Geprüft: ${reportView.requested} von ${reportView.total} · ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen`
-      :`Auswahl: ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen`,'ps-muted');
+      ?`Geprüft: ${reportView.requested} von ${reportView.total} · ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen · ${lifecycleCount} mit Präsenzablauf-Hinweisen`
+      :`Auswahl: ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen · ${lifecycleCount} mit Präsenzablauf-Hinweisen`,'ps-muted');
     summary.id='org-report-summary';summary.setAttribute('role','status');
     const label=E('label','Ergebnisse anzeigen');const filter=E('select');filter.id='org-report-filter';filter.setAttribute('aria-controls','org-report-list');
-    for(const [value,text] of [['attention','Handlungsbedarf'],['missing','Referenzen fehlen oder sind nicht aktuell'],['trigger','Auslöserkennungen auffällig'],['unread','Nicht lesbar'],['all','Alle gelesenen Ergebnisse']]){const option=E('option',text);option.value=value;filter.append(option);}
+    for(const [value,text] of [['attention','Handlungsbedarf'],['lifecycle','Präsenzablauf fachlich prüfen'],['missing','Referenzen fehlen oder sind nicht aktuell'],['trigger','Auslöserkennungen auffällig'],['unread','Nicht lesbar'],['all','Alle gelesenen Ergebnisse']]){const option=E('option',text);option.value=value;filter.append(option);}
     filter.value=reportView.filter;filter.addEventListener('change',()=>{reportView.filter=filter.value;renderReports();});label.append(filter);toolbar.append(summary,label);reports.append(toolbar);
     const list=E('div');list.id='org-report-list';reports.append(list);
     const showUnread=['attention','unread'].includes(reportView.filter);
     if(showUnread)for(const missed of allUnread.sort((a,b)=>a.automation_id.localeCompare(b.automation_id))){const warning=E('p',`${missed.automation_id}: Konfiguration nicht lesbar. Prüfung unvollständig.`,'ps-warning');warning.dataset.orgUnread=missed.automation_id;list.append(warning);}
-    const visible=allReports.filter(report=>reportView.filter==='all'||(reportView.filter==='attention'&&reportAttention(report))||(reportView.filter==='missing'&&referenceAttention(report))||(reportView.filter==='trigger'&&triggerAttention(report)))
-      .sort((a,b)=>Number(reportAttention(b))-Number(reportAttention(a))||Number(triggerAttention(b))-Number(triggerAttention(a))||a.automation_id.localeCompare(b.automation_id));
+    const visible=allReports.filter(report=>reportView.filter==='all'||(reportView.filter==='attention'&&reportAttention(report))||(reportView.filter==='lifecycle'&&lifecycleAttention(report))||(reportView.filter==='missing'&&referenceAttention(report))||(reportView.filter==='trigger'&&triggerAttention(report)))
+      .sort((a,b)=>Number(reportAttention(b))-Number(reportAttention(a))||Number(lifecycleAttention(b))-Number(lifecycleAttention(a))||Number(triggerAttention(b))-Number(triggerAttention(a))||a.automation_id.localeCompare(b.automation_id));
     for(const report of visible){const panel=E('details');panel.open=true;panel.dataset.orgReport=report.automation_id;panel.append(E('summary',report.automation_id));
       panel.append(E('p','Nachlauf erkannt: '+(report.timing_methods.map(x=>timingLabels[x]).join(' / ')||'Kein unterstütztes Verfahren erkannt'),'ps-muted'));
       appendTriggerIntegrity(panel, report.trigger_integrity);
+      const lifecycle=report.presence_lifecycle;
+      if(lifecycle?.findings?.length){const review=E('section','','org-lifecycle');review.append(E('h4','Präsenzablauf fachlich prüfen'));
+        const copy={boundary_close_can_clear_presence:'Ein geschlossenes Zugangselement kann den abgeleiteten Raumstatus ausschalten. Türschluss belegt nicht, dass niemand mehr im Bereich ist.',activity_edge_only_refreshes_timeout:'Der Nachlauf wird bei einem erkannten Bewegungsbeginn gestartet oder erneuert. Solange der Sensor ohne Zustandswechsel aktiv bleibt, entsteht kein weiterer Startimpuls.'};
+        for(const finding of lifecycle.findings){const evidence=finding.evidence||[];const paths=[...new Set(evidence.flatMap(row=>row.trigger_paths||[]))];review.append(E('p',`${copy[finding.id]||'Präsenzlogik benötigt eine fachliche Prüfung'} Fundstellen: ${paths.join(', ')||'statisch nicht vollständig auflösbar'}. Nächster Schritt: gewünschtes Anwesenheits- und Nachlaufverhalten in der bestehenden HA-Automation prüfen; nichts wird automatisch geändert.`,'ps-warning'));}
+        review.append(E('p','Struktureller Hinweis, kein Laufzeitbeweis und keine Sicherheits- oder Reparaturfreigabe.','ps-muted'));panel.append(review);}
       if(!reportReplacements.has(report.automation_id))reportReplacements.set(report.automation_id,new Map());const replacements=reportReplacements.get(report.automation_id);
       for(const finding of report.findings){const row=E('article','','org-finding');row.dataset.orgFinding=finding.entity_id;row.append(E('strong',finding.name),E('code',finding.entity_id),E('span',statusLabels[finding.status]||finding.status,'ps-badge'));
         if(finding.derived)row.append(E('small','Abgeleitete Quelle: keine zusätzliche unabhängige Messung.'));
