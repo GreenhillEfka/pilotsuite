@@ -1,4 +1,4 @@
-# Current state — Alpha.37 candidate, 2026-09-27
+# Current state — Alpha.37 delivered, 2026-09-27
 
 ## Presence lifecycle review package
 
@@ -14,14 +14,24 @@ not become findings. Trigger IDs, raw config and private payloads are withheld. 
 existing inventory view adds one deterministic filter and a direct next review step.
 Nothing is stored or repaired; no learning or execution authority changes.
 
-Local repository validation passes with 484 Python and 56 JavaScript tests. A new
+Local repository validation passes with 484 Python and 56 JavaScript tests. The new
 full-app browser scenario covers both findings, private-ID removal, filtering and no
-ContextStore/PlanStore/HA/control mutation; exact CI browser and amd64 results remain
-pending. Alpha.36 remains installed and healthy. Alpha.37 is not published or installed
-until exact CI and a fresh scoped backup satisfy the release runbook.
+ContextStore/PlanStore/HA/control mutation. PR 82 release
+93e6df76d23a3171edcecfa9130330f192aa5d5f; exact candidate CI 36277330306 and
+release-main CI 36277424359 passed all four jobs, including Chromium and amd64.
 
-Next: pass exact Alpha.37 candidate CI and release gates, then perform authenticated
-read-only lifecycle acceptance in the saved Erdkellerbereich zone.
+Fresh scoped backup 0baa717d contains only Alpha.36 app/data/options, no HA/database/
+folders or failed components. One Store refresh and one update installed Alpha.37.
+Installed/offered/started, options and auto_update unchanged. Startup/readiness logs
+confirm presence_adoption_review, connected stream, fresh snapshot and resolved zone.
+No extra restart, other app, household configuration, learning or device action.
+
+The authenticated cloud browser reached only a 502 connection-closed response before
+the HA/PilotSuite UI loaded, including one reload. Actual Ingress lifecycle review is
+therefore still open; runtime health and synthetic Chromium do not substitute for it.
+
+Next: perform authenticated read-only lifecycle acceptance in the saved
+Erdkellerbereich zone, then one unlike existing zone.
 
 ## Previous delivery — Alpha.36, 2026-09-26
 
