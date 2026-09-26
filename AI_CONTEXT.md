@@ -3,7 +3,22 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.36 installed, inventory snapshot integrity fixed
+## Resume: Alpha.37 presence-lifecycle candidate; Alpha.36 installed
+
+The current development package extends the existing explicit inventory analysis with
+two conservative, transient questions: boundary close can clear a plausible derived
+presence status, and an activity edge can be the only recognized timeout refresh.
+Device classes and literal branches are required; stale, disabled, dynamic, ambiguous
+or indirect structures cannot become findings. No authored trigger IDs, raw config,
+new store, automatic scan, repair, learning or control. Contract:
+docs/PRESENCE_LIFECYCLE_REVIEW.md / ADR-033. Local validation: 484 Python and 56
+JavaScript tests; browser scenario added, CI remains the browser/container authority.
+
+Alpha.36 remains installed/offered/started until the exact Alpha.37 candidate passes
+CI and the release runbook's fresh scoped backup gate. Do not publish or install from
+this paragraph alone.
+
+## Previous delivery: Alpha.36 inventory snapshot integrity
 
 PR 80, release b8ebc1ba2a32450ceb35e71269399d2f62cabe54.
 Candidate CI 36272344492 and main CI 36272461571 passed all four jobs.
@@ -35,4 +50,4 @@ Prior cumulative inventory, trigger integrity, context/plan isolation and explic
 confirmed metadata cleanup/undo remain intact. Technical-ID migration and automation
 repair execution remain unavailable. No household repair or cleanup was performed.
 
-Next: Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.
+Next: complete exact Alpha.37 CI and release gates, then run authenticated read-only lifecycle acceptance in saved Erdkellerbereich; no HA automation or learning change.

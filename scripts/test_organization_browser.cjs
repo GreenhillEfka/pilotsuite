@@ -229,5 +229,20 @@ const fs=require('node:fs/promises');
   for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
   assert.deepEqual(errors,[]);
   console.log('ok 12 - shared integrity review, text-only privacy, keyboard/mobile support and no saves or control');
+
+  await command({action:'presence_lifecycle_case'});
+  const lifecycleBefore=await command({action:'snapshot'});
+  await page.locator('#org-analyze').click();
+  await page.waitForFunction(()=>document.querySelector('#org-reports .org-lifecycle'));
+  const lifecycleText=await page.locator('#org-reports .org-lifecycle').innerText();
+  assert.match(lifecycleText,/Türschluss belegt nicht/);assert.match(lifecycleText,/ohne Zustandswechsel aktiv/);
+  assert.doesNotMatch(await page.locator('#org-reports').innerText(),/private-door-close|private-motion-start|private-timeout/);
+  await page.locator('#org-report-filter').selectOption('lifecycle');
+  assert.equal(await page.locator('[data-org-report]').count(),1);
+  const lifecycleAfter=await command({action:'snapshot'});
+  assert.deepEqual(lifecycleAfter.config,lifecycleBefore.config);assert.equal(lifecycleAfter.name_writes,lifecycleBefore.name_writes);
+  assert.equal(lifecycleAfter.control_calls,0);assert.equal(lifecycleAfter.helper_calls,0);
+  assert.equal(lifecycleAfter.plan_count,lifecycleBefore.plan_count);assert.deepEqual(errors,[]);
+  console.log('ok 13 - presence lifecycle risks are explicit, private-ID-free and read-only');
  }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
 })().catch(error=>{console.error(error);process.exitCode=1;});

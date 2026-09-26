@@ -16,6 +16,7 @@ SAMPLE = {
 async def seed(service):
     entries=[
       ('binary_sensor.room_motion','Motion source','homekit_controller','hardware-motion','room','off',{'device_class':'motion'}),
+      ('binary_sensor.room_door','Door source','homekit_controller','hardware-door','room','off',{'device_class':'door'}),
       ('input_boolean.legacy_presence','Legacy room flag','input_boolean','presence-stable',None,'off',{}),
       ('timer.legacy_wait','Legacy wait','timer','timer-stable',None,'idle',{'duration':'0:03:00'}),
       ('input_number.room_timeout_new','Room timeout','input_number','room_timeout_old',None,'5',{'unit_of_measurement':'min'}),

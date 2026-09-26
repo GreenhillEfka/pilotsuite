@@ -1,5 +1,21 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.37 candidate — presence lifecycle questions
+
+| Capability | Candidate scope |
+|---|---|
+| Boundary close | Flags a literal close-trigger branch that clears a plausible bidirectionally set room status |
+| Activity timeout | Flags a literal activity-start branch that directly starts the presence timer |
+| Semantics | Device-class based; findings are review questions, not defect/runtime/safety verdicts |
+| Integrity | Stale, disabled, dynamic, ambiguous and indirect paths cannot become findings |
+| Privacy | No authored trigger IDs, aliases, raw configuration or payload values in the projection |
+| Mutation | None: transient analysis, no save/repair/learning/control |
+| Local validation | 484 Python, 56 JavaScript; one new full-app browser scenario awaits exact CI |
+
+Alpha.36 remains installed/offered/started. Alpha.37 source, CI, backup, publication,
+installation and authenticated household acceptance are separate gates. Next: exact
+candidate CI and scoped backup, then read-only Erdkellerbereich acceptance.
+
 ## Installed Alpha.36 — consistent inventory snapshots
 
 | Capability | Verified scope |

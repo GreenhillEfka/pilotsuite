@@ -42,6 +42,19 @@ async def main():
                         'else':[{'condition':'trigger','id':'<img src=x onerror=alert(1)>'}]})
                     service.client.automation_config.side_effect=None
                     service.client.automation_config.return_value=config
+                elif cmd['action']=='presence_lifecycle_case':
+                    service.client.automation_config.side_effect=None
+                    service.client.automation_config.return_value={
+                        'triggers':[
+                            {'trigger':'state','entity_id':'binary_sensor.room_door','from':'on','to':'off','id':'private-door-close'},
+                            {'trigger':'state','entity_id':'binary_sensor.room_motion','from':'off','to':'on','id':'private-motion-start'},
+                            {'trigger':'event','event_type':'timer.finished','id':'private-timeout'}],
+                        'actions':[{'choose':[
+                            {'conditions':[{'condition':'trigger','id':'private-motion-start'}],'sequence':[
+                                {'action':'input_boolean.turn_on','target':{'entity_id':'input_boolean.legacy_presence'}},
+                                {'action':'timer.start','target':{'entity_id':'timer.legacy_wait'}}]},
+                            {'conditions':[{'condition':'trigger','id':['private-door-close','private-timeout']}],'sequence':[
+                                {'action':'input_boolean.turn_off','target':{'entity_id':'input_boolean.legacy_presence'}}]}]}]}
                 elif cmd['action']!='snapshot': raise ValueError('Unsupported fixture command')
                 cfg=await service.context.get('room')
                 result={'config':cfg,'name_writes':service.client.organization_set_name.await_count,
