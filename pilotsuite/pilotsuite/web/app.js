@@ -960,6 +960,7 @@ byId('context-edit').addEventListener('click', async () => {
     if (!await loadContext()) return;
     for (const [role, kinds] of Object.entries(roleKinds)) {
       const select = byId(`role-${role}`); select.replaceChildren();
+      select.closest('.role-group').dataset.psRole=role;
       select.closest('.role-group').dataset.psTouched='false';
       const current = (contextData.effective_roles || contextData.config.roles)[role] || [];
       const candidates = (contextData.candidates || []).filter(i => kinds.includes(i.suggested_role));
