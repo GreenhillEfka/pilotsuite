@@ -9,7 +9,7 @@
   const timingLabels={observe:'Nur beobachten / noch nicht zugeordnet',existing_for:'Bestehender for:-Nachlauf',timer:'Vorhandener Timer',external:'Andere Bestandslogik'};
   const statusLabels={present:'Vorhanden',missing:'Referenz fehlt',disabled:'Deaktiviert',unavailable:'Nicht verfügbar',snapshot_stale:'Datenstand nicht aktuell'};
   const outcomeLabels={preview:'Vorschau – noch nicht ausgeführt',applying:'Unterbrochen oder noch in Bearbeitung – nicht wiederholen',verified:'Änderung zurückgelesen',attention:'Teilweise / unklar – Einzelstatus prüfen',unchanged:'Bereits einheitlich'};
-  let root,message,form,reports,planPanel,history,data=null,basis=null,loadedBasis=null,draft={},initial='',busy=false,serial=0,afterSave;
+  let root,message,form,reports,planPanel,history,data=null,basis=null,loadedBasis=null,draft={},initial='',busy=false,serial=0,afterSave,scanOffset=0;
   const selections={}, searches={};
   const encode=()=>JSON.stringify({assignments:Object.fromEntries(Object.entries(draft).map(([k,v])=>[k,[...v].sort()])),timing:form?.querySelector('#org-timing')?.value||'observe'});
   const changed=()=>data!==null&&initial!==encode();
@@ -24,7 +24,7 @@
     const response=await request(path());
     if(generation!==serial||current.zone!==basis.zone||current.revision!==basis.revision)return;
     if(response.zone_id!==current.zone||response.revision!==current.revision)throw Error('Serverstand hat sich geändert. Zonenansicht aktualisieren.');
-    data=response;loadedBasis=current;render();notice('Globaler Bestand geladen. Zuordnung ist keine Steuerungs- oder Lernfreigabe.');
+    data=response;loadedBasis=current;scanOffset=0;render();notice('Globaler Bestand geladen. Zuordnung ist keine Steuerungs- oder Lernfreigabe.');
   });}
   function chosen(role,eid){const row=data.catalog.find(r=>r.entity_id===eid);return row?`${row.name} · ${eid}`:eid+' · Identität ungeklärt';}
   function choose(role,eid){if(busy)return;const max=data.roles[role].max;
@@ -42,7 +42,7 @@
     for(const row of candidates.slice(0,30)){const b=B('',()=>choose(role,row.entity_id));b.dataset.orgCandidate=row.entity_id;b.dataset.orgRole=role;b.setAttribute('aria-pressed',String(draft[role].has(row.entity_id)));
       b.append(E('strong',row.name),E('code',row.entity_id),E('small',[row.area_id||'Ohne HA-Bereich',row.derived?'Abgeleiteter / logischer Status':row.platform||'Plattform unklar',row.state||'Kein Zustand',row.unit||''].join(' · ')));list.append(b);}node.append(list);
   }
-  function render(){form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();
+  function render(){scanOffset=0;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();
     draft=Object.fromEntries(Object.keys(labels).map(k=>[k,new Set((data.bindings.assignments[k]||[]).map(r=>r.entity_id||r.saved_entity_id))]));
     const timingLabel=E('label','Nachlaufverfahren');const select=E('select');select.id='org-timing';for(const [v,t] of Object.entries(timingLabels)){const o=E('option',t);o.value=v;select.append(o);}select.value=data.bindings.timing;select.addEventListener('change',updateButtons);timingLabel.append(select);form.append(timingLabel);
     const groups=E('div','','org-role-grid');
@@ -61,6 +61,7 @@
       const fresh=await request(path());
       if(fresh.zone_id!==basis.zone||fresh.revision!==basis.revision)throw Error('Gespeichert; aktuellen Bestand bitte erneut laden.');
       data=fresh;loadedBasis={...basis};render();
+      notice('Funktionszuordnung gespeichert und erneut geladen. Keine Haussteuerung aktiviert.');
     }));save.id='org-save';actions.append(save,B('Entwurf verwerfen',()=>{if(busy)return;if(data)render();notice('Lokaler Entwurf verworfen.');}));form.append(actions);
     const analysis=B('Ausgewählte Automationen analysieren',()=>run(async()=>{
       assertCurrent();const generation=++serial,zid=basis.zone,rev=data.revision;
@@ -68,6 +69,19 @@
       if(generation!==serial||zid!==basis.zone||rev!==basis.revision)return;
       drawReports(response);notice('Strukturprüfung abgeschlossen. Keine Referenz oder Automation verändert.');
     }));analysis.id='org-analyze';analysis.dataset.orgWrite='read';form.append(analysis,E('p','Die Auswahl darf zunächst ein Entwurf bleiben. Analyse liest nur die ausgewählten Automationen, keine komplette Verbraucherlandschaft.','ps-muted'));
+    const scan=B('Globalen Automationsbestand paketweise prüfen',()=>run(async()=>{
+      assertCurrent();const generation=++serial,zid=basis.zone,rev=data.revision;
+      const ids=data.catalog.filter(r=>r.entity_id.startsWith('automation.')).map(r=>r.entity_id).sort();
+      const slice=ids.slice(scanOffset,scanOffset+8);
+      if(!slice.length){notice('Alle katalogisierten Automationspakete wurden angefragt. Nicht lesbare und dynamische Verbraucher bleiben ungeklärt.');return;}
+      const response=await request(path()+'/analyze',{method:'POST',body:JSON.stringify({revision:rev,automation_ids:slice})});
+      if(generation!==serial||zid!==basis.zone||rev!==basis.revision)return;
+      drawReports(response);scanOffset+=slice.length;
+      notice(`Paket geprüft: ${scanOffset} von ${ids.length} katalogisierten Automationen angefragt. ${response.unread.length} in diesem Paket nicht lesbar. Kein vollständiger Verbraucher- oder Verhaltensnachweis.`);
+      scan.textContent=scanOffset<ids.length?'Nächste bis zu acht Automationen prüfen':'Alle katalogisierten Pakete angefragt';
+      scan.disabled=scanOffset>=ids.length;
+    }));scan.id='org-scan';form.append(scan,E('p','Der globale Katalog ist nicht auf Zonen oder Namen eingeschränkt. Jede Betätigung liest höchstens acht weitere Konfigurationen; Ergebnisse zeigen jeweils das aktuelle Paket.','ps-muted'));
+
     const names=E('details');names.id='org-naming';names.append(E('summary','Einheitliche Namen & technische Bereinigung'));
     for(const row of data.naming){const line=E('label','','org-name-row');const check=E('input');check.type='checkbox';check.value=row.role;check.disabled=!row.name_change_eligible;check.dataset.orgNameRole=row.role;
       line.append(check,E('span',row.current_name+' → '+row.proposed_name),E('code',row.entity_id));names.append(line);

@@ -19,16 +19,16 @@ class ProvisioningContractTests(unittest.TestCase):
            "config":{"duration":"00:05:00","restore":True}},
           {"domain":"input_select","key":"pilotsuite_hz_living_atmosphaere"}]}
 
-    def test_preview_opens_only_timer_and_names_unknown_outcome_rule(self):
+    def test_preview_withholds_legacy_creation_and_names_unknown_outcome_rule(self):
         p=provisioning_preview(self.inventory,self.foundation)
-        self.assertTrue(p["execution"]["allowed"])
-        self.assertEqual(["timer"],[a["domain"] for a in p["execution"]["actions"]])
+        self.assertFalse(p["execution"]["allowed"])
+        self.assertEqual([],p["execution"]["actions"])
         self.assertEqual("read_back_never_blind_retry",p["transaction"]["unknown_outcome"])
 
     def test_request_requires_explicit_confirmation_and_exact_revision(self):
         payload={"revision":4,"helpers":[{"domain":"timer","key":"pilotsuite_hz_living_anwesenheitsnachlauf"}],"confirm":True}
-        req=provision_request(self.inventory,self.foundation,payload)
-        self.assertEqual((("timer","pilotsuite_hz_living_anwesenheitsnachlauf"),),req.helpers)
+        with self.assertRaises(SelectionConflict):
+            provision_request(self.inventory,self.foundation,payload)
         with self.assertRaises(InvalidSelection):
             provision_request(self.inventory,self.foundation,{**payload,"confirm":False})
         with self.assertRaises(SelectionConflict):
@@ -59,13 +59,13 @@ class ProvisioningExecutionTests(unittest.IsolatedAsyncioTestCase):
         await self.service.client.close()
         self.tmp.cleanup()
 
-    async def test_lost_create_response_is_resolved_by_independent_readback_without_retry(self):
+    async def test_unsafe_creation_is_withheld_even_with_prepared_matching_readback(self):
         self.service.client.helper_collection=AsyncMock(side_effect=[[],[self.row]])
         self.service.client.helper_create_timer=AsyncMock(side_effect=HomeAssistantError("lost"))
-        result=await self.service.provision_helper("hz_living",self.payload)
-        self.assertEqual("created_verified",result["state"])
-        self.service.client.helper_create_timer.assert_awaited_once()
-        self.assertFalse(result["created"] is False)
+        with self.assertRaises(SelectionConflict):
+            await self.service.provision_helper("hz_living",self.payload)
+        self.service.client.helper_create_timer.assert_not_awaited()
+        self.service.client.helper_collection.assert_not_awaited()
 
     async def test_concurrent_zone_edit_aborts_before_write(self):
         self.service.selection_inventory=AsyncMock(side_effect=[self.inventory,{**self.inventory,"revision":5}])
@@ -84,13 +84,13 @@ class ProvisioningExecutionTests(unittest.IsolatedAsyncioTestCase):
         self.service.client.helper_create_timer.assert_not_awaited()
         self.service.client.helper_delete_timer.assert_not_awaited()
 
-    async def test_confirmed_create_with_bad_readback_rolls_back_only_created_identity(self):
+    async def test_no_speculative_rollback_after_withheld_creation(self):
         self.service.client.helper_collection=AsyncMock(side_effect=[[],[{**self.row,"restore":False}],[]])
         self.service.client.helper_create_timer=AsyncMock(return_value=self.row)
         self.service.client.helper_delete_timer=AsyncMock()
-        with self.assertRaises(HomeAssistantError):
+        with self.assertRaises(SelectionConflict):
             await self.service.provision_helper("hz_living",self.payload)
-        self.service.client.helper_delete_timer.assert_awaited_once_with(self.key)
+        self.service.client.helper_delete_timer.assert_not_awaited()
 
 class ProvisioningJournalTests(unittest.IsolatedAsyncioTestCase):
     async def test_transaction_journal_survives_store_recreation(self):

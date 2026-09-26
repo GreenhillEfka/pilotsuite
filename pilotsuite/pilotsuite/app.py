@@ -39,7 +39,8 @@ async def ingress_guard(request: web.Request, handler: Any) -> web.StreamRespons
     normalized = re.sub(r"/{2,}", "/", request.path)
     if request.app[SERVICE_KEY]._rescue_error is not None:
         recovery_paths = {'/', '/maintenance', '/health', '/health/ready', '/version', '/api/v1/status',
-                          '/api/v1/maintenance', '/assets/maintenance.js', '/assets/maintenance.css', '/assets/styles.css'}
+                          '/api/v1/maintenance', '/assets/maintenance.js', '/assets/maintenance.css', '/assets/styles.css',
+                          '/assets/workspace.css', '/assets/workspace-model.js', '/assets/appearance.js'}
         if request.method not in {'GET', 'HEAD'} or normalized not in recovery_paths:
             return web.json_response({'error': 'rescue_mode',
                 'message': 'Lokale Datenbank nicht verfügbar. Wartung öffnen; nichts wurde überschrieben.'},

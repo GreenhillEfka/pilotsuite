@@ -21,11 +21,22 @@
 - Configuration workspace includes search, manual selection, structural findings,
   candidate repair previews, standard naming proposals, plan status and explicit apply.
 
+### Consistent maintenance and completed integration
+- Bring the previously separate Alpha.32 package's maintenance presentation into this
+  existing implementation: shared light/dark/system theme and density, responsive
+  cards/navigation, explicit distinction between local savepoints and unverified native
+  HA backups. No second inventory store or competing governance workspace.
+- Global automation browsing is explicit and bounded to eight configurations per
+  batch, with coverage and unread results; manual mappings remain authoritative.
+- Preserve the successful binding-save acknowledgement after the canonical zone
+  refresh. The existing browser regression still requires the confirmed saved state.
+
 ### Safety and boundaries
 - Repair previews are stored but cannot write automation configuration. Technical
   Entity-ID migration is blocked until consumer coverage can be established. No labels,
   areas, values, generic HA service proxy, new helper or learning grant is introduced.
-- Fail-close the older presence activation endpoint until timer event and authority
+- Fail-close legacy helper provisioning as well as the older presence activation
+  endpoint until transport, identity, recovery, timer event and authority
   takeover behavior is separately accepted. HA timer expiry is not a `finished` state.
 - Name updates are not cross-system atomic or an HA compare-and-swap. Partial/unknown
   results remain visible; previous names can only be restored after a separate preview.

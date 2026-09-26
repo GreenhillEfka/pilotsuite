@@ -2,7 +2,7 @@
 from pathlib import Path
 from aiohttp import web
 
-ASSETS = ("workspace-model.js", "workspace.js", "workspace.css")
+ASSETS = ("workspace-model.js", "workspace.js", "workspace.css", "appearance.js")
 
 
 def workspace_page(web_dir: Path) -> str:
@@ -20,4 +20,4 @@ def register_workspace(app: web.Application, web_dir: Path) -> None:
         if name not in ASSETS:
             raise web.HTTPNotFound()
         return web.FileResponse(web_dir / name, headers={"Cache-Control": "no-cache"})
-    app.router.add_get('/assets/{name:workspace(?:-model)?\\.js|workspace\\.css}', asset)
+    app.router.add_get('/assets/{name:workspace(?:-model)?[.]js|workspace[.]css|appearance[.]js}', asset)

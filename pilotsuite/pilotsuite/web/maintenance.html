@@ -1,27 +1,44 @@
 <!doctype html>
 <html lang="de">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PilotSuite · Versionen und Wiederherstellung</title>
-<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/maintenance.css"></head>
-<body><header class="topbar"><div><p class="eyebrow">PILOTSUITE · WARTUNG</p><h1>Versionen &amp; Speicherpunkte</h1></div><a href="./">Zurück zu den Zonen</a></header>
+<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/workspace.css"><link rel="stylesheet" href="assets/maintenance.css"></head>
+<body class="ps-workspace-ready ps-maintenance">
+<aside class="ps-sidebar" aria-label="PilotSuite Wartung">
+  <div class="ps-brand"><strong>PilotSuite</strong><small>SYSTEM &amp; WARTUNG</small></div>
+  <nav class="ps-nav" aria-label="Wartungsbereiche">
+    <a href="./#ps-cockpit">Cockpit</a><a href="#maintenance-overview">Überblick</a>
+    <a href="#maintenance-updates">Updates</a><a href="#maintenance-backups">Sicherungen</a>
+    <a href="#maintenance-helpers">Helfer</a><a href="#maintenance-recovery">Recovery</a>
+  </nav>
+  <div class="ps-sidebar-foot"><a href="./#ps-config">Bestand &amp; Ordnung</a><small>Gezielte Änderungen. Nachvollziehbare Sicherung.</small></div>
+</aside><header class="topbar"><div><p class="eyebrow">PILOTSUITE · WARTUNG</p><h1>Versionen &amp; Speicherpunkte</h1></div><a href="./#ps-system">Zurück zum System</a>
+<div class="selection-tools ps-appearance-controls"><label>Farbschema <select id="maintenance-theme"><option value="auto">System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select></label><label>Dichte <select id="maintenance-density"><option value="comfortable">Großzügig</option><option value="compact">Kompakt</option></select></label></div></header>
 <main>
+<div class="ps-page-heading" id="maintenance-overview"><h2>System im Blick. Sicher zurück.</h2><p class="ps-muted">Version, Konfigurationspunkte und native App-Sicherung – drei getrennte Zustände.</p></div>
+<div class="ps-kpis" aria-label="Wartungsübersicht">
+<article class="ps-kpi"><span>Installierte App</span><strong id="maintenance-version-card">—</strong><small>Von dieser Anwendung gemeldet</small></article>
+<article class="ps-kpi"><span>Updatezustand</span><strong id="maintenance-update-card">Ungeprüft</strong><small id="maintenance-read-at">Noch kein erfolgreicher Abruf</small></article>
+<article class="ps-kpi"><span>Lokale Konfigurationspunkte</span><strong id="maintenance-point-count">—</strong><small>Prüfsumme bestätigt; kein Restore-Test</small></article>
+<article class="ps-kpi"><span>Native App-Sicherung</span><strong id="maintenance-native-backup-card">Nicht direkt geprüft</strong><small><a href="/config/backup/overview" target="_top">Umfang und Abschluss in HA prüfen</a></small></article>
+</div>
 <p id="maintenance-message" role="status" aria-live="polite">Wartungsdaten werden geladen …</p>
 <section id="rescue-warning" class="panel" hidden><h2>Wiederherstellung statt Neustartschleife</h2><p>Die lokale PilotSuite-Datenbank konnte nicht geöffnet werden. Sie wurde nicht ersetzt. Zonenbearbeitung und lokale Rücksetzung sind gesperrt. Nutze eine geprüfte native Sicherung und wähle ausschließlich die PilotSuite-App samt Daten – keinen vollständigen Home-Assistant-Restore.</p></section>
-<section class="panel"><h2>Installierte Version</h2><strong id="maintenance-version">—</strong><p id="update-message">Updateinformation nicht bestätigt.</p>
+<section class="panel" id="maintenance-updates"><h2>Version &amp; Update</h2><strong id="maintenance-version">—</strong><p id="update-message">Updateinformation nicht bestätigt.</p>
 <div class="selection-tools"><button type="button" id="maintenance-refresh">Status neu lesen</button><a id="native-install" class="button-link" target="_top" href="/hassio/addon/0d79c5e8_pilotsuite/info">Update in Home Assistant öffnen</a></div>
 <p>Die Installation bestätigst du in Home Assistant. Vorher eine frische <strong>PilotSuite-only-App-Sicherung</strong> erstellen und prüfen. Ein lokaler Konfigurations-Speicherpunkt ersetzt sie nicht. Hier wird kein Update auf eigene Faust ausgelöst.</p>
 <details><summary>Die letzten drei Paketversionen</summary><div id="release-history"></div><p>Mitgelieferte Versionshinweise, keine behauptete Installationshistorie und keine Auswahl für ein Downgrade.</p></details></section>
-<section class="panel"><h2>Konfigurations-Speicherpunkte</h2><p>Gesichert werden deine Habitus-Zonen, Entitätsauswahl, Rollen und Lernparameter. <strong>Nicht enthalten:</strong> Lernhistorie, Prüftexte, HA-Helfer und Automationen, Zugangsdaten oder App-Programmdateien.</p>
+<section class="panel" id="maintenance-backups"><h2>Lokale Konfigurations-Speicherpunkte</h2><p>Gesichert werden deine Habitus-Zonen, Entitätsauswahl, Rollen, Funktionszuordnungen und Lernparameter. <strong>Nicht enthalten:</strong> Lernhistorie, Prüftexte, HA-Helfer und Automationen, Zugangsdaten oder App-Programmdateien.</p>
 <form id="savepoint-form"><label>Name <input id="savepoint-label" maxlength="100" required placeholder="Zum Beispiel: Rollen geprüft"></label><button id="savepoint-create" type="submit" disabled>Speicherpunkt erstellen</button></form>
 <p>Gespeichert im geschützten PilotSuite-Datenordner. Maximal 64 Punkte; keine automatische Löschung. Für einen Geräte-/Datenträgerausfall zusätzlich eine native Sicherung außerhalb dieses Systems aufbewahren.</p>
 <div id="savepoints"></div></section>
 <section id="restore-review" class="panel" hidden tabindex="-1"><h2>Wiederherstellung prüfen</h2><ul id="restore-consequences"></ul><div id="restore-zones"></div>
 <label><input type="checkbox" id="restore-confirm"> Ich möchte diese PilotSuite-Konfiguration zurücksetzen. Betroffene Zonen werden pausiert; Lernen muss ich neu freigeben.</label>
 <div class="selection-tools"><button type="button" id="restore-apply" disabled>Bestätigt wiederherstellen</button><button type="button" id="restore-cancel">Abbrechen</button></div></section>
-<section class="panel"><h2>Vorhandene HA-Helfer</h2><p>Die Prüfung liest den vorhandenen Bestand der ausgewählten Zone. Umbenannte Entitäten werden über ihre stabile Register-/Speicherkennung zugeordnet, nicht über ähnliche Namen. Sie werden weder dupliziert noch automatisch PilotSuite-Eigentum.</p>
+<section class="panel" id="maintenance-helpers"><h2>Vorhandene HA-Helfer</h2><p>Die Prüfung liest den vorhandenen Bestand der ausgewählten Zone. Umbenannte Entitäten werden über ihre stabile Register-/Speicherkennung zugeordnet, nicht über ähnliche Namen. Sie werden weder dupliziert noch automatisch PilotSuite-Eigentum.</p>
 <div class="selection-tools"><label>Habitus-Zone <select id="helper-zone" disabled></select></label><button type="button" id="helper-inspect" disabled>Vorhandene Helfer prüfen</button></div><p id="helper-message" role="status"></p><div id="helper-results"></div>
-<p>Nicht zugeordnete Helfer zunächst als zusätzliche Entitäten in die Zone aufnehmen. Gruppen und Template-Helfer bleiben sichtbar; ihre Konfiguration benötigt gegebenenfalls eine separate Prüfung.</p></section>
-<section class="panel"><h2>Rescue: Welche Sicherung passt?</h2><p><strong>Zonen versehentlich verändert:</strong> Konfigurations-Speicherpunkt mit Vorschau wiederherstellen. Vorher wird automatisch ein weiterer Punkt angelegt; neuere zusätzliche Zonen bleiben erhalten.</p>
+<p>Die globale Funktionsauswahl unter <a href="./#ps-config">Bestand &amp; Ordnung</a> findet auch Helfer ohne Bereich. Hier bleibt die Konfigurationsprüfung auf das aktuelle Zoneninventar begrenzt. Gruppen und Template-Helfer können eine separate Prüfung benötigen.</p></section>
+<section class="panel" id="maintenance-recovery"><h2>Recovery · den passenden Umfang wählen</h2><p><strong>Zonen versehentlich verändert:</strong> Konfigurations-Speicherpunkt mit Vorschau wiederherstellen. Vorher wird automatisch ein weiterer Punkt angelegt; neuere zusätzliche Zonen bleiben erhalten.</p>
 <p><strong>Update fehlgeschlagen, Datenbank beschädigt oder App startet nicht:</strong> Home Assistant öffnen und eine geprüfte native App-Sicherung für PilotSuite auswählen. Das stellt Version und App-Daten auf den Sicherungszeitpunkt zurück. Änderungen danach gehen im gewählten Umfang verloren; gegebenenfalls wird der Sicherungsschlüssel benötigt. Diese Seite führt keinen HA-Restore aus.</p>
 <div class="selection-tools"><a target="_top" href="/config/backup/overview">Native Sicherungen und Wiederherstellung</a><a target="_top" href="/hassio/addon/0d79c5e8_pilotsuite/info">PilotSuite-App und Protokoll</a></div>
 <details><summary>Was bedeutet die bisherige Golden-Zone-Option?</summary><p><code>golden_zone_area_ids</code> enthält nur Startbereiche für die allererste Einrichtung. Nach der Initialisierung ändert diese Option keine Habitus-Zone. Bestehende Zonen und zusätzliche Entitäten verwaltest du unter „Zonen“. Der historische Optionsschlüssel bleibt kompatibel.</p></details></section>
-</main><script src="assets/maintenance.js" defer></script></body></html>
+</main><footer>Lokaler Speicherpunkt ≠ native App-Sicherung. Eine gültige Prüfsumme ist kein erfolgreicher Wiederherstellungstest.</footer><script src="assets/workspace-model.js" defer></script><script src="assets/appearance.js" defer></script><script src="assets/maintenance.js" defer></script></body></html>

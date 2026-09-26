@@ -30,6 +30,11 @@
   function show(message) { byId('maintenance-message').textContent = message; }
   function render(value) {
     byId('maintenance-version').textContent = value.version;
+    if(byId('maintenance-version-card'))byId('maintenance-version-card').textContent=value.version || '—';
+    const shortLabels={current:'Aktuell',available:'Update verfügbar',installing:'Installation läuft',skipped:'Übersprungen',version_mismatch:'Stand prüfen'};
+    if(byId('maintenance-update-card'))byId('maintenance-update-card').textContent=shortLabels[value.update?.state]||'Ungeprüft';
+    if(byId('maintenance-point-count'))byId('maintenance-point-count').textContent=value.savepoint_error?'Nicht lesbar':String((value.savepoints||[]).filter(point=>point.valid===true).length);
+    if(byId('maintenance-read-at'))byId('maintenance-read-at').textContent='Abruf: '+new Date().toLocaleString('de-DE');
     byId('rescue-warning').hidden = !value.rescue_mode;
     byId('update-message').textContent = (updateLabels[value.update.state] || updateLabels.unknown)
       + (value.update.latest_version ? ' Angebot: ' + value.update.latest_version : '');
@@ -58,6 +63,9 @@
     const id = ++readId; helperRead++; clearPreview(); data = null; zones = []; lock(true);
     byId('helper-results').replaceChildren(); byId('helper-message').textContent='';
     byId('update-message').textContent=updateLabels.unknown;
+    for(const id of ['maintenance-version','maintenance-version-card','maintenance-point-count'])if(byId(id))byId(id).textContent='—';
+    if(byId('maintenance-update-card'))byId('maintenance-update-card').textContent='Wird geprüft';
+    if(byId('maintenance-read-at'))byId('maintenance-read-at').textContent='Noch kein bestätigter aktueller Abruf';
     try {
       const value = await api('api/v1/maintenance');
       const listing = value.rescue_mode ? {items:[]} : await api('api/v1/zones');
@@ -68,7 +76,7 @@
       if (zones.some(z=>z.zone_id === selected)) select.value=selected;
       show(value.rescue_mode ? 'Rescue-Modus: keine Datenbankänderung möglich.' : 'Wartungsdaten geladen. HA-Konfiguration bleibt unangetastet.');
     } catch (error) {
-      data=null; byId('savepoints').replaceChildren(); byId('release-history').replaceChildren();
+      data=null; if(byId('maintenance-update-card'))byId('maintenance-update-card').textContent='Nicht bestätigt'; byId('savepoints').replaceChildren(); byId('release-history').replaceChildren();
       byId('helper-zone').replaceChildren(); show(error.message);
     } finally { if (id===readId) lock(false); }
   }

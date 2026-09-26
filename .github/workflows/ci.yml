@@ -36,6 +36,7 @@ jobs:
       - name: Check frontend syntax and selection model
         run: |
           node --check pilotsuite/pilotsuite/web/organization.js
+          node --check pilotsuite/pilotsuite/web/appearance.js
           node --check pilotsuite/pilotsuite/web/workspace.js
           node --check pilotsuite/pilotsuite/web/workspace-model.js
           node --check pilotsuite/pilotsuite/web/maintenance.js
