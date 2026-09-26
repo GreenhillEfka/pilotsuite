@@ -6,9 +6,9 @@
 |---|---|
 | API inventory | All 48 registered `/api/v1` method/path pairs grouped by semantic owner |
 | Effect clarity | Inspection, preview, persistence, restore and apply described separately |
-| Drift guard | Exact unique set equality between `aiohttp` routes and `docs/API.md` |
+| Drift guard | Dependency-free exact set check of explicit routes against `docs/API.md` |
 | Runtime impact | None: no endpoint, payload, app tree, version, option or installation change |
-| Local regression | 469 Python and 56 JavaScript tests pass |
+| Local regression | Validator plus 468 Python and 56 JavaScript tests pass |
 
 Final remote CI remains the merge gate. The installed Alpha.35 receipt is unchanged.
 

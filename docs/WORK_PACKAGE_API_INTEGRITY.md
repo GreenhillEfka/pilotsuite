@@ -26,17 +26,18 @@ effect boundary for every route group.
 - no household read, write, learning consent or execution;
 - no OpenAPI generator or second contract owner.
 
-`aiohttp` route registration remains the executable owner. `docs/API.md` is the human
-inventory, and one test compares its unique method/path set against that owner.
+Route registration remains the executable owner. `docs/API.md` is the human inventory,
+and the dependency-free repository validator reads the explicit registrations and
+compares their unique canonical method/path set against that owner.
 
 ## Acceptance criteria
 
-1. Every non-`HEAD` registered `/api/v1` method/path appears exactly once in
-   `docs/API.md`.
+1. Every explicit registered `/api/v1` method/path appears exactly once in `docs/API.md`.
 2. No documented `/api/v1` method/path lacks a registered route.
 3. The inventory identifies which apparently similar operations inspect, preview,
    persist, restore or apply.
-4. Existing Python and JavaScript suites remain green; CI remains the final evidence.
+4. Existing Python and JavaScript suites plus the repository validator remain green;
+   CI remains the final evidence.
 5. The installed Alpha.35 receipt remains unchanged because the application tree is
    unchanged.
 

@@ -9,10 +9,10 @@ grouped by owner and effect. It distinguishes inspection, preview, persistence,
 restore and explicitly confirmed apply operations instead of treating an HTTP method
 as an authority signal.
 
-`test_api_documentation.py` creates the actual application router and requires exact,
-unique set equality with docs/API.md. This is one owner plus one checked human view,
-not a second API schema. The package changes no endpoint, payload, application code,
-version or installed app. Its scope and exclusions are recorded in
+The dependency-free repository validator reads the explicit route registrations and
+requires exact, unique set equality with docs/API.md. This is one owner plus one
+checked human view, not a second API schema. The package changes no endpoint, payload,
+application tree, version or installed app. Its scope and exclusions are recorded in
 docs/WORK_PACKAGE_API_INTEGRITY.md.
 
 ## Delivered package: cumulative inventory integrity

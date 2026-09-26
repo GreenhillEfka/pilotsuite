@@ -6,8 +6,8 @@ Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first
 ## Resume: API contract integrity after delivered Alpha.35
 
 The repository now inventories all 48 registered `/api/v1` method/path contracts in
-docs/API.md. A regression compares the human inventory directly with the `aiohttp`
-router, including uniqueness, so future route additions/removals cannot leave it
+docs/API.md. The dependency-free repository validator compares the human inventory
+directly with explicit route registrations, including uniqueness, so future changes cannot leave it
 silently partial. The update corrects the legacy `{id}`/`{plan_id}` mismatch and
 separates inspection, preview, persistence, restore and apply semantics. No endpoint,
 application code, version, option or installed state changed; see

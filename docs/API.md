@@ -150,6 +150,6 @@ reset semantics.
 ## Stability
 
 The `/api/v1` prefix is stable, but alpha response fields may grow. Existing
-fields are not silently repurposed. Every registered `/api/v1` method and
-canonical path must be present in the endpoint inventory; the regression test
+fields are not silently repurposed. Every explicitly registered `/api/v1` method and
+canonical path must be present in the endpoint inventory; the repository validator
 fails when implementation and documentation drift.
