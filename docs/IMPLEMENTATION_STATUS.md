@@ -1,44 +1,33 @@
-# Candidate Alpha.33 — recoverable inventory editing
-
-Implemented: request-basis checks for all organization plan responses; stale preview
-confirmation withheld; visible assignment retention after uncertain saves; explicit
-canonical read recovery without replay. Existing 454 Python / 56 JS tests pass;
-six new full-app browser regressions await CI. No new HA write capability.
-Installed evidence remains RELEASE_STATE.json. Next: candidate CI and gated delivery.
-
 # PilotSuite capability and acceptance ledger
 
-## Installed Alpha.32 - 2026-09-26
+## Installed Alpha.33 — 2026-09-26
 
-Exact source, CI, backup and runtime receipt: RELEASE_STATE.json. PR69 is delivered.
+PR 71, release 46ec340; exact source/CI/backup/runtime receipt: RELEASE_STATE.json.
 
 | Capability | Actual scope |
 |---|---|
+| Inventory edit recovery | Retain visible choices on uncertain save; explicit read-only reconciliation, no write replay |
+| Plan response isolation | Zone/revision/generation bound; delayed/foreign responses withheld |
+| Historical previews | Readable; no Apply confirmation after zone revision changes |
+| Existing UI continuity | Open role groups and searches survive same-view refresh |
 | Global function bindings | Manual, revision-bound, stable-identity-aware; area-less helpers included |
 | Automation-first inspection | Nested/static/template-literal/event_data references; explicit unknowns |
-| Global scan | Up to eight configurations per explicit batch; not complete consumer proof |
-| Existing timing | Confirmed for/timer/external bindings; no forced duplicate PilotSuite timer |
-| Repair proposals | Fresh fingerprint-bound previews only; no automation configuration write |
-| Display-name cleanup | Explicit plan/apply, before-image, independent readback and guarded undo |
-| Technical Entity-ID migration | Blocked pending complete supported consumer migration |
-| Canonical persistence | Existing ContextStore/PlanStore; optional bindings in local savepoints |
-| Maintenance appearance | Shared themes/density, responsive status cards and recovery navigation |
-| Native backup card | Not directly verified by app; release backup checked separately via HA |
-| Legacy helper/presence control | Withheld; no new household control activated |
-| Learning and adaptive Habitus | Existing learner unchanged; no new consent or adaptive algorithm |
-| Local tests | 454 Python / 56 JavaScript passed |
-| Candidate and release-main CI | All four jobs; nine browser suites passed |
-| Installation | Alpha32 installed/offered/started; original options preserved |
-| Runtime | Exact startup and repeated ready/stream/fresh/zone logs verified |
-| Household UI/name writes | Not directly tested; synthetic CI is not household acceptance |
+| Global scan | Up to eight configurations per explicit batch, not full consumer proof |
+| Repair proposals | Fingerprint-bound previews; no automation configuration writes |
+| Display-name cleanup | Existing confirmed plan/apply/undo and before-images, unchanged |
+| Technical Entity-ID migration | Blocked pending supported consumer migration |
+| Canonical persistence | Existing ContextStore/PlanStore; no new store/schema |
+| Legacy helper/presence activation | Withheld; no new household control |
+| Tests | 454 Python  / 56 JS; nine browser suites including six new fault/recovery cases |
+| CI | Candidate and exact release-main all four jobs successful, amd64 included |
+| Installation | Alpha.33 installed/offered/started; four options and auto_update unchanged |
+| Runtime | Ready, connected, snapshot fresh, zone resolved; existing mode unchanged |
+| Household acceptance | Ingress UI, app-principal rights, independent image/data checks still open |
 
-Backupc6e83d19 completed before publication, PilotSuite Alpha31 only, verified
-snapshot/list plus backup/details. One Store refresh/update; no extra restart/rebuild,
-other-app changes, household cleanup, role changes or learning/runtime activation.
-Native registry writes are not CAS and not atomic with local persistence. Unknown
-outcomes cannot be blindly replayed or imply rollback authority. User-confirmed
-names are separate from technical IDs, values, areas, labels and actuation.
+Backup1ea31dc2 verified before publication: Alpha.32 app/data/options only, no HA/DB/
+folders or failed parts. One Store refresh/update; no additional restart, actor,
+name, role, consent or automation change. Existing HA/SQLite and registry CAS limits
+remain as documented in ORGANIZATION_AND_MIGRATION.md.
 
-Next: authenticated usability/name-plan acceptance and a consumer-aware repair
-executor with exact scope and fault/recovery tests. Do not create another release
-for this documentation-only handoff.
+Next: authenticated read-only acceptance of inventory editing/recovery and existing
+routine explanation in the already authorized Erdkeller use case.

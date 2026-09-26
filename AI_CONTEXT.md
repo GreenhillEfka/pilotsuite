@@ -3,29 +3,28 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Current candidate: recoverable inventory editing (Alpha.33)
+## Resume: Alpha.33 delivered, 2026-09-26
 
-Alpha.32 remains the installed receipt in RELEASE_STATE.json until deployment is
-verified. Alpha.33 binds all organization-plan responses to request zone/revision/
-generation and preserves local bindings after uncertain saves. Explicit recovery
-reads the canonical configuration; it never retries PATCH or HA name writes.
-Next: exact candidate CI, scoped-backup gate, release and independent live acceptance.
-No new executor, consent, runtime activation or household operation is authorized.
+PR 71 release 46ec340adf333f54efa760cde2d80f059b9c0ca2 is installed/offered/started.
+Candidate CI 36260320758 and both exact release-main CI runs (36260420284,
+36260423409) passed all four jobs and nine browser suites. Local 454 Python / 56 JS.
+Fresh PilotSuite-only backup 1ea31dc2 was verified before publication. One native
+Store refresh and one update; no explicit restart, rebuild or household operation.
+All four options and auto_update=true unchanged. Startup, stream, fresh snapshot,
+readiness and zone resolution verified. Runtime mode remains presence_adoption_review;
+do not call it hard_read_only or change it during an update.
 
-## Resume: Alpha.32 delivered, 2026-09-26
-
-PR69 release e2c0fdeb05571fbddbac4dc7cddd5f6d03fe5a9c is installed/offered/started.
-Exact candidate CI36249152522 and release-main CI36249569323 passed all four jobs
-and nine browser suites. Local 454 Python / 56 JavaScript tests passed.
-Fresh PilotSuite-only backupc6e83d19 completed and scope/details were verified BEFORE
-publication. One native Store refresh and one update, no extra restart/rebuild.
-All options and auto_update=true unchanged. Alpha32 startup and repeated subsequent
-ready/connected/fresh/zone-resolved logs verified. Full identities are in the receipt.
-Do not repeat deployment or restart discovery from the earlier permission blockers.
+Organization plan responses now require matching zone/revision/invalidation generation.
+Ambiguous saves retain visible choices and block replay; explicit recovery only reads.
+Opened role groups/searches survive same-view refresh. Six new synthetic browser
+regressions cover delayed/foreign replies, save interruption and stale previews.
+Failed intermediate CI runs were corrected before publication, never treated as green.
+Do not redeploy this installed version. Full source/backup/runtime evidence is in
+RELEASE_STATE.json; household Ingress acceptance remains separate.
 
 ## Canonical implementation and boundaries
 
-Existing PR69 was retained; the offline candidate's compatible maintenance design
+Existing PR 69 was retained; the offline candidate's compatible maintenance design
 was integrated, not substituted for its ContextStore/PlanStore implementation.
 Global manual function bindings include area-less helpers; analysis can start from
 an automation without a prepared owner/timer. Nested references, event_data and
@@ -45,9 +44,8 @@ Maintenance now shares workspace themes/density/navigation and distinguishes loc
 savepoints from native HA backups. The app says native backup is not directly checked;
 our native release backup verification is separate. Rescue remains read-only.
 
-Next: authenticated inventory/name-plan usability and app-principal acceptance, then
-ONE consumer-aware repair executor with before/after and fault/recovery tests.
-Existing household logic is evidence to assess and improve, not unquestionable truth;
-standardize only with explicit scope, identities, consumers and recovery accounted for.
-Keep manual overrides and learning boundaries. No Ingress or browser-policy bypass.
-Final documentation CI results belong in its PR comment, not another release loop.
+Next: authenticated read-only acceptance of inventory editing/recovery and existing
+routine explanation in the already authorized Erdkeller use case. No household edits,
+new data collection, consent or execution activation. App-principal rights and
+independent data preservation/image attestation remain unverified. No Ingress bypass.
+Final documentation CI results belong in its PR, not another documentation loop.
