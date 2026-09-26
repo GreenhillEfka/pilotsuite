@@ -155,6 +155,19 @@ class OrganizationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.s.client.automation_config.side_effect=HomeAssistantError('unread')
         r=await self.s.organization_analyze('room',{'revision':0,'automation_ids':['automation.legacy_presence']})
         self.assertFalse(r['complete']);self.assertEqual(1,len(r['unread']))
+    async def test_trigger_integrity_http_is_explicit_and_never_saves(self):
+        before=await self.s.context.get('room')
+        self.s.client.automation_config.return_value={
+            'triggers':[{'trigger':'state','id':'new'}],
+            'actions':[{'if':[{'condition':'trigger','id':'old'}],'then':[{'action':'light.turn_on'}]}]}
+        result=await self.client.post(self.base+'/analyze',json={'revision':0,'automation_ids':['automation.legacy_presence']})
+        self.assertEqual(200,result.status)
+        report=(await result.json())['reports'][0]
+        self.assertEqual('missing',report['trigger_integrity']['selectors'][0]['state'])
+        self.assertEqual(before,await self.s.context.get('room'))
+        self.assertEqual([],await self.s.plans.organization_plans('room'))
+        self.s.client.organization_set_name.assert_not_awaited()
+        self.s.client.call_bounded_service.assert_not_awaited()
     async def test_analysis_zone_change_rejected(self):
         async def change(_):
             await self.s.selections.patch('room',0,{'binary_sensor.room_motion':'relevant'})

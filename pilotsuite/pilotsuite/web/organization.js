@@ -113,6 +113,7 @@
     for(const missed of response.unread)reports.append(E('p',`${missed.automation_id}: Konfiguration nicht lesbar. Prüfung unvollständig.`,'ps-warning'));
     for(const report of response.reports){const panel=E('details');panel.open=true;panel.append(E('summary',report.automation_id));
       panel.append(E('p','Nachlauf erkannt: '+(report.timing_methods.map(x=>timingLabels[x]).join(' / ')||'Kein unterstütztes Verfahren erkannt'),'ps-muted'));
+      appendTriggerIntegrity(panel, report.trigger_integrity);
       const replacements={};for(const finding of report.findings){const row=E('article','','org-finding');row.dataset.orgFinding=finding.entity_id;row.append(E('strong',finding.name),E('code',finding.entity_id),E('span',statusLabels[finding.status]||finding.status,'ps-badge'));
         if(finding.derived)row.append(E('small','Abgeleitete Quelle: keine zusätzliche unabhängige Messung.'));
         for(const hint of finding.role_hints){if(finding.status==='present'){const b=B('Als '+labels[hint]+' vormerken',()=>{if(!draft[hint].has(finding.entity_id))choose(hint,finding.entity_id);notice('Vorgemerkt, noch nicht gespeichert.');});row.append(b);}}

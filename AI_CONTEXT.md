@@ -12,7 +12,19 @@ canonical zone owner when authenticated Ingress is available; do not derive an I
 from the display name. HA metadata/read-only automation inspection does not certify
 the app's saved zone membership or its own configuration-read rights.
 
-## Resume: Alpha.33 delivered, 2026-09-26
+## Active package: Alpha.34 trigger integrity candidate
+
+Existing inventory and routine inspectors now share a bounded trigger-ID projection.
+No new owner/store, HA writes, runtime mode, learning or Apply changes. All household
+configurations stay private; regression fixtures are synthetic. User clarified that
+development may read all HA entities/automations, beyond app learning permissions.
+The acceptance scope contains four existing zones; Erdkellerbereich is the corrected
+case name. Do not infer their saved IDs or create replacement zones.
+Next: finish exact candidate CI and the native release gates, then read-only acceptance
+of the new diagnostics with existing configurations. RELEASE_STATE remains Alpha.33
+until an actual delivery receipt is recorded.
+
+## Previous delivery: Alpha.33, 2026-09-26
 
 PR 71 release 46ec340adf333f54efa760cde2d80f059b9c0ca2 is installed/offered/started.
 Candidate CI 36260320758 and both exact release-main CI runs (36260420284,

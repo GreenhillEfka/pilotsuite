@@ -195,3 +195,26 @@ liest ausschließlich. Erst nach ausdrücklicher Bestätigung und erfolgreichem 
 ersetzt der gespeicherte Stand die sichtbare Auswahl. Netzwerkfehler sind kein Grund,
 PATCH oder einen Namensschreibaufruf automatisch zu wiederholen. Die Auswahl lebt nur
 in der offenen Ansicht; das bestehende Verlassen-Warnsignal bleibt aktiv.
+
+## Trigger-ID integrity (Alpha.34)
+
+Goal: identify inconsistent static trigger-to-condition references while inspecting
+existing behavior. Shared projection: core/trigger_integrity.py; both inventory and
+routine details use it. Reports remain bound to their existing config fingerprint
+and zone/revision envelope. No new endpoint, store, automatic read, save or repair.
+
+A condition can match all/some/no declared IDs, only disabled triggers, or remain
+unknown. Disabled parents stay inactive; dynamic enablement stays uncertain. Default
+indices and legal shared IDs are supported. Wait-trigger IDs and service/event
+payloads are not automation trigger declarations. Blueprint/merged/dynamic catalogues
+are not expanded. Authored IDs are used in memory and excluded from the projection.
+
+No explicit ID reference does not mean a trigger is unused. A matched ID proves no
+execution, correct goal, safety or current physical measurement. Negation, default
+branches, manual calls and templates require further review. No automatic repair
+or changed learning/action permission. Browser acceptance checks safe output, keyboard
+use, mobile widths and preservation of unsaved choices without mutation.
+
+Sources: [HA trigger IDs](https://www.home-assistant.io/docs/automation/trigger/#trigger-id),
+[trigger conditions](https://www.home-assistant.io/docs/scripts/conditions/#triggered-by-condition).
+Only synthetic configurations belong in regression tests.

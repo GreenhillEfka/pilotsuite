@@ -28,9 +28,10 @@ Nur konfliktgeschützte Writes, kein Force. PR-Kommentare und Statusdateien
 halten Bearbeitungsumfang, tatsächliche Ergebnisse und genau einen nächsten
 Schritt fest. Eine Arbeitsnotiz ist keine atomare globale Agentensperre.
 
-## Nächstes zusammenhängendes Paket
+## Bereits umgesetzter Prüfkompass und Fortsetzung
 
-Prüfkompass in der vorhandenen Muster-/Routinewerkbank, nach aktuellem Quellabgleich.
+Der Prüfkompass ist in der vorhandenen Muster-/Routinewerkbank umgesetzt.
+Aktuelle Arbeit und Abnahmen stehen in CURRENT_STATE.md; nicht erneut implementieren.
 Die fünf getrennten Bereiche Quellen, Beobachtungsgrundlage, Nutzerziel/Ziele,
 Automationsbezüge und Notizaktualität werden aus bestehenden Besitzern abgeleitet.
 Verständliche Gründe, Herkunft und genau ein priorisierter nächster Schritt je
@@ -69,3 +70,12 @@ Installation und echte Live-Abnahme bleiben unterschiedliche Nachweise. Fehlende
 Werkzeuge sind keine fehlende Nutzerfreigabe. Keine erfundenen Commits, erneuten
 Projekte oder wiederholten unverbundenen Prototypen. Eine neue ausdrückliche Pause
 oder Einschränkung des Nutzers gilt unmittelbar.
+
+## Nutzerpräzisierung vom 26.09.2026
+
+Für die Entwicklung ist das lesende Prüfen der gesamten HA-Entitäten und
+Automationskonfigurationen ausdrücklich erlaubt, auch außerhalb der produktiven
+PilotSuite-Freigaben. Diese Präzisierung ersetzt die frühere Beschränkung für
+Bestandsanalysen, nicht die Zustimmung zur Datensammlung oder reale Schreibrechte.
+Vier Bereiche/Zonen existieren bereits, einschließlich Erdkellerbereich. Ihre
+kanonischen Identitäten werden nicht aus Anzeigenamen oder HA-Areas geraten.
