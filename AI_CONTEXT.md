@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Active package: Alpha.35 cumulative inventory overview candidate
+## Resume: Alpha.35 cumulative inventory overview delivered
 
 The explicit global scan still reads no more than eight automation configurations per
 click, but its browser-only view now accumulates same-zone/same-revision packages.
@@ -11,8 +11,18 @@ Progress and deterministic filters separate reference findings, trigger-ID findi
 unreadable configurations and all readable results. Replacement selections persist
 across another package/filter; reload, zone/revision change and invalidation discard
 the transient view. No new store, background scan, repair execution, HA write, learning
-or authority. RELEASE_STATE remains Alpha.34 until actual delivery. Next: exact CI and
-release gates, then read-only Erdkellerbereich acceptance through authenticated Ingress.
+or authority.
+
+PR 76 release faf36118402e817d42c4ba1919995c40c53e0cf4 is installed/offered/
+started. Candidate CI 36267009996 and main CI 36267117823 passed all four jobs.
+Fresh scoped backup c194bc96 contains only Alpha.34 app/data/options. One Store refresh
+and one update; no explicit restart. Options/auto_update unchanged; startup reports
+ready, connected stream, fresh snapshot and resolved zone in unchanged
+presence_adoption_review mode. RELEASE_STATE is the canonical receipt.
+
+Authenticated Alpha.35 Ingress is not tested; current browser has only about:blank.
+Next: explicit read-only cumulative scan in saved Erdkellerbereich, then the other
+three zones. Do not infer identities, repair automations or change household state.
 
 ## Previous delivery: Alpha.34, 2026-09-26
 

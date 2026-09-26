@@ -1,6 +1,6 @@
-# Current state — Alpha.35 inventory overview candidate, Alpha.34 installed
+# Current state — Alpha.35 delivered, 2026-09-26
 
-## Active coherent package: cumulative inventory integrity
+## Delivered package: cumulative inventory integrity
 
 The existing explicit global scan reads at most eight automation configurations per
 request, but previously replaced the prior package's results. The candidate now keeps
@@ -15,10 +15,20 @@ boundary. There is no second queue/store, automatic full scan, configuration sav
 repair execution or HA control. Each click still reads at most eight configurations.
 Synthetic browser coverage uses ten automations over two packages including one
 unreadable configuration, retained draft/replacement choices, filters, mobile layout
-and absence of saves/control. RELEASE_STATE remains the actual Alpha.34 receipt.
+and absence of saves/control.
 
-Next: exact candidate CI, scoped backup and normal release gates; then authenticated
-read-only acceptance beginning with the saved Erdkellerbereich zone.
+PR 76 release faf36118402e817d42c4ba1919995c40c53e0cf4 passed exact candidate
+CI 36267009996 and release-main CI 36267117823 (all four jobs). Fresh backup
+c194bc96 contains only PilotSuite Alpha.34 app/data/options, no HA/database/folders
+or failed parts. One Store refresh and one update installed Alpha.35; options and
+auto_update stayed unchanged. Startup, stream, fresh snapshot, readiness and zone
+resolution are confirmed; mode remains presence_adoption_review. Full evidence is in
+RELEASE_STATE.json.
+
+Authenticated Alpha.35 Ingress remains open: the available browser contains only
+about:blank. Earlier Safari GETs in logs predate this update and are not reused as
+acceptance. Next: read-only cumulative scan in the saved Erdkellerbereich zone, then
+the other three existing zones; no inferred replacement or household write.
 
 ## Previous delivery — Alpha.34, 2026-09-26
 
