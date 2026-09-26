@@ -1,18 +1,18 @@
 # Roadmap — continue, do not restart
 
 ## 0.1 alpha — reliable observation (current)
-- Alpha.24 is installed, started and runtime-verified after exact PR/main CI and a
-  fresh prepublication PilotSuite-only backup. PR #54 is complete; do not repeat
-  installation or reimplement the daily brief. Exact receipts: RELEASE_STATE.json.
-- Next: authenticated real Ingress acceptance of one useful or reasonably withheld
-  brief in the already consented Golden Zone and existing workbench navigation.
-  Config-read capability, independent data/image checks and comfort benefit stay separate.
-- GitHub reads/writes and native HA-MCP operations worked together. No new access setup.
-- The resumed development mandate remains unchanged; no scheduler was changed here.
-  Validate a second unlike zone only within its separately confirmed data scope.
-- Preserve the canonical repository/read-only boundary and shared owners. Transport,
-  snapshot freshness, physical sensor validity and domain completeness differ.
-  Comfort benefit precedes additional review administration.
+- CURRENT_STATE.md and RELEASE_STATE.json own current delivery/acceptance facts;
+  do not repeat old installations or reimplement completed compass/daily-brief work.
+- Existing inventory and routine reviews now include bounded trigger-ID integrity.
+  Actual source, CI, backup, runtime and household UI remain separate evidence.
+- Next: read-only acceptance of integrity findings against the four existing saved
+  zones, starting with Erdkellerbereich. Read canonical IDs; do not infer membership.
+- Development may read HA-wide entities/automations under explicit user authority.
+  Productive learning still requires its own source/zone consent. No new collection.
+- Existing HA rules can contain errors; review references and desired behavior before
+  proposing repairs. Missing IDs never justify guessed replacements or broad writes.
+- Preserve canonical ownership; transport freshness, physical validity and domain
+  completeness differ. Demonstrated comfort benefit precedes new algorithms.
 
 ## 0.2 — consented read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
@@ -31,8 +31,8 @@ governed execution owner exists; the read-only alpha cannot generate own actions
 ## 0.3 — governed action pilot
 
 Preparation: pattern workbench with review briefs and evidence chains (ADR-025).
-Alpha.16 has historical user acceptance of its guide/workbench. Alpha.24 is
-installed; its authenticated live UI acceptance remains unverified. Temporal review remains
+Alpha.16 has historical user acceptance of its guide/workbench. Current installation and authenticated UI acceptance are recorded separately in
+RELEASE_STATE.json. Temporal review remains
 a read-only preparation and never grants action permission.
 Real learning and second-zone acceptance remain prerequisites for actuation.
 - Typed allowlisted actions, scope/expiry, conflict and idempotency handling.

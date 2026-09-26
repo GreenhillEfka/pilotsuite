@@ -4,23 +4,22 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.33",
-    "commit": "46ec340adf333f54efa760cde2d80f059b9c0ca2",
-    "tree": "295fed803c3b0caeb4c3747759a97c39de4e33ab",
-    "app_tree": "c059bc65fe76af09c560ca819b7051f81feecece",
-    "pull_request": 71,
-    "candidate_commit": "1a81070963706428baac29c7a0ad32b5164f439b",
-    "candidate_ci_run_id": 36260320758,
-    "ci_run_id": 36260423409,
-    "additional_main_ci_run_id": 36260420284,
+    "version": "0.1.0-alpha.34",
+    "commit": "20adb0e6ddf61ab899366b8a24f66f67468df569",
+    "tree": "1e7a3aff09a84d3212592df7ef2e5183366e8850",
+    "app_tree": "b456df3d8f821c3679ad62da237d6f2cc07c3c3f",
+    "pull_request": 74,
+    "candidate_commit": "1866e17a2655b1a591c2730403fc3a9eeb764ce5",
+    "candidate_ci_run_id": 36263679166,
+    "ci_run_id": 36263809521,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "1ea31dc2",
-    "name": "PilotSuite Alpha32 before Alpha33 workspace recovery",
-    "date": "2026-09-26T17:42:27.746789+00:00",
-    "size_bytes": 54323200,
-    "app_version": "0.1.0-alpha.32",
+    "backup_id": "09436e7c",
+    "name": "PilotSuite Alpha33 before Alpha34 inventory integrity",
+    "date": "2026-09-26T18:43:35.798806+00:00",
+    "size_bytes": 54312960,
+    "app_version": "0.1.0-alpha.33",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -42,11 +41,11 @@
     ],
     "restore_drill_performed": false,
     "archive_extraction_performed": false,
-    "rollback": "hassio.restore_partial, slug=1ea31dc2, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
+    "rollback": "hassio.restore_partial, slug=09436e7c, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.33",
-    "offered_version": "0.1.0-alpha.33",
+    "installed_version": "0.1.0-alpha.34",
+    "offered_version": "0.1.0-alpha.34",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -62,32 +61,32 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-26T19:52:35Z",
+    "startup_log_timestamp": "2026-09-26T20:49:30Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
     "post_start_ready_log_timestamps": [
-      "2026-09-26T19:52:36Z",
-      "2026-09-26T19:53:37Z",
-      "2026-09-26T19:54:38Z"
+      "2026-09-26T20:49:31Z",
+      "2026-09-26T20:50:01Z",
+      "2026-09-26T20:50:31Z"
     ],
     "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
   },
   "tests": {
-    "local_python_passed": 454,
+    "local_python_passed": 468,
     "local_javascript_passed": 56,
+    "new_python_regressions": 14,
     "candidate_and_release_main_ci": "all four jobs successful",
     "browser_suites": 9,
-    "new_organization_browser_scenarios": 6,
-    "container_platform": "linux/amd64"
+    "organization_browser_scenarios": 12,
+    "container_platform": "linux/amd64",
+    "local_browser": "not run; Chromium binary unavailable; exact CI browser job passed"
   },
   "ui_review": {
-    "artifact_id": 10912285575,
-    "artifact_digest": "sha256:8e06dca3d7d2cf658a74e6f1f97ea4ec3f221436e0f3d588d999b9fde73854aa",
     "synthetic_only": true,
     "visual_inspection_this_run": false,
-    "authenticated_household_ingress": "not tested; available browser has only about:blank and no authenticated HA session"
+    "authenticated_household_ingress": "not tested; fresh browser tab listing contains only about:blank, no authenticated HA session"
   },
   "boundaries": {
     "household_name_apply_or_undo": "not invoked",
@@ -101,17 +100,17 @@
     "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
   "household_changes": [],
-  "next_step": "Authenticated read-only acceptance of inventory editing/recovery and existing routine explanation in the already authorized Erdkellerbereich use case; no household edits or extra learning.",
+  "next_step": "Read-only acceptance of integrity findings against the four existing saved zones, starting with Erdkellerbereich; resolve identities through the canonical owner, no inferred replacements, household writes or extra learning.",
   "published_source": {
-    "version": "0.1.0-alpha.33",
-    "commit": "46ec340adf333f54efa760cde2d80f059b9c0ca2",
-    "tree": "295fed803c3b0caeb4c3747759a97c39de4e33ab",
-    "app_tree": "c059bc65fe76af09c560ca819b7051f81feecece",
-    "pull_request": 71,
-    "candidate_commit": "1a81070963706428baac29c7a0ad32b5164f439b",
-    "candidate_ci_run_id": 36260320758,
-    "ci_run_id": 36260423409,
-    "additional_main_ci_run_id": 36260420284,
+    "version": "0.1.0-alpha.34",
+    "commit": "20adb0e6ddf61ab899366b8a24f66f67468df569",
+    "tree": "1e7a3aff09a84d3212592df7ef2e5183366e8850",
+    "app_tree": "b456df3d8f821c3679ad62da237d6f2cc07c3c3f",
+    "pull_request": 74,
+    "candidate_commit": "1866e17a2655b1a591c2730403fc3a9eeb764ce5",
+    "candidate_ci_run_id": 36263679166,
+    "ci_run_id": 36263809521,
     "ci_conclusion": "success"
-  }
+  },
+  "checked_at": "2026-09-26T18:50:30.277117+00:00"
 }
