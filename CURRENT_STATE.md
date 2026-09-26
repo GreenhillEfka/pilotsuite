@@ -1,4 +1,26 @@
-# Current state — Alpha.34 delivered, 2026-09-26
+# Current state — Alpha.35 inventory overview candidate, Alpha.34 installed
+
+## Active coherent package: cumulative inventory integrity
+
+The existing explicit global scan reads at most eight automation configurations per
+request, but previously replaced the prior package's results. The candidate now keeps
+a transient zone/revision-bound view across explicit batches. It shows deterministic
+progress and separate filters for entity-reference findings, trigger-ID findings,
+unreadable configurations and all readable reports. Selected replacement candidates
+survive another batch and presentation-only filter changes.
+
+The view is derived only in browser memory. A reload, zone/revision change or explicit
+invalidation discards it; a late response cannot cross the existing request generation
+boundary. There is no second queue/store, automatic full scan, configuration save,
+repair execution or HA control. Each click still reads at most eight configurations.
+Synthetic browser coverage uses ten automations over two packages including one
+unreadable configuration, retained draft/replacement choices, filters, mobile layout
+and absence of saves/control. RELEASE_STATE remains the actual Alpha.34 receipt.
+
+Next: exact candidate CI, scoped backup and normal release gates; then authenticated
+read-only acceptance beginning with the saved Erdkellerbereich zone.
+
+## Previous delivery — Alpha.34, 2026-09-26
 
 ## User package: inventory and trigger integrity
 

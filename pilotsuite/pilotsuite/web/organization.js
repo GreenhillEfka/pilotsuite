@@ -10,6 +10,8 @@
   const statusLabels={present:'Vorhanden',missing:'Referenz fehlt',disabled:'Deaktiviert',unavailable:'Nicht verfügbar',snapshot_stale:'Datenstand nicht aktuell'};
   const outcomeLabels={preview:'Vorschau – noch nicht ausgeführt',applying:'Unterbrochen oder noch in Bearbeitung – nicht wiederholen',verified:'Änderung zurückgelesen',attention:'Teilweise / unklar – Einzelstatus prüfen',unchanged:'Bereits einheitlich'};
   let root,message,form,reports,planPanel,history,data=null,basis=null,loadedBasis=null,draft={},initial='',busy=false,serial=0,afterSave,scanOffset=0,pendingSave=false;
+  let reportView={reports:new Map(),unread:new Map(),filter:'attention',mode:'selection',requested:0,total:0};
+  const reportReplacements=new Map();
   const selections={}, searches={};
   const encode=()=>JSON.stringify({assignments:Object.fromEntries(Object.entries(draft).map(([k,v])=>[k,[...v].sort()])),timing:form?.querySelector('#org-timing')?.value||'observe'});
   const changed=()=>data!==null&&initial!==encode();
@@ -19,6 +21,10 @@
   const assertCurrent=()=>{if(!data||!basis||!loadedBasis||loadedBasis.zone!==basis.zone||loadedBasis.revision!==basis.revision)throw Error('Zonenstand geändert. Bestand neu laden; Entwurf bleibt sichtbar.');};
   const ticket=()=>({zone:basis.zone,revision:basis.revision,serial});
   const current=t=>t.serial===serial&&t.zone===basis?.zone&&t.revision===basis?.revision;
+  const triggerAttention=report=>(report?.trigger_integrity?.selectors||[]).some(row=>row.state!=='matched');
+  const referenceAttention=report=>(report?.findings||[]).some(row=>row.status!=='present');
+  const reportAttention=report=>triggerAttention(report)||referenceAttention(report);
+  function resetReports(){reportView={reports:new Map(),unread:new Map(),filter:'attention',mode:'selection',requested:0,total:0};reportReplacements.clear();reports?.replaceChildren();}
   async function requestPlan(suffix,options={}){
     assertCurrent();const t=ticket(),response=await request(path()+suffix,options);
     if(!current(t))return;
@@ -51,7 +57,7 @@
     for(const row of candidates.slice(0,30)){const b=B('',()=>choose(role,row.entity_id));b.dataset.orgCandidate=row.entity_id;b.dataset.orgRole=role;b.setAttribute('aria-pressed',String(draft[role].has(row.entity_id)));
       b.append(E('strong',row.name),E('code',row.entity_id),E('small',[row.area_id||'Ohne HA-Bereich',row.derived?'Abgeleiteter / logischer Status':row.platform||'Plattform unklar',row.state||'Kein Zustand',row.unit||''].join(' · ')));list.append(b);}node.append(list);
   }
-  function render(){const view=new Map([...form.querySelectorAll('[data-org-group]')].map(e=>[e.dataset.orgGroup,{open:e.open,query:e.querySelector('input[type=search]')?.value||''}]));scanOffset=0;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();
+  function render(){const view=new Map([...form.querySelectorAll('[data-org-group]')].map(e=>[e.dataset.orgGroup,{open:e.open,query:e.querySelector('input[type=search]')?.value||''}]));scanOffset=0;form.replaceChildren();resetReports();planPanel.replaceChildren();history.replaceChildren();
     draft=Object.fromEntries(Object.keys(labels).map(k=>[k,new Set((data.bindings.assignments[k]||[]).map(r=>r.entity_id||r.saved_entity_id))]));
     const timingLabel=E('label','Nachlaufverfahren');const select=E('select');select.id='org-timing';for(const [v,t] of Object.entries(timingLabels)){const o=E('option',t);o.value=v;select.append(o);}select.value=data.bindings.timing;select.addEventListener('change',updateButtons);timingLabel.append(select);form.append(timingLabel);
     const groups=E('div','','org-role-grid');
@@ -93,11 +99,12 @@
       if(!slice.length){notice('Alle katalogisierten Automationspakete wurden angefragt. Nicht lesbare und dynamische Verbraucher bleiben ungeklärt.');return;}
       const response=await request(path()+'/analyze',{method:'POST',body:JSON.stringify({revision:rev,automation_ids:slice})});
       if(generation!==serial||zid!==basis.zone||rev!==basis.revision)return;
-      drawReports(response);scanOffset+=slice.length;
+      const nextOffset=scanOffset+slice.length;
+      drawReports(response,{append:true,reset:scanOffset===0,mode:'inventory',requested:nextOffset,total:ids.length});scanOffset=nextOffset;
       notice(`Paket geprüft: ${scanOffset} von ${ids.length} katalogisierten Automationen angefragt. ${response.unread.length} in diesem Paket nicht lesbar. Kein vollständiger Verbraucher- oder Verhaltensnachweis.`);
       scan.textContent=scanOffset<ids.length?'Nächste bis zu acht Automationen prüfen':'Alle katalogisierten Pakete angefragt';
       scan.disabled=scanOffset>=ids.length;
-    }));scan.id='org-scan';form.append(scan,E('p','Der globale Katalog ist nicht auf Zonen oder Namen eingeschränkt. Jede Betätigung liest höchstens acht weitere Konfigurationen; Ergebnisse zeigen jeweils das aktuelle Paket.','ps-muted'));
+    }));scan.id='org-scan';form.append(scan,E('p','Der globale Katalog ist nicht auf Zonen oder Namen eingeschränkt. Jede Betätigung liest höchstens acht weitere Konfigurationen; die abgeleitete Übersicht behält alle Ergebnisse dieser Prüfsitzung bis zum Neuladen oder Zonenwechsel.','ps-muted'));
 
     const names=E('details');names.id='org-naming';names.append(E('summary','Einheitliche Namen & technische Bereinigung'));
     for(const row of data.naming){const line=E('label','','org-name-row');const check=E('input');check.type='checkbox';check.value=row.role;check.disabled=!row.name_change_eligible;check.dataset.orgNameRole=row.role;
@@ -109,22 +116,46 @@
     for(const p of data.plans){const b=B(`${outcomeLabels[p.state]||p.state} · ${p.kind} · ${p.id.slice(0,8)}`,()=>run(async()=>{assertCurrent();await requestPlan('/plans/'+p.id);}));b.className='org-plan-history';history.append(b);}
     initial=encode();updateButtons();
   }
-  function drawReports(response){reports.replaceChildren();if(response.zone_id!==basis.zone||response.revision!==basis.revision)throw Error('Veraltete Analyse verworfen');
-    for(const missed of response.unread)reports.append(E('p',`${missed.automation_id}: Konfiguration nicht lesbar. Prüfung unvollständig.`,'ps-warning'));
-    for(const report of response.reports){const panel=E('details');panel.open=true;panel.append(E('summary',report.automation_id));
+  function drawReports(response,options={}){if(response.zone_id!==basis.zone||response.revision!==basis.revision)throw Error('Veraltete Analyse verworfen');
+    if(options.reset)resetReports();
+    if(!options.append){resetReports();reportView.filter='all';reportView.mode='selection';reportView.requested=(response.reports?.length||0)+(response.unread?.length||0);reportView.total=reportView.requested;scanOffset=0;const scan=root?.querySelector('#org-scan');if(scan){scan.textContent='Globalen Automationsbestand paketweise prüfen';scan.disabled=false;}}
+    else {reportView.mode=options.mode||'inventory';reportView.requested=options.requested||reportView.requested;reportView.total=options.total||reportView.total;}
+    for(const row of response.reports||[]){reportView.reports.set(row.automation_id,row);reportView.unread.delete(row.automation_id);}
+    for(const row of response.unread||[]){if(!reportView.reports.has(row.automation_id))reportView.unread.set(row.automation_id,row);}
+    renderReports();
+  }
+  function renderReports(){reports.replaceChildren();
+    const allReports=[...reportView.reports.values()];const allUnread=[...reportView.unread.values()];
+    const missingCount=allReports.filter(referenceAttention).length,triggerCount=allReports.filter(triggerAttention).length;
+    const toolbar=E('section','','org-report-tools');
+    const summary=E('p',reportView.mode==='inventory'
+      ?`Geprüft: ${reportView.requested} von ${reportView.total} · ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen`
+      :`Auswahl: ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen`,'ps-muted');
+    summary.id='org-report-summary';summary.setAttribute('role','status');
+    const label=E('label','Ergebnisse anzeigen');const filter=E('select');filter.id='org-report-filter';filter.setAttribute('aria-controls','org-report-list');
+    for(const [value,text] of [['attention','Handlungsbedarf'],['missing','Referenzen fehlen oder sind nicht aktuell'],['trigger','Auslöserkennungen auffällig'],['unread','Nicht lesbar'],['all','Alle gelesenen Ergebnisse']]){const option=E('option',text);option.value=value;filter.append(option);}
+    filter.value=reportView.filter;filter.addEventListener('change',()=>{reportView.filter=filter.value;renderReports();});label.append(filter);toolbar.append(summary,label);reports.append(toolbar);
+    const list=E('div');list.id='org-report-list';reports.append(list);
+    const showUnread=['attention','unread'].includes(reportView.filter);
+    if(showUnread)for(const missed of allUnread.sort((a,b)=>a.automation_id.localeCompare(b.automation_id))){const warning=E('p',`${missed.automation_id}: Konfiguration nicht lesbar. Prüfung unvollständig.`,'ps-warning');warning.dataset.orgUnread=missed.automation_id;list.append(warning);}
+    const visible=allReports.filter(report=>reportView.filter==='all'||(reportView.filter==='attention'&&reportAttention(report))||(reportView.filter==='missing'&&referenceAttention(report))||(reportView.filter==='trigger'&&triggerAttention(report)))
+      .sort((a,b)=>Number(reportAttention(b))-Number(reportAttention(a))||Number(triggerAttention(b))-Number(triggerAttention(a))||a.automation_id.localeCompare(b.automation_id));
+    for(const report of visible){const panel=E('details');panel.open=true;panel.dataset.orgReport=report.automation_id;panel.append(E('summary',report.automation_id));
       panel.append(E('p','Nachlauf erkannt: '+(report.timing_methods.map(x=>timingLabels[x]).join(' / ')||'Kein unterstütztes Verfahren erkannt'),'ps-muted'));
       appendTriggerIntegrity(panel, report.trigger_integrity);
-      const replacements={};for(const finding of report.findings){const row=E('article','','org-finding');row.dataset.orgFinding=finding.entity_id;row.append(E('strong',finding.name),E('code',finding.entity_id),E('span',statusLabels[finding.status]||finding.status,'ps-badge'));
+      if(!reportReplacements.has(report.automation_id))reportReplacements.set(report.automation_id,new Map());const replacements=reportReplacements.get(report.automation_id);
+      for(const finding of report.findings){const row=E('article','','org-finding');row.dataset.orgFinding=finding.entity_id;row.append(E('strong',finding.name),E('code',finding.entity_id),E('span',statusLabels[finding.status]||finding.status,'ps-badge'));
         if(finding.derived)row.append(E('small','Abgeleitete Quelle: keine zusätzliche unabhängige Messung.'));
         for(const hint of finding.role_hints){if(finding.status==='present'){const b=B('Als '+labels[hint]+' vormerken',()=>{if(!draft[hint].has(finding.entity_id))choose(hint,finding.entity_id);notice('Vorgemerkt, noch nicht gespeichert.');});row.append(b);}}
         const places=E('details');places.append(E('summary','Fundstellen und Bedeutung'));for(const ref of finding.references)places.append(E('p',`${ref.path} · ${ref.kind==='template_literal'?'statisch erkennbare Template-Referenz':'direkte Referenz'} · ${ref.enabled===true?'aktiv':ref.enabled===false?'deaktivierter Zweig':'Aktivierung unbekannt'}`));row.append(places);
         if(finding.candidates.length){const label=E('label','Ersatzkandidat ausdrücklich wählen');const select=E('select');select.dataset.orgReplacement=finding.entity_id;const blank=E('option','Keine Ersetzung');blank.value='';select.append(blank);
-          for(const c of finding.candidates){const option=E('option',`${c.name} · ${c.entity_id} · ${c.unit||'Einheit unklar'} · ${c.reasons.includes('storage_key_matches_old_object_id')?'Speicherkennung passt':'Ähnlichkeit, keine Identitätsbestätigung'}`);option.value=c.entity_id;select.append(option);}select.addEventListener('change',()=>{if(select.value)replacements[finding.entity_id]=select.value;else delete replacements[finding.entity_id];});label.append(select);row.append(label);}
+          for(const c of finding.candidates){const option=E('option',`${c.name} · ${c.entity_id} · ${c.unit||'Einheit unklar'} · ${c.reasons.includes('storage_key_matches_old_object_id')?'Speicherkennung passt':'Ähnlichkeit, keine Identitätsbestätigung'}`);option.value=c.entity_id;select.append(option);}select.value=replacements.get(finding.entity_id)||'';select.addEventListener('change',()=>{if(select.value)replacements.set(finding.entity_id,select.value);else replacements.delete(finding.entity_id);});label.append(select);row.append(label);}
         panel.append(row);
       }
       panel.append(E('p','Grenzen: '+(report.limitations.join(', ')||'Nur direkte Strukturprüfung; keine nachgewiesene Verhaltensgleichheit'),'ps-warning'));
-      const repair=B('Gewählte Reparaturstellen prüfen',()=>run(async()=>{assertCurrent();await requestPlan('/repair-preview',{method:'POST',body:JSON.stringify({revision:data.revision,automation_id:report.automation_id,fingerprint:report.fingerprint,replacements})});}));repair.dataset.orgWrite='preview';panel.append(repair);reports.append(panel);
+      const repair=B('Gewählte Reparaturstellen prüfen',()=>run(async()=>{assertCurrent();await requestPlan('/repair-preview',{method:'POST',body:JSON.stringify({revision:data.revision,automation_id:report.automation_id,fingerprint:report.fingerprint,replacements:Object.fromEntries(replacements)})});}));repair.dataset.orgWrite='preview';panel.append(repair);list.append(panel);
     }
+    if(!list.children.length)list.append(E('p',reportView.filter==='all'?'Keine gelesenen Ergebnisse vorhanden.':'Für diesen Filter liegt in der aktuellen Prüfsitzung kein Ergebnis vor.','ps-muted'));
     updateButtons();
   }
   function drawPlan(plan){planPanel.replaceChildren();planPanel.append(E('h3',outcomeLabels[plan.state]||plan.state));if(plan.state==='unchanged'){planPanel.append(E('p',plan.message));return;}
@@ -146,9 +177,9 @@
       message=E('p','','edit-status');message.id='org-message';message.setAttribute('role','status');form=E('div');form.id='org-form';reports=E('div');reports.id='org-reports';planPanel=E('section');planPanel.id='org-plan';planPanel.setAttribute('aria-label','Geprüfter Ordnungsplan');history=E('div');history.id='org-history';
       const loadButton=B('Bestand & Zuordnungen laden',load);loadButton.id='org-load';root.append(loadButton,message,form,reports,planPanel,E('h3','Gespeicherte Pläne'),history);},
     context(zone,revision){if(!zone||!Number.isSafeInteger(revision))return;
-      if(basis&&(basis.zone!==zone||basis.revision!==revision)){serial++;if(!changed()&&!pendingSave){data=null;initial='';loadedBasis=null;form.replaceChildren();reports.replaceChildren();planPanel.replaceChildren();history.replaceChildren();}notice('Zonenstand geändert. Bestand erneut laden.');}
+      if(basis&&(basis.zone!==zone||basis.revision!==revision)){serial++;resetReports();if(!changed()&&!pendingSave){data=null;initial='';loadedBasis=null;form.replaceChildren();planPanel.replaceChildren();history.replaceChildren();}notice('Zonenstand geändert. Bestand erneut laden.');}
       basis={zone,revision};updateButtons();},
     dirty:()=>busy||!!pendingSave||changed(),
-    invalidate(){serial++;loadedBasis=null;reports?.replaceChildren();planPanel?.replaceChildren();notice('Datenstand nicht bestätigt. Bestand neu laden; offene Auswahl bleibt erhalten.');updateButtons();}
+    invalidate(){serial++;loadedBasis=null;resetReports();planPanel?.replaceChildren();notice('Datenstand nicht bestätigt. Bestand neu laden; offene Auswahl bleibt erhalten.');updateButtons();}
   };
 })();

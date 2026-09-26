@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.35] - 2026-09-26
+
+- Der globale Automationsscan führt die ausdrücklich angeforderten Achterpakete zu einer abgeleiteten Gesamtübersicht der aktuellen Prüfsitzung zusammen, statt ältere Ergebnisse zu ersetzen.
+- Fortschritt und getrennte Filter zeigen Referenzhinweise, Auslöserhinweise, nicht lesbare Konfigurationen und alle gelesenen Ergebnisse in stabiler Reihenfolge.
+- Ausgewählte Ersatzkandidaten bleiben bei weiteren Paketen und Filterwechseln erhalten; Zonenwechsel, Revision, Neuladen oder Invalidierung verwerfen den flüchtigen Lesestand konservativ.
+- Keine neue Persistenz, automatische Vollabfrage, Reparaturausführung oder HA-Schreibberechtigung. Synthetische Browserregressionen prüfen zwei Pakete, eine Leselücke, Auswahlkontinuität und ausbleibende Mutationen.
+
 ## [0.1.0-alpha.34] - 2026-09-26
 
 - Bestand und Routine-Detailprüfung gleichen statische Auslöserkennungen mit Bedingungszweigen ab. Fehlende, teilweise passende, deaktivierte und unklare Bezüge bleiben getrennt.
