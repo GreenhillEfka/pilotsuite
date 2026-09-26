@@ -9,13 +9,13 @@ effect boundary for every route group.
 
 ## Scope
 
-- inventory all registered `/api/v1` method/path pairs from the actual application;
+- inventory all explicitly registered `/api/v1` method/path pairs from application source;
 - group the 48 contracts by runtime, zones, learning, foundations, drafts, reviews,
   organization, maintenance and legacy dry-run plans;
 - explain read-only inspections separately from explicit persistent or apply operations;
 - correct the legacy transaction parameter from `{id}` to `{plan_id}`;
 - retain the existing privacy, readiness, evidence and consent semantics;
-- fail regression tests when a route is added, removed or renamed without updating
+- fail repository validation when a route is added, removed or renamed without updating
   the canonical API inventory.
 
 ## Explicit exclusions
