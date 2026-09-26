@@ -92,6 +92,36 @@ const path=require('node:path');
   assert.equal(await page.locator('html').getAttribute('data-ps-density'),'compact');
   assert.equal(await page.locator('#ps-density').inputValue(),'compact');
   console.log('ok 6 - no automatic recorder reads; display preferences survive reload without household state');
+  await command({action:'comparison_fixture'});
+  await page.evaluate(async()=>{await load();});
+  await nav('zone').click();
+  // Fixture changed canonical roles/revision outside this browser session. A partial
+  // dashboard refresh must not validate its stale entity-selection basis.
+  assert.equal(await page.locator('.ps-module-card').count(),0);
+  assert.match(await page.locator('#ps-module-grid').innerText(),/Zonenstand nicht bestätigt/);
+  // Explicit browser reload re-reads both inventory and context through the real app.
+  await page.reload();
+  await page.waitForFunction(()=>contextData&&!selectionBusy&&
+    selectionDraft?.inventory?.revision===contextData.revision);
+  await page.locator('[data-ps-module="climate"]').click();
+  assert.match(await page.locator('#ps-module-detail').innerText(),/Automatisch abgeleitet/);
+  assert.match(await page.locator('#ps-temperature-comparison').innerText(),/10 °C/);
+  assert.match(await page.locator('#ps-temperature-comparison').innerText(),/11,8 °C/);
+  assert.equal(Object.hasOwn((await command({action:'snapshot'})).roles,'temperature'),false);
+  assert.match(await page.locator('[data-ps-module="climate"]').innerText(),/4 zugeordnet · 4 aktuell nutzbar/);
+  await nav('config').click();await page.locator('#context-edit').click();
+  await page.waitForFunction(()=>!byId('context-form').hidden&&!selectionBusy);
+  assert.equal(await page.locator('#role-temperature input:checked').count(),1);
+  await page.locator('#context-form button[type=submit]').click();
+  await page.waitForFunction(()=>!contextEditing&&!selectionBusy);
+  assert.equal(Object.hasOwn((await command({action:'snapshot'})).roles,'temperature'),false);
+  await nav('zone').click();await page.locator('[data-ps-module="climate"]').click();
+  await command({action:'comparison_unavailable'});
+  await page.evaluate(async()=>{await load();});
+  assert.match(await page.locator('#ps-temperature-comparison').innerText(),/Nicht verfügbar/);
+  assert.doesNotMatch(await page.locator('#ps-temperature-comparison').innerText(),/Zone minus Vergleich/);
+  assert.equal((await command({action:'snapshot'})).ha_writes,0);
+  console.log('ok 6b - derived roles agree with usable sources; optional comparison is separate and invalidates');
   const out=process.env.PILOTSUITE_SCREENSHOTS;
   if(out)await fs.mkdir(out,{recursive:true});
   for(const width of [390,768,1440]){

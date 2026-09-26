@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.0-alpha.38] - 2026-09-27
+
+### Presence evidence and configuration clarity
+- Propagate stream-frame acceptance from WorldModel to the existing learning path.
+  Older/equal/duplicate, misaddressed and malformed frames cannot create activity
+  records after the projection refused them. Guard stale removal frames as well.
+- Keep a valid delayed activation, but withhold each light/lux context channel if
+  its projected source timestamps are missing or newer than the activation.
+  This checks event-time consistency, not physical simultaneity or causality.
+- Use effective roles consistently for workspace counts and source diagrams;
+  label derived defaults and preserve their derived status when an unrelated setting
+  is saved. Only an explicit edit can persist such a group as manually confirmed.
+- Display optional external comparison temperatures separately, with a difference
+  only for valid, same-unit, independent measurements and a complete zone aggregate.
+- Record the presence-first light/mood/media and bounded-adaptation architecture.
+  It is a roadmap, not an implemented autonomous controller or new learner.
+
+### Boundaries
+- No new HA action, control activation, consent, collector, database or migration.
+- Existing household entities and automations remain unchanged while the user
+  organizes them. Existing evidence is not rewritten or retroactively certified.
+
 ## [0.1.0-alpha.37] - 2026-09-27
 
 - Die bestehende Bestandsanalyse erkennt zwei strukturelle Präsenzfragen: Ein Türschluss kann einen bidirektional gesetzten Raumstatus ausschalten, und ein Nachlauftimer wird möglicherweise nur beim Bewegungsbeginn erneuert.

@@ -10,7 +10,6 @@ def workspace_page(web_dir: Path) -> str:
     source = (web_dir / "index.html").read_text(encoding="utf-8")
     source = source.replace('</head>', '<link rel="stylesheet" href="assets/workspace.css">\n  </head>')
     return source.replace('</body>', '<script src="assets/organization.js" defer></script>\n'
-                          '    <script src="assets/workspace-model.js" defer></script>\n'
                           '    <script src="assets/workspace.js" defer></script>\n  </body>')
 
 

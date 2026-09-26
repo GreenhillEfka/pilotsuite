@@ -608,7 +608,9 @@ class PilotSuiteService(OrganizationServiceMixin):
 
     async def _on_state_change(self, event_data: dict[str, Any]) -> None:
         async with self._projection_lock:
-            await self.world.update_state(event_data)
+            accepted = await self.world.update_state(event_data)
+            if not accepted:
+                return
             entity_id = event_data.get("entity_id")
             presence_zones=list(self._presence_runtime_enabled)
             if any(item.entity_id == entity_id for item in self._neurons):
@@ -632,7 +634,18 @@ class PilotSuiteService(OrganizationServiceMixin):
                         result = next((z for z in self._zone_results if z['zone_id'] == zone_id), {})
                         context = activation_context(result.get('summary', {}), cfg['roles']) if cfg['context_learning'] else None
                         if context is not None:
-                            context['captured_at'] = datetime.now(UTC).isoformat()
+                            captured = datetime.now(UTC)
+                            # A delayed activation must not inherit a later light/lux
+                            # state. Preserve its valid activity evidence, not false context.
+                            for kind in ('light', 'illuminance'):
+                                group = context[kind]
+                                aligned = (stamp <= captured and
+                                    await self.world.context_at_or_before(group['sources'], stamp))
+                                group['timing'] = 'at_or_before_event' if aligned else 'unverified'
+                                if not aligned:
+                                    group['value'] = None
+                                    group['status'] = 'unknown'
+                            context['captured_at'] = captured.isoformat()
                         await self.context.record(zone_id, entity_id, occurred, origin, context=context)
         for zone_id in presence_zones:
             runtime=await self.presence_runtime(zone_id)

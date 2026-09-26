@@ -48,7 +48,37 @@
     }
     return rows;
   }
-  const api=Object.freeze({views,roles,modules,number,count,preferences,current,metric,diff});
+  function effectiveRoles(context) {
+    const saved=context?.config?.roles||{}, effective=context?.effective_roles||{}, result={};
+    for(const key of Object.keys(roles)) {
+      const values=Object.hasOwn(saved,key)?saved[key]:effective[key];
+      if(Array.isArray(values)) result[key]=[...new Set(values.filter(v=>typeof v==='string'))];
+    }
+    return result;
+  }
+  function roleOrigin(context,key) {
+    return Object.hasOwn(context?.config?.roles||{},key)?'manual':'derived';
+  }
+  function rolesForSave(context, selected, touched=[]) {
+    const saved=context?.config?.roles||{}, touchedSet=new Set(Array.isArray(touched)?touched:[]), result={};
+    for(const key of Object.keys(roles)) {
+      if(!Object.hasOwn(saved,key)&&!touchedSet.has(key)) continue;
+      const values=Array.isArray(selected?.[key])?selected[key]:[];
+      result[key]=[...new Set(values.filter(v=>typeof v==='string'))].sort();
+    }
+    return result;
+  }
+  function temperatureComparison(summary, source) {
+    const refs=Array.isArray(summary?.reference_temperature)?summary.reference_temperature:[];
+    const ref=refs.find(r=>r?.source===source), zone=summary?.temperature;
+    const finite=v=>typeof v==='number'&&Number.isFinite(v);
+    if(!ref||ref.quality!=='good'||!finite(ref.value)) return {value:null,unit:null,delta:null};
+    const comparable=zone?.status==='available'&&finite(zone.value)&&ref.unit&&zone.unit===ref.unit&&
+      Array.isArray(zone.sources)&&!zone.sources.includes(source);
+    return {value:ref.value,unit:ref.unit||null,delta:comparable?zone.value-ref.value:null};
+  }
+  const api=Object.freeze({views,roles,modules,number,count,preferences,current,metric,diff,
+    effectiveRoles,roleOrigin,rolesForSave,temperatureComparison});
   if(typeof module!=='undefined' && module.exports) module.exports=api;
   if(root) root.PilotSuiteWorkspaceModel=api;
 })(typeof window!=='undefined'?window:null);

@@ -960,13 +960,15 @@ byId('context-edit').addEventListener('click', async () => {
     if (!await loadContext()) return;
     for (const [role, kinds] of Object.entries(roleKinds)) {
       const select = byId(`role-${role}`); select.replaceChildren();
+      select.closest('.role-group').dataset.psRole=role;
+      select.closest('.role-group').dataset.psTouched='false';
       const current = (contextData.effective_roles || contextData.config.roles)[role] || [];
       const candidates = (contextData.candidates || []).filter(i => kinds.includes(i.suggested_role));
       for (const id of current) if (!candidates.some(i=>i.entity_id===id)) candidates.push({entity_id:id,name:`${id} (aktuell nicht verfügbar / nicht relevant)`});
       if (!candidates.length) select.textContent='Keine bestätigten Sensoren dieses Typs.';
       for (const item of candidates) {
         const label=document.createElement('label'); const input=document.createElement('input'); input.type='checkbox'; input.value=item.entity_id; input.checked=current.includes(item.entity_id);
-        input.addEventListener('change', renderRolePreview);
+        input.addEventListener('change',()=>{select.closest('.role-group').dataset.psTouched='true';renderRolePreview();});
         label.append(input, document.createTextNode(item.name || item.entity_id)); select.append(label);
         const hint=document.createElement('small');
         hint.textContent = item.suggested_role === 'input_boolean'
@@ -995,7 +997,10 @@ byId('learning-consent').addEventListener('change', () => {
 byId('context-cancel').addEventListener('click', () => { if (selectionBusy) return; contextEditing=false; byId('context-form').hidden=true; text('context-message','Bearbeitung abgebrochen. Der gespeicherte Stand gilt.'); renderSelection(); byId('context-edit').focus(); });
 byId('context-form').addEventListener('submit', async event => {
   event.preventDefault(); if (selectionBusy) return;
-  const roles=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]));
+  const selected=Object.fromEntries(Object.keys(roleKinds).map(k=>[k,[...byId(`role-${k}`).querySelectorAll('input:checked')].map(i=>i.value).sort()]));
+  const touched=[...document.querySelectorAll('#context-form .role-group')]
+    .filter(group=>group.dataset.psTouched==='true').map(group=>group.dataset.psRole);
+  const roles=window.PilotSuiteWorkspaceModel.rolesForSave(contextData,selected,touched);
   const learning=byId('learning-consent').checked;
   const detector={min_events:Number(byId('detector-events').value), min_days:Number(byId('detector-days').value),timezone:byId('detector-timezone').value.trim(),day_mode:byId('detector-day-mode').value};
   const context_learning=learning && byId('context-learning-consent').checked;
