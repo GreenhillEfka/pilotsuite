@@ -98,7 +98,7 @@
     const label=E('label','Quellen suchen','ps-role-search'),input=E('input');input.type='search';input.setAttribute('aria-label',M.roles[key]+' durchsuchen');input.placeholder='Name oder Entitäts-ID';label.append(input);
     const n=E('p','','ps-role-count');n.setAttribute('role','status');choices.before(label,n);
     input.addEventListener('input',()=>filterRole(group));
-    choices.addEventListener('change',()=>{filterRole(group);renderDiff();});
+    choices.addEventListener('change',()=>{group.dataset.psTouched='true';filterRole(group);renderDiff();});
   }
   const diffPanel=E('details','','ps-diff');diffPanel.id='ps-config-diff';diffPanel.open=true;diffPanel.append(E('summary','Änderungsvorschau'),E('div'));
   form.querySelector('fieldset').insertBefore(diffPanel,form.querySelector('fieldset').lastElementChild);
@@ -109,8 +109,8 @@
   }
   function setRoleFilter(id){roleFilter=id;const chosen=M.modules.find(m=>m.id===id);for(const group of roleGroups)group.hidden=!!chosen&&!chosen.roles.includes(group.dataset.psRole);[...filterBar.children].forEach((b,i)=>b.setAttribute('aria-pressed',String((i===0?'all':M.modules[i-1].id)===id)));}
   function renderDiff(){if(form.hidden||!contextData)return;for(const g of roleGroups)filterRole(g);
-    const roles=Object.fromEntries(Object.keys(M.roles).map(k=>[k,[...$('role-'+k).querySelectorAll('input[type=checkbox]:checked')].map(i=>i.value)]));
-    const after={roles,learning:$('learning-consent').checked,context_learning:$('learning-consent').checked&&$('context-learning-consent').checked,
+    const selected=Object.fromEntries(Object.keys(M.roles).map(k=>[k,[...$('role-'+k).querySelectorAll('input[type=checkbox]:checked')].map(i=>i.value)]));
+    const after={roles:selected,learning:$('learning-consent').checked,context_learning:$('learning-consent').checked&&$('context-learning-consent').checked,
       detector:{min_events:Number($('detector-events').value),min_days:Number($('detector-days').value),timezone:$('detector-timezone').value.trim(),day_mode:$('detector-day-mode').value}};
     const before={...contextData.config,roles:contextData.effective_roles||contextData.config.roles},rows=M.diff(before,after),root=diffPanel.lastElementChild;
     diffPanel.firstElementChild.textContent=`Änderungsvorschau · ${rows.length} ${rows.length===1?'Änderung':'Änderungen'}`;root.replaceChildren();

@@ -10,7 +10,8 @@
   its projected source timestamps are missing or newer than the activation.
   This checks event-time consistency, not physical simultaneity or causality.
 - Use effective roles consistently for workspace counts and source diagrams;
-  label derived defaults without silently saving them as manual confirmations.
+  label derived defaults and preserve their derived status when an unrelated setting
+  is saved. Only an explicit edit can persist such a group as manually confirmed.
 - Display optional external comparison temperatures separately, with a difference
   only for valid, same-unit, independent measurements and a complete zone aggregate.
 - Record the presence-first light/mood/media and bounded-adaptation architecture.

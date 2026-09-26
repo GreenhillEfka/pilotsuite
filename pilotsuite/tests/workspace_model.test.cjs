@@ -37,6 +37,15 @@ test('effective roles expose derived choices without saving or replacing explici
  resolved.temperature.push('sensor.other');assert.equal(JSON.stringify(ctx),original);
  assert.deepEqual(M.effectiveRoles(null),{});
 });
+test('saving another setting does not silently persist derived roles',()=>{
+ const ctx={config:{roles:{humidity:[]}},effective_roles:{temperature:['sensor.t'],humidity:[]}};
+ const selected={temperature:['sensor.t'],humidity:[]};
+ assert.deepEqual(M.rolesForSave(ctx,selected),{humidity:[]});
+ assert.deepEqual(M.rolesForSave(ctx,selected,['temperature']),{humidity:[],temperature:['sensor.t']});
+ const result=M.rolesForSave(ctx,{temperature:['sensor.z','sensor.z',null]},['temperature']);
+ assert.deepEqual(result,{humidity:[],temperature:['sensor.z']});
+ assert.deepEqual(M.rolesForSave(null,null,'temperature'),{});
+});
 test('comparison temperature is separate and delta requires valid same-unit independent values',()=>{
  const s={temperature:{value:22,status:'available',unit:'°C',sources:['sensor.inside']},
   reference_temperature:[{source:'sensor.outside',value:10,quality:'good',unit:'°C'}]};

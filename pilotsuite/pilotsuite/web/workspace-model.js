@@ -59,6 +59,15 @@
   function roleOrigin(context,key) {
     return Object.hasOwn(context?.config?.roles||{},key)?'manual':'derived';
   }
+  function rolesForSave(context, selected, touched=[]) {
+    const saved=context?.config?.roles||{}, touchedSet=new Set(Array.isArray(touched)?touched:[]), result={};
+    for(const key of Object.keys(roles)) {
+      if(!Object.hasOwn(saved,key)&&!touchedSet.has(key)) continue;
+      const values=Array.isArray(selected?.[key])?selected[key]:[];
+      result[key]=[...new Set(values.filter(v=>typeof v==='string'))].sort();
+    }
+    return result;
+  }
   function temperatureComparison(summary, source) {
     const refs=Array.isArray(summary?.reference_temperature)?summary.reference_temperature:[];
     const ref=refs.find(r=>r?.source===source), zone=summary?.temperature;
@@ -69,7 +78,7 @@
     return {value:ref.value,unit:ref.unit||null,delta:comparable?zone.value-ref.value:null};
   }
   const api=Object.freeze({views,roles,modules,number,count,preferences,current,metric,diff,
-    effectiveRoles,roleOrigin,temperatureComparison});
+    effectiveRoles,roleOrigin,rolesForSave,temperatureComparison});
   if(typeof module!=='undefined' && module.exports) module.exports=api;
   if(root) root.PilotSuiteWorkspaceModel=api;
 })(typeof window!=='undefined'?window:null);
