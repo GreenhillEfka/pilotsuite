@@ -62,7 +62,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.35`
+- Release: `0.1.0-alpha.36`
 
 ## Habitus zones and entity selection
 

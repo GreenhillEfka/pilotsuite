@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.36] - 2026-09-26
+
+- Bestandsprüfungen werten einen alten Snapshot nach einem Reconnect nicht mehr als frisch auf. Verbindungsverlust während eines Pakets entwertet sämtliche Referenzbefunde dieses Pakets, auch bei zwischenzeitlich nicht lesbaren Automationen.
+- Änderungen an Verfügbarkeit, Deaktivierung, Bereich, Einheit oder Registerdaten liefern einen Konflikt statt veralteter Ersatzempfehlungen. Normale verfügbare Messwertwechsel bleiben zulässig.
+- Reparaturentwürfe benötigen vor und nach dem Konfigurationsabruf einen frischen, unveränderten Bestand; bei Konflikten wird kein Entwurf gespeichert. Keine automatische Reparatur oder neue Ausführungsberechtigung.
+- Sieben neue synthetische Regressionstests für Verbindungswechsel, gemischte Pakete, Metadatenänderungen, HTTP-Konflikte und ausbleibende Persistenz/HA-Schreibaufrufe.
+
 ## [0.1.0-alpha.35] - 2026-09-26
 
 - Der globale Automationsscan führt die ausdrücklich angeforderten Achterpakete zu einer abgeleiteten Gesamtübersicht der aktuellen Prüfsitzung zusammen, statt ältere Ergebnisse zu ersetzen.

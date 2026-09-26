@@ -1,5 +1,22 @@
 # PilotSuite AI context
 
+## Alpha.36 candidate: consistent inventory snapshots
+
+Reproduced and fixed stale snapshot promotion after reconnect, mixed freshness across
+one inspection batch, and recommendations/previews surviving relevant catalog changes.
+The catalog guard includes metadata and availability while allowing normal available
+value changes. Repair preview refuses stale transport or changed catalog before any
+plan persistence. Existing non-executable repair semantics and general Apply remain.
+Seven new synthetic integration regressions cover the failures, HTTP 409, harmless
+value changes and absence of context/plan/HA mutations. All 475 Python tests pass.
+No household identifiers, configurations or live automations were modified.
+
+Release/installation evidence remains separate in RELEASE_STATE.json. Alpha.35 was
+freshly verified installed/offered/started before work; Alpha.36 is not yet delivered.
+Next: complete exact candidate CI and the scoped-backup release gate, then deliver
+and perform the available read-only acceptance for the saved Erdkellerbereich and
+other existing zones. Authenticated UI acceptance must not be inferred from MCP.
+
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 

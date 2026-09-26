@@ -174,6 +174,101 @@ class OrganizationIntegrationTests(unittest.IsolatedAsyncioTestCase):
             return SAMPLE
         self.s.client.automation_config.side_effect=change
         with self.assertRaises(SelectionConflict):await self.s.organization_analyze('room',{'revision':0,'automation_ids':['automation.legacy_presence']})
+    async def test_analysis_recovery_does_not_relabel_old_snapshot_fresh(self):
+        self.s._stream_connected=False
+        async def recover(_):
+            self.s._stream_connected=True
+            return SAMPLE
+        self.s.client.automation_config.side_effect=recover
+        result=await self.s.organization_analyze('room',{'revision':0,'automation_ids':['automation.legacy_presence']})
+        self.assertTrue(all(f['status']=='snapshot_stale' and not f['candidates']
+                            for f in result['reports'][0]['findings']))
+
+    async def test_analysis_disconnect_invalidates_the_whole_batch(self):
+        async def read(eid):
+            if eid=='automation.audit_01': self.s._stream_connected=False
+            return SAMPLE
+        self.s.client.automation_config.side_effect=read
+        result=await self.s.organization_analyze('room',{'revision':0,
+            'automation_ids':['automation.legacy_presence','automation.audit_01']})
+        self.assertEqual(2,len(result['reports']))
+        self.assertTrue(all(f['status']=='snapshot_stale' and not f['candidates']
+                            for report in result['reports'] for f in report['findings']))
+
+    async def test_analysis_unread_middle_config_cannot_hide_disconnect(self):
+        async def read(eid):
+            if eid=='automation.audit_01':
+                self.s._stream_connected=False
+                raise HomeAssistantError('Connection lost')
+            self.s._stream_connected=True
+            return SAMPLE
+        self.s.client.automation_config.side_effect=read
+        result=await self.s.organization_analyze('room',{'revision':0,
+            'automation_ids':['automation.legacy_presence','automation.audit_01','automation.audit_02']})
+        self.assertFalse(result['complete'])
+        self.assertEqual(2,len(result['reports']))
+        self.assertTrue(all(f['status']=='snapshot_stale' and not f['candidates']
+                            for report in result['reports'] for f in report['findings']))
+
+    async def test_analysis_relevant_catalog_changes_conflict_without_saving(self):
+        original=await self.s.world.organization_catalog()
+        for field,value in (('disabled',True),('area_id','other'),('unit','h'),
+                            ('state','unavailable'),('unique_id','replacement'),('in_registry',False)):
+            with self.subTest(field=field):
+                after=deepcopy(original)
+                next(r for r in after if r['entity_id']=='input_number.room_timeout_new')[field]=value
+                with patch.object(self.s.world,'organization_catalog',AsyncMock(side_effect=[deepcopy(original),after])):
+                    response=await self.client.post(self.base+'/analyze',json={
+                        'revision':0,'automation_ids':['automation.legacy_presence']})
+                self.assertEqual(409,response.status)
+                self.assertEqual([],await self.s.plans.organization_plans('room'))
+        self.s.client.organization_set_name.assert_not_awaited()
+        self.s.client.call_bounded_service.assert_not_awaited()
+
+    async def test_analysis_ordinary_value_changes_do_not_block_snapshot(self):
+        original=await self.s.world.organization_catalog();after=deepcopy(original)
+        next(r for r in after if r['entity_id']=='input_number.room_timeout_new')['state']='6'
+        next(r for r in after if r['entity_id']=='binary_sensor.room_motion')['state']='on'
+        with patch.object(self.s.world,'organization_catalog',AsyncMock(side_effect=[original,after])):
+            result=await self.s.organization_analyze('room',{'revision':0,'automation_ids':['automation.legacy_presence']})
+        self.assertTrue(result['complete'])
+        finding=next(f for f in result['reports'][0]['findings'] if f['entity_id']=='input_number.room_timeout_old')
+        # Snapshot values stay an observation, never a live physical measurement claim.
+        self.assertEqual('5',finding['candidates'][0]['state'])
+
+    async def test_repair_relevant_catalog_changes_do_not_persist_preview(self):
+        original=await self.s.world.organization_catalog()
+        before=await self.s.context.get('room')
+        for field,value in (('disabled',True),('state','unavailable'),('unit','h'),('unique_id','replacement')):
+            with self.subTest(field=field):
+                after=deepcopy(original)
+                next(r for r in after if r['entity_id']=='input_number.room_timeout_new')[field]=value
+                with patch.object(self.s.world,'organization_catalog',AsyncMock(side_effect=[deepcopy(original),after])):
+                    with self.assertRaises(SelectionConflict):
+                        await self.s.organization_repair_preview('room',{'revision':0,
+                            'automation_id':'automation.legacy_presence','fingerprint':fingerprint(SAMPLE),
+                            'replacements':{'input_number.room_timeout_old':'input_number.room_timeout_new'}})
+                self.assertEqual([],await self.s.plans.organization_plans('room'))
+        self.assertEqual(before,await self.s.context.get('room'))
+        self.s.client.organization_set_name.assert_not_awaited()
+        self.s.client.call_bounded_service.assert_not_awaited()
+
+    async def test_repair_stale_snapshot_or_disconnect_never_saves(self):
+        args={'revision':0,'automation_id':'automation.legacy_presence','fingerprint':fingerprint(SAMPLE),
+              'replacements':{'input_number.room_timeout_old':'input_number.room_timeout_new'}}
+        self.s._stream_connected=False
+        with self.assertRaises(SelectionConflict): await self.s.organization_repair_preview('room',args)
+        self.s.client.automation_config.assert_not_awaited()
+        self.s._stream_connected=True
+        async def disconnect(_):
+            self.s._stream_connected=False
+            return SAMPLE
+        self.s.client.automation_config.side_effect=disconnect
+        with self.assertRaises(SelectionConflict): await self.s.organization_repair_preview('room',args)
+        self.assertEqual([],await self.s.plans.organization_plans('room'))
+        self.s.client.organization_set_name.assert_not_awaited()
+        self.s.client.call_bounded_service.assert_not_awaited()
+
     async def test_name_plan_is_preview_until_confirmed(self):
         p=await self.names();self.s.client.organization_set_name.assert_not_awaited()
         with self.assertRaises(InvalidSelection):await self.s.organization_name_apply('room',p['id'],{'sha256':p['sha256'],'confirm':False})

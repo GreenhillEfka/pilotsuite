@@ -21,6 +21,16 @@ def registry_matches(row,operation,expected):
             and row.get('disabled_by') is None and row.get('name')==expected)
 
 
+def catalog_basis(catalog):
+    """Guard recommendation inputs, while allowing ordinary observed value changes.
+
+    This is a transport snapshot, not proof of a current physical measurement.
+    Availability, registry metadata and units affect recommendations and previews.
+    """
+    return fingerprint([{**row, 'state': row.get('state') not in (None,'unknown','unavailable')}
+                        for row in sorted(catalog,key=lambda row:row['entity_id'])])
+
+
 class OrganizationServiceMixin:
     async def _organization_basis(self,zone_id,revision=None):
         async with self._projection_lock:
@@ -85,6 +95,7 @@ class OrganizationServiceMixin:
             raise InvalidSelection('Eine bis acht unterschiedliche Bestandsautomationen auswählen')
         if self._automation_review_lock.locked(): raise HomeAssistantError('Bestandsprüfung läuft bereits')
         async with self._automation_review_lock:
+            fresh=(await self.status())['ready']
             inv,cfg,zone,catalog=await self._organization_basis(zone_id,payload['revision'])
             known={r['entity_id'] for r in catalog if r['entity_id'].startswith('automation.')}
             if not set(ids)<=known: raise InvalidSelection('Automation fehlt im aktuellen Bestand')
@@ -93,13 +104,23 @@ class OrganizationServiceMixin:
                 for eid in ids:
                     try:
                         raw=await self.client.automation_config(eid)
-                        reports.append(analyze(eid,raw,catalog,zone['area_ids'],(await self.status())['ready']))
+                        fresh=(await self.status())['ready'] and fresh
+                        reports.append(analyze(eid,raw,catalog,zone['area_ids'],fresh))
                     except (HomeAssistantError,InvalidSelection) as exc:
                         unread.append({'automation_id':eid,'reason':'configuration_unreadable' if isinstance(exc,HomeAssistantError) else 'structural_analysis_limit'})
+                    finally:
+                        fresh=(await self.status())['ready'] and fresh
             _,_,_,after=await self._organization_basis(zone_id,payload['revision'])
-            # Registry identity changes invalidate recommendations; live state changes alone do not.
-            if fingerprint([identity(r) for r in after])!=fingerprint([identity(r) for r in catalog]):
-                raise SelectionConflict('Entitätsregister während der Analyse geändert; erneut prüfen')
+            if catalog_basis(after)!=catalog_basis(catalog):
+                raise SelectionConflict('Entitätsbestand während der Analyse geändert; erneut prüfen')
+            fresh=(await self.status())['ready'] and fresh
+            if not fresh:
+                # A later reconnect cannot bless the earlier snapshot. A disconnect
+                # also invalidates the reports already collected in this batch.
+                for report in reports:
+                    for finding in report['findings']:
+                        finding['status']='snapshot_stale'
+                        finding['candidates']=[]
             return {'zone_id':zone_id,'revision':inv['revision'],'reports':reports,'unread':unread,
                 'complete':not unread,'coverage':'selected_automations_only','execution':{'allowed':False}}
 
@@ -109,10 +130,14 @@ class OrganizationServiceMixin:
         if not isinstance(eid,str) or not ENTITY.fullmatch(eid) or not eid.startswith('automation.') or len(eid)>255:
             raise InvalidSelection('Ungültige Automation')
         async with self._automation_review_lock:
+            if not (await self.status())['ready']:
+                raise SelectionConflict('Bestand nicht aktuell; vor dem Reparaturentwurf neu prüfen')
             _,_,_,catalog=await self._organization_basis(zone_id,payload['revision'])
             raw=await self.client.automation_config(eid)
             report=repair_preview(eid,raw,payload['fingerprint'],payload['replacements'],catalog)
-            await self._organization_basis(zone_id,payload['revision'])
+            _,_,_,after=await self._organization_basis(zone_id,payload['revision'])
+            if catalog_basis(after)!=catalog_basis(catalog) or not (await self.status())['ready']:
+                raise SelectionConflict('Bestand während der Entwurfsprüfung geändert; erneut prüfen')
             return await self.plans.organization_plan_create(zone_id,payload['revision'],report['edits'],
                 kind='repair_review',details={k:v for k,v in report.items() if k!='edits'})
 
