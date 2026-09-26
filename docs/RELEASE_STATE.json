@@ -4,33 +4,23 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.32",
-    "commit": "e2c0fdeb05571fbddbac4dc7cddd5f6d03fe5a9c",
-    "tree": "3b941b38076bddbc830f8db3e0adaeebd5a45e4f",
-    "app_tree": "efa460c35e83aecb4b8ed05033564525480aadab",
-    "pull_request": 69,
-    "candidate_commit": "2ff09a273c08c7cad2c83946eddfcdb06737619c",
-    "candidate_ci_run_id": 36249152522,
-    "ci_run_id": 36249569323,
-    "ci_conclusion": "success"
-  },
-  "published_source": {
-    "version": "0.1.0-alpha.32",
-    "commit": "e2c0fdeb05571fbddbac4dc7cddd5f6d03fe5a9c",
-    "tree": "3b941b38076bddbc830f8db3e0adaeebd5a45e4f",
-    "app_tree": "efa460c35e83aecb4b8ed05033564525480aadab",
-    "pull_request": 69,
-    "candidate_commit": "2ff09a273c08c7cad2c83946eddfcdb06737619c",
-    "candidate_ci_run_id": 36249152522,
-    "ci_run_id": 36249569323,
+    "version": "0.1.0-alpha.33",
+    "commit": "46ec340adf333f54efa760cde2d80f059b9c0ca2",
+    "tree": "295fed803c3b0caeb4c3747759a97c39de4e33ab",
+    "app_tree": "c059bc65fe76af09c560ca819b7051f81feecece",
+    "pull_request": 71,
+    "candidate_commit": "1a81070963706428baac29c7a0ad32b5164f439b",
+    "candidate_ci_run_id": 36260320758,
+    "ci_run_id": 36260423409,
+    "additional_main_ci_run_id": 36260420284,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "c6e83d19",
-    "name": "PilotSuite Alpha.31 before Alpha.32",
-    "date": "2026-09-26T14:43:40.162411+00:00",
-    "size_bytes": 54292480,
-    "app_version": "0.1.0-alpha.31",
+    "backup_id": "1ea31dc2",
+    "name": "PilotSuite Alpha32 before Alpha33 workspace recovery",
+    "date": "2026-09-26T17:42:27.746789+00:00",
+    "size_bytes": 54323200,
+    "app_version": "0.1.0-alpha.32",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -38,8 +28,8 @@
     "database_included": false,
     "folders": [],
     "failed_addons": [],
-    "failed_folders": [],
     "failed_agent_ids": [],
+    "failed_folders": [],
     "agent_errors": {},
     "agent_ids": [
       "hassio.local"
@@ -51,11 +41,12 @@
       "native backup/details"
     ],
     "restore_drill_performed": false,
-    "archive_extraction_performed": false
+    "archive_extraction_performed": false,
+    "rollback": "hassio.restore_partial, slug=1ea31dc2, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.32",
-    "offered_version": "0.1.0-alpha.32",
+    "installed_version": "0.1.0-alpha.33",
+    "offered_version": "0.1.0-alpha.33",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -65,66 +56,62 @@
     "explicit_restart_calls": 0,
     "rebuild_calls": 0,
     "other_app_update_calls": 0,
-    "source_association": "repository/version/app-tree; not independent installed-image attestation"
+    "source_association": "repository/version/app-tree; not independently verified Supervisor checkout or installed-image attestation"
   },
   "runtime": {
     "mode": "presence_adoption_review",
-    "startup_at": "2026-09-26T16:49:46Z",
+    "mode_unchanged": true,
+    "hard_read_only_not_claimed": true,
+    "startup_log_timestamp": "2026-09-26T19:52:35Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
-    "post_start_ready_at": [
-      "2026-09-26T16:49:47Z",
-      "2026-09-26T16:50:17Z"
+    "post_start_ready_log_timestamps": [
+      "2026-09-26T19:52:36Z",
+      "2026-09-26T19:53:37Z",
+      "2026-09-26T19:54:38Z"
     ],
-    "capabilities_available": [
-      "temperature",
-      "illuminance"
-    ],
-    "capabilities_partial": [
-      "humidity",
-      "motion",
-      "presence",
-      "light"
-    ]
+    "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
   },
   "tests": {
     "local_python_passed": 454,
     "local_javascript_passed": 56,
     "candidate_and_release_main_ci": "all four jobs successful",
     "browser_suites": 9,
+    "new_organization_browser_scenarios": 6,
     "container_platform": "linux/amd64"
   },
   "ui_review": {
-    "artifact_id": 10908731796,
-    "run_id": 36249152522,
-    "sha256": "83d9b27af019ecfd21c813d87639fb39ebd36b0d692f466d515d41e4cdfa6dc5",
-    "viewed_screenshots": [
-      "maintenance-1440.png",
-      "maintenance-390.png",
-      "organization-1440.png",
-      "organization-390.png"
-    ],
-    "basis": "actual application with synthetic fixture data; not household Ingress"
+    "artifact_id": 10912285575,
+    "artifact_digest": "sha256:8e06dca3d7d2cf658a74e6f1f97ea4ec3f221436e0f3d588d999b9fde73854aa",
+    "synthetic_only": true,
+    "visual_inspection_this_run": false,
+    "authenticated_household_ingress": "not tested; available browser has only about:blank and no authenticated HA session"
   },
-  "acceptance_boundaries": {
-    "authenticated_household_ux": "not directly tested",
-    "household_name_apply_or_undo": "not invoked; app-principal acceptance remains separate",
+  "boundaries": {
+    "household_name_apply_or_undo": "not invoked",
+    "app_principal_configuration_read_and_registry_rights": "not separately verified",
+    "independent_data_preservation": "not separately verified; options unchanged and persisted application starts ready",
     "technical_entity_id_migration": false,
     "automation_repair_execution": false,
-    "new_adaptive_learner": false,
-    "legacy_helper_provisioning": "withheld",
-    "legacy_presence_activation": "withheld",
-    "ingress_authentication_weakened": false,
-    "local_browser": "administrator navigation restriction respected; remote CI used"
+    "new_adaptive_learning": false,
+    "legacy_helper_and_presence_activation": "withheld unchanged",
+    "ingress_protection_weakened": false,
+    "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
-  "household_changes_this_delivery": [],
-  "history": {
-    "previous_main": "75c101b22da5e31ee12a1c7d211bfb09d1583825",
-    "previous_receipt_at": "75c101b22da5e31ee12a1c7d211bfb09d1583825:docs/RELEASE_STATE.json",
-    "superseded_failed_pr_head": "d374329a6d14fff28cf9156dfd2eaf060dac2798",
-    "offline_candidate_disposition": "compatible maintenance UI consolidated into PR69; not a wholesale replacement"
-  },
-  "next_task": "Verify authenticated inventory/name-plan UX, then implement one consumer-aware repair executor with exact before/after and recovery tests. Preserve current runtime/learning authority. Do not redeploy Alpha32 for documentation."
+  "household_changes": [],
+  "next_step": "Authenticated read-only acceptance of inventory editing/recovery and existing routine explanation in the already authorized Erdkeller use case; no household edits or extra learning.",
+  "published_source": {
+    "version": "0.1.0-alpha.33",
+    "commit": "46ec340adf333f54efa760cde2d80f059b9c0ca2",
+    "tree": "295fed803c3b0caeb4c3747759a97c39de4e33ab",
+    "app_tree": "c059bc65fe76af09c560ca819b7051f81feecece",
+    "pull_request": 71,
+    "candidate_commit": "1a81070963706428baac29c7a0ad32b5164f439b",
+    "candidate_ci_run_id": 36260320758,
+    "ci_run_id": 36260423409,
+    "additional_main_ci_run_id": 36260420284,
+    "ci_conclusion": "success"
+  }
 }

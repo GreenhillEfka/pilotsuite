@@ -1,74 +1,50 @@
-# Current candidate — Alpha.33
+# Current state — Alpha.33 delivered, 2026-09-26
 
-Recoverable inventory editing is implemented on the Alpha.32 source: stale plan
-responses cannot cross zones or revive invalidated confirmations; interrupted saves
-retain their visible selection and offer an explicit read-only recovery instead of
-write replay. Older-revision previews cannot be applied. The existing canonical
-owners and HA execution boundaries are unchanged.
+## User package: recoverable inventory editing
 
-Validation: 454 Python and 56 JavaScript tests passed locally; six additional
-synthetic full-app browser scenarios await exact candidate CI. No local browser
-acceptance or household-name write is claimed. RELEASE_STATE.json remains the
-actual Alpha.32 delivery receipt until a verified installation.
+PR 71 release commit 46ec340adf333f54efa760cde2d80f059b9c0ca2 adds matching
+zone/revision/generation checks to all organization-plan responses. Late replies
+cannot revive invalidated confirmation controls. Older-revision previews remain
+readable without Apply. Lost save acknowledgements and failed post-save reloads
+retain the visible selection and prevent write replay. Explicit recovery reads the
+canonical configuration; open role groups and search terms remain visible.
+Existing ContextStore/PlanStore, backend authority and household behavior are unchanged.
 
-Next: complete exact candidate CI and scoped backup/source gates, then deliver once
-and verify runtime; authenticated household UI acceptance remains independent.
+## Evidence
 
----
+Candidate 1a81070963706428baac29c7a0ad32b5164f439b: CI 36260320758 green.
+Exact release-main CI 36260420284 and 36260423409 green. All four jobs, nine browser
+suites; organization suite now has 11 checks including 6 new regression scenarios.
+454 Python and 56 JavaScript tests passed. Source preflight passed; repository tree
+295fed803c3b0caeb4c3747759a97c39de4e33ab, app tree c059bc65fe76af09c560ca819b7051f81feecece.
+Initial CI 36260055322 found a nonboolean dirty-state result, fixed; CI 36260188746
+exposed collapsed role groups after recovery, fixed. Neither failed run was released.
 
-# PilotSuite current state
+## Actual installation
 
-## 2026-09-26: Alpha.32 installed and runtime-verified
+Before publication, backup 1ea31dc2 completed: only PilotSuite Alpha.32 and app data/
+options, 54,323,200 bytes, local/unprotected, no failed parts, HA, database or folders.
+Native snapshot list and backup/details verified. Recovery is a targeted partial
+restore of that app only; it would discard PilotSuite changes since the backup.
+No archive download or restore drill. Exact receipt: docs/RELEASE_STATE.json.
 
-PR69 release: e2c0fdeb05571fbddbac4dc7cddd5f6d03fe5a9c.
-Root: 3b941b38076bddbc830f8db3e0adaeebd5a45e4f.
-App tree: efa460c35e83aecb4b8ed05033564525480aadab.
-Candidate: 2ff09a273c08c7cad2c83946eddfcdb06737619c.
-Exact candidate CI36249152522 and release-main CI36249569323 passed all four jobs
-including nine browser suites. Local compile/contracts/preflight plus 454 Python
-and 56 JavaScript tests passed. The earlier d374329 browser failure is resolved;
-it was never treated as an acceptable release. Offline code was selectively merged.
+One native Store refresh and one update installed Alpha.33. Installed/offered/started,
+no pending update. All four options and auto_update=true match before/after. Startup
+and post-start readiness logs confirm connected stream, fresh snapshot and resolved
+zone. Existing mode presence_adoption_review unchanged; hard_read_only is not claimed.
+The general Apply gate remains READ_ONLY_RELEASE=True in the exact tested source;
+existing denial tests pass. No real Apply request was made.
+No explicit restart/rebuild, other-app update, names, automations, actors or learning
+settings changed. A fresh transport projection does not certify physical sensor age.
 
-Before publication: native backupc6e83d19, 2026-09-26T14:43:40.162411+00:00,
-54,292,480 bytes, only PilotSuite Alpha31. Snapshot/list and backup/details verified
-scope/completion, no HA/database/folders or failed components/agents; local unprotected
-agent. No archive extraction, off-device verification or restore drill.
+## Remaining acceptance and next step
 
-One native check_updates and one PilotSuite update completed. Installed/offered
-0.1.0-alpha.32, started, update_available=false. All four options and auto_update=true
-preserved. Startup at16:49:46Z identifies Alpha32/v21/presence_adoption_review;
-16:49:47Z and16:50:17Z logs confirm ready, connected stream, fresh snapshot and resolved
-zone. Partial capabilities are unchanged, not transport failures. No explicit restart,
-rebuild, other-app update, household rename/repair or learning/runtime activation.
+Synthetic CI is not authenticated household UX. The available browser had only an
+empty tab, no logged-in HA session. App-principal configuration/registry rights,
+independent installed-image attestation and comprehensive data preservation remain
+separate, unverified checks. Options equality and successful startup are narrower
+observations. No Ingress weakening or speculative alternate access was attempted.
 
-## Delivered interfaces
-
-Configuration > Bestand & Ordnung: global catalogue/manual function assignments;
-automation-first analysis with literal template and timer-event references;
-explicit global scan batches; reasoned replacement candidates and repair previews;
-standard display-name proposals, confirmed name apply, durable per-operation status
-and separately previewed/confirmed undo. Existing ContextStore and PlanStore remain
-authoritative; optional function bindings are included in configuration savepoints.
-
-Maintenance: shared light/dark/system theme and density, responsive navigation,
-version/update/local-savepoint cards and an explicitly unverified native-backup card.
-Local savepoints are not native app backups. Rescue exposes only read-only assets.
-
-Technical Entity-ID migration, automation repair writes, takeover, accepted presence
-execution and richer adaptive Habitus learning are NOT delivered. Legacy unvalidated
-helper provisioning/presence activation are withheld. Display-name cleanup is not
-cross-system atomic and can affect name-based templates/voice usage; UI explains this.
-
-## Evidence and remaining acceptance
-
-UI artifact10908731796 from candidate CI, SHA256
-83d9b27af019ecfd21c813d87639fb39ebd36b0d692f466d515d41e4cdfa6dc5, was checked and
-maintenance/organization screenshots at390/1440 visually reviewed. Browser suites use
-the actual application with synthetic data. Authenticated household Ingress, the app
-principal's real name-apply path and complete accessibility acceptance remain separate.
-No household mutation was used for acceptance. Local browser policy was not bypassed.
-Store repository/version/app-tree association is not independent image attestation.
-
-Next: authenticated inventory/name-plan UX; then one consumer-aware, fault-tested
-repair executor. Read ORGANIZATION_AND_MIGRATION.md and ALPHA32_CONSOLIDATION.md.
-This closure changes documentation only; do not redeploy Alpha32 to continue.
+Next: authenticated read-only acceptance of inventory editing/recovery and existing
+routine explanation in the already authorized Erdkeller use case. No extra imports,
+learning consent or execution. Do not repeat Alpha.33 installation.
