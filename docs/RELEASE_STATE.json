@@ -4,22 +4,22 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.35",
-    "commit": "faf36118402e817d42c4ba1919995c40c53e0cf4",
-    "tree": "e6de3784174913f8657cbcf40819c0afafba6d0e",
-    "app_tree": "a876b4e55346036c0e4e7323c4a6ec944b3b3012",
-    "pull_request": 76,
-    "candidate_commit": "58b8d2d24843032c44f48836550d7c9c78f15e1a",
-    "candidate_ci_run_id": 36267009996,
-    "ci_run_id": 36267117823,
+    "version": "0.1.0-alpha.36",
+    "commit": "b8ebc1ba2a32450ceb35e71269399d2f62cabe54",
+    "tree": "e98511f2b85e00e735cdf5ec6798b8d548f7e7ee",
+    "app_tree": "469f1a668b826b4e4f9adedb97906c51d5bd3aae",
+    "pull_request": 80,
+    "candidate_commit": "5bb06accb3f11ba023051b75aeeac3f492baa23d",
+    "candidate_ci_run_id": 36272344492,
+    "ci_run_id": 36272461571,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "c194bc96",
-    "name": "PilotSuite Alpha34 before Alpha35 cumulative inventory",
-    "date": "2026-09-26T19:44:36.907867+00:00",
-    "size_bytes": 54323200,
-    "app_version": "0.1.0-alpha.34",
+    "backup_id": "67fa033b",
+    "name": "PilotSuite Alpha35 before Alpha36 inventory consistency",
+    "date": "2026-09-26T21:13:17.096122+00:00",
+    "size_bytes": 54353920,
+    "app_version": "0.1.0-alpha.35",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -41,11 +41,11 @@
     ],
     "restore_drill_performed": false,
     "archive_extraction_performed": false,
-    "rollback": "hassio.restore_partial, slug=c194bc96, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
+    "rollback": "hassio.restore_partial, slug=67fa033b, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.35",
-    "offered_version": "0.1.0-alpha.35",
+    "installed_version": "0.1.0-alpha.36",
+    "offered_version": "0.1.0-alpha.36",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -61,30 +61,30 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-26T21:46:31Z",
+    "startup_log_timestamp": "2026-09-26T23:19:48Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
     "post_start_ready_log_timestamps": [
-      "2026-09-26T21:46:32Z"
+      "2026-09-26T23:19:49Z"
     ],
     "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
   },
   "tests": {
-    "local_python_passed": 468,
+    "local_python_passed": 475,
     "local_javascript_passed": 56,
-    "new_python_regressions": 0,
+    "new_python_regressions": 7,
     "candidate_and_release_main_ci": "all four jobs successful",
     "browser_suites": 9,
     "organization_browser_scenarios": 12,
     "container_platform": "linux/amd64",
-    "local_browser": "not run; Chromium binary unavailable; exact CI browser job passed"
+    "local_browser": "not run; workspace/browser runtime disconnected after local Python/JS validation; exact candidate and main Chromium CI jobs passed"
   },
   "ui_review": {
     "synthetic_only": true,
     "visual_inspection_this_run": false,
-    "authenticated_household_ingress": "not tested for Alpha.35; browser tab listing contains only about:blank. Earlier Safari GETs in logs predate the update and are not reused as acceptance"
+    "authenticated_household_ingress": "not tested for Alpha.36; browser runtime attempt returned environment_offline. No proxy retry, auth bypass or altered ingress protection."
   },
   "boundaries": {
     "household_name_apply_or_undo": "not invoked",
@@ -98,17 +98,17 @@
     "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
   "household_changes": [],
-  "next_step": "Authenticated read-only cumulative inventory scan in the saved Erdkellerbereich zone, then the other three existing zones; resolve identities through the canonical owner, no inferred replacements, household writes or extra learning.",
+  "next_step": "Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.",
   "published_source": {
-    "version": "0.1.0-alpha.35",
-    "commit": "faf36118402e817d42c4ba1919995c40c53e0cf4",
-    "tree": "e6de3784174913f8657cbcf40819c0afafba6d0e",
-    "app_tree": "a876b4e55346036c0e4e7323c4a6ec944b3b3012",
-    "pull_request": 76,
-    "candidate_commit": "58b8d2d24843032c44f48836550d7c9c78f15e1a",
-    "candidate_ci_run_id": 36267009996,
-    "ci_run_id": 36267117823,
+    "version": "0.1.0-alpha.36",
+    "commit": "b8ebc1ba2a32450ceb35e71269399d2f62cabe54",
+    "tree": "e98511f2b85e00e735cdf5ec6798b8d548f7e7ee",
+    "app_tree": "469f1a668b826b4e4f9adedb97906c51d5bd3aae",
+    "pull_request": 80,
+    "candidate_commit": "5bb06accb3f11ba023051b75aeeac3f492baa23d",
+    "candidate_ci_run_id": 36272344492,
+    "ci_run_id": 36272461571,
     "ci_conclusion": "success"
   },
-  "checked_at": "2026-09-26T19:47:00+00:00"
+  "checked_at": "2026-09-26T21:20:39.953Z"
 }

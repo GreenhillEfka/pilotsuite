@@ -1,123 +1,49 @@
-# Current state — Alpha.35 delivered; API contract integrity added, 2026-09-26
+# Current state — Alpha.36 delivered, 2026-09-26
 
-## Alpha.36 candidate: consistent inventory snapshots
+## Fixed: inconsistent inventory snapshots
 
-Reproduced and fixed stale snapshot promotion after reconnect, mixed freshness across
-one inspection batch, and recommendations/previews surviving relevant catalog changes.
-The catalog guard includes metadata and availability while allowing normal available
-value changes. Repair preview refuses stale transport or changed catalog before any
-plan persistence. Existing non-executable repair semantics and general Apply remain.
-Seven new synthetic integration regressions cover the failures, HTTP 409, harmless
-value changes and absence of context/plan/HA mutations. All 475 Python tests pass.
-No household identifiers, configurations or live automations were modified.
+The existing inventory reader could promote an old catalog after reconnect, retain
+earlier fresh findings after losing the connection partway through a batch, and
+recommend replacements despite changes to availability or registry metadata.
+Repair previews could persist those outdated choices.
 
-Release/installation evidence remains separate in RELEASE_STATE.json. Alpha.35 was
-freshly verified installed/offered/started before work; Alpha.36 is not yet delivered.
-Next: complete exact candidate CI and the scoped-backup release gate, then deliver
-and perform the available read-only acceptance for the saved Erdkellerbereich and
-other existing zones. Authenticated UI acceptance must not be inferred from MCP.
+Alpha.36 retains conservative freshness across the entire explicit read batch,
+including failed configuration reads. Relevant catalog changes return HTTP 409.
+Ordinary available measurement changes remain allowed; snapshot values are not
+presented as proof of current physical measurements. Repair previews require fresh
+transport and unchanged catalog inputs before persistence; they remain non-executable.
 
-## Repository package: complete API inventory
+## Code and tests
 
-The former API page documented only a historic subset of the live application and
-named the legacy transaction parameter `{id}` although the registered path uses
-`{plan_id}`. The repository now lists all 48 registered `/api/v1` method/path pairs,
-grouped by owner and effect. It distinguishes inspection, preview, persistence,
-restore and explicitly confirmed apply operations instead of treating an HTTP method
-as an authority signal.
-
-The dependency-free repository validator reads the explicit route registrations and
-requires exact, unique set equality with docs/API.md. This is one owner plus one
-checked human view, not a second API schema. The package changes no endpoint, payload,
-application tree, version or installed app. Its scope and exclusions are recorded in
-docs/WORK_PACKAGE_API_INTEGRITY.md.
-
-## Delivered package: cumulative inventory integrity
-
-The existing explicit global scan reads at most eight automation configurations per
-request, but previously replaced the prior package's results. The candidate now keeps
-a transient zone/revision-bound view across explicit batches. It shows deterministic
-progress and separate filters for entity-reference findings, trigger-ID findings,
-unreadable configurations and all readable reports. Selected replacement candidates
-survive another batch and presentation-only filter changes.
-
-The view is derived only in browser memory. A reload, zone/revision change or explicit
-invalidation discards it; a late response cannot cross the existing request generation
-boundary. There is no second queue/store, automatic full scan, configuration save,
-repair execution or HA control. Each click still reads at most eight configurations.
-Synthetic browser coverage uses ten automations over two packages including one
-unreadable configuration, retained draft/replacement choices, filters, mobile layout
-and absence of saves/control.
-
-PR 76 release faf36118402e817d42c4ba1919995c40c53e0cf4 passed exact candidate
-CI 36267009996 and release-main CI 36267117823 (all four jobs). Fresh backup
-c194bc96 contains only PilotSuite Alpha.34 app/data/options, no HA/database/folders
-or failed parts. One Store refresh and one update installed Alpha.35; options and
-auto_update stayed unchanged. Startup, stream, fresh snapshot, readiness and zone
-resolution are confirmed; mode remains presence_adoption_review. Full evidence is in
-RELEASE_STATE.json.
-
-The native Supervisor proxy is refused with the intended `403 Ingress access required`
-and that protection remains unchanged. Authenticated Alpha.35 Ingress remains open:
-the available browser contains only
-about:blank. Earlier Safari GETs in logs predate this update and are not reused as
-acceptance. Next: read-only cumulative scan in the saved Erdkellerbereich zone, then
-the other three existing zones; no inferred replacement or household write.
-
-## Previous delivery — Alpha.34, 2026-09-26
-
-## User package: inventory and trigger integrity
-
-Existing entity-reference reviews missed conditions referencing nonexistent trigger
-IDs. PR 74 fixes that blind spot with one shared bounded projection for inventory and
-routine details. It distinguishes missing/partial/matched/disabled/inactive/unknown,
-respects inherited disabled status, supports implicit integer indices and shared IDs,
-and withholds certainty for unresolved catalogues. Wait triggers and data payloads
-are not automation trigger declarations; private authored IDs never leave the projection.
-No ID condition is required; no explicit reference does not prove an unused trigger.
-
-Both existing workspaces share safe text rendering, exact structural locations and a
-manual next inspection step. Analysis keeps unsaved selections, never saves a config,
-creates a repair plan or controls HA. Existing revision/fingerprint and response
-isolation boundaries remain intact. No new module owner, database or learning path.
-
-## Source and validation
-
-Release 20adb0e6ddf61ab899366b8a24f66f67468df569, candidate 1866e17a2655b1a591c2730403fc3a9eeb764ce5.
-Repository tree 1e7a3aff09a84d3212592df7ef2e5183366e8850; app tree b456df3d8f821c3679ad62da237d6f2cc07c3c3f.
-Local 468 Python and 56 JavaScript tests passed, including 14 new Python regressions.
-Exact candidate CI 36263679166 and release-main CI 36263809521 are fully green:
-all four jobs, nine Chromium suites, amd64 build. Organization suite has 12 scenarios.
-Local browser could not start without Chromium; CI browser evidence is separate.
-Source preflight passed for the exact released commit.
+PR 80, release b8ebc1ba2a32450ceb35e71269399d2f62cabe54.
+Seven new synthetic integration regressions; 475 Python and 56 JavaScript tests pass.
+Exact candidate CI 36272344492 and release-main CI 36272461571 passed all four jobs:
+tests/release-source contracts, nine Chromium suites, amd64 container and source bundle.
+The local runtime disconnected after tests; the anchored patch was reconstructed via
+native GitHub tools from the verified base. Exact remote diff and CI were checked.
+The 48-route API contract inventory and prior cumulative/trigger integrity features
+remain covered. Historical delivery details remain in IMPLEMENTATION_STATUS and Git.
 
 ## Actual installation
 
-Fresh backup 09436e7c verified through native snapshot list and backup/details before
-publication: Alpha.33 app/data/options only, 54,312,960 bytes, local/unprotected,
-no HA/database/folders or failed parts. Targeted app-only partial restore would lose
-PilotSuite changes since that backup; no archive extraction or test restore.
-One native Store refresh and one update installed Alpha.34. Installed/offered/started,
-no pending update; all four options and auto_update unchanged. Startup version,
-connected stream, fresh snapshot, readiness and zone resolution confirmed in logs.
-Existing presence_adoption_review mode retained; hard_read_only is not claimed.
-General Apply remains READ_ONLY_RELEASE=True in exact tested code, no live Apply.
-No extra restart/rebuild, other-app action, household config, role, consent or actor
-change. Full deployment receipt is docs/RELEASE_STATE.json.
+Backup 67fa033b was completed and verified before publication through native snapshot
+list and backup/details: only Alpha.35 app/data/options, 54,353,920 bytes, unprotected,
+no failed components, HA, database or folders. Targeted app-only rollback would
+overwrite PilotSuite data since that backup. No archive extraction or restore drill.
 
-## Live inventory review and limits
+One native Store refresh and one update installed Alpha.36. Installed/offered/started,
+options and auto_update unchanged; no extra restart/rebuild. Startup/readiness logs
+confirm presence_adoption_review, connected stream, fresh snapshot and resolved zone.
+General Apply remains READ_ONLY_RELEASE=True in exact tested source; no live Apply.
+No other app, household configuration, device action, role or learning change.
 
-User-authorized development reads cover HA-wide entities and automations, separately
-from productive app learning consent. Native configuration validation, reference and
-registry reads were performed; concrete household findings stay in a private report,
-not this public repository. A syntactically valid HA config does not prove referential
-or behavioral integrity. Missing references are not permission to guess replacements.
-Four existing user-confirmed zones include Erdkellerbereich; their saved canonical
-membership is not inferred from names. No new zones or helpers were created.
+## Acceptance and next step
 
-The fresh browser listing contains only about:blank, no authenticated HA session.
-True Ingress UI, app-principal config rights, independent installed-image attestation
-and comprehensive data preservation remain unverified. Options/startup confirm less.
+RELEASE_STATE.json separates source, backup, installation and runtime evidence.
+The browser runtime returned environment_offline; actual Alpha.36 Ingress remains
+unverified. No failed proxy retry or weakened access. App-principal configuration
+rights, independent data preservation and installed-image attestation remain separate.
+The user-confirmed label is Erdkellerbereich and three other zones already exist;
+canonical saved IDs and membership must be read, never inferred or recreated.
 
-Next: read-only acceptance of integrity findings against the four existing saved
-zones, starting with Erdkellerbereich; no inferred replacement or household writes.
+Next: Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.
