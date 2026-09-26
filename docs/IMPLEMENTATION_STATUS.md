@@ -1,8 +1,8 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.35 candidate — cumulative inventory integrity
+## Installed Alpha.35 — cumulative inventory integrity
 
-| Capability | Candidate scope |
+| Capability | Delivered scope |
 |---|---|
 | Package continuity | Same-zone/revision results accumulate across explicit batches of at most eight |
 | Completeness view | Exact requested/total progress plus readable and unreadable counts |
@@ -12,8 +12,10 @@
 | Persistence/control | None added; no queue, automatic scan, repair execution or HA write |
 | Regression | Ten synthetic automations, two batches, one unreadable config, no mutations |
 
-RELEASE_STATE remains the installed Alpha.34 receipt until source, CI, backup, Store,
-runtime and live acceptance are completed separately.
+PR 76 release faf3611; candidate CI 36267009996 and main CI 36267117823 passed all
+four jobs. Backup c194bc96 contains only Alpha.34 app/data/options. Alpha.35 is
+installed/offered/started with unchanged options/auto_update and healthy readiness.
+Authenticated Alpha.35 Ingress remains open; see RELEASE_STATE.json.
 
 ## Installed Alpha.34 — 2026-09-26
 

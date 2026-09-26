@@ -5,10 +5,10 @@
   do not repeat old installations or reimplement completed compass/daily-brief work.
 - Existing inventory and routine reviews now include bounded trigger-ID integrity.
   Actual source, CI, backup, runtime and household UI remain separate evidence.
-- Current candidate closes the package-overwrite gap in the explicit global scan with
+- Alpha.35 closes the package-overwrite gap in the explicit global scan with
   a transient cumulative view, progress, integrity filters and conservative invalidation.
-- Next: exact release gates, then read-only acceptance against the four existing saved
-  zones, starting with Erdkellerbereich. Read canonical IDs; do not infer membership.
+- Next: authenticated read-only acceptance against the four existing saved zones,
+  starting with Erdkellerbereich. Read canonical IDs; do not infer membership.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before
