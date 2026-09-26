@@ -46,5 +46,22 @@ separate, unverified checks. Options equality and successful startup are narrowe
 observations. No Ingress weakening or speculative alternate access was attempted.
 
 Next: authenticated read-only acceptance of inventory editing/recovery and existing
-routine explanation in the already authorized Erdkeller use case. No extra imports,
+routine explanation in the already authorized Erdkellerbereich use case. No extra imports,
 learning consent or execution. Do not repeat Alpha.33 installation.
+
+## Follow-up read-only acceptance — 2026-09-26
+
+The user corrected the real case label to **Erdkellerbereich**. Preserve technical
+identity; no HA area, entity, stored zone, option or automation was renamed.
+Native HA reads confirm existing presence/timing/light logic, so an additional
+PilotSuite helper set is not justified merely by the new display name. Household
+configurations and readings remain outside this public repository.
+
+A useful next inspection question is whether shutdown conditions respect still-active
+presence. Treat an explicitly authored shutdown rule as behavior to review, not an
+automatically repairable defect. This is a manual read-only assessment via HA-MCP,
+not a completed app-generated proposal or browser acceptance. The app's canonical
+zone endpoint continues to enforce Ingress (HTTP403); no alternate access attempted.
+Installed/offered Alpha.33 remains started and ready. No update/restart/backup was
+needed for this clarification. The next step above remains authenticated read-only
+acceptance, with the corrected case label and this concrete inspection question.

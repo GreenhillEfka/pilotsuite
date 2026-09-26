@@ -101,7 +101,7 @@
     "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
   "household_changes": [],
-  "next_step": "Authenticated read-only acceptance of inventory editing/recovery and existing routine explanation in the already authorized Erdkeller use case; no household edits or extra learning.",
+  "next_step": "Authenticated read-only acceptance of inventory editing/recovery and existing routine explanation in the already authorized Erdkellerbereich use case; no household edits or extra learning.",
   "published_source": {
     "version": "0.1.0-alpha.33",
     "commit": "46ec340adf333f54efa760cde2d80f059b9c0ca2",
