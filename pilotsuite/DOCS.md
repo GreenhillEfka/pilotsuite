@@ -41,6 +41,13 @@ Die ältere Präsenz-Aktivierungs-API ist bis zur gesonderten Abnahme der Timer-
 und Zuständigkeitsübergabe gesperrt. Eine Funktionszuordnung aktiviert sie nicht.
 Details: `docs/ORGANIZATION_AND_MIGRATION.md`.
 
+Ab Alpha.37 zeigt dieselbe ausdrückliche Bestandsanalyse zusätzlich konservative
+Prüfhinweise für Präsenzabläufe. Sie markiert, wenn ein geschlossenes Zugangselement
+einen strukturell erkannten Raumstatus ausschalten kann oder ein Nachlauftimer nur
+beim Zustandswechsel zu aktiver Bewegung erneuert wird. Das sind fachliche Fragen,
+keine Laufzeit-, Fehler- oder Sicherheitsbeweise. Dynamische oder nicht eindeutig
+zugeordnete Zweige bleiben offen. Die Ansicht ändert keine HA-Automation.
+
 ## Workspace navigation
 
 Alpha.31 opens the Cockpit. Use Zonenmodule for source diagrams, Konfiguration for
@@ -62,7 +69,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.37`
+- Release: `0.1.0-alpha.38`
 
 ## Habitus zones and entity selection
 

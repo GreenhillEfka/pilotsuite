@@ -1,7 +1,7 @@
 # Presence-first intelligence: decisions, stages and acceptance
 
 Status: design accepted for implementation planning, not a claim of delivered control.
-Alpha.37 implements only the event-evidence and workspace fixes described below.
+Alpha.38 implements only the event-evidence and workspace fixes described below.
 Canonical project remains GreenhillEfka/pilotsuite; no alternative runtime or store.
 
 ## Product contract
@@ -21,7 +21,7 @@ One canonical projection supplies every module. Source quality, presence, activi
 chosen ambience, learned preference and action authority are separate dimensions.
 A green input card must not turn an unavailable execution capability into a button.
 
-## Delivered in Alpha.37
+## Delivered in Alpha.38
 
 The existing WorldModel now returns whether a state frame was accepted. Rejected
 older/equal/duplicate or malformed frames cannot be consumed as new learning events.
@@ -160,7 +160,7 @@ hardware/model service is assumed. Benchmark latency/memory before adding a mode
 
 | Step | Deliverable | Required proof |
 |---|---|---|
-| 37 (this package) | Event/context consistency and coherent role/reference UI | Synthetic regression, full CI, no new actions/consent |
+| 38 (this package) | Event/context consistency and coherent role/reference UI | Synthetic regression, full CI, no new actions/consent |
 | Next | Persistent presence kernel + explanation/replay UI | Out-of-order events, pulse vs continuous, group overlap, restart, stale finish, unknown sensors |
 | Then | Daylight/mood policy + preview | No oscillation; capabilities, manual override, night exit, bounded transitions |
 | Then | Scoped HA executor and one zone rollout | Before-state, per-action authority, readback, lost response and conflict handling; explicit zone approval |
