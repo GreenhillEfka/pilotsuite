@@ -1,8 +1,8 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.37 candidate — presence lifecycle questions
+## Installed Alpha.37 — presence lifecycle questions
 
-| Capability | Candidate scope |
+| Capability | Verified scope |
 |---|---|
 | Boundary close | Flags a literal close-trigger branch that clears a plausible bidirectionally set room status |
 | Activity timeout | Flags a literal activity-start branch that directly starts the presence timer |
@@ -10,11 +10,14 @@
 | Integrity | Stale, disabled, dynamic, ambiguous and indirect paths cannot become findings |
 | Privacy | No authored trigger IDs, aliases, raw configuration or payload values in the projection |
 | Mutation | None: transient analysis, no save/repair/learning/control |
-| Local validation | 484 Python, 56 JavaScript; one new full-app browser scenario awaits exact CI |
+| Validation | 484 Python, 56 JavaScript; exact candidate/main Chromium and amd64 CI green |
 
-Alpha.36 remains installed/offered/started. Alpha.37 source, CI, backup, publication,
-installation and authenticated household acceptance are separate gates. Next: exact
-candidate CI and scoped backup, then read-only Erdkellerbereich acceptance.
+PR 82 release 93e6df7; candidate CI 36277330306 and main CI 36277424359 passed all
+four jobs. Backup 0baa717d contains only Alpha.36 app/data/options. One Store refresh
+and one update installed Alpha.37; started, ready, connected, fresh and zone-resolved
+in unchanged presence_adoption_review mode. Options/auto_update unchanged. Real
+Ingress remains open because the authenticated cloud endpoint returned 502 before the
+UI loaded. Next: read-only Erdkellerbereich lifecycle acceptance, then one unlike zone.
 
 ## Installed Alpha.36 — consistent inventory snapshots
 

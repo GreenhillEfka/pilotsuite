@@ -1,28 +1,26 @@
 {
   "schema": "pilotsuite-release-receipt-v1",
-  "verified_date": "2026-09-26",
+  "verified_date": "2026-09-27",
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.36",
-    "commit": "b8ebc1ba2a32450ceb35e71269399d2f62cabe54",
-    "tree": "e98511f2b85e00e735cdf5ec6798b8d548f7e7ee",
-    "app_tree": "469f1a668b826b4e4f9adedb97906c51d5bd3aae",
-    "pull_request": 80,
-    "candidate_commit": "5bb06accb3f11ba023051b75aeeac3f492baa23d",
-    "candidate_ci_run_id": 36272344492,
-    "ci_run_id": 36272461571,
+    "version": "0.1.0-alpha.37",
+    "commit": "93e6df76d23a3171edcecfa9130330f192aa5d5f",
+    "tree": "3f71bec8022d3eb47e70557a134fce67e6705cf5",
+    "app_tree": "ffaae4a8eb446823aeeb52221427ada0ab942161",
+    "pull_request": 82,
+    "candidate_commit": "7aa8f7f2ce48f9b3d423c1d3c5363bdbd46166d6",
+    "candidate_ci_run_id": 36277330306,
+    "ci_run_id": 36277424359,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "67fa033b",
-    "name": "PilotSuite Alpha35 before Alpha36 inventory consistency",
-    "date": "2026-09-26T21:13:17.096122+00:00",
-    "size_bytes": 54353920,
-    "app_version": "0.1.0-alpha.35",
-    "app_slugs": [
-      "0d79c5e8_pilotsuite"
-    ],
+    "backup_id": "0baa717d",
+    "name": "PilotSuite Alpha36 before Alpha37 presence lifecycle review",
+    "date": "2026-09-26T22:46:08.674517+00:00",
+    "size_bytes": 54312960,
+    "app_version": "0.1.0-alpha.36",
+    "app_slugs": ["0d79c5e8_pilotsuite"],
     "homeassistant_included": false,
     "database_included": false,
     "folders": [],
@@ -30,22 +28,17 @@
     "failed_agent_ids": [],
     "failed_folders": [],
     "agent_errors": {},
-    "agent_ids": [
-      "hassio.local"
-    ],
+    "agent_ids": ["hassio.local"],
     "protected": false,
     "completion_verified_before_publication": true,
-    "verification": [
-      "native snapshot list",
-      "native backup/details"
-    ],
+    "verification": ["native snapshot list", "native backup/details"],
     "restore_drill_performed": false,
     "archive_extraction_performed": false,
-    "rollback": "hassio.restore_partial, slug=67fa033b, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
+    "rollback": "hassio.restore_partial, slug=0baa717d, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.36",
-    "offered_version": "0.1.0-alpha.36",
+    "installed_version": "0.1.0-alpha.37",
+    "offered_version": "0.1.0-alpha.37",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -61,30 +54,28 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-26T23:19:48Z",
+    "startup_log_timestamp": "2026-09-27T00:50:10Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
-    "post_start_ready_log_timestamps": [
-      "2026-09-26T23:19:49Z"
-    ],
+    "post_start_ready_log_timestamps": ["2026-09-27T00:50:11Z"],
     "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
   },
   "tests": {
-    "local_python_passed": 475,
+    "local_python_passed": 484,
     "local_javascript_passed": 56,
-    "new_python_regressions": 7,
+    "new_python_regressions": 9,
     "candidate_and_release_main_ci": "all four jobs successful",
     "browser_suites": 9,
-    "organization_browser_scenarios": 12,
+    "organization_browser_scenarios": 13,
     "container_platform": "linux/amd64",
-    "local_browser": "not run; workspace/browser runtime disconnected after local Python/JS validation; exact candidate and main Chromium CI jobs passed"
+    "local_browser": "real authenticated browser attempted after installation; remote HA endpoint returned 502 connection closed. Exact candidate and main synthetic Chromium jobs passed"
   },
   "ui_review": {
     "synthetic_only": true,
     "visual_inspection_this_run": false,
-    "authenticated_household_ingress": "not tested for Alpha.36; browser runtime attempt returned environment_offline. No proxy retry, auth bypass or altered ingress protection."
+    "authenticated_household_ingress": "attempted for Alpha.37; the authenticated cloud browser endpoint returned 502 Bad Gateway / connection closed before PilotSuite UI loaded. One reload had the same result. No proxy retry, auth bypass or altered ingress protection."
   },
   "boundaries": {
     "household_name_apply_or_undo": "not invoked",
@@ -98,17 +89,17 @@
     "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
   "household_changes": [],
-  "next_step": "Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.",
+  "next_step": "Authenticated read-only Alpha.37 lifecycle review in the saved Erdkellerbereich zone, then one unlike existing zone; resolve canonical identities in PilotSuite and do not change HA automation, learning or devices.",
   "published_source": {
-    "version": "0.1.0-alpha.36",
-    "commit": "b8ebc1ba2a32450ceb35e71269399d2f62cabe54",
-    "tree": "e98511f2b85e00e735cdf5ec6798b8d548f7e7ee",
-    "app_tree": "469f1a668b826b4e4f9adedb97906c51d5bd3aae",
-    "pull_request": 80,
-    "candidate_commit": "5bb06accb3f11ba023051b75aeeac3f492baa23d",
-    "candidate_ci_run_id": 36272344492,
-    "ci_run_id": 36272461571,
+    "version": "0.1.0-alpha.37",
+    "commit": "93e6df76d23a3171edcecfa9130330f192aa5d5f",
+    "tree": "3f71bec8022d3eb47e70557a134fce67e6705cf5",
+    "app_tree": "ffaae4a8eb446823aeeb52221427ada0ab942161",
+    "pull_request": 82,
+    "candidate_commit": "7aa8f7f2ce48f9b3d423c1d3c5363bdbd46166d6",
+    "candidate_ci_run_id": 36277330306,
+    "ci_run_id": 36277424359,
     "ci_conclusion": "success"
   },
-  "checked_at": "2026-09-26T21:20:39.953Z"
+  "checked_at": "2026-09-26T22:51:07Z"
 }
