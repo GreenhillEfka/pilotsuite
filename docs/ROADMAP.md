@@ -7,6 +7,8 @@
   Actual source, CI, backup, runtime and household UI remain separate evidence.
 - Alpha.35 closes the package-overwrite gap in the explicit global scan with
   a transient cumulative view, progress, integrity filters and conservative invalidation.
+- The complete 48-route `/api/v1` inventory is now checked against the executable
+  router; route/documentation drift fails regression instead of silently accumulating.
 - Next: authenticated read-only acceptance against the four existing saved zones,
   starting with Erdkellerbereich. Read canonical IDs; do not infer membership.
 - Development may read HA-wide entities/automations under explicit user authority.

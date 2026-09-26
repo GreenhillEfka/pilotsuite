@@ -1,4 +1,19 @@
-# Current state — Alpha.35 delivered, 2026-09-26
+# Current state — Alpha.35 delivered; API contract integrity added, 2026-09-26
+
+## Repository package: complete API inventory
+
+The former API page documented only a historic subset of the live application and
+named the legacy transaction parameter `{id}` although the registered path uses
+`{plan_id}`. The repository now lists all 48 registered `/api/v1` method/path pairs,
+grouped by owner and effect. It distinguishes inspection, preview, persistence,
+restore and explicitly confirmed apply operations instead of treating an HTTP method
+as an authority signal.
+
+The dependency-free repository validator reads the explicit route registrations and
+requires exact, unique set equality with docs/API.md. This is one owner plus one
+checked human view, not a second API schema. The package changes no endpoint, payload,
+application tree, version or installed app. Its scope and exclusions are recorded in
+docs/WORK_PACKAGE_API_INTEGRITY.md.
 
 ## Delivered package: cumulative inventory integrity
 
@@ -25,7 +40,9 @@ auto_update stayed unchanged. Startup, stream, fresh snapshot, readiness and zon
 resolution are confirmed; mode remains presence_adoption_review. Full evidence is in
 RELEASE_STATE.json.
 
-Authenticated Alpha.35 Ingress remains open: the available browser contains only
+The native Supervisor proxy is refused with the intended `403 Ingress access required`
+and that protection remains unchanged. Authenticated Alpha.35 Ingress remains open:
+the available browser contains only
 about:blank. Earlier Safari GETs in logs predate this update and are not reused as
 acceptance. Next: read-only cumulative scan in the saved Erdkellerbereich zone, then
 the other three existing zones; no inferred replacement or household write.

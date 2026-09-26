@@ -3,7 +3,17 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.35 cumulative inventory overview delivered
+## Resume: API contract integrity after delivered Alpha.35
+
+The repository now inventories all 48 registered `/api/v1` method/path contracts in
+docs/API.md. The dependency-free repository validator compares the human inventory
+directly with explicit route registrations, including uniqueness, so future changes cannot leave it
+silently partial. The update corrects the legacy `{id}`/`{plan_id}` mismatch and
+separates inspection, preview, persistence, restore and apply semantics. No endpoint,
+application code, version, option or installed state changed; see
+docs/WORK_PACKAGE_API_INTEGRITY.md.
+
+## Installed: Alpha.35 cumulative inventory overview delivered
 
 The explicit global scan still reads no more than eight automation configurations per
 click, but its browser-only view now accumulates same-zone/same-revision packages.
@@ -20,7 +30,9 @@ and one update; no explicit restart. Options/auto_update unchanged; startup repo
 ready, connected stream, fresh snapshot and resolved zone in unchanged
 presence_adoption_review mode. RELEASE_STATE is the canonical receipt.
 
-Authenticated Alpha.35 Ingress is not tested; current browser has only about:blank.
+The native Supervisor app proxy returns the expected `403 Ingress access required`;
+do not weaken or bypass that guard. Authenticated Alpha.35 Ingress is not tested;
+current browser has only about:blank.
 Next: explicit read-only cumulative scan in saved Erdkellerbereich, then the other
 three zones. Do not infer identities, repair automations or change household state.
 
