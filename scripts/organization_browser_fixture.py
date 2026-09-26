@@ -9,6 +9,7 @@ from copy import deepcopy
 from aiohttp import web
 from pilotsuite.app import create_app,SERVICE_KEY
 from pilotsuite.core.settings import Settings
+from pilotsuite.ha.client import HomeAssistantError
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'pilotsuite'/'tests'))
 from organization_support import seed,SAMPLE
 
@@ -20,6 +21,11 @@ async def main():
             refresh_interval_seconds=3600,ingress_allowed_peers=('127.0.0.1',)))
         runner=web.AppRunner(app);await runner.setup();service=app[SERVICE_KEY]
         registry=await seed(service)
+        default_config=deepcopy(service.client.automation_config.return_value)
+        async def inventory_config(entity_id):
+            if entity_id=='automation.audit_09': raise HomeAssistantError('Synthetic unreadable configuration')
+            return deepcopy(default_config)
+        service.client.automation_config.side_effect=inventory_config
         site=web.TCPSite(runner,'127.0.0.1',0);await site.start()
         print(json.dumps({'url':f'http://127.0.0.1:{site._server.sockets[0].getsockname()[1]}/'}),flush=True)
         try:
@@ -34,6 +40,7 @@ async def main():
                     config['actions'].append({'if':[{'condition':'trigger','id':['PRIVATE_TRIGGER_ID','missing-id']}],
                         'then':[{'action':'light.turn_off','target':{'entity_id':'light.synthetic'}}],
                         'else':[{'condition':'trigger','id':'<img src=x onerror=alert(1)>'}]})
+                    service.client.automation_config.side_effect=None
                     service.client.automation_config.return_value=config
                 elif cmd['action']!='snapshot': raise ValueError('Unsupported fixture command')
                 cfg=await service.context.get('room')

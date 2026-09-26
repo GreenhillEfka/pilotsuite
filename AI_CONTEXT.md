@@ -3,7 +3,18 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.34 delivered, 2026-09-26
+## Active package: Alpha.35 cumulative inventory overview candidate
+
+The explicit global scan still reads no more than eight automation configurations per
+click, but its browser-only view now accumulates same-zone/same-revision packages.
+Progress and deterministic filters separate reference findings, trigger-ID findings,
+unreadable configurations and all readable results. Replacement selections persist
+across another package/filter; reload, zone/revision change and invalidation discard
+the transient view. No new store, background scan, repair execution, HA write, learning
+or authority. RELEASE_STATE remains Alpha.34 until actual delivery. Next: exact CI and
+release gates, then read-only Erdkellerbereich acceptance through authenticated Ingress.
+
+## Previous delivery: Alpha.34, 2026-09-26
 
 PR 74 release 20adb0e6ddf61ab899366b8a24f66f67468df569 installed/offered/started.
 Exact candidate CI 36263679166 and release-main CI 36263809521 passed all four jobs

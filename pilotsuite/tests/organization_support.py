@@ -23,6 +23,7 @@ async def seed(service):
       ('input_boolean.room_blocker','Automation lock','input_boolean','blocker-stable','room','off',{}),
       ('binary_sensor.room_derived','Derived room state','template','derived-stable','room','off',{'device_class':'occupancy'}),
       ('automation.legacy_presence','Existing presence','automation','synthetic-presence','room','on',{}),
+      *[(f'automation.audit_{number:02d}',f'Inventory audit {number:02d}','automation',f'audit-{number:02d}',None,'on',{}) for number in range(1,10)],
       ('sensor.room_power','Room power','demo','watts','room','35',{'unit_of_measurement':'W'}),
       ('sensor.room_energy','Room energy','demo','energy','room','35',{'unit_of_measurement':'kWh'}),
     ]
