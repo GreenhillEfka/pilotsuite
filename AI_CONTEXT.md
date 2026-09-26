@@ -3,6 +3,15 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
+## Live-case naming — user clarification, 2026-09-26
+
+The current user-confirmed case label is **Erdkellerbereich**. A display-name change
+is not a new zone or permission to rewrite technical IDs, HA areas or the historical
+bootstrap option. Resolve the saved Habitus zone by stable zone_id through the
+canonical zone owner when authenticated Ingress is available; do not derive an ID
+from the display name. HA metadata/read-only automation inspection does not certify
+the app's saved zone membership or its own configuration-read rights.
+
 ## Resume: Alpha.33 delivered, 2026-09-26
 
 PR 71 release 46ec340adf333f54efa760cde2d80f059b9c0ca2 is installed/offered/started.
@@ -45,7 +54,7 @@ savepoints from native HA backups. The app says native backup is not directly ch
 our native release backup verification is separate. Rescue remains read-only.
 
 Next: authenticated read-only acceptance of inventory editing/recovery and existing
-routine explanation in the already authorized Erdkeller use case. No household edits,
+routine explanation in the already authorized Erdkellerbereich use case. No household edits,
 new data collection, consent or execution activation. App-principal rights and
 independent data preservation/image attestation remain unverified. No Ingress bypass.
 Final documentation CI results belong in its PR, not another documentation loop.

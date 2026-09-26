@@ -30,4 +30,4 @@ name, role, consent or automation change. Existing HA/SQLite and registry CAS li
 remain as documented in ORGANIZATION_AND_MIGRATION.md.
 
 Next: authenticated read-only acceptance of inventory editing/recovery and existing
-routine explanation in the already authorized Erdkeller use case.
+routine explanation in the already authorized Erdkellerbereich use case.
