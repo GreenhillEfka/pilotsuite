@@ -137,10 +137,11 @@
     if(focused)[...cards.querySelectorAll('button')].find(b=>b.dataset.psZone===focused)?.focus({preventScroll:true});
   }
   function renderModules(force=false){window.PilotSuiteOrganization?.context(selectionZone,contextData?.revision);const ok=valid();const f=ok?contextData.foundation:null;
-    const key=JSON.stringify([ok,f,activeModule,status?.ready]);if(!force&&key===modulesKey)return;modulesKey=key;
+    const key=JSON.stringify([ok,f,activeModule,status?.ready,contextData?.effective_roles,
+      zoneResults.find(z=>z.zone_id===selectionZone)?.summary]);if(!force&&key===modulesKey)return;modulesKey=key;
     moduleCards.replaceChildren();moduleDetail.replaceChildren();roleSummary.replaceChildren();
     if(!ok){moduleCards.append(E('p','Zonenstand nicht bestätigt oder Bearbeitung offen. Nach erfolgreichem Laden wird die Quellenansicht aktualisiert.','ps-empty'));return;}
-    const configured=contextData.config?.roles||{},validated=f.validated_roles||{};
+    const configured=M.effectiveRoles(contextData),validated=f.validated_roles||{};
     for(const m of M.modules){const card=B('',()=>{activeModule=m.id;renderModules(true);moduleCards.querySelector(`[data-ps-module="${m.id}"]`)?.focus({preventScroll:true});});card.className='ps-module-card';card.dataset.psModule=m.id;card.setAttribute('aria-pressed',String(activeModule===m.id));
       const assigned=new Set(m.roles.flatMap(k=>configured[k]||[])).size,accepted=new Set(m.roles.flatMap(k=>validated[k]||[])).size;
       card.append(icon(m.icon),E('strong',m.title),E('span',`${assigned} zugeordnet · ${status?.ready?accepted:'—'} aktuell nutzbar`),E('small',m.id==='presence'?'Runtime separat prüfen; hier keine Aktivierung.':'Steuerung noch nicht implementiert.'));if(assigned){const meter=E('meter');meter.min=0;meter.max=assigned;meter.value=status?.ready?accepted:0;meter.setAttribute('aria-label',status?.ready?`${accepted} von ${assigned} zugeordneten Quellen nutzbar`:'Nutzbarkeit bei fehlender Verbindung nicht bestätigt');card.append(meter);}moduleCards.append(card);
@@ -149,11 +150,28 @@
     const flow=E('div','','ps-flow');flow.setAttribute('aria-label',m.title+': Quellen, Referenz und Umsetzung');
     const sources=E('section','','ps-flow-node');sources.append(E('h4','01 · Zugeordnete Quellen'));
     for(const role of m.roles){const ids=configured[role]||[];const row=E('div','','ps-source-group');row.append(E('strong',M.roles[role]));
+      if(ids.length&&M.roleOrigin(contextData,role)==='derived')row.append(E('small','Automatisch abgeleitet · noch nicht manuell bestätigt','ps-muted'));
       if(!ids.length)row.append(E('span','Nicht zugeordnet','ps-muted'));
       for(const id of ids){const chip=E('span','','ps-chip');const usable=status?.ready===true&&(validated[role]||[]).includes(id);chip.dataset.psQuality=usable?'ok':'unknown';chip.append(document.createTextNode(nameOf(id)),E('small',usable?'Zugeordnet & aktuell nutzbar':'Nicht nutzbar / ungeklärt'),E('code',id,'ps-technical-id'));row.append(chip);}sources.append(row);}
     const reference=E('section','','ps-flow-node');reference.append(E('h4','02 · Zonenreferenz'),E('p',m.id==='presence'?'Mindestens eine gültige Quelle aktiv. Logischen Raumstatus und Rohsensoren nicht doppelt als unabhängige Belege zählen.':m.id==='climate'?'Gültige Temperatur- und Feuchtequellen: Median mit Min/Max. Regler sind keine zusätzlichen Messwerte.':m.id==='lighting'?'Lux, binärer Helligkeitsindikator und Leuchtenzustand sind getrennte Größen.':'Player und ausdrücklicher Atmosphärenwunsch. Keine Emotion wird aus Sensoren behauptet.'));
     const output=E('section','','ps-flow-node');output.append(E('h4','03 · Umsetzung'),E('span',m.id==='presence'?'Runtime-Status hier nicht geprüft':'Noch keine Steuerung','ps-badge'),E('p','Quellenzuordnung ist keine Ausführungsfreigabe. Bestehende HA-Logik bleibt unverändert.'));
     const configure=B('Quellen konfigurieren',()=>{if(dirty())return;navigate('config');setRoleFilter(m.id);$('context-edit').click();});output.append(configure);flow.append(sources,reference,output);moduleDetail.append(flow);
+    if(m.id==='climate') {
+      const box=E('section','','ps-temperature-comparison');box.id='ps-temperature-comparison';
+      box.append(E('h4','Externe Vergleichstemperatur · optional'),E('p',
+        'Nur zur Einordnung, z. B. außen oder im Nachbarraum. Kein Sollwert und kein Beitrag zum Zonenmedian.','ps-muted'));
+      const ids=configured.reference_temperature||[];
+      const summary=status?.ready?zoneResults.find(z=>z.zone_id===selectionZone)?.summary:null;
+      if(!ids.length)box.append(E('p','Nicht zugeordnet – für die Zonentemperatur nicht erforderlich.','ps-muted'));
+      for(const id of ids) {
+        const v=M.temperatureComparison(summary,id),row=E('p');
+        row.append(E('strong',nameOf(id)+': '),document.createTextNode(
+          v.value===null?'Nicht verfügbar':`${M.number(v.value)} ${v.unit||''}`));
+        if(v.delta!==null)row.append(document.createTextNode(` · Zone minus Vergleich: ${M.number(v.delta)} ${v.unit}`));
+        box.append(row);
+      }
+      moduleDetail.append(box);
+    }
     if(m.id==='presence'){const seq=E('div','','ps-state-machine');seq.setAttribute('aria-label','Geplante Zustandsfolge, kein Live-Zustand');for(const t of ['Belegt','Nachlauf','Frei / Unklar'])seq.append(E('span',t));moduleDetail.append(E('h4','Zustandsmodell · kein Live-Zustand'),seq,E('p','Ein Timerablauf allein beweist keine Abwesenheit. Fehlende Quellen bleiben unklar.','ps-muted'));
       const review=B('Bestehende Präsenzlogik prüfen',runReview);review.id='ps-adoption-review';review.disabled=requestBusy||!f.presence_contract?.logical_owner||!f.presence_contract?.raw_sources?.length;moduleDetail.append(review,E('p','Expliziter Konfigurationsabruf. Keine Übernahme, keine Aktivierung.','ps-muted'));const result=E('div');result.id='ps-review-result';result.setAttribute('role','status');moduleDetail.append(result);renderReview();}
     for(const [role,ids] of Object.entries(configured)){if(!(role in M.roles)||!ids.length)continue;const row=E('p');row.append(E('strong',M.roles[role]+': '),document.createTextNode(ids.map(nameOf).join(' · ')));roleSummary.append(row);}if(!roleSummary.children.length)roleSummary.append(E('p','Noch keine Hauptquellen zugeordnet. Entitäten bestätigen und anschließend Rollen auswählen.'));

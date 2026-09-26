@@ -3,36 +3,28 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.36 installed, inventory snapshot integrity fixed
+## Alpha.37 candidate: presence evidence before adaptive control
 
-PR 80, release b8ebc1ba2a32450ceb35e71269399d2f62cabe54.
-Candidate CI 36272344492 and main CI 36272461571 passed all four jobs.
-475 Python / 56 JavaScript tests; seven new synthetic regressions and nine CI browser
-suites. Conservative batch freshness, catalog metadata/availability conflict checks
-and repair-preview persistence guards are implemented. Normal available value changes
-remain allowed. No additional learner/store, automatic scan or repair execution.
+Base cbf43ccebdfb6244a73ed379335d80eca4c5db3e; installed Alpha.36 at resume.
+The user is organizing household entities. Continue software development without
+renaming/rebinding household entities, editing automations, or changing consent.
+Prioritize presence -> daylight/mood light -> optional music/TV -> bounded adaptation.
+Full design and acceptance sequence: docs/PRESENCE_FIRST_INTELLIGENCE.md.
 
-Fresh backup 67fa033b contains only Alpha.35 app/data/options and was verified before
-publication. One Store refresh/update delivered Alpha.36; installed/offered/started.
-Options and auto_update unchanged. Ready, connected, fresh and zone-resolved logs
-retain presence_adoption_review; do not mislabel it hard_read_only. General Apply
-remains READ_ONLY_RELEASE=True. Full source/app-tree/backup receipt: RELEASE_STATE.json.
+Implemented: explicit WorldModel frame acceptance, rejection propagated into learning,
+per-channel event-time light/lux checks, coherent effective-role cards with derived
+provenance, and optional external comparison temperature with guarded difference.
+Existing data/consent/retention owners and action capabilities are unchanged. No new
+controller, learner, database, migration or productive collection. Old context records
+are retained, not retroactively certified. Keep legacy presence activation closed.
 
-Real Alpha.36 Ingress is untested: browser runtime returned environment_offline.
-Do not infer browser acceptance or app-principal rights from MCP or HTTP 200.
-Do not retry the earlier denied app proxy, weaken Ingress or repeat installation.
+Local 485 Python / 58 JS tests and contracts pass. Added actual-app browser checks use
+synthetic data only. Local browser navigation is blocked by administrator policy; no
+bypass. Exact remote CI, screenshots, scoped backup and installation remain gates.
+Do not describe this candidate as installed until fresh native verification exists.
 
-## User scope and stable identities
-
-The current case label is Erdkellerbereich; three further areas/zones already exist.
-Do not recreate zones, derive IDs from names, rewrite HA areas or edit bootstrap
-options. Read saved canonical identities when authenticated Ingress permits.
-User permits development reads across HA entities/automations beyond productive
-learning permissions. Keep household configurations/findings private, outside fixtures.
-Read access does not grant app-principal rights, learning consent or execution.
-
-Prior cumulative inventory, trigger integrity, context/plan isolation and explicitly
-confirmed metadata cleanup/undo remain intact. Technical-ID migration and automation
-repair execution remain unavailable. No household repair or cleanup was performed.
-
-Next: Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.
+Next implementation: persistent presence kernel with source-type/dependency handling
+and integrated explanation/replay UI, then one explicitly approved zone after fault
+tests. Never ship a disconnected contract as completed control. Mood denotes intended
+ambience, not inferred human emotion. TV playback must not be interrupted by music.
+Maintain existing identities and manual overrides. No Ingress bypass or proxy retry.

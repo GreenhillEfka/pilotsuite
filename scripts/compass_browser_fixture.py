@@ -129,6 +129,25 @@ async def main():
                 elif action=='config_change':
                     service.client.automation_config.return_value['actions'][0]['action']='light.turn_off'
                     result={'changed':True}
+                elif action=='comparison_fixture' and '--workspace' in sys.argv:
+                    # New data only in this disposable fixture, never an HTTP control.
+                    eid='sensor.synthetic_outside'
+                    world['entities'].append({'entity_id':eid,'area_id':'a','name':'Vergleich Außen · Demo'})
+                    world['states'].append({'entity_id':eid,'state':'10','attributes':{
+                        'device_class':'temperature','unit_of_measurement':'°C'}})
+                    await service.world.replace(copy.deepcopy(world))
+                    rev=(await service.selections.get('a'))['revision']
+                    await service.selections.patch('a',rev,{eid:'relevant'})
+                    cfg=await service.context.get('a');roles=copy.deepcopy(cfg['roles'])
+                    roles.pop('temperature',None)
+                    roles['reference_temperature']=[eid]
+                    rev=(await service.selections.get('a'))['revision']
+                    await service.context.configure('a',rev,roles,cfg['learning'])
+                    await service._derive();result={'changed':True}
+                elif action=='comparison_unavailable' and '--workspace' in sys.argv:
+                    changed=copy.deepcopy(world)
+                    next(s for s in changed['states'] if s['entity_id']=='sensor.synthetic_outside')['state']='unavailable'
+                    await service.world.replace(changed);await service._derive();result={'changed':True}
                 elif action=='source_unavailable':
                     changed=copy.deepcopy(world);changed['states'][0]['state']='unavailable'
                     await service.world.replace(changed);await service._derive();result={'changed':True}

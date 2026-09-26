@@ -29,3 +29,25 @@ test('algorithm parameters and context consent have separate diff rows',()=>{
  const rows=M.diff({roles:{},detector:{}},{roles:{},detector:{min_events:8,timezone:'Europe/Berlin'},context_learning:true});
  assert.deepEqual(rows.map(x=>x.key),['context_learning','min_events','timezone']);
 });
+test('effective roles expose derived choices without saving or replacing explicit empty groups',()=>{
+ const ctx={config:{roles:{humidity:[]}},effective_roles:{temperature:['sensor.t'],humidity:['sensor.h']}};
+ const original=JSON.stringify(ctx), resolved=M.effectiveRoles(ctx);
+ assert.deepEqual(resolved,{temperature:['sensor.t'],humidity:[]});
+ assert.equal(M.roleOrigin(ctx,'temperature'),'derived');assert.equal(M.roleOrigin(ctx,'humidity'),'manual');
+ resolved.temperature.push('sensor.other');assert.equal(JSON.stringify(ctx),original);
+ assert.deepEqual(M.effectiveRoles(null),{});
+});
+test('comparison temperature is separate and delta requires valid same-unit independent values',()=>{
+ const s={temperature:{value:22,status:'available',unit:'°C',sources:['sensor.inside']},
+  reference_temperature:[{source:'sensor.outside',value:10,quality:'good',unit:'°C'}]};
+ assert.deepEqual(M.temperatureComparison(s,'sensor.outside'),{value:10,unit:'°C',delta:12});
+ assert.deepEqual(M.temperatureComparison(s,'sensor.missing'),{value:null,unit:null,delta:null});
+ for(const change of [{status:'partial'},{unit:'°F'},{value:NaN},{sources:['sensor.outside']}]){
+  assert.equal(M.temperatureComparison({...s,temperature:{...s.temperature,...change}},'sensor.outside').delta,null);
+ }
+ for(const value of [null,'10',Infinity,NaN]){
+  assert.equal(M.temperatureComparison({...s,reference_temperature:[{...s.reference_temperature[0],value}]},'sensor.outside').value,null);
+ }
+ assert.equal(M.temperatureComparison({...s,reference_temperature:[{...s.reference_temperature[0],value:0}]},'sensor.outside').value,0);
+ assert.equal(M.temperatureComparison(null,'sensor.outside').delta,null);
+});

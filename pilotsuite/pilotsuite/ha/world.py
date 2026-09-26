@@ -30,23 +30,55 @@ class WorldModel(OrganizationWorldMixin):
             self._states = _index(snapshot.get("states"), "entity_id")
             self._last_snapshot_at = datetime.now(UTC).isoformat()
 
-    async def update_state(self, event_data: dict[str, Any]) -> None:
+    async def update_state(self, event_data: dict[str, Any]) -> bool:
+        """Return acceptance so consumers cannot learn from a rejected stream frame.
+
+        Equal timestamps are not new observations. Undated legacy/test snapshots can
+        still be projected, but cannot replace a newer, timestamped state.
+        """
+        if not isinstance(event_data, dict) or "new_state" not in event_data:
+            return False
         entity_id = event_data.get("entity_id")
-        new_state = event_data.get("new_state")
-        if not isinstance(entity_id, str):
-            return
+        new_state = event_data["new_state"]
+        if not isinstance(entity_id, str) or not entity_id:
+            return False
         async with self._lock:
+            current = self._states.get(entity_id, {})
+            current_at = _state_timestamp(current)
             if new_state is None:
-                self._states.pop(entity_id, None)
-            elif isinstance(new_state, dict):
-                current = self._states.get(entity_id, {})
-                # Queued stream messages must not roll a newer snapshot back.
-                try:
-                    if datetime.fromisoformat(new_state["last_updated"]) < datetime.fromisoformat(current["last_updated"]):
-                        return
-                except (KeyError, TypeError, ValueError):
-                    pass
-                self._states[entity_id] = deepcopy(new_state)
+                old = event_data.get("old_state")
+                old_at = _state_timestamp(old)
+                if isinstance(old, dict) and old.get("entity_id", entity_id) != entity_id:
+                    return False
+                if current_at is not None and (old_at is None or old_at < current_at):
+                    return False
+                return self._states.pop(entity_id, None) is not None
+            if (not isinstance(new_state, dict)
+                    or new_state.get("entity_id", entity_id) != entity_id
+                    or not isinstance(new_state.get("state"), str)):
+                return False
+            new_at = _state_timestamp(new_state)
+            if current_at is not None and (new_at is None or new_at <= current_at):
+                return False
+            if new_state == current:
+                return False
+            self._states[entity_id] = deepcopy(new_state)
+            return True
+
+    async def context_at_or_before(self, entity_ids: list[str], at: datetime) -> bool:
+        """Check projection timestamps, not physical simultaneity or sensor accuracy.
+
+        Missing times and a source updated after the event cannot establish event-time
+        context. Called under the service projection lock; makes no HA/history reads.
+        """
+        if not entity_ids or at.tzinfo is None:
+            return False
+        async with self._lock:
+            for entity_id in entity_ids:
+                updated = _state_timestamp(self._states.get(entity_id))
+                if updated is None or updated > at:
+                    return False
+        return True
 
     async def summary(self) -> dict[str, Any]:
         async with self._lock:
@@ -147,3 +179,13 @@ def _index(value: Any, key: str) -> dict[str, dict[str, Any]]:
 
 def _as_dict(value: Any) -> dict[str, Any]:
     return deepcopy(value) if isinstance(value, dict) else {}
+
+
+def _state_timestamp(state: Any) -> datetime | None:
+    if not isinstance(state, dict):
+        return None
+    try:
+        stamp = datetime.fromisoformat(state["last_updated"])
+        return stamp if stamp.tzinfo is not None else None
+    except (KeyError, TypeError, ValueError):
+        return None
