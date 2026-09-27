@@ -39,6 +39,7 @@
    const configure=B('Präsenz konfigurieren',openEditor);configure.id='ps-zone-configure';
    tools.append(configure,B('Aktualisieren',read),B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
    if(!data.package)tools.append(B('Eigenen Anwesenheitssensor vorbereiten',preparePackage));
+   if(busy)tools.querySelectorAll('button').forEach(button=>button.disabled=true);
    const d=data.current;const cards=E('div','','ps-shadow-cards');
    for(const [title,value,hint] of [
       ['Präsenz',d?state(d.state):'Nicht aktuell',d?.explanation||data.status],
