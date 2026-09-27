@@ -1,5 +1,12 @@
 # Presence-first intelligence: decisions, stages and acceptance
 
+This document preserves staged design and historical implementation evidence.
+Its Alpha.39/40 activation restrictions are not a claim that today's app has no
+bounded output publisher. Current presence/output contract: [ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md).
+Current priorities: [ROADMAP.md](ROADMAP.md). Relevant sources authorize live and
+available-history analysis; legacy consent fields do not add a gate to that path.
+Algorithm options below are not parallel implementation commitments.
+
 Status: design accepted; Alpha.39 implements the deterministic presence kernel and
 Alpha.40 delivers the synthetic lighting preview described below. Neither
 activates productive control.

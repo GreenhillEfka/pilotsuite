@@ -1,5 +1,11 @@
 # Ereignisherkunft: begrenzte Kontextkorrelation
 
+Geltungsbereich: bestehende begrenzte Herkunftskorrelation, nicht das allgemeine
+Analyse-Freigabemodell. Legacy-Lernschalter und ihre aktuelle Korrelation bleiben
+implementierungsabhängig. Relevanz autorisiert den Zonenpfad bereits ohne weitere
+Datenfreigabe; daraus folgt weder eine sichere menschliche Herkunft noch ein
+Schreibrecht. Siehe [ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md).
+
 ## Zweck und Grenze
 
 PilotSuite soll eigene Aktionen später nicht als Nutzergewohnheit zurücklernen und

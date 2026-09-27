@@ -1,45 +1,29 @@
-# PilotSuite AI context
+# PilotSuite continuation context
 
-Canonical repository: `GreenhillEfka/pilotsuite`. Home Assistant app:
-`0d79c5e8_pilotsuite`. Architecture: v23.
+Canonical repository: `GreenhillEfka/pilotsuite`; app: `0d79c5e8_pilotsuite`.
+Continue existing modules and preserve uncommitted work. Do not recreate earlier
+features or redeploy an old ZIP.
 
-Read `CURRENT_STATE.md`, `docs/RELEASE_STATE.json`, `docs/RELEASE_RUNBOOK.md`,
-`DECISIONS.md`, `docs/VISION.md` and `docs/ROADMAP.md` before changing code or deploying.
+Before changes read CURRENT_STATE.md, docs/RELEASE_STATE.json,
+docs/RELEASE_RUNBOOK.md, DECISIONS.md, docs/VISION.md and docs/ROADMAP.md.
+docs/ARCHITECTURE.md maps actual owners; docs/ZONE_INSTANCE_V2.md defines presence.
 
-## Live release
+## Non-negotiable boundaries
 
-Alpha.54 is merged, published and installed from main commit
-`d6995476bcb92b7f603f71719d93fa0fc4657c4b` (PR #116). The exact candidate and
-final main CI each passed all five jobs. Scoped rollback backup `c14fc3d5` contains
-only PilotSuite Alpha.53 and was verified with native `backup/details` before Store
-refresh and installation. See `docs/RELEASE_STATE.json` for the release receipt.
+- Presence first: continuous/pulse/support differ; unknown is never silently vacant.
+- Relevance authorizes live and available history. Write authority is separate.
+- Preserve all four saved zones and entity cleanup. HA areas do not redefine a zone.
+- Habituszonen is an ontology/layout reference, not proof of occupancy.
+- One app, existing SQLite owners, no second engine or configuration.
+- Ingress/authentication/sandbox remain intact. No household test switching.
+- General Apply is closed; bounded helper/metadata/publication paths already exist.
+  Do not describe the current review mode as universal hard_read_only.
+- Release source, tests, installation and household acceptance are distinct.
 
-Live status: started in `presence_adoption_review`; ready, HA event stream connected,
-snapshot fresh and zone resolved. All four Supervisor options and `auto_update` are
-unchanged. Documentation updates alone do not require another app deployment.
+The 2026-09-28 concept review replaces stale entry documentation with a zone-first
+consolidation plan. It changes no app behavior or release receipt. Existing legacy
+analysis and shadow contracts remain readable; a tested migration is required
+before removing their settings or endpoints. AGENTS.md, when present, is preserved.
 
-Alpha.54 fixes a confirmed false-vacancy path: an `off` source in one presence group
-no longer masks another required `unknown` or `unavailable` source after grace expires.
-The regression failed on Alpha.53 and passes on Alpha.54. No household configuration
-was changed. Alpha.53 stabilized the reading position during passive context, zone, presence and
-shadow updates; unchanged responses keep the DOM, focus and open details. The live
-zone source list and trace are collapsible. See `docs/UI_REFRESH_REVIEW_2026-09-27.md`.
-Alpha.52's automation availability distinction remains in place. Keep the one
-zone/store owner; no takeover, adaptive learning or device execution was added.
-
-Current regression counts are 568 Python, 70 JavaScript and 62 API/repository contracts.
-
-No authenticated HA browser session was available for household Ingress acceptance.
-No Ingress bypass was attempted. No household helper, metadata, automation, consent or
-device state changed. The existing Habituszonen dashboard is an ontology/layout
-reference; its `on` versus all-other-state labels cannot prove physical vacancy.
-
-HA read-only inventory confirms the real `erdkeller` (`Erdkeller Innen`) and
-`erdkeller_eingang` areas. They are inputs to the saved aggregate PilotSuite zone
-`Erdkellerbereich`, not a reason to rename or split it automatically.
-
-Next: perform authenticated read-only Ingress acceptance for saved `Erdkellerbereich`
-and one unlike existing zone after at least two passive refreshes: confirm the
-reading position, open sections, focus, current values and all four saved zones.
-Also confirm the active/disabled/dynamic-unknown reference explanations. Do not
-change household configuration or perform an Apply action.
+Use CURRENT_STATE.md for the next task. Use the release receipt plus a fresh HA
+metadata read for installation, never an old narrative version claim.

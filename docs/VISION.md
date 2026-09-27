@@ -1,76 +1,72 @@
-# PilotSuite — verbindliche Gesamtvision
+# PilotSuite — ein verständlicher Zonenassistent
 
-Stand: 2026-09-22. Zielbild, nicht Funktionsversprechen der aktuellen Alpha.
+Konsolidiertes Zielbild vom 28.09.2026, zur schrittweisen Umsetzung im bestehenden
+Projekt. Dies ist kein Nachweis neuer Laufzeitfunktionen. Den Funktionsstand führt
+[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), die Installation
+[RELEASE_STATE.json](RELEASE_STATE.json).
 
-PilotSuite steigert den Komfort mit den vorhandenen Home-Assistant-Geräten und
-Automationen: beobachten, Zusammenhänge erklären, Gewohnheiten aus ausdrücklich als relevant markierten Quellen
-erkennen, passende Verbesserungen vorschlagen und freigegebene Maßnahmen prüfen.
-Bestehende Automationen haben Vorrang vor neu erzeugten Duplikaten.
+## Nutzen vor Funktionsumfang
 
-## Verantwortlichkeiten
+PilotSuite soll drei Fragen zuverlässig beantworten: **Was passiert in meiner
+Zone? Warum wird das so bewertet? Was muss ich gegebenenfalls ändern?**
 
-| Bestandteil | Besitzt | Besitzt nicht |
-|---|---|---|
-| Home Assistant | Geräte, Entitäten, Areas, Labels, Zustände, Ausführung | PilotSuite-Lernmodell |
-| Add-on-Kern | Semantik, Habitus-Zonen, Rollen, Vorschläge, Policies, Feedback | zweite HA-Gerätedatenbank |
-| SQLite (Zonen/Auswahl implementiert; Lernbelege geplant) | eigene Definitionen, begrenzte Belege, Journal | vollständige HA-Historie |
-| Ingress-UI | Erklärung, Konfiguration, Freigaben, Dev/Wiki-Ansichten | eigene Entscheidungslogik |
-| Optionaler HA-Adapter | native Entitäten, Conversation, Bedienfunktionen | zweite Engine oder Zonendefinition |
-| Optionales LLM/RAG | Dialog, Erklärung, Entwürfe | unmittelbare Aktorbefehle oder Policy-Ausnahmen |
+Präsenz ist die erste Priorität. Licht, Klima und Medien nutzen diesen Kontext,
+bekommen aber keine zweite Präsenzlogik. Bestehende HA-Automationen werden zuerst
+verstanden; PilotSuite ersetzt sie nicht ungefragt. Ein ideales System bedeutet
+hier weniger Bedienaufwand bei nachvollziehbaren Aussagen, nicht möglichst viele
+Module oder eine behauptete mathematisch optimale Haussteuerung.
 
-## Fachmodell
+## Der kleinste tragfähige Kern
 
-Eine Habitus-Zone besteht aus HA-Referenzen, Rollen, Fähigkeiten und Policies.
-Der Erdkellerbereich kann Eingang, Innenraum und Referenzmessungen umfassen.
-Die konkrete Zuordnung muss mit dem Nutzer geprüft werden; keine erfundenen IDs.
-Klima ist die erste Domäne, nicht das allgemeine Modell für Licht, Präsenz und Medien.
+1. **Zone:** stabile Identität, vorhandene HA-Referenzen, relevante Quellen und
+   explizites Verhalten. Ein HA-Bereich ist nicht automatisch eine Habitus-Zone.
+2. **Bewertung:** typisierte Quellen, ein deterministischer Präsenzkern, begrenzte
+   Historienanalyse und eine erklärbare Entscheidung mit Zeit- und Qualitätsbezug.
+3. **Ausgabe:** dieselbe Entscheidung in der Oberfläche und optional im geprüften
+   eigenen HA-Ausgangspaket. Analyseberechtigung und Schreibrechte bleiben getrennt.
 
-Beobachtungen tragen Einheit, Quelle und Qualitätsinformationen. Ein fehlender
-Messwert ist unbekannt, nicht null und nicht unauffällig. Frische der HA-Projektion
-und tatsächliche Aktualität eines physischen Sensors sind unterschiedliche Dinge.
-Ein unveränderter HA-Zustand ist nicht allein wegen eines alten Zeitstempels defekt.
+Home Assistant besitzt Geräte, Zustände, Recorder und Ausführung. PilotSuite besitzt
+seine Zonen, Regeln, begrenzten Belege und Änderungspläne. Oberfläche, Graph und
+optionale Sprachassistenz sind Ansichten dieser Daten, keine weiteren Entscheider.
+Ein Prozess, die bestehende SQLite-Datenbank und der vorhandene HA-Client genügen.
+Kein neuer Broker, Plugin-Unterbau, Graphspeicher oder separater KI-Dienst.
 
-Muster tragen Zeitraum, Zähler, Grundhäufigkeit und Unsicherheit. Korrelation ist
-kein Kausalitätsbeweis. Menschliche Bedienung, bestehende Automation und eigene
-PilotSuite-Aktion müssen, soweit belegbar, unterschieden werden; unbekannte Herkunft
-bleibt unbekannt. Eigene Aktionen dürfen keine selbstverstärkenden Lernbelege erzeugen.
+## Verbindliche Präsenzsemantik
 
-Vorschläge besitzen stabile Identität und Lebenszyklus: vorgeschlagen, angenommen,
-abgelehnt, vertagt, abgelaufen. Nutzerfeedback beeinflusst Präferenz/Rangfolge,
-nicht die historische Zahl beobachteter Ereignisse. Mehrnutzerkonflikte erfordern
-explizite Regeln, keine erratene Identität.
+Dauerpräsenz, Bewegungsimpuls und TV-/Nutzungsindiz bleiben verschieden.
+Ein positiver tragender Beleg kann Anwesenheit begründen. Frei wird eine Zone erst
+nach nachvollziehbarem Nachlauf und geklärter erforderlicher Abdeckung.
+Unklar oder unavailable ist niemals stillschweigend frei. Polling und Neustarts
+verlängern keine Frist; ein laufender Fernseher beweist keinen Menschen.
+Eigene Ausgaben dürfen sich nicht als Eingang selbst bestätigen.
 
-Der Brain-Graph zeigt nachvollziehbare Pfade von Beobachtung über Regel zum Vorschlag.
-Keine unabhängige zweite Wahrheit und keine dekorative Behauptung neuronalen Lernens.
+Der interne Boolean hält den Zustand; allein bildet er keine Ungewissheit ab.
+Der öffentliche Anwesenheits-Binärsensor berücksichtigt deshalb zusätzlich
+Gültigkeit und deren Ablauf. Vorhandene gleichnamige Sensoren werden weder übernommen
+noch durch einen `_2`-Doppelgänger umgangen. Details: [ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md).
 
-## Bedienung und Komfort
+## Bedienung und Analyse
 
-- Zentrale Text-/Sprachoberfläche mit Kontext und auswählbaren verfügbaren Geräten.
-- HA Assist nutzen; Sonos, Alexa, Siri und Apple-Geräte einzeln auf tatsächliche
-  Ein-/Ausgabefähigkeiten prüfen. Kein pauschales Versprechen bidirektionaler Sprache.
-- Module, Automatisierungsmanager, Erklärungen, Health, Wiki und Entwickleransicht.
-- HomeKit-Kandidaten zunächst nur vorschlagen; nichts ungefragt exportieren.
-- Sinnvolle Presets und manuelle Updates zuerst, geprüfte automatische Updates später.
-- Grundfunktionen bleiben ohne LLM, Cloud oder separaten Modellserver nutzbar.
+Im Alltag zuerst Zone, Zustand, Grund, verbleibender Nachlauf und Datenlücke.
+Quellenkonfiguration, Verlauf und Diagnose werden bei Bedarf geöffnet. Das Dashboard
+„Habituszonen“ bleibt ontologische und gestalterische Referenz, nicht Wahrheitsbeweis.
+Alle vier gespeicherten Zonen und laufende Entitätsbereinigung bleiben erhalten.
 
-## Sicherheit und Datenschutz
+`relevant` autorisiert Live- und verfügbare historische Auswertung ohne weitere
+Datenfreigabe. Pause, Aufbewahrung, Export und Löschen sind eigene Funktionen.
+Legacy-Lernschalter sind noch vorhandene Kompatibilität, kein neues Produktprinzip.
+Lernbelege, Präferenzen und Schaltfreigaben dürfen nicht vermischt werden.
 
-Eine einzige Ausführungskette: Plan, Policy/Freigabe, erforderliche Sicherung,
-Ausführung, Verifikation, aktionsspezifische Wiederherstellung oder Eskalation.
-Freigaben haben Scope und Ablaufzeit; Zustände werden unmittelbar vor Ausführung
-erneut geprüft. Widerruf und Not-Aus müssen sichtbar sein. Ein physischer Effekt
-oder eine gesprochene Nachricht ist nicht allgemein rückgängig zu machen.
+## Bewusst später
 
-Die Markierung `relevant` autorisiert Live- und verfügbare historische Auswertung dieser Quelle. Aufbewahrung, Export und Löschen/Reset bleiben kontrollierbar; Ausführungsrechte sind davon getrennt.
-Keine ungeprüften Alt-Datenimporte, keine unverschlüsselten zentralen Secret-Dateien.
-Keine direkte Änderung von HA `.storage`; bestehende Konfigurationen erhalten.
+Adaptive Komfortvorschläge erst bei einem messbaren Vorteil gegenüber festen Regeln.
+Keine erfundenen Vertrauensprozente, keine Belohnungsschleife durch eigene Aktionen.
+LLM, RAG, native Zusatzintegration und Sprache nur bei belegtem Zusatznutzen;
+der Grundbetrieb bleibt lokal und unabhängig davon. HA Assist wird wiederverwendet.
 
-## Herkunft und Wiederverwendung
+Freigegebene Änderungen brauchen einen konkreten Plan, erneute Vorbedingungen,
+erforderliche Sicherung, Verifikation und aktionsspezifische Wiederherstellung.
+Weniger sichtbare Komplexität darf diese Schutzmaßnahmen nicht entfernen.
 
-Referenzstände: `pilotsuite-styx-ha@4f78be5`, `pilotsuite-styx-core@d4e3a7b7`.
-Die alte HA-Konzept-Richtlinie belegt die Zuständigkeitsprobleme. Der Core enthält
-wertvolle Muster-/Feedback-Ansätze, aber mehrere parallel verdrahtete Dienste.
-Übernahme nur pro Baustein mit fachlichem Vertrag, Tests und einem Besitzer.
-Insbesondere keine Feedback-bedingte Veränderung statistischer Beobachtungszähler.
-
-Siehe `IMPLEMENTATION_STATUS.md` für den belegten Umfang und `ROADMAP.md` für die Reihenfolge.
+[ARCHITECTURE.md](ARCHITECTURE.md) benennt vorhandene Besitzer und Altlasten;
+[ROADMAP.md](ROADMAP.md) begrenzt die nächste Umsetzung auf überprüfbare Nutzerpakete.

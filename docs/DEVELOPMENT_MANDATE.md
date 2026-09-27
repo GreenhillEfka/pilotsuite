@@ -1,81 +1,58 @@
-# PilotSuite – Entwicklungsmandat
+# PilotSuite — Entwicklungsmandat
 
-Bestätigt vom Nutzer am 24.09.2026. Dieses Mandat ergänzt VISION.md und
-ROADMAP.md; es ist kein Installations- oder Ausführungsnachweis.
+Konsolidiert am 28.09.2026 aus dem bestehenden Fortsetzungsauftrag und der
+ausdrücklichen Bitte um konzeptionelle Vereinfachung. Dieses Dokument beschreibt
+den Arbeitsumfang, keine zusätzliche Haussteuerungsfreigabe.
 
-## Auftrag und Ziel
+## Ziel und Arbeitsweise
 
-Ausschließlich GreenhillEfka/pilotsuite eigenständig in zusammenhängenden
-Nutzerpaketen fortsetzen. Vorhandene Home-Assistant-Geräte und Automationen
-sollen verständlich unterstützt und der Bedienaufwand reduziert werden:
-Beobachten -> Zusammenhänge und Grenzen erklären -> vorhandene Automationen
-berücksichtigen -> Nutzerentscheidung unterstützen -> später gesondert
-freigegeben ausführen -> Wirkung prüfen. Keine Neuimplementierung, keine
-zweite Lernengine, kein weiterer PlanStore und keine Schattenkonfiguration.
+Ausschließlich `GreenhillEfka/pilotsuite` weiterentwickeln. Bestehende Funktionen,
+Zonen, Entitätsbereinigung und uncommittete Arbeit erhalten. Keine neue Engine,
+kein neues Repository, keine Schattenkonfiguration. Vor jeder Fortsetzung
+Git-/Main-Stand, offene PRs und bei verbundenem HA-MCP die tatsächliche App
+`0d79c5e8_pilotsuite` prüfen.
 
-## Fortsetzung und Arbeitskoordination
+Ein zusammenhängendes Nutzerpaket gleichzeitig: erst Problem und vorhandenen
+Besitzer belegen, dann Regression, Änderung, Prüfung und überprüfbarer Branch/PR.
+Eine grüne Endpointprüfung ist kein fertiger Nutzerweg. Die
+[ROADMAP](ROADMAP.md) legt die Reihenfolge fest, nicht die historische Zahl
+abgeschlossener Teilpakete. Veraltete Aussagen dürfen mit Begründung korrigiert
+werden; Belege bleiben über Git und Changelog erhalten.
 
-Der bestehende Auftrag „PilotSuite: Pakete entwickeln“ wurde vom Nutzer
-wieder aufgenommen und ist stündlich eingerichtet. Dies ersetzt die historische
-Pause, aber keine Grenze für HA-Zugriffe oder Geräteausführung. Es gibt keinen
-Zehn-Minuten-Takt und keinen sofortigen Abschluss-Webhook. Ein laufender Aufruf
-darf ein zusammenhängendes Paket in mehreren geprüften Teilschritten bearbeiten.
-Vor jeder Fortsetzung aktuellen App-Stand, main, offene PRs/Branches, CI und
-dokumentierte Bearbeitung prüfen. Vorhandene Arbeit fortsetzen; keine konkurrierende
-Implementierung. Ein offener PR allein beweist keinen aktiven Agenten. Unklare
-Exklusivität oder geänderte Revisionen stoppen konkurrierende Schreibaktionen.
-Nur konfliktgeschützte Writes, kein Force. PR-Kommentare und Statusdateien
-halten Bearbeitungsumfang, tatsächliche Ergebnisse und genau einen nächsten
-Schritt fest. Eine Arbeitsnotiz ist keine atomare globale Agentensperre.
+Keine dauerhaft gültigen Aussagen über Zeitpläne, laufende Agenten oder Freigaben
+aus alten Arbeitsnotizen ableiten. Ein offener PR ist keine Sperre und kein Beweis
+aktiver Arbeit. Bei konkurrierenden Änderungen Revision/Basis erneut prüfen,
+keine Force-Writes. Aktuelle Nutzeranweisungen gehen historischen Mandaten vor.
 
-## Bereits umgesetzter Prüfkompass und Fortsetzung
+## Datenzugriff und Schreibgrenzen
 
-Der Prüfkompass ist in der vorhandenen Muster-/Routinewerkbank umgesetzt.
-Aktuelle Arbeit und Abnahmen stehen in CURRENT_STATE.md; nicht erneut implementieren.
-Die fünf getrennten Bereiche Quellen, Beobachtungsgrundlage, Nutzerziel/Ziele,
-Automationsbezüge und Notizaktualität werden aus bestehenden Besitzern abgeleitet.
-Verständliche Gründe, Herkunft und genau ein priorisierter nächster Schritt je
-Entwurf; eine gefilterte Zonenübersicht ohne neuen Queue-Speicher. Fehlende,
-veraltete oder nicht prüfbare Daten sind weder unbedenklich noch freigegeben.
-Keine globale Sicherheitsquote, keine automatische Prüfung oder Neubewertung
-beim GET/Reload und kein Autosave. Eigene Texte und Konfliktinformationen erhalten.
-Mobile/Desktop-/Tastaturbedienung, sichere Ausgabe, Leer-/Fehlerzustände und
-synthetische Regressionsprüfungen gehören zum Paket. Vorhandene Module verwenden;
-eine Chat-Referenz ist kein integrierter Quellstand.
+Lesende Entwicklungsanalyse der HA-Entitäten und Automationskonfigurationen ist
+autorisiert. Im Produkt autorisiert `relevant` Live- und verfügbare historische
+Auswertung ohne zusätzliche Datenfreigabe. Aufbewahrung, Export, Reset und Pause
+bleiben kontrollierbar. Legacy-Lernfelder nicht stillschweigend umschreiben.
 
-Danach den realen Nutzen im bereits genehmigten Erdkeller-Umfang und später in
-einer andersartigen, bereits genehmigten Zone nachweisen. Fehlende Einwilligung
-wird nicht abgeleitet. Lerntransparenz und Gegenbeispiele vor weiteren Algorithmen.
-Ein Aktionspilot, native HA-/Assist-Oberflächen und optionale LLM/RAG-Funktionen
-bauen auf diesem gemeinsamen Weg auf und bleiben an ihre eigenen Gates gebunden.
+Hauszustände, vorhandene Automationen, Helfer, Metadaten und technische IDs werden
+nicht zur Abnahme verändert. Keine Testschaltungen und keine ungeprüften
+Umbenennungen. Das Habituszonen-Dashboard ist Referenz; seine Konfiguration bleibt
+unverändert. Alle vier gespeicherten Zonen sind zu erhalten.
 
-## Unveränderte Grenzen
+Die bereits genehmigte PilotSuite-only-Backup-/Update-Routine bleibt auf diese App
+beschränkt. `presence_adoption_review` ist nicht hard_read_only; begrenzte vorhandene
+Writer werden weder geleugnet noch durch diesen Auftrag neu aktiviert. Allgemeines
+Apply bleibt geschlossen. Ingress, Authentifizierung und Sandbox bleiben bestehen.
 
-Autonome Entwicklung, Tests, Dokumentation und die bereits genehmigte
-PilotSuite-only-Backup-/Store-Routine sind erlaubt. Haussteuerung ist es nicht:
-hard_read_only und Apply bleiben unverändert geschlossen. Keine Änderungen an
-HA-Konfiguration, Automationen, Aktoren, Lernfreigaben, anderen Apps, Core,
-Supervisor oder Host. Keine zusätzlichen Rechte, Geheimnisse, Haushaltsscans,
-Datenimporte oder Lernquellen. LLMs erhalten keinen unmittelbaren Steuerpfad.
-RELEASE_RUNBOOK.md gilt vor jedem Release, einschließlich frischer abgeschlossener
-PilotSuite-only-Sicherung vor Veröffentlichung bei aktivem auto_update. Genau eine
-passende Installation, keine spekulativen Neustarts/Rebuilds. Reale UI-Abnahme,
-App-Leserechte, Datenerhalt und Image-Attestierung werden separat ausgewiesen.
-RELEASE_STATE.json dokumentiert nur tatsächliche Auslieferungen.
+## Nachweise und Übergabe
 
-## Nachweisstufen
+Implementiert, getestet, installiert und im Haushalt abgenommen getrennt ausweisen.
+[RELEASE_STATE.json](RELEASE_STATE.json) dokumentiert tatsächliche Lieferung,
+[CURRENT_STATE.md](../CURRENT_STATE.md) nur aktuellen Arbeitsstand und nächsten Schritt.
+Ältere Release-Chroniken nicht in jede Übergabe kopieren.
 
-Quelländerung, lokale Tests, exakte Kandidaten-CI, Main-CI, Store-Angebot,
-Installation und echte Live-Abnahme bleiben unterschiedliche Nachweise. Fehlende
-Werkzeuge sind keine fehlende Nutzerfreigabe. Keine erfundenen Commits, erneuten
-Projekte oder wiederholten unverbundenen Prototypen. Eine neue ausdrückliche Pause
-oder Einschränkung des Nutzers gilt unmittelbar.
+Vor Veröffentlichung einer neuen App-Version gilt
+[RELEASE_RUNBOOK.md](RELEASE_RUNBOOK.md), einschließlich verifizierter
+PilotSuite-only-Sicherung bei aktivem auto_update. Eine reine Konzeptänderung
+rechtfertigt keinen Neustart, kein Store-Update und keinen neuen Release-Receipt.
 
-## Nutzerpräzisierung vom 26.09.2026
-
-Für die Entwicklung ist das lesende Prüfen der gesamten HA-Entitäten und
-Automationskonfigurationen ausdrücklich erlaubt, auch außerhalb der produktiven
-PilotSuite-Freigaben. Diese Präzisierung ersetzt die frühere Beschränkung für
-Bestandsanalysen, nicht die Zustimmung zur Datensammlung oder reale Schreibrechte.
-Vier Bereiche/Zonen existieren bereits, einschließlich Erdkellerbereich. Ihre
-kanonischen Identitäten werden nicht aus Anzeigenamen oder HA-Areas geraten.
+Angemeldete Ingress-Abnahme zunächst ausschließlich lesend. Fehlender Browser ist
+kein Anlass, Berechtigungen zu erweitern, und kein Hindernis für synthetische
+Weiterentwicklung. Ein nicht beobachteter Haushaltzustand bleibt ausdrücklich offen.

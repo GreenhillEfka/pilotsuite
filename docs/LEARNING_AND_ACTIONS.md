@@ -1,5 +1,11 @@
 # Lernen, Module und Umsetzung
 
+Historischer/Legacy-Vertrag des frühen activity-v1-Pakets. Versions- und PR-Angaben
+unten sind keine aktuellen Lieferzustände. Für heutige Zonenanalyse gilt
+[ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md): Relevanz autorisiert Live/History ohne
+zusätzliche Datenfreigabe. Alte Lernfelder bleiben im Code erhalten, bis ihre
+Migration getestet ist; die aktuelle Priorität steht in [ROADMAP.md](ROADMAP.md).
+
 ## Was bereits vorhanden ist
 
 PilotSuite alpha.9 beobachtet bestätigte Entitäten und berechnet typisierte

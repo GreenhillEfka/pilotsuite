@@ -1,5 +1,11 @@
 # Live presence comparison and light need — Alpha.48
 
+Compatibility contract for the existing explicit Alpha.48 comparison session.
+The current zone-instance path is documented in [ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md).
+They share a pure kernel but still retain distinct settings/checkpoints. The proposed
+workspace consolidation makes this shadow a diagnostic view; it has not removed,
+migrated or activated any stored session.
+
 ## Delivered contract
 
 An explicit, revision-bound session evaluates real confirmed HA observations using

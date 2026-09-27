@@ -1,5 +1,11 @@
 # Historie, Verläufe und rückwirkendes Lernen
 
+Legacy-Vertrag der früheren Rollen-/Import-API. Deren gespeicherte Lern- und
+Importfelder existieren weiter; sie sind keine zusätzliche Freigabe für die aktuelle
+relevanzbasierte Zonen-Historie. Diese hat eigene Grenzen und ist in
+[ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md) beschrieben. Alte Installationsangaben
+unten sind historisch; [RELEASE_STATE.json](RELEASE_STATE.json) führt den Lieferstand.
+
 Seit alpha.12 enthalten und auf Home Assistant installiert. Authentifizierte
 Ingress-Bedienung und tatsächliche Recorder-Abdeckung bleiben separat abzunehmen.
 

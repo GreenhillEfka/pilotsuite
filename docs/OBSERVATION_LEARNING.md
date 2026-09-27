@@ -1,5 +1,11 @@
 # Verbindliches Paket: Beobachtungen, Sensorgruppen und erster Lernkreislauf
 
+Legacy-Vertrag der rollenbasierten activity-v1-Strecke, kein aktuelles globales
+Freigabemodell. Die seit Alpha.49 bestehende Zoneninstanz wertet relevante Quellen
+live/historisch ohne zweite Datenfreigabe aus; siehe [ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md).
+Die unten beschriebenen alten Schalter/Resetfolgen dürfen nicht ohne getestete
+Migration entfernt oder auf alle Analysepfade übertragen werden.
+
 ## Ein konsistenter Ablauf
 
 Zone → Kandidaten → ausdrückliche Relevanz → normalisierte Beobachtungen →

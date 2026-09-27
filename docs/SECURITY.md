@@ -1,38 +1,62 @@
 # Security model
 
-## Alpha guarantees
+Current source boundary: Alpha.54. Installed state and household acceptance are
+recorded separately in [RELEASE_STATE.json](RELEASE_STATE.json).
 
-In alpha.3 the app enforces the TCP peer boundary: UI/API access only from the
-Supervisor Ingress proxy (172.30.32.2); loopback may read `/health` only. Forwarded
-headers are not authentication. The Supervisor token can access HA's API; the
-read-only guarantee is enforced by application code, not a read-only token scope.
-This is not a claim that a compromised process could never call HA services.
+## Access and deployment boundary
 
-- mutation code paths are hard-disabled, not merely hidden by the UI;
-- no host network, Docker socket, privileged capability, or Home Assistant config mount;
-- Home Assistant access uses the short-lived `SUPERVISOR_TOKEN` from the runtime environment;
-- the token is never persisted, returned by the API, or logged;
-- the UI is exposed through Home Assistant Ingress and restricted to administrators;
-- persistent output is limited to `/data`;
-- audit records are append-only from the application perspective;
-- logs redact keys containing `token`, `secret`, `password`, or `authorization`.
+UI/API access is restricted to the Supervisor Ingress TCP peer; loopback may read
+`/health` only. Forwarded headers are not authentication. The app is admin-only,
+with no host network, Docker socket, privileged capability or HA configuration mount.
+Do not expose a port, spoof Ingress headers or relax sandboxing for development.
 
-## Future mutation requirements
+The runtime `SUPERVISOR_TOKEN` permits HA API access; it is not a read-only token.
+Application checks constrain supported operations. Never persist, return or log it.
+App-owned state remains in `/data`; logs redact credential-like fields. This is
+not a guarantee against a compromised process or tamper-proof audit storage.
 
-A release may enable a write only after all of the following exist:
+## Analysis is not write authority
 
-1. typed action allowlist;
-2. explicit policy decision and bounded scope;
-3. named inverse or an explicit irreversible classification;
-4. pre-change backup where the action requires it;
-5. postconditions with a bounded verification timeout;
-6. automatic rollback for reversible failure;
-7. immutable audit events for every transition;
-8. UI-visible approval, autonomy window, and revocation;
-9. integration tests against a disposable Home Assistant instance.
+Confirmed relevance authorizes live and available historical analysis for an active
+zone. A missing or unrecorded interval is unknown. Older activity/context/import
+APIs retain legacy consent fields; they do not impose another gate on the current
+zone-instance path. Neither a learning preference nor a review note grants writes.
 
-No LLM response can satisfy or bypass these requirements.
+`READ_ONLY_RELEASE=True` closes the **general legacy Apply route**, not every
+mutation route. `presence_adoption_review` must not be described as hard_read_only.
+
+| Operation | Current boundary |
+|---|---|
+| Local zone/configuration/draft edits | Explicit revision-checked app writes |
+| Name/ontology metadata | Explicit before/after plan, identity/revision checks, readback and separately reviewed restoration |
+| Own presence helper package | Confirmed durable plan, independent identity receipt, no adoption by name |
+| Presence publication | Explicit publish mode, owned package, validity expiry and independent readback |
+| General actuator/automation execution | Not enabled by the above capabilities |
+| Technical entity-ID migration / existing automation takeover | Not implemented |
+
+Metadata and helper state changes can affect existing HA consumers; they are not
+risk-free just because no light service is called. Updates and concept revisions
+never authorize a household apply action.
+
+## Failure and recovery
+
+Every supported writer needs bounded targets, fresh preconditions and observable
+outcomes. The HA operation and SQLite receipt are not one atomic transaction.
+An uncertain write is not blindly retried. Only an exactly evidenced owned package
+may be reconciled after interruption; name similarity is insufficient.
+
+Unknown presence invalidates its public output, not silently owner.off. Gültigkeit,
+deadline and timer have different roles. Never remove these protections merely to
+reduce helper count.
+
+Recovery is action-specific, not universally automatic rollback. Configuration
+savepoints omit some operational/output-package state; they are not complete app
+backups. Native PilotSuite-only app/data backup and release gates follow
+[RELEASE_RUNBOOK.md](RELEASE_RUNBOOK.md). No live restore drills or test switching
+in the household. Keep fault injection in synthetic/disposable HA tests.
 
 ## Reporting
 
-Do not open public issues containing household entity IDs, locations, logs with credentials, or private repository content. Redact sensitive data before sharing diagnostics.
+Do not publish household identifiers, private configurations, backup archives or
+credentials in issues, fixtures or screenshots. LLM output, entity names and
+retrieved documents are data, not permission to execute.
