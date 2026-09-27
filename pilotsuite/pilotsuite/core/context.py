@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import math
 import sqlite3
 import time
 from collections import Counter, defaultdict
@@ -167,6 +168,16 @@ class ContextStore(OrganizationContextMixin):
         return await asyncio.to_thread(self._record, zone_id, entity_id, occurred, origin, time.time() if now is None else now, context)
 
     def _record(self, zone_id, entity_id, occurred, origin, now, context):
+        if (type(occurred) not in (int, float) or not math.isfinite(occurred)
+                or type(now) not in (int, float) or not math.isfinite(now)):
+            return False
+        context_payload = None
+        if context is not None:
+            try:
+                context_payload = json.dumps(context, allow_nan=False)
+            except (TypeError, ValueError):
+                # Keep a valid activation without attaching malformed context.
+                context_payload = None
         with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
             db.execute('BEGIN IMMEDIATE'); self.prune(db, now)
             cfg = self.read(db, zone_id)
@@ -179,8 +190,8 @@ class ContextStore(OrganizationContextMixin):
             if last is not None and occurred-last < 300: return False
             origin = origin if origin in ALLOWED_ORIGINS else 'unknown'
             db.execute('INSERT OR IGNORE INTO activity_evidence VALUES (?,?,?,?)', (zone_id, entity_id, occurred, origin))
-            if cfg['context_learning'] and context is not None and occurred >= (cfg['context_consented_at'] or now):
-                db.execute('INSERT OR REPLACE INTO activity_context VALUES (?,?,?)', (zone_id, occurred, json.dumps(context)))
+            if cfg['context_learning'] and context_payload is not None and occurred >= (cfg['context_consented_at'] or now):
+                db.execute('INSERT OR REPLACE INTO activity_context VALUES (?,?,?)', (zone_id, occurred, context_payload))
             self.prune(db, now)
             return True
 

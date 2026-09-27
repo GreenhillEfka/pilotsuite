@@ -1,4 +1,20 @@
-# Current state — Alpha.43 numeric integrity installed, 2026-09-27
+# Current state — Alpha.44 historical context integrity candidate, 2026-09-27
+
+Alpha.44 is a bounded downstream observation-integrity correction. Historical
+learning-context windows previously accepted NaN, infinity, negative and boolean lux
+as known values; the resulting median could again make an API response non-standard
+JSON. Current context capture and retained projections now require finite non-negative
+lux, sanitize source identifiers and discard invalid timestamps. If only optional
+context is malformed, the valid activation remains while that context is withheld.
+
+No schema migration, new collection, learning consent, feedback change, HA write or
+execution authority is part of the candidate. Alpha.43 remains installed, offered and
+started with options and auto_update unchanged.
+
+Next: run repository contracts and the complete Python/JavaScript suite, then publish
+the exact Alpha.44 candidate for full CI before merge or Store delivery.
+
+## Installed baseline — Alpha.43
 
 Alpha.43 is a bounded observation-integrity correction. A direct good-quality
 non-finite value could previously make a zone summary appear available while the

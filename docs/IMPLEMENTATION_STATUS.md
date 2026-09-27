@@ -1,5 +1,19 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.44 candidate — historical context integrity
+
+| Capability | Verified source scope |
+|---|---|
+| Current capture | Lux must be finite and non-negative before it is marked available |
+| Retained windows | NaN, infinity, negative, boolean and textual lux remain unknown |
+| Time boundary | Invalid or unsupported timestamps cannot abort a complete report |
+| Source boundary | Only bounded printable entity identifiers reach the projection |
+| Evidence continuity | Valid activation retained when only optional context is malformed |
+| Boundary | No schema, consent, feedback, HA write, learning or execution change |
+
+Next: complete repository, Python and JavaScript validation and require exact
+candidate CI before merge or deployment.
+
 ## Installed Alpha.43 — numeric observation integrity
 
 | Capability | Verified source scope |
