@@ -6,6 +6,15 @@ Canonical repository: `GreenhillEfka/pilotsuite`. Home Assistant app:
 Read `CURRENT_STATE.md`, `docs/RELEASE_STATE.json`, `docs/RELEASE_RUNBOOK.md`,
 `DECISIONS.md`, `docs/VISION.md` and `docs/ROADMAP.md` before changing code or deploying.
 
+## Current development candidate
+
+Alpha.51 corrects one read-only automation-reference inconsistency found during the
+authorized real inventory: a literal `event_data.entity_id` on an event trigger is now
+recognized as a direct source reference. Action event payloads remain opaque; dynamic
+filters remain unknown. The package uses only synthetic regressions and changes no
+household object or execution authority. Local checks pass 562 Python, 68 JavaScript and
+62 repository/API contracts. Exact candidate CI is the next gate.
+
 ## Live release
 
 Alpha.50 is merged, published and installed from main commit
@@ -23,7 +32,7 @@ It does not provide general technical entity-ID migration, automatic takeover of
 existing helpers/automations, adaptive comfort learning or a general device execution
 grant.
 
-Current regression counts are 560 Python, 68 JavaScript and 62 API/repository contracts.
+Delivered Alpha.50 regression counts are 560 Python, 68 JavaScript and 62 API/repository contracts.
 Creation and registry evidence are preserved cumulatively. Recovery resumes only an
 already confirmed owned output transaction whose stable identifiers and exact zone
 revision still match. A name-only or receipt-free match is never adopted or replayed;
@@ -37,6 +46,7 @@ HA read-only inventory confirms the real `erdkeller` (`Erdkeller Innen`) and
 `erdkeller_eingang` areas. They are inputs to the saved aggregate PilotSuite zone
 `Erdkellerbereich`, not a reason to rename or split it automatically.
 
-Next: perform authenticated read-only Ingress acceptance for saved `Erdkellerbereich`
-and one unlike existing zone, confirming preservation of all four saved zones. Do not
-apply household helper or metadata changes during that acceptance.
+Next: pass exact Alpha.51 candidate CI, then follow the existing fresh scoped-backup
+release gate. After an actual installation, perform authenticated read-only Ingress
+acceptance for saved `Erdkellerbereich` and one unlike existing zone, confirming all four
+saved zones without applying household changes.

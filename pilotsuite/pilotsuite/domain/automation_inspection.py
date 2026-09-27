@@ -40,7 +40,14 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
             warnings.add('unsupported_structure');return
         if sum(map(len,sections.values()))>=200: raise HomeAssistantError('Automation step limit exceeded')
         refs=set();unknown=set()
-        for obj in (value, value.get('target',{}), value.get('data',{})):
+        containers = [value, value.get('target',{}), value.get('data',{})]
+        # Event triggers commonly carry an exact entity filter below event_data.
+        # It is a direct source constraint, not an indirect template guess.  Keep
+        # event payloads on actions opaque so arbitrary emitted data can never be
+        # mistaken for a write target.
+        if section == 'triggers':
+            containers.append(value.get('event_data', {}))
+        for obj in containers:
             if not isinstance(obj,dict): continue
             ids=obj.get('entity_id',[])
             if isinstance(ids,str): ids=ids.split(',')

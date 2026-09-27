@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.1.0-alpha.51] - 2026-09-27
+
+### Vollständige statische Ereignisfilter im Automationsvergleich
+- Der bestehende Strukturprüfer erkennt einen literalen `entity_id`-Filter unter
+  `event_data` eines Ereignistriggers als direkte Quellenreferenz. Eine passende
+  Bestandsautomation wird dadurch nicht länger gleichzeitig gefunden und fälschlich
+  mit einer Quellenlücke erklärt.
+- Ereignisnutzdaten einer Aktion bleiben absichtlich opak und werden nicht als Ziel
+  ausgegeben. Dynamische oder ungültige Filter bleiben unbekannt, öffnen die
+  Quellenprüfung und geben keinen privaten Vorlageninhalt zurück.
+- Der Paket-Hinweis in der App-Dokumentation nennt nur noch seine eigene Version und
+  verweist für Installationsbelege auf `RELEASE_STATE`, statt nach Auslieferung einen
+  veralteten Kandidatenstatus zu behaupten.
+
+### Grenzen und Prüfung
+- Ausschließlich read-only Auswertung bereits ausdrücklich gelesener
+  Automationskonfigurationen; keine Automation, Zone, Entität, Zustimmung oder
+  Geräteausführung wird geändert. Allgemeines Apply bleibt geschlossen.
+- Zwei synthetische Regressionen erhöhen den lokalen Stand auf 562 Python-Tests;
+  68 JavaScript- und 62 API-/Repository-Verträge bleiben grün.
+
 ## [0.1.0-alpha.50] - 2026-09-27
 
 ### Wiederanlaufsichere eigene Ausgangspakete

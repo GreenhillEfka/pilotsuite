@@ -494,3 +494,17 @@ without a uniquely matching receipt remains unknown and is never replayed. A ful
 verified but not yet locally bound package may be bound only while the exact zone
 revision and every active output identity still match. Recovery never deletes or adopts
 foreign objects, enables publication, changes learning/consent or grants general Apply.
+
+## ADR-037 — Literal event filters are direct read-only source references
+
+Accepted 2026-09-27 after the authorized live inventory exposed an existing Home
+Assistant automation using `event_data.entity_id`. Discovery already found the
+automation, but the draft inspector considered only a trigger's top-level `entity_id`
+and could therefore report a contradictory source gap.
+
+The existing bounded inspector now reads only the literal `entity_id` field of a
+trigger's `event_data` object. It does not interpret arbitrary event payloads or
+templates. Action event data stays opaque and cannot become a target. Dynamic or
+malformed values retain an explicit limitation and reveal no authored text. This
+changes only the read-only evidence projection: no automation, zone, learning state,
+risk, preference or execution authority is changed.

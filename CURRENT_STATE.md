@@ -1,4 +1,17 @@
-# Current state — Alpha.50 delivered
+# Current state — Alpha.50 live, Alpha.51 candidate
+
+Alpha.51 is the bounded automation-reference integrity candidate. The authorized
+read-only inventory showed a real existing automation whose static source constraint is
+stored as `event_data.entity_id`. PilotSuite's discovery found that automation, while
+the existing draft inspector did not recognize the nested literal and could report a
+contradictory source gap. The inspector now includes that exact trigger filter only.
+Action event payloads remain opaque, and dynamic filters remain unresolved without
+exposing authored text. No household configuration was copied into tests or source.
+
+Local checks pass 562 Python tests, 68 JavaScript tests, Python compilation and 62
+repository/API contracts. The packaged documentation now states only its own version;
+actual delivery remains owned by `docs/RELEASE_STATE.json`. Exact candidate CI, merge,
+main CI, fresh Alpha.50 backup and installation have not yet occurred.
 
 Alpha.50 is merged at `9aea467a81fcdbd9fc96a0199cb2a1c57826702b`, published and installed.
 The exact candidate and final main commit passed all five CI jobs: unit/contract tests,
@@ -44,5 +57,7 @@ HA read-only inventory still exposes the real `erdkeller` (`Erdkeller Innen`) an
 Ingress remains unavailable in this session, so preservation of all four saved zones is
 not claimed from an internal HTTP response.
 
-Next: authenticated read-only Ingress acceptance of `Erdkellerbereich` and one unlike
-existing zone, with all four saved zones preserved and no household apply action.
+Next: pass exact Alpha.51 candidate CI and the existing backup-bound release gates; only
+after installation repeat authenticated read-only Ingress acceptance of
+`Erdkellerbereich` and one unlike existing zone, with all four saved zones preserved and
+no household apply action.
