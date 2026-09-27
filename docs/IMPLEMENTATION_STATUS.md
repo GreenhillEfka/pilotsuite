@@ -3,6 +3,15 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+The 2026-09-28 concept consolidation changes documentation only. Its simplified
+navigation, unified everyday presence view and internal deduplication are planned,
+not installed features. Older activity/context/history-import APIs still retain
+legacy learning flags; the current zone-instance path does not require them.
+
+The pure presence kernel is shared, but Alpha.48 shadow and Alpha.49+ zone-instance
+configuration/checkpoints still coexist in ContextStore. They are not yet one
+runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation path.
+
 | Capability | Actual boundary |
 |---|---|
 | Typed zone presence configurator | Implemented, tested and installed since Alpha.49/50; household Ingress acceptance pending |

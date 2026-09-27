@@ -1,5 +1,10 @@
 # Paket: lokale Rhythmen, Beobachtbarkeit und Lichtkontext
 
+Historischer/Legacy-Paketvertrag. Die nachstehenden PR- und Zustimmungsangaben
+beschreiben die damalige activity-v1-Kontextstrecke, nicht die heutige Zonenanalyse.
+Aktueller Funktionsstand: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+Relevanzvertrag und unveränderte Schreibgrenzen: [ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md).
+
 Entwicklungsstand in PR #9. Noch kein auf Home Assistant abgenommenes Release.
 
 ## Lokale Rhythmen

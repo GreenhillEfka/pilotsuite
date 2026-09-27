@@ -1,32 +1,47 @@
-# Installation and first validation
+# Installation and read-only acceptance
 
 ## Requirements
 
-- Home Assistant OS or Supervised with the Apps panel
-- `amd64` or `aarch64`
-- access to the public GitHub repository
-- Home Assistant 2026.4.0 or newer
+Home Assistant OS or Supervised with the Apps panel; supported app architectures
+are `amd64` and `aarch64`. The declared minimum HA version is in
+[`pilotsuite/config.yaml`](../pilotsuite/config.yaml); declaration is not proof of
+testing every HA version or architecture.
 
-## Install
+## First installation
 
-1. In Home Assistant, open **Settings -> Apps -> App store**.
-2. Open repository management and add `https://github.com/GreenhillEfka/pilotsuite`.
-3. Refresh the store if PilotSuite is not shown immediately.
-4. Install **PilotSuite**.
-5. In configuration, set `golden_zone_area_ids` to the exact Home Assistant area ID for the Erdkeller if it differs from `erdkeller`.
-6. Start the app and open its Web UI.
+1. Add `https://github.com/GreenhillEfka/pilotsuite` in the App Store's repository settings.
+2. Install PilotSuite and review its options.
+3. Set `golden_zone_area_ids` only for the initial bootstrap from actual HA area IDs.
+4. Start the app and open its authenticated Ingress UI.
 
-## Acceptance check for 0.1.0-alpha.8
+After bootstrap, the saved PilotSuite zones are authoritative. Do not split an
+aggregate zone into HA areas or recreate existing zones from option values.
+An existing installation uses [RELEASE_RUNBOOK.md](RELEASE_RUNBOOK.md), not these
+first-install steps. Do not reinstall an already installed release.
 
-- the app reaches `running` without restart loops;
-- `/health` reports `ok`;
-- `/health/ready` reports Home Assistant connected;
-- the status page shows version `0.1.0-alpha.8` and architecture `v21`;
-- the Erdkeller area resolves and lists only its Home Assistant entities;
-- moods and suggestions contain readable evidence;
-- an Apply request is rejected with HTTP `409`;
-- no Home Assistant state or configuration changes.
+## Acceptance without household writes
 
-## Rollback
+- Compare installed/offered metadata with the intended source/version receipt.
+- Check startup/readiness, stream connection, projection freshness and zone resolution.
+  A ready connection does not prove physical sensor coverage.
+- In authenticated Ingress, confirm existing zones, current values, unknown states,
+  open sections, focus and reading position after multiple passive refreshes.
+- Keep presence calculation, an optional HA comparison and output publication distinct.
+- Do not create helpers, rename entities, change learning fields, press Apply or
+  switch devices to prove installation.
 
-This release makes no Home Assistant configuration changes. Stop and uninstall the app to remove the runtime. Removing app data deletes only PilotSuite-owned audit and plan records.
+An internal HTTP response is not browser acceptance. Direct access returning
+`403 Ingress access required` is expected; never weaken that boundary.
+No browser session means that specific acceptance remains pending.
+
+## Data preservation and recovery
+
+The app can own zones, selections, evidence, drafts, configuration and transaction
+receipts. Removing its data is destructive, not a routine rollback. Separately
+created HA helpers or metadata changes are not automatically undone by uninstalling.
+
+Before a behavioral release, verify the documented native PilotSuite-only backup.
+A restore overwrites app data/options since that backup and requires the authorized,
+scope-checked recovery procedure. Local configuration savepoints are not a substitute
+for the complete app/data backup. See the release runbook; do not test restoration
+against the household.

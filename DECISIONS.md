@@ -1,5 +1,45 @@
 # Architecture Decision Log
 
+This is a historical decision log, not a live release or permission ledger.
+Current product direction: docs/VISION.md; implemented boundaries:
+docs/IMPLEMENTATION_STATUS.md; delivery: docs/RELEASE_STATE.json. Old statements
+such as “no alpha writes”, “PR remains off main” or separate learning consent apply
+to their recorded slice, not universally to today's zone-instance path.
+
+## ADR-042 — Consolidate the product around the existing zone instance
+
+Proposed implementation direction, 2026-09-28, following the user's request to
+rework the concept and reduce complexity. Documentation only in this change;
+no runtime activation, migration, new version or household acceptance is implied.
+
+Use the existing zone instance as the primary presence result. Role summaries,
+synthetic replay and the older explicit shadow session retain their distinct
+diagnostic meanings; they must not become competing everyday truth. Keep one
+modular app, shared database and current HA transport. Do not replace working
+components merely to introduce a framework or a generic execution layer.
+
+Evidence for consolidation: README still named Alpha.9/v21; VISION prioritized
+climate; ARCHITECTURE understated SQLite ownership and claimed no writes; the
+roadmap accumulated delivery receipts; old learning-consent texts conflicted with
+relevance-authorized zone analysis. Source shows both Shadow and ZonePresence
+tasks/configurations despite a shared pure kernel. Consolidation must distinguish
+these facts from an unmeasured performance defect.
+
+The next code package simplifies the existing workspace, followed by measured
+internal deduplication. Preserve APIs, four saved zones, IDs, drafts, source decisions,
+unknown semantics, deadlines, durable receipts and Ingress. Any stored-state
+consolidation needs an explicit mapping, compatibility tests and rollback boundary.
+Relevance authorizes live/available-history analysis; legacy consent fields are
+compatibility state, not grounds for a new data-grant flow or silent migration.
+
+docs/ROADMAP.md owns sequencing; docs/UX_WORKSPACE.md defines the proposed UI.
+Older source and delivery facts remain in Git/CHANGELOG, not repeatedly copied into
+current handoffs. Only implemented behavior belongs in the capability ledger.
+
+Numbering correction: the later duplicate ADR-035 (historical provenance), ADR-036
+(owned output recovery) and ADR-037 (event filters) are now ADR-039/040/041.
+The earlier lighting ADR-035/036/037 keep their numbers. Their decisions are unchanged.
+
 ## ADR-038 — Structural availability gates confirmed automation alignment
 
 An entity reference inside a disabled or dynamically enabled automation step remains
@@ -476,7 +516,7 @@ but its public enable route and general Apply remain closed. This release theref
 adds explanation and fault-tested state semantics, not household actuation or a new
 learning consent. Contract: docs/PRESENCE_FIRST_INTELLIGENCE.md.
 
-## ADR-035 — Historical provenance is valid only within its import receipt
+## ADR-039 — Historical provenance is valid only within its import receipt
 
 Accepted 2026-09-27 as a strict continuation of retained-report integrity. An
 activation is imported history only when its provenance references a sanitized
@@ -492,7 +532,7 @@ closed. No new schema, history fetch, learner, consent, preference, HA write or
 execution permission is introduced. Normal retention housekeeping remains separate
 from integrity reporting, and general Apply stays closed.
 
-## ADR-036 — Owned output recovery requires a cumulative durable receipt
+## ADR-040 — Owned output recovery requires a cumulative durable receipt
 
 Accepted 2026-09-27 as an integrity correction to the Alpha.49 zone-output package.
 HA helper creation and registry read-back are separate evidence and must be merged in
@@ -508,7 +548,7 @@ verified but not yet locally bound package may be bound only while the exact zon
 revision and every active output identity still match. Recovery never deletes or adopts
 foreign objects, enables publication, changes learning/consent or grants general Apply.
 
-## ADR-037 — Literal event filters are direct read-only source references
+## ADR-041 — Literal event filters are direct read-only source references
 
 Accepted 2026-09-27 after the authorized live inventory exposed an existing Home
 Assistant automation using `event_data.entity_id`. Discovery already found the

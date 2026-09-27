@@ -1,5 +1,10 @@
 # Alpha.32 consolidation and release candidate
 
+Historical Alpha.32 release review, retained for provenance. PR69, scan behavior,
+local browser blockers and test counts below describe that snapshot, not current
+work to resume. Current continuation: [CURRENT_STATE.md](../CURRENT_STATE.md);
+current product consolidation: [ARCHITECTURE.md](ARCHITECTURE.md).
+
 
 PR69 remains the canonical implementation. The offline Alpha32 candidate is NOT a
 replacement for its ContextStore/PlanStore integration or confirmed name cleanup.
