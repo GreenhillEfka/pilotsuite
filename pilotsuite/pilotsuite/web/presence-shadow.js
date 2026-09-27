@@ -25,25 +25,37 @@
     const body=await response.json();
     if(!response.ok)throw Error(body.message||'Anfrage nicht bestätigt');return body;
   }
-  async function read(){
+  async function read({background=false}={}){
     if(!eligible()||busy||editing)return;
     const z=zone,r=revision,g=generation,q=++requestNumber;lastRead=Date.now();
     try{
       const value=await request('GET');
       if(!currentBasis(z,r,g)||q!==requestNumber)return;
       if(!safeResponse(value,z,r))throw Error('Die Antwort passt nicht zum aktuellen Zonenstand. Neu laden.');
-      data=value;stale=false;render();
+      data=value;stale=false;
+      const scroller=document.scrollingElement,position=scroller?.scrollTop;
+      render();
+      if(background&&scroller&&scroller.scrollTop!==position)scroller.scrollTop=position;
     }catch(e){if(currentBasis(z,r,g)&&q===requestNumber){data=null;results.replaceChildren();note('Nicht aktuell: '+e.message);renderControls();}}
   }
   function renderControls(){
-    controls.replaceChildren();
-    const open=B(data?.enabled?'Schattenkonfiguration ändern':'Schattenvergleich konfigurieren',openEditor);
-    open.id='ps-shadow-configure';open.disabled=!valid||!data||busy||editing;controls.append(open);
-    const refresh=B('Vergleich aktualisieren',read);refresh.id='ps-shadow-refresh';refresh.disabled=busy||editing;controls.append(refresh);
-    const stop=B('Schattenvergleich stoppen',()=>mutate('stop'));stop.id='ps-shadow-stop';stop.disabled=!valid||!data||data.state==='disabled'||busy||editing;controls.append(stop);
+    if(!controls.firstElementChild){
+      const open=B('',openEditor);open.id='ps-shadow-configure';
+      const refresh=B('Vergleich aktualisieren',()=>read());refresh.id='ps-shadow-refresh';
+      const stop=B('Schattenvergleich stoppen',()=>mutate('stop'));stop.id='ps-shadow-stop';
+      controls.append(open,refresh,stop);
+    }
+    const open=controls.querySelector('#ps-shadow-configure');
+    open.textContent=data?.enabled?'Schattenkonfiguration ändern':'Schattenvergleich konfigurieren';
+    open.disabled=!valid||!data||busy||editing;
+    controls.querySelector('#ps-shadow-refresh').disabled=busy||editing;
+    controls.querySelector('#ps-shadow-stop').disabled=!valid||!data||data.state==='disabled'||busy||editing;
   }
   function render(){
-    if(!root)return;renderControls();results.replaceChildren();
+    if(!root)return;
+    const sourcesOpen=results.querySelector('details')?.open;
+    const sourcesFocused=results.querySelector('details')?.contains(document.activeElement);
+    renderControls();results.replaceChildren();
     if(!data)return;
     note(data.message);
     const d=data.current;
@@ -60,11 +72,13 @@
     const deadline=d.computed?.deadline;
     const seconds=typeof deadline==='number'&&Number.isFinite(deadline)?Math.max(0,Math.ceil(deadline-d.observed_at)):null;
     results.append(E('p',`Abgleich ${showTime(d.observed_at)} · Nachlauf ${seconds===null?'nicht aktiv':seconds+' s bis '+showTime(deadline)} · Generation ${d.computed?.generation??'—'}`,'ps-muted'));
-    const sources=E('details');sources.append(E('summary','Quellen und Meldealter'));
+    const sources=E('details');sources.open=!!sourcesOpen;
+    const sourceSummary=E('summary','Quellen und Meldealter');sources.append(sourceSummary);
     for(const row of (d.sources||[]).slice(0,20)){
       const p=E('p');p.append(E('strong',row.entity_id),document.createTextNode(` · ${row.mode==='continuous'?'Dauerpräsenz':'Bewegungsimpuls'} · ${row.usable?row.state:'unklar'} · Meldealter ${typeof row.age_seconds==='number'?row.age_seconds+' s':'unbekannt'}`));sources.append(p);
     }
     sources.append(E('p','Meldealter beschreibt den HA-Zeitstempel, nicht die garantierte Messgenauigkeit. Ein unveränderter Sensor kann eine größere zulässige Meldefrist benötigen.','ps-muted'));results.append(sources);
+    if(sourcesFocused)sourceSummary.focus({preventScroll:true});
     const lights=E('section','','ps-shadow-light');lights.append(E('h4','Lichtbedarf · nur Vorschlag'));
     if(d.manual_hold)lights.append(E('p','Manuelle Bedienung, Sperre oder deren unklarer Zustand hält den Lichtvorschlag an.','ps-warning'));
     if(!d.daylight?.usable)lights.append(E('p','Keine aktuell nutzbare, ausdrücklich als Außenreferenz bestätigte Luxquelle. Innenraum-Lux wird nicht als Außenhelligkeit verwendet.','ps-muted'));
@@ -141,6 +155,6 @@
     if(!valid){generation++;requestNumber++;results.replaceChildren();if(!editing){data=null;note('Aktueller Zonenstand wird geprüft …');}renderControls();return;}
     if(!data&&!editing&&!busy){renderControls();read();}
   }
-  setInterval(()=>{if(eligible()&&!document.hidden&&!editing&&!busy&&Date.now()-lastRead>=5000)read();},1000);
+  setInterval(()=>{if(eligible()&&!document.hidden&&!editing&&!busy&&Date.now()-lastRead>=5000)read({background:true});},1000);
   window.PilotSuiteShadow={context,dirty:()=>editing||busy,invalidate:()=>{valid=false;generation++;requestNumber++;results?.replaceChildren();}};
 })();

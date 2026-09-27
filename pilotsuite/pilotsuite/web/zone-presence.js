@@ -20,12 +20,15 @@
    let value;try{value=await response.json();}catch{throw Error('Keine gültige Antwort');}
    if(!response.ok)throw Error(value.message||'Anfrage nicht bestätigt');return value;
  }
- async function read(){
+ async function read({background=false}={}){
    if(!eligible()||busy||editing)return;
    const z=zone,r=revision,g=generation;last=Date.now();
    try{const value=await api('presence');if(!current(z,r,g))return;
      if(value.schema!=='pilotsuite-zone-presence-v2'||value.zone_id!==z||value.revision!==r)throw Error('Zonenstand geändert; neu laden');
-     data=value;render();
+     data=value;
+     const scroller=document.scrollingElement,position=scroller?.scrollTop;
+     render();
+     if(background&&scroller&&scroller.scrollTop!==position)scroller.scrollTop=position;
    }catch(e){if(current(z,r,g)){data=null;output.replaceChildren();note(e.message);}}
  }
  function mount(host){
@@ -35,11 +38,19 @@
    root.append(notice,tools,editor,output,charts);
  }
  function render(){
-   if(!data||editing)return;tools.replaceChildren();output.replaceChildren();
-   const configure=B('Präsenz konfigurieren',openEditor);configure.id='ps-zone-configure';
-   tools.append(configure,B('Aktualisieren',read),B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
-   if(!data.package)tools.append(B('Eigenen Anwesenheitssensor vorbereiten',preparePackage));
-   if(busy)tools.querySelectorAll('button').forEach(button=>button.disabled=true);
+   if(!data||editing)return;
+   if(!tools.firstElementChild){
+     const configure=B('Präsenz konfigurieren',openEditor);configure.id='ps-zone-configure';
+     tools.append(configure,B('Aktualisieren',()=>read()),B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
+     const prepare=B('Eigenen Anwesenheitssensor vorbereiten',preparePackage);prepare.id='ps-zone-prepare';tools.append(prepare);
+   }
+   tools.querySelector('#ps-zone-prepare').hidden=!!data.package;
+   const horizontal=output.querySelector('.ps-zone-scroll')?.scrollLeft||0;
+   const openSources=output.querySelector('[data-ps-live=sources]')?.open||false;
+   const openTrace=output.querySelector('[data-ps-live=trace]')?.open||false;
+   const focusedLive=output.contains(document.activeElement)?document.activeElement.closest('[data-ps-live]')?.dataset.psLive:null;
+   output.replaceChildren();
+   tools.querySelectorAll('button').forEach(button=>button.disabled=busy);
    const d=data.current;const cards=E('div','','ps-shadow-cards');
    for(const [title,value,hint] of [
       ['Präsenz',d?state(d.state):'Nicht aktuell',d?.explanation||data.status],
@@ -50,8 +61,14 @@
    } output.append(cards);
    if(d){const table=E('table','','ps-zone-source-table');const header=E('tr');for(const text of ['Quelle','Signaltyp','Zustand','Meldealter','Indirekte Frist'])header.append(E('th',text));table.append(header);
       for(const s of d.sources){const tr=E('tr');for(const text of [s.name||s.entity_id,s.kind,state(s.state),s.age_seconds===null?'Ereignisorientiert / unbekannt':fmt(s.age_seconds)+' s',date(s.support_until)])tr.append(E('td',text));table.append(tr);}
-      const wrap=E('div','','ps-zone-scroll');wrap.append(table);output.append(wrap);
-      const trace=data.trace||[];if(trace.length){output.append(E('p','Sitzungsverlauf · höchstens 128 Zustandswechsel im Arbeitsspeicher, keine historische Recorder-Aufzeichnung.','ps-muted'),chart({name:'Präsenzentscheidung im aktuellen Lauf',record_count:trace.length,changes:Math.max(0,trace.length-1),kind:'state',points:trace.map(r=>[r.observed_at,state(r.state)])},{start:trace[0].observed_at,end:Math.max(d.observed_at,trace[0].observed_at+1)}));}
+      const sources=E('details');sources.dataset.psLive='sources';sources.open=openSources;
+      sources.append(E('summary',`Aktuelle Quellen (${d.sources.length})`));
+      const wrap=E('div','','ps-zone-scroll');wrap.append(table);sources.append(wrap);output.append(sources);wrap.scrollLeft=horizontal;
+      const trace=data.trace||[];if(trace.length){
+        const history=E('details');history.dataset.psLive='trace';history.open=openTrace;
+        history.append(E('summary',`Sitzungsverlauf (${trace.length})`),E('p','Höchstens 128 Zustandswechsel im Arbeitsspeicher, keine historische Recorder-Aufzeichnung.','ps-muted'),chart({name:'Präsenzentscheidung im aktuellen Lauf',record_count:trace.length,changes:Math.max(0,trace.length-1),kind:'state',points:trace.map(r=>[r.observed_at,state(r.state)])},{start:trace[0].observed_at,end:Math.max(d.observed_at,trace[0].observed_at+1)}));output.append(history);
+      }
+      if(focusedLive)output.querySelector(`[data-ps-live="${focusedLive}"] summary`)?.focus({preventScroll:true});
    }
    note(data.analysis_enabled?'Auswertung anhand relevanter Quellen. Historische Werte werden nicht als heutige Präsenzereignisse abgespielt.':'Zone pausiert; keine aktuelle Auswertung.');
  }
@@ -158,7 +175,7 @@
        B('Änderungsplan prüfen',()=>save(async()=>{plan=await api('ontology','POST',{revision,entity_id:entities.value,name:name.value,zone_label:zoneLabel.value,roles:roleInputs.filter(i=>i.checked).map(i=>i.value),target_entity_id:target.value});renderPlan('ontology');})),B('Verwerfen',cancel));
    });
  }
- const poll=window.setInterval(()=>{if(eligible()&&!document.hidden&&!editing&&!busy&&Date.now()-last>5000)read();},5000);
+ const poll=window.setInterval(()=>{if(eligible()&&!document.hidden&&!editing&&!busy&&Date.now()-last>5000)read({background:true});},5000);
  window.addEventListener('pagehide',()=>window.clearInterval(poll),{once:true});
  window.PilotSuiteZonePresence={
    context(host,z,r,ok,module,view){

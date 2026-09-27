@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-alpha.53] - 2026-09-27
+
+### Ruhige Zonenansicht beim Hintergrundabgleich
+- Unveränderte Antworten behalten die bestehende Darstellung; bei geänderten
+  Live-Daten bleibt die Leseposition erhalten.
+- Bedienelemente, Fokus und geöffnete Quell- und Musterhinweise überleben
+  automatische Aktualisierungen. Aktuelle Quellen und Sitzungsverlauf sind
+  für eine kürzere Zonenansicht einklappbar.
+- Der synthetische Browserlauf prüft den zweimaligen passiven Abgleich und
+  trennt sichtbare historische Charts von eingeklappten Live-Verläufen.
+- Keine HA-Konfiguration, Zustimmung, Automation oder Geräteaktion wird verändert.
+
 ## [0.1.0-alpha.52] - 2026-09-27
 
 ### Aktivierungsstatus in der Automations-Detailprüfung

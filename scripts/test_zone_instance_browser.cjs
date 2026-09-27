@@ -16,13 +16,23 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('[data-ps-module="presence"]').click();await page.locator('.ps-nav [data-ps-nav="zone"]').click();await page.locator('#ps-zone-configure:not([disabled])').waitFor();
   assert.deepEqual(errors,[]);const baseline=await command({action:'snapshot'});assert.equal(baseline.learning,false);assert.equal(baseline.view.current.state,'occupied');
   assert.equal(baseline.helper_creates,0);assert.equal(baseline.output_calls,0);
+  await page.locator('[data-ps-live="sources"] summary').click();
+  const passive=await page.evaluate(async()=>{
+    window.scrollTo(0,450);
+    const before=document.scrollingElement.scrollTop,button=document.getElementById('ps-zone-configure'),context=contextData;
+    await load({background:true});await load({background:true});
+    return {before,after:document.scrollingElement.scrollTop,buttonRetained:button===document.getElementById('ps-zone-configure'),contextRetained:context===contextData,sourcesOpen:document.querySelector('[data-ps-live="sources"]').open};
+  });
+  assert.equal(passive.after,passive.before);assert.equal(passive.buttonRetained,true);
+  assert.equal(passive.contextRetained,true);assert.equal(passive.sourcesOpen,true);
+  console.log('ok 0 - passive refresh retains reading position, controls, context and open sources');
   await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
   await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();assert.equal(await page.locator('#ps-zone-form').isVisible(),true);
   await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
   await page.locator('#ps-zone-form').waitFor({state:'hidden'});await page.locator('#ps-zone-configure:not([disabled])').waitFor();
   assert.equal((await command({action:'snapshot'})).mode,'compare');console.log('ok 1 - relevance-based presence, typed configuration, no extra grant, dirty guard');
   await page.getByRole('button',{name:'Sensordaten & Verläufe',exact:true}).click();
-  try{await page.locator('.ps-zone-chart').first().waitFor();}catch(e){throw Error('Historienansicht blieb leer: '+await page.locator('#ps-zone-presence .ps-notice').first().textContent()+' / '+e.message);}assert.equal(await page.locator('.ps-zone-chart').count()>0,true);
+  try{await page.locator('.ps-zone-chart:visible').first().waitFor();}catch(e){throw Error('Historienansicht blieb leer: '+await page.locator('#ps-zone-presence .ps-notice').first().textContent()+' / '+e.message);}assert.equal(await page.locator('.ps-zone-chart:visible').count()>0,true);
   assert.equal((await command({action:'snapshot'})).history_reads,1);
   const out=process.env.PILOTSUITE_SCREENSHOTS;if(out)await fs.mkdir(out,{recursive:true});
   if(out)await page.screenshot({path:path.join(out,'zone-data-desktop.png'),fullPage:true});
