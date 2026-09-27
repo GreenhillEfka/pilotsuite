@@ -62,7 +62,7 @@ class OrganizationPlanMixin:
             return await durable(self._organization_plan_create,zone_id,revision,operations,kind,details)
 
     def _organization_plan_create(self, zone_id, revision, operations, kind, details):
-        if kind not in ('names','restore_names','repair_review') or not 1 <= len(operations) <= 30:
+        if kind not in ('names','restore_names','repair_review','ontology','presence_package') or not 1 <= len(operations) <= 30:
             raise InvalidSelection('Ungültiger oder leerer Ordnungsplan')
         plan={'id':uuid.uuid4().hex,'zone_id':zone_id,'revision':revision,'kind':kind,
               'created_at':time.time(),'expires_at':time.time()+900,'state':'preview',
@@ -144,4 +144,19 @@ class OrganizationPlanMixin:
             values=[x.get('outcome') for x in plan['operations']]
             plan['state']='verified' if all(v=='verified' for v in values) else 'attention' if any(v in ('unknown','conflict') for v in values) else 'applying'
             db.execute('UPDATE zone_meta SET value=? WHERE key=?',(json.dumps(plan),PREFIX+plan_id))
+            return plan
+
+    async def organization_receipt(self,zone_id,plan_id,index,receipt):
+        async with self._lock:
+            return await durable(self._organization_receipt,zone_id,plan_id,index,receipt)
+
+    def _organization_receipt(self,zone_id,plan_id,index,receipt):
+        self._organization_plan_get(zone_id,plan_id)
+        with closing(sqlite3.connect(self._context.path,timeout=10)) as db,db:
+            db.execute('BEGIN IMMEDIATE')
+            plan=json.loads(db.execute('SELECT value FROM zone_meta WHERE key=?',(PREFIX+plan_id,)).fetchone()[0])
+            if plan['kind']!='presence_package' or plan['operations'][index].get('outcome')!='sending':
+                raise SelectionConflict('Keine laufende Helferoperation')
+            plan['operations'][index]['receipt']=deepcopy(receipt)
+            db.execute('UPDATE zone_meta SET value=? WHERE key=?',(json.dumps(plan,allow_nan=False),PREFIX+plan_id))
             return plan

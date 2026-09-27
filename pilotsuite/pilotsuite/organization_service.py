@@ -182,6 +182,9 @@ class OrganizationServiceMixin:
         if payload['confirm'] is not True: raise InvalidSelection('Ausdrückliche Planbestätigung erforderlich')
         if self._automation_review_lock.locked(): raise HomeAssistantError('Bestandsänderung läuft bereits')
         async with self._automation_review_lock:
+            candidate=await self.plans.organization_plan_get(zone_id,plan_id)
+            if candidate['kind'] not in ('names','restore_names'):
+                raise InvalidSelection('Dieser Plan benötigt seinen spezifischen Ausführungspfad')
             plan,claimed=await self.plans.organization_claim(zone_id,plan_id,payload['sha256'])
             if not claimed: return {**plan,'replayed':True,'write_repeated':False}
             for index,op in enumerate(plan['operations']):

@@ -25,7 +25,7 @@
   const fieldStatus=E('p','','ps-notice');fieldStatus.id='ps-notice';fieldStatus.setAttribute('role','status');fieldStatus.hidden=true;
   function announce(message){fieldStatus.textContent=message;fieldStatus.hidden=!message;}
   function dirty(){return !!(selectionBusy||contextEditing||zoneFormOpen||selectionDraft?.dirty||
-    (typeof routineDirty!=='undefined'&&routineDirty)||(typeof reviewNoteDirty!=='undefined'&&reviewNoteDirty)||(typeof historyBusy!=='undefined'&&historyBusy)||requestBusy||(window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty()));}
+    (typeof routineDirty!=='undefined'&&routineDirty)||(typeof reviewNoteDirty!=='undefined'&&reviewNoteDirty)||(typeof historyBusy!=='undefined'&&historyBusy)||requestBusy||(window.PilotSuiteOrganization?.dirty()||(window.PilotSuiteShadow?.dirty()||window.PilotSuiteZonePresence?.dirty())));}
   function valid(){return !invalid && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty &&
     M.current(contextData,selectionDraft?.inventory,selectionZone) && !invalidFoundationContexts.has(contextData);}
   function savePrefs(){try{localStorage.setItem('pilotsuite.workspace.v1',JSON.stringify(prefs));}catch{announce('Darstellung gilt für diese Sitzung. Browser-Speicherung ist nicht verfügbar.');}}
@@ -56,6 +56,7 @@
   const moduleDetail=E('div','','ps-module-detail');moduleDetail.id='ps-module-detail';
   zoneModule.append(overview,moduleCards,moduleDetail);zonePanel.after(zoneModule);
   const shadowPanel=mark(E('section','','panel ps-shadow-panel'),'zone');shadowPanel.id='ps-shadow-panel';zoneModule.after(shadowPanel);
+  const zoneRuntime=mark(E('section','','panel ps-zone-panel'),'zone config history');zoneRuntime.id='ps-zone-presence';shadowPanel.after(zoneRuntime);
   mark(document.querySelector('[aria-labelledby="guide-title"]'),'cockpit zone');
   mark(document.querySelector('[aria-labelledby="daily-brief-title"]'),'cockpit');
   mark(document.querySelector('[aria-labelledby="foundation-title"]'),'zone');
@@ -139,6 +140,7 @@
   }
   function renderModules(force=false){window.PilotSuiteOrganization?.context(selectionZone,contextData?.revision);const ok=valid();const f=ok?contextData.foundation:null;
     window.PilotSuiteShadow?.context(shadowPanel,selectionZone,contextData?.revision,ok,activeModule,activeView);
+    window.PilotSuiteZonePresence?.context(zoneRuntime,selectionZone,contextData?.revision,ok,activeModule,activeView);
     const key=JSON.stringify([ok,f,activeModule,status?.ready,contextData?.effective_roles,
       zoneResults.find(z=>z.zone_id===selectionZone)?.summary]);if(!force&&key===modulesKey)return;modulesKey=key;
     moduleCards.replaceChildren();moduleDetail.replaceChildren();roleSummary.replaceChildren();
@@ -250,6 +252,7 @@
     if(view!==activeView&&dirty()){announce('Bearbeitung läuft. Bitte speichern oder abbrechen, bevor du den Arbeitsbereich wechselst.');return false;}
     activeView=view;prefs.view=view;savePrefs();for(const panel of panels)panel.hidden=view!=='all'&&!panel.dataset.psView.split(' ').includes(view);
     shadowPanel.hidden=!['zone','all'].includes(view)||!['presence','lighting'].includes(activeModule);
+    window.PilotSuiteZonePresence?.context(zoneRuntime,selectionZone,contextData?.revision,valid(),activeModule,view);
     for(const link of nav.children){if(link.dataset.psNav===view)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
     $('ps-view-title').textContent=titles[view];$('ps-view-note').textContent=notes[view];if(hash)history.replaceState(null,'','#ps-'+view);if(focus)$('ps-view-title').focus();return true;
   }
@@ -262,7 +265,7 @@
   },true);
   window.addEventListener('hashchange',()=>{let view;try{view=viewForHash(location.hash);}catch{return;}if(view&&!navigate(view,{hash:false}))history.replaceState(null,'','#ps-'+activeView);});
   for(const id of ['zone-new','zone-edit','context-edit'])$(id).addEventListener('click',event=>{if(activeView!=='config'&&activeView!=='all'&&!navigate('config')){event.preventDefault();event.stopImmediatePropagation();}},true);
-  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();window.PilotSuiteShadow?.invalidate();status=null;invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
+  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();window.PilotSuiteShadow?.invalidate();window.PilotSuiteZonePresence?.invalidate();status=null;invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
   $('context-cancel').addEventListener('click',()=>{if(!contextEditing&&!selectionBusy)loadContext().catch(()=>announce('Gespeicherte Rollen konnten nicht neu geladen werden. Erneut öffnen.'));});
   const observer=new MutationObserver(()=>{if(!form.hidden){setRoleFilter(roleFilter);renderDiff();}});observer.observe(form,{attributes:true,attributeFilter:['hidden']});
   // Preserve organization drafts across legacy zone controls and background refreshes.

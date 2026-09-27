@@ -52,7 +52,10 @@ from .organization_store import OrganizationContextMixin
 from .shadow_store import ShadowContextMixin
 
 
-class ContextStore(OrganizationContextMixin, ShadowContextMixin):
+from .zone_presence_store import ZonePresenceContextMixin
+
+
+class ContextStore(OrganizationContextMixin, ShadowContextMixin, ZonePresenceContextMixin):
     def __init__(self, selections):
         self.selections = selections
         self.path = selections.path

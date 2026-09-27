@@ -145,5 +145,13 @@
     "separate_alpha47_deployment": false,
     "earlier_backup_checked": "2eb9a967: actual Alpha46 despite Alpha47 label; superseded for deployment by fresh a7c65d26"
   },
-  "next_step": "Observe a user-confirmed shadow session in saved Erdkellerbereich and one unlike zone; verify sources, deadline, manual holds and light reasons before bounded control. Do not repeat Alpha48 deployment for documentation."
+  "next_step": "Observe a user-confirmed shadow session in saved Erdkellerbereich and one unlike zone; verify sources, deadline, manual holds and light reasons before bounded control. Do not repeat Alpha48 deployment for documentation.",
+  "candidate": {
+    "version": "0.1.0-alpha.49",
+    "status": "local_only_pending_browser_native_HA_and_remote_CI",
+    "branch": "feat/alpha49-zone-presence-configurator",
+    "baseline_commit": "da8b56b7910b9c42a5edec8f1c12dbbdb451784f",
+    "published": false,
+    "installed": false
+  }
 }

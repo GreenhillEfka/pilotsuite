@@ -163,6 +163,9 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         json.dumps(report, allow_nan=False)
 
     async def test_legacy_context_rows_are_sanitized_without_breaking_export(self):
+        # Both rows deliberately belong to one two-hour bucket; wall-clock time
+        # near a boundary otherwise makes this unrelated integrity test nondeterministic.
+        self.now = stamp('2026-09-27T12:00:00+00:00')
         with sqlite3.connect(self.selections.path) as db:
             db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
                        ('a', 'binary_sensor.p', self.now, 'unknown'))
@@ -189,6 +192,16 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('CANARY', json.dumps(report))
         self.assertEqual(2, report['context_windows'][0]['activations'])
         json.dumps(report, allow_nan=False)
+
+    async def test_context_records_across_time_boundary_are_not_merged(self):
+        at = stamp('2026-09-27T13:59:00+00:00')
+        with sqlite3.connect(self.selections.path) as db:
+            for t in (at, at + 301):
+                db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)', ('a', 'binary_sensor.p', t, 'unknown'))
+                db.execute('INSERT INTO activity_context VALUES (?,?,?)', ('a', t, json.dumps(self.data)))
+        report = await self.store.report('a', now=at+301)
+        self.assertEqual(2, len(report['context_evidence']))
+        self.assertEqual([1,1], sorted(row['activations'] for row in report['context_windows']))
 
     async def test_retained_report_quarantines_corrupt_rows_without_rewriting(self):
         await self.configure(context_learning=True, now=self.now-2000)

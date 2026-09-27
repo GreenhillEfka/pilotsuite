@@ -42,9 +42,10 @@ from .organization_service import OrganizationServiceMixin
 
 
 from .shadow_service import PresenceShadowServiceMixin
+from .zone_presence_service import ZonePresenceServiceMixin
 
 
-class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin):
+class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin, ZonePresenceServiceMixin):
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self.audit = AuditLog(settings.data_dir, settings.audit_retention)
@@ -55,6 +56,7 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin):
         self.attribution = EventAttribution()
         self._learning_sources = {}
         self._shadow_init()
+        self._zone_presence_init()
         self._presence_runtime_enabled: set[str] = set()
         self._presence_runtime: dict[str, dict[str, Any]] = {}
         self._presence_runtime_lock = asyncio.Lock()
@@ -555,6 +557,8 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin):
             )),
             asyncio.create_task(self._refresh_loop()),
             asyncio.create_task(self._shadow_loop()),
+            asyncio.create_task(self._zone_presence_loop()),
+            asyncio.create_task(self._zone_history_loop()),
         ]
 
     async def close(self) -> None:
@@ -796,6 +800,7 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin):
                                     context['captured_at'] = captured.isoformat()
                                 await self.context.record(zone_id, entity_id, occurred, origin, context=context)
             await self._shadow_tick_locked(event=event_data)
+            await self._zone_presence_tick_locked(event=event_data)
         for zone_id in presence_zones:
             runtime=await self.presence_runtime(zone_id)
             watched=set(runtime.get("raw_sources",[])+([runtime.get("timer")] if runtime.get("timer") else []))
