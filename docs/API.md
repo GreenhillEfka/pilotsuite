@@ -51,6 +51,7 @@ it appears in this inventory.
 | `GET` | `/api/v1/zones/{zone_id}/presence-runtime` | Read the presence-foundation runtime configuration. |
 | `PATCH` | `/api/v1/zones/{zone_id}/presence-runtime` | Save presence runtime configuration with the endpoint's consent and revision checks. |
 | `POST` | `/api/v1/zones/{zone_id}/presence-runtime/replay` | Replay one allowlisted synthetic presence scenario without reading or changing HA, consent or stored runtime state. |
+| `POST` | `/api/v1/zones/{zone_id}/lighting-preview` | Preview one allowlisted synthetic daylight/mood scenario without reading or changing HA, consent or stored state. |
 | `POST` | `/api/v1/zones/{zone_id}/presence-adoption/review` | Perform an explicit read-only adoption review of existing presence automations. |
 
 ## Routine drafts, comparisons and review notes

@@ -323,6 +323,28 @@ class PilotSuiteService(OrganizationServiceMixin):
                 "scenario":replay_scenario(payload["scenario"]),"persisted":False,
                 "execution":{"allowed":False,"reason":"synthetic_replay_only","actions":[]}}
 
+    async def lighting_preview(self, zone_id, payload):
+        """Preview one allowlisted synthetic light scenario; never read or write HA."""
+        from pilotsuite.core.lighting_policy import PREVIEW_SCENARIOS, replay_lighting_scenario
+        if (not isinstance(payload, dict) or set(payload) != {"revision", "scenario"}
+                or type(payload["revision"]) is not int
+                or not isinstance(payload["scenario"], str)
+                or payload["scenario"] not in PREVIEW_SCENARIOS):
+            raise InvalidSelection("revision and an allowed synthetic lighting scenario required")
+        async with self._projection_lock:
+            inventory = await self.selection_inventory(zone_id)
+            if inventory["revision"] != payload["revision"]:
+                raise SelectionConflict("Zone changed; reload lighting preview")
+            cfg = await self.context.get(zone_id)
+            roles = cfg.get("roles", {})
+            target_count = len(roles.get("light", []))
+            reference_count = len(roles.get("illuminance", [])) + len(roles.get("daylight_binary", []))
+        return {"schema": "pilotsuite-lighting-preview-v1", "zone_id": zone_id,
+                "revision": payload["revision"], "configured_target_count": target_count,
+                "configured_reference_count": reference_count,
+                "scenario": replay_lighting_scenario(payload["scenario"]), "persisted": False,
+                "execution": {"allowed": False, "reason": "synthetic_preview_only", "actions": []}}
+
     async def configure_presence_runtime(self, zone_id, payload):
         if isinstance(payload, dict) and payload.get("enabled") is True:
             raise InvalidSelection("Steuerungsübernahme gesperrt: Timer-Ereignisse und bestehende Zuständigkeiten müssen vor Aktivierung separat abgenommen werden. Bestand & Ordnung bleibt nutzbar.")

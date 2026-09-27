@@ -1,5 +1,21 @@
 # Architecture Decision Log
 
+## ADR-035 — Lighting preview is pure, stable and capability-bounded
+
+The existing lighting policy remains the single semantic owner. Alpha.40 adds no
+controller or persistence: an explicit synthetic POST advances a detached checkpoint
+through allowlisted scenarios. Daylight lux is never a brightness percentage. A new
+band must remain stable, small differences stay inside a deadband, proposals observe
+a minimum interval and brightness changes are bounded. Missing lux is unknown rather
+than dark; unknown presence and manual override hold. A vacant-night case may preview
+off but has no authority.
+
+Target capability flags constrain fixed output keys (`on`, `brightness_pct`,
+`color_temp_kelvin`). No data-provided service, URL, entity target or action is
+accepted. Zone/revision/generation binding rejects stale responses. Preview reads no
+household values, persists nothing and returns execution.allowed=false. Productive
+lighting, presence activation and general Apply remain separately gated.
+
 ## ADR-025 — Review briefs are derived and cannot authorize execution
 
 The pattern workbench derives briefs and evidence graphs from the canonical report.

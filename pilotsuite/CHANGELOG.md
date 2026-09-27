@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.0-alpha.40] - 2026-09-27
+
+### Tageslicht- und Stimmungsvorschau
+- Erweitert den vorhandenen reinen Licht-Policy-Besitzer um stabile Tageslichtbänder,
+  Totzone, Mindestintervall und begrenzte Helligkeitsschritte. Lux und Prozentwerte
+  bleiben unterschiedliche Größen; fehlendes Lux wird nicht als Dunkelheit gedeutet.
+- Sechs fest definierte synthetische Szenarien erklären Tageslichtwechsel,
+  Grenzschwankungen, manuelle Bedienung, fehlende Referenz, nächtliches Verlassen
+  und eingeschränkte Leuchtenfähigkeiten.
+- Die bestehende Zonenoberfläche zeigt die Vorschau nur nach einem ausdrücklichen
+  Klick. Antworten sind an Zone und Revision gebunden; Reload führt nichts aus.
+
+### Grenzen und Prüfung
+- Kein Haushaltswert wird für die Vorschau gelesen oder gespeichert. Die API gibt
+  ausschließlich Eigenschaften wie `on`, Helligkeitsprozent und Farbtemperatur aus,
+  niemals Dienstnamen oder Ausführungsrecht.
+- Public Presence Runtime und allgemeines Apply bleiben geschlossen. Keine HA-
+  Konfiguration, Automation, Rolle, Lernfreigabe oder Geräteaktion wird geändert.
+
 ## [0.1.0-alpha.39] - 2026-09-27
 
 ### Deterministic presence kernel and explanation replay

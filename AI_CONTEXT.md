@@ -1,9 +1,34 @@
 # PilotSuite AI context
 
-Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v22.
+Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.39 presence kernel delivered
+## Resume: Alpha.40 daylight and mood preview candidate
+
+The current branch extends the existing pure lighting policy instead of adding a
+controller or second owner. A deterministic preview separates presence state,
+daylight lux, brightness percentage, chosen atmosphere, manual override, target
+capabilities and execution authority. It requires a stable daylight band, applies a
+deadband and minimum proposal interval, and bounds each brightness step. Missing lux
+is unknown, not darkness; unknown presence and manual operation hold the proposal.
+
+Six allowlisted synthetic scenarios run only after explicit POST/click. They read no
+household measurement or history, persist nothing and return execution.allowed=false.
+Responses are bound to the current zone/revision/generation; only fixed `on`,
+`brightness_pct` and `color_temp_kelvin` setting keys can be displayed. No service
+name, URL or target is accepted from data. Reload performs no preview or mutation.
+
+Local validation: repository/API contracts, 515 Python and 59 JavaScript tests pass.
+The exact candidate CI must still prove the updated Chromium flow, amd64 build and
+reproducible source. Alpha.39 remains installed; RELEASE_STATE.json remains the
+actual delivery receipt until candidate/main CI, fresh scoped backup, Store/source
+association and runtime verification complete.
+
+Next: complete exact Alpha.40 candidate CI and fresh PilotSuite-only Alpha.39 backup,
+then publish/install once and verify runtime plus authenticated synthetic lighting
+preview without changing household configuration.
+
+## Previous delivery: Alpha.39 presence kernel
 
 The current branch implements the next accepted presence-first reliability package.
 A pure kernel separates continuous presence, activity pulses, grace, vacancy and
@@ -37,10 +62,6 @@ Authenticated real Ingress acceptance remains open: after installation the avail
 cloud browser still returned 502 Bad Gateway / connection closed after the single
 allowed reload. Do not retry alternate proxies, weaken access or infer UI acceptance
 from runtime health.
-
-Next: run the explicit synthetic Alpha.39 presence replay and read-only role/evidence
-acceptance in the saved Erdkellerbereich zone in authenticated Ingress; do not change
-HA configuration, automation, learning consent or devices.
 
 ## Previous delivery: Alpha.38 presence evidence and source clarity
 

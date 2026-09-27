@@ -1,5 +1,24 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.40 candidate — daylight and mood preview
+
+| Capability | Verified source scope |
+|---|---|
+| Inputs | Presence, daylight lux, brightness, atmosphere and authority remain separate |
+| Stability | Stable band, deadband, minimum interval and bounded brightness step |
+| Fallbacks | Missing lux/unknown presence/manual override hold; no false-dark inference |
+| Targets | Only fixed on/brightness/Kelvin settings; unsupported properties omitted |
+| Preview | Six allowlisted scenarios, explicit POST only, no HA I/O/persistence/authority |
+| UI integrity | Zone/revision/generation checks, safe text, selection retained, no GET side effects |
+| Local validation | 50 API routes, 515 Python and 59 JavaScript tests pass |
+
+Exact candidate Chromium, reproducible-source and amd64 CI remain pending. Alpha.39
+remains installed/offered; RELEASE_STATE.json is unchanged. No household configuration,
+automation, actor, role, consent, productive data or execution authority changed.
+
+Next: complete exact Alpha.40 candidate CI and fresh scoped Alpha.39 backup, then
+publish/install once and verify runtime plus authenticated synthetic lighting preview.
+
 ## Installed Alpha.39 — deterministic presence kernel and explanation replay
 
 | Capability | Verified source scope |

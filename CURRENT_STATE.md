@@ -1,4 +1,35 @@
-# Current state — Alpha.39 installed, 2026-09-27
+# Current state — Alpha.40 candidate, Alpha.39 installed, 2026-09-27
+
+## Daylight and mood preview candidate
+
+The existing pure lighting policy now models stable daylight bands, a five-point
+deadband, sixty-second minimum interval and at most fifteen percentage points per
+brightness proposal. Presence, lux, brightness, selected atmosphere, manual override,
+target capabilities and execution authority stay separate. Missing lux is not
+darkness; unknown presence and manual operation hold. A confirmed vacant night
+scenario can preview off, but no setting is executed.
+
+The existing lighting workspace offers six fixed synthetic scenarios only after an
+explicit click. The response is zone/revision/generation bound and stores nothing.
+It accepts no household payload, target, service or URL and can emit only fixed
+setting keys for explanation. Reload and ordinary GETs do not run the preview.
+
+Repository/API validation and 515 Python plus 59 JavaScript tests pass locally.
+Exact candidate Chromium, amd64 and reproducible-source CI remain pending. No release
+commit, backup, Store update or installation is claimed for this candidate.
+
+## Installed evidence remains Alpha.39
+
+docs/RELEASE_STATE.json remains authoritative. Alpha.39 is installed/offered/started,
+with backup 618bc607 protecting Alpha.38 app/data/options. Runtime is ready, stream
+connected, snapshot fresh and zone resolved in unchanged presence_adoption_review
+mode. Public presence activation and general Apply remain closed. No HA configuration,
+automation, actor, role, consent, productive learning or household data changed.
+
+Next: complete exact Alpha.40 candidate CI and fresh scoped Alpha.39 backup, then
+publish/install once and verify runtime plus authenticated synthetic lighting preview.
+
+## Previous delivery — Alpha.39, 2026-09-27
 
 ## Deterministic presence kernel and synthetic explanation
 
@@ -34,10 +65,6 @@ Authenticated real Ingress acceptance remains unavailable: the cloud browser ret
 502 Bad Gateway / connection closed before HA or PilotSuite loaded, including one
 reload after installation. Runtime health is not UI acceptance. No HA configuration,
 automation, actor, role, learning consent or household data changed.
-
-Next: run the explicit synthetic Alpha.39 presence replay and read-only role/evidence
-acceptance in the saved Erdkellerbereich zone in authenticated Ingress, without HA
-configuration, automation, learning or device changes.
 
 ## Previous delivery — Alpha.37, 2026-09-27
 
