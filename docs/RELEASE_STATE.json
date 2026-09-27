@@ -4,22 +4,22 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.43",
-    "commit": "92f5e8e36823e885d5456c9a9a3b12b51968f32b",
-    "tree": "492bf1f7efd2de5e6747f7c46ab54414c0d678e6",
-    "app_tree": "0404272f6007aa29df626404ab46196b60045fe4",
-    "pull_request": 94,
-    "candidate_commit": "68f0c4d29b6323e5ed252870eea1c67964333574",
-    "candidate_ci_run_id": 36295107488,
-    "ci_run_id": 36295203741,
+    "version": "0.1.0-alpha.44",
+    "commit": "2606ef59930b640c4c6d6eccbb73618e4141e629",
+    "tree": "c6f9a96859e537d7a1ca481768ec3912377da1f6",
+    "app_tree": "77fa919c8d40098f75debda36cc14abb8e152042",
+    "pull_request": 96,
+    "candidate_commit": "16840bfbf3474b59a13b65630ca565a759443eb6",
+    "candidate_ci_run_id": 36298041709,
+    "ci_run_id": 36298123047,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "ed0fb9a7",
-    "name": "PilotSuite Alpha42 before Alpha43 numeric integrity",
-    "date": "2026-09-27T04:44:31.454008+00:00",
-    "size_bytes": 54353920,
-    "app_version": "0.1.0-alpha.42",
+    "backup_id": "6c7c870d",
+    "name": "PilotSuite Alpha43 before Alpha44 learning context integrity",
+    "date": "2026-09-27T05:42:42.525232+00:00",
+    "size_bytes": 54364160,
+    "app_version": "0.1.0-alpha.43",
     "app_slugs": ["0d79c5e8_pilotsuite"],
     "homeassistant_included": false,
     "database_included": false,
@@ -34,11 +34,11 @@
     "verification": ["native snapshot list", "native backup/details"],
     "restore_drill_performed": false,
     "archive_extraction_performed": false,
-    "rollback": "hassio.restore_partial, slug=ed0fb9a7, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data/options since backup, no full restore"
+    "rollback": "hassio.restore_partial, slug=6c7c870d, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data/options since backup, no full restore"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.43",
-    "offered_version": "0.1.0-alpha.43",
+    "installed_version": "0.1.0-alpha.44",
+    "offered_version": "0.1.0-alpha.44",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -54,20 +54,20 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-27T06:46:33Z",
+    "startup_log_timestamp": "2026-09-27T07:47:53Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
     "post_start_ready_log_timestamps": [
-      "2026-09-27T06:46:34Z"
+      "2026-09-27T07:47:54Z"
     ],
     "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
   },
   "tests": {
-    "local_python_passed": 525,
+    "local_python_passed": 529,
     "local_javascript_passed": 59,
-    "regression_scope": "finite and physically valid temperature, humidity and illuminance summaries; strict JSON; current-light lux integrity and zero write mutations",
+    "regression_scope": "finite non-negative current and retained lux; strict JSON; controlled timestamps and source identifiers; malformed optional context withheld without dropping valid activation evidence",
     "candidate_and_release_main_ci": "all four jobs successful",
     "container_platform": "linux/amd64",
     "local_browser": "local Chromium was unavailable; exact candidate and release-main synthetic Chromium jobs passed"
@@ -75,7 +75,7 @@
   "ui_review": {
     "synthetic_only": true,
     "visual_inspection_this_run": false,
-    "authenticated_household_ingress": "not performed for Alpha.43; the available authenticated cloud-browser route returned 502 Bad Gateway / connection closed before HA loaded, including one reload. Runtime health and CI Chromium are not household Ingress acceptance. No auth bypass or weakened ingress protection."
+    "authenticated_household_ingress": "not performed for Alpha.44; the previously available authenticated cloud-browser route returned 502 Bad Gateway / connection closed before HA loaded. The unchanged blocker was not repeatedly probed. Runtime health and CI Chromium are not household Ingress acceptance. No auth bypass or weakened ingress protection."
   },
   "household_read_only_observations": {
     "ha_area_id": "erdkeller",
@@ -99,17 +99,17 @@
     "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
   "household_changes": [],
-  "next_step": "Run the explicit Alpha.43 current-light check in authenticated read-only Ingress for the saved Erdkellerbereich and verify source and automation explanations without changing configuration, consent or devices.",
+  "next_step": "Run the explicit Alpha.44 current-light and retained-context checks in authenticated read-only Ingress for the saved Erdkellerbereich without changing configuration, consent, feedback or devices.",
   "published_source": {
-    "version": "0.1.0-alpha.43",
-    "commit": "92f5e8e36823e885d5456c9a9a3b12b51968f32b",
-    "tree": "492bf1f7efd2de5e6747f7c46ab54414c0d678e6",
-    "app_tree": "0404272f6007aa29df626404ab46196b60045fe4",
-    "pull_request": 94,
-    "candidate_commit": "68f0c4d29b6323e5ed252870eea1c67964333574",
-    "candidate_ci_run_id": 36295107488,
-    "ci_run_id": 36295203741,
+    "version": "0.1.0-alpha.44",
+    "commit": "2606ef59930b640c4c6d6eccbb73618e4141e629",
+    "tree": "c6f9a96859e537d7a1ca481768ec3912377da1f6",
+    "app_tree": "77fa919c8d40098f75debda36cc14abb8e152042",
+    "pull_request": 96,
+    "candidate_commit": "16840bfbf3474b59a13b65630ca565a759443eb6",
+    "candidate_ci_run_id": 36298041709,
+    "ci_run_id": 36298123047,
     "ci_conclusion": "success"
   },
-  "checked_at": "2026-09-27T04:48:45Z"
+  "checked_at": "2026-09-27T05:48:30Z"
 }

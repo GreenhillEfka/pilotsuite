@@ -1,4 +1,4 @@
-# Current state — Alpha.44 historical context integrity candidate, 2026-09-27
+# Current state — Alpha.44 historical context integrity installed, 2026-09-27
 
 Alpha.44 is a bounded downstream observation-integrity correction. Historical
 learning-context windows previously accepted NaN, infinity, negative and boolean lux
@@ -8,11 +8,20 @@ lux, sanitize source identifiers and discard invalid timestamps. If only optiona
 context is malformed, the valid activation remains while that context is withheld.
 
 No schema migration, new collection, learning consent, feedback change, HA write or
-execution authority is part of the candidate. Alpha.43 remains installed, offered and
-started with options and auto_update unchanged.
+execution authority is part of the release. Repository/API validation, 529 Python
+and 59 JavaScript tests pass. PR 96 release `2606ef5`; exact candidate CI
+36298041709 and release-main CI 36298123047 passed test/source contracts, Chromium,
+amd64 and reproducible source. Fresh backup `6c7c870d` contains only Alpha.43
+app/data/options with no failed parts.
 
-Next: run repository contracts and the complete Python/JavaScript suite, then publish
-the exact Alpha.44 candidate for full CI before merge or Store delivery.
+One Store refresh and one normal update installed Alpha.44. It is installed, offered
+and started with options and auto_update unchanged. Logs report Alpha.44, ready,
+connected stream, fresh snapshot and resolved saved zone. No HA configuration,
+automation, actor, role, consent, feedback or household state changed.
+
+Next: perform the explicit current-light and retained-context checks in authenticated
+read-only Ingress for Erdkellerbereich; UI acceptance remains separate from runtime
+and CI health.
 
 ## Installed baseline — Alpha.43
 
