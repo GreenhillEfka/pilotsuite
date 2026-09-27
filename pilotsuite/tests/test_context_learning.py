@@ -1,4 +1,6 @@
 import sqlite3
+import json
+import math
 import tempfile
 import time
 import unittest
@@ -71,6 +73,34 @@ class RoleGroupTests(unittest.TestCase):
         self.assertEqual('partial', info['status'])
         self.assertEqual(2, info['valid_count'])
         self.assertEqual([], climate)
+
+    def test_summary_rejects_nonfinite_and_impossible_direct_numeric_observations(self):
+        cases = [('temperature', float('nan')), ('temperature', -274),
+                 ('humidity', float('inf')), ('humidity', 101),
+                 ('illuminance', float('-inf')), ('illuminance', -1)]
+        for kind, value in cases:
+            with self.subTest(kind=kind, value=value):
+                observation = sensor('sensor.bad', kind, value)
+                summary, climate = context_summary([observation], {kind: ['sensor.bad']})
+                self.assertEqual('unavailable', summary[kind]['status'])
+                self.assertIsNone(summary[kind]['value'])
+                self.assertEqual('invalid', summary[kind]['measurements'][0]['quality'])
+                self.assertIsNone(summary[kind]['measurements'][0]['value'])
+                if kind in {'temperature', 'humidity'}:
+                    self.assertEqual(1, len(climate))
+                    self.assertIsNone(climate[0].value)
+                    self.assertEqual('invalid', climate[0].quality)
+                else:
+                    self.assertEqual([], climate)
+                json.dumps(summary, allow_nan=False)
+
+    def test_reference_temperature_never_exports_nonfinite_json(self):
+        observation = sensor('sensor.reference', 'temperature', math.nan)
+        summary, _ = context_summary(
+            [observation], {'temperature': [], 'reference_temperature': ['sensor.reference']})
+        self.assertEqual(None, summary['reference_temperature'][0]['value'])
+        self.assertEqual('invalid', summary['reference_temperature'][0]['quality'])
+        json.dumps(summary, allow_nan=False)
 
 class LearningTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):

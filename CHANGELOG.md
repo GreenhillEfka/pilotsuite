@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.0-alpha.43] - 2026-09-27
+
+### Integrität numerischer Beobachtungen
+- Nicht-endliche Zahlen sowie unmögliche Temperatur-, Feuchte- und Luxwerte werden
+  auch an der Zonenzusammenfassung erneut als ungültig behandelt. Sie können weder
+  einen verfügbaren Messwert noch eine scheinbar nutzbare Lichtquelle ergeben.
+- Ungültige Einzel- und Vergleichsmessungen werden als `null` mit ungültiger Qualität
+  projiziert. Dadurch bleiben API-Antworten standardkonformes JSON, ohne einen
+  fehlenden Wert als Null oder unauffällig umzudeuten.
+- Der aktuelle Lichtcheck gibt für eine inkonsistente Helligkeitszusammenfassung
+  ausdrücklich „nicht verfügbar“ aus und führt zur Quellenprüfung.
+
+### Grenzen
+- Keine neue Datenerhebung, Speicherung, Lernfreigabe oder Geräteausführung. Rollen,
+  Automationen und Home-Assistant-Konfiguration bleiben unverändert.
+
 ## [0.1.0-alpha.42] - 2026-09-27
 
 ### Aktueller Licht-Entscheidungscheck

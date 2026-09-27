@@ -1,7 +1,26 @@
 """Role groups: robust climate median with visible spread, no reference mixing."""
+import math
 from dataclasses import replace
 from statistics import median
 from pilotsuite.core.context import ROLE_KINDS
+
+
+def _valid_number(kind, value):
+    if type(value) not in (int, float) or not math.isfinite(value):
+        return False
+    if kind == 'temperature':
+        return value >= -273.15
+    if kind == 'humidity':
+        return 0 <= value <= 100
+    if kind == 'illuminance':
+        return value >= 0
+    return True
+
+
+def _measurement(neuron, kind):
+    valid = _valid_number(kind, neuron.value)
+    return {'entity_id': neuron.entity_id, 'value': neuron.value if valid else None,
+            'unit': neuron.unit, 'quality': neuron.quality if valid or neuron.quality != 'good' else 'invalid'}
 
 
 def context_summary(neurons, roles):
@@ -12,7 +31,7 @@ def context_summary(neurons, roles):
         candidates = [n for n in neurons if n.kind == kind and n.entity_id not in references]
         explicit = roles.get(kind, [])
         members = [by_id[e] for e in explicit if e in by_id and by_id[e].kind == kind] if kind in roles else candidates if len(candidates)==1 else []
-        valid = [n for n in members if n.quality == 'good' and type(n.value) in (int, float)]
+        valid = [n for n in members if n.quality == 'good' and _valid_number(kind, n.value)]
         missing = len(explicit)-len(members) if explicit else 0
         status = ('partial' if missing or len(valid)<len(members) else 'available') if valid else 'unavailable' if members or explicit else 'not_selected' if kind in roles and candidates else 'ambiguous' if len(candidates)>1 else 'not_present'
         values = [n.value for n in valid]
@@ -21,14 +40,21 @@ def context_summary(neurons, roles):
                          'value': value, 'unit': valid[0].unit if valid else None, 'candidate_count': len(candidates),
                          'min': min(values) if values else None, 'max': max(values) if values else None,
                          'spread': max(values)-min(values) if values else None, 'valid_count': len(valid), 'missing_count': missing, 'total_count': len(members)+missing,
-                         'measurements': [{'entity_id': n.entity_id, 'value': n.value, 'unit': n.unit, 'quality': n.quality} for n in members],
+                         'measurements': [_measurement(n, kind) for n in members],
                          'aggregation': 'median', 'spatial_scope': 'zone summary, not necessarily one room'}
         # Mood severity uses the aggregate; evidence retains every contributing sensor below.
         if valid and kind in {'temperature', 'humidity'}:
             climate.append(replace(valid[0], entity_id='aggregate.'+kind, name='Zone median '+kind, value=value))
         elif members and kind in {'temperature', 'humidity'}:
-            climate.append(members[0])
-    summary['reference_temperature'] = [{'source': n.entity_id, 'value': n.value, 'unit': n.unit, 'quality': n.quality} for n in neurons if n.entity_id in references and n.kind=='temperature']
+            projected = _measurement(members[0], kind)
+            climate.append(replace(members[0], value=projected['value'],
+                                   quality=projected['quality']))
+    summary['reference_temperature'] = [
+        {'source': row['entity_id'], 'value': row['value'], 'unit': row['unit'],
+         'quality': row['quality']}
+        for row in (_measurement(n, 'temperature') for n in neurons
+                    if n.entity_id in references and n.kind == 'temperature')
+    ]
     for label, kinds in [('presence', ROLE_KINDS['presence']), ('daylight_binary', ROLE_KINDS['daylight_binary']), ('light', {'light'})]:
         members = [n for n in neurons if n.kind in kinds]
         candidate_count = len(members)

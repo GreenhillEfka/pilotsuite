@@ -3,7 +3,22 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.42 current lighting decision installed
+## Resume: Alpha.43 numeric integrity candidate
+
+The current branch closes one observation-integrity defect found by a fresh review:
+a directly supplied good-quality NaN/infinite numeric observation could survive the
+zone summary, claim availability and make the response non-standard JSON. The shared
+summary boundary now rejects non-finite and physically impossible temperature,
+humidity and illuminance values, preserves them as invalid/unknown, and sanitizes
+individual/reference projections. The current lighting brief independently requires
+finite non-negative lux for both source usability and displayed aggregation.
+
+Local repository/API validation, 525 Python and 59 JavaScript tests pass. Alpha.42
+remains installed/offered/started with no household or option change. The candidate is
+not published or installed. Next: publish the exact Alpha.43 candidate and require
+complete candidate CI before merge or deployment.
+
+## Installed baseline: Alpha.42 current lighting decision
 
 The current branch adds a transient, explicit lighting decision brief to the existing
 lighting workspace. It reads canonical roles/current observations and freshly reads

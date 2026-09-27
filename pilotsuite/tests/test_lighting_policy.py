@@ -1,4 +1,5 @@
 import copy
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -197,6 +198,32 @@ class LightingDecisionTests(unittest.TestCase):
         self.assertEqual([], result["source_groups"]["illuminance"]["currently_usable"])
         self.assertEqual("no_usable_brightness_reference", result["reason"])
         self.assertEqual("configure_sources", result["next_step"]["id"])
+
+    def test_nonfinite_or_negative_lux_never_becomes_usable_or_json_output(self):
+        roles = {"light": ["light.room"], "illuminance": ["sensor.lux"]}
+        inventory = {"items": [
+            {"entity_id": "light.room", "decision": "relevant", "suggested_role": "light",
+             "state": "on"},
+            {"entity_id": "sensor.lux", "decision": "relevant",
+             "suggested_role": "illuminance", "state": "30"},
+        ]}
+        for value in (float("nan"), float("inf"), float("-inf"), -1):
+            with self.subTest(value=value):
+                summary = {"illuminance": {"status": "available", "value": value,
+                    "unit": "lx", "aggregation": "median", "measurements": [
+                        {"entity_id": "sensor.lux", "value": value,
+                         "unit": "lx", "quality": "good"}]},
+                    "light": {"status": "available", "active": True}}
+                result = build_lighting_decision(
+                    zone_id="room", revision=3, roles=roles, inventory=inventory,
+                    summary=summary, transport_ready=True, inspections=[],
+                    checked_at="2026-09-27T00:00:00+00:00")
+                self.assertEqual([], result["source_groups"]["illuminance"]["currently_usable"])
+                self.assertEqual("no_usable_brightness_reference", result["reason"])
+                self.assertEqual("unavailable", result["current_zone_observation"]["illuminance"]["status"])
+                self.assertIsNone(result["current_zone_observation"]["illuminance"]["value"])
+                self.assertIsNone(result["current_zone_observation"]["illuminance"]["unit"])
+                json.dumps(result, allow_nan=False)
 
 
 class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):

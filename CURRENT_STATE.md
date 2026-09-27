@@ -1,4 +1,21 @@
-# Current state — Alpha.42 installed, 2026-09-27
+# Current state — Alpha.43 numeric integrity candidate, 2026-09-27
+
+Alpha.43 is a bounded observation-integrity correction. A direct good-quality
+non-finite value could previously make a zone summary appear available while the
+result was not strict JSON. The summary boundary now rejects NaN, infinity and
+physically impossible temperature, humidity and illuminance values, projects them as
+unknown/invalid and keeps uncertainty intact. The current lighting check independently
+rechecks finite non-negative lux before treating a configured source as usable.
+
+Repository/API validation, 525 Python and 59 JavaScript tests pass locally. The
+installed Home Assistant app remains Alpha.42, started and unchanged; this candidate
+has not been published or installed. No household configuration, automation, role,
+consent, stored evidence or device state changed.
+
+Next: publish the exact Alpha.43 candidate branch and require complete candidate CI
+before merge or any Store update.
+
+## Installed baseline — Alpha.42
 
 Alpha.42 adds an explicit current lighting decision check in the existing workspace.
 It combines canonical source roles and current observations with freshly read related
