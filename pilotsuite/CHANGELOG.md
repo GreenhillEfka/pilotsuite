@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-alpha.54] - 2026-09-28
+
+### Erforderliche Quellen in gemeinsamer Präsenzgruppe
+- Eine freie Quelle überstimmt keine unbekannte erforderliche Quelle derselben
+  Abdeckungsgruppe mehr. Nach Ablauf des Nachlaufs bleibt der Status unbekannt,
+  bis alle erforderlichen Quellen frei oder ein positiver Beleg vorhanden sind.
+- Optionale unbekannte Quellen blockieren eine freie erforderliche Abdeckung nicht.
+  Synthetische Regressionen prüfen freie, unbekannte und positive Kombinationen.
+- Keine Haushaltsautomation, Helferidentität, Zustimmung oder Gerätesteuerung ändert sich.
+
 ## [0.1.0-alpha.53] - 2026-09-27
 
 ### Ruhige Zonenansicht beim Hintergrundabgleich

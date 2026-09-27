@@ -17,6 +17,7 @@ from pilotsuite.core.presence_kernel import (
 )
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.zone_presence import evaluate
 
 
 class PresenceKernelTests(unittest.TestCase):
@@ -92,6 +93,48 @@ class PresenceKernelTests(unittest.TestCase):
         restart = replay_scenario("restart_during_grace")["steps"]
         self.assertEqual(restart[1]["deadline"], restart[2]["deadline"])
         self.assertEqual("vacant", restart[-1]["state"])
+
+
+class ZonePresenceCoverageTests(unittest.TestCase):
+    def test_required_unknown_in_shared_group_never_proves_vacancy(self):
+        def source(entity_id, required=True):
+            return {"entity_id": entity_id, "kind": "continuous", "required": required,
+                    "max_age": 0, "group": "shared_coverage", "can_start": True,
+                    "active_states": ["on"]}
+
+        spec = {"grace_seconds": 30, "clear_seconds": 0,
+                "support_limit_seconds": 0, "comparison_entity": None,
+                "sources": [source("binary_sensor.one"), source("binary_sensor.two")]}
+        previous = {"kernel": {"state": "grace", "generation": 2,
+                               "deadline": 120, "last_activity_at": 90,
+                               "reason": "all_clear_starts_grace"}}
+
+        for first, second, expected in (
+            ("off", "unavailable", "unknown"),
+            ("off", "off", "vacant"),
+            ("on", "unavailable", "occupied"),
+        ):
+            with self.subTest(first=first, second=second):
+                _, view = evaluate(spec, previous, {
+                    "binary_sensor.one": {"state": first},
+                    "binary_sensor.two": {"state": second},
+                }, now=200, fresh=True)
+                self.assertEqual(expected, view["state"])
+
+        spec["sources"][0]["required"] = False
+        _, view = evaluate(spec, previous, {
+            "binary_sensor.one": {"state": "off"},
+            "binary_sensor.two": {"state": "unavailable"},
+        }, now=200, fresh=True)
+        self.assertEqual("unknown", view["state"])
+
+        spec["sources"][0]["required"] = True
+        spec["sources"][1]["required"] = False
+        _, view = evaluate(spec, previous, {
+            "binary_sensor.one": {"state": "off"},
+            "binary_sensor.two": {"state": "unavailable"},
+        }, now=200, fresh=True)
+        self.assertEqual("vacant", view["state"])
 
 
 class PresenceReplayIntegrationTests(unittest.IsolatedAsyncioTestCase):

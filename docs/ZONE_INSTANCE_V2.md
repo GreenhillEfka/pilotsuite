@@ -1,12 +1,13 @@
 # Zoneninstanz, Relevanz und Ontologie — Alpha.49 mit Alpha.50-Wiederanlauf
 
-## Verifizierter Ausgangspunkt
+## Historischer Ausgangspunkt (Alpha.50)
 
 Kanonisch: GreenhillEfka/pilotsuite, App 0d79c5e8_pilotsuite. Alpha.50 ist aus
 `9aea467a81fcdbd9fc96a0199cb2a1c57826702b` veröffentlicht und installiert; exakte
-Kandidaten-/Main-CI, wegwerfbares HA-Protokoll und App-Startprüfung sind in
-`docs/RELEASE_STATE.json` belegt. Die Wiederanlauflogik erweitert keine Ausführungs-
+Kandidaten-/Main-CI, wegwerfbares HA-Protokoll und App-Startprüfung wurden im
+damaligen Release-Receipt belegt. Die Wiederanlauflogik erweitert keine Ausführungs-
 oder Lernberechtigung.
+Den aktuellen Installationsstand weist `docs/RELEASE_STATE.json` aus.
 
 Das echte Storage-Dashboard „Habituszonen“ wurde gelesen. Seine Struktur dient als
 fachliche Referenz, nicht als unfehlbare Steuerungslogik. Keine Dashboard-Konfiguration,
@@ -58,6 +59,10 @@ Lernalgorithmus auf TV-/Nutzungsmerkmale und kein neuer autonomer Komfortlerner.
   die Zone nicht. Redundanz wird ausdrücklich gruppiert, nicht aus Geräteähnlichkeit erraten.
 - Gruppen und Mitglieder werden nicht doppelt verwendet. Abgeleitete Templates sind in
   diesem Paket nur Zusatzindizien; unabhängige Raumabdeckung wird nicht behauptet.
+- Alpha.54 korrigiert die Gruppenauswertung: Eine `off`-Quelle beweist keine freie
+  erforderliche Abdeckungsgruppe, solange eine andere erforderliche Quelle derselben
+  Gruppe `unknown` oder `unavailable` ist. Ein positiver Beleg bleibt gültig;
+  optionale unklare Indizien blockieren eine klare erforderliche Abdeckung nicht.
 - Meldealter 0 bedeutet ereignisorientierter gehaltener HA-Zustand. Periodische Quellen
   können explizite Altersgrenzen haben. Datenalter ist kein physikalischer Genauigkeitswert.
 - Frist, Generation und Gültigkeit stammen aus dem bestehenden Kernel. Neustarts erneuern
