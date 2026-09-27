@@ -113,12 +113,43 @@ class ContextStore(OrganizationContextMixin):
                      'roles': roles, 'detector': validate_detector({**old['detector'], **detector}) if detector is not None else old['detector'], 'learning': learning and not reset,
                      'consented_at': now if learning and (source_changed or not old['learning']) and not reset else old['consented_at']}
             if reset: value['consented_at'] = None
+            # Presence runtime state is operational evidence, never a user role.
+            # A changed source basis or reset cannot inherit its deadline/generation.
+            if reset or source_changed:
+                value.pop('presence_lifecycle', None)
             db.execute('INSERT INTO zone_context VALUES (?,?) ON CONFLICT(zone_id) DO UPDATE SET config=excluded.config', (zone_id, json.dumps(value)))
             db.execute('INSERT INTO zones VALUES (?,?) ON CONFLICT(zone_id) DO UPDATE SET revision=excluded.revision', (zone_id, revision+1))
             # Do not retain deleted learning evidence or individual identities in the journal.
             db.execute('INSERT INTO selection_journal(zone_id, revision, changes) VALUES (?,?,?)', (zone_id, revision+1, json.dumps({'$context': {'roles': roles, 'learning': value['learning'], 'reset': reset, 'detector': value['detector'], 'context_learning': value['context_learning']}})))
             self.selections.prune_journal(db)
             return value
+
+    async def presence_checkpoint(self, zone_id):
+        return await asyncio.to_thread(self._presence_checkpoint, zone_id)
+
+    def _presence_checkpoint(self, zone_id):
+        from .presence_kernel import checkpoint_dict, validate_checkpoint
+        with closing(sqlite3.connect(self.path)) as db:
+            return checkpoint_dict(validate_checkpoint(self.read(db, zone_id).get('presence_lifecycle')))
+
+    async def save_presence_checkpoint(self, zone_id, revision, checkpoint):
+        return await asyncio.to_thread(self._save_presence_checkpoint, zone_id, revision, checkpoint)
+
+    def _save_presence_checkpoint(self, zone_id, revision, checkpoint):
+        """Persist only bounded kernel state, without advancing the user revision."""
+        from .presence_kernel import checkpoint_dict, validate_checkpoint
+        value = checkpoint_dict(validate_checkpoint(checkpoint))
+        with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            if not db.execute('SELECT 1 FROM habitus_zones WHERE zone_id=?', (zone_id,)).fetchone():
+                raise InvalidSelection('unknown zone')
+            if self.selections._read(db, zone_id)['revision'] != revision:
+                raise SelectionConflict('Zone changed before presence state persistence')
+            config = self.read(db, zone_id)
+            config['presence_lifecycle'] = value
+            db.execute('INSERT INTO zone_context VALUES (?,?) ON CONFLICT(zone_id) DO UPDATE SET config=excluded.config',
+                       (zone_id, json.dumps(config)))
+        return value
 
     @staticmethod
     def prune(db, now):

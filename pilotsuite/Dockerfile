@@ -1,6 +1,6 @@
 FROM ghcr.io/home-assistant/base-python:3.14-alpine3.24-2026.06.1
 
-ARG BUILD_VERSION="0.1.0-alpha.38"
+ARG BUILD_VERSION="0.1.0-alpha.39"
 ARG BUILD_ARCH="unknown"
 
 LABEL \
@@ -11,7 +11,7 @@ LABEL \
     io.hass.description="Explainable, policy-governed Habitus intelligence for Home Assistant" \
     io.hass.url="https://github.com/GreenhillEfka/pilotsuite" \
     org.opencontainers.image.title="PilotSuite" \
-    org.opencontainers.image.description="PilotSuite v21 for Home Assistant" \
+    org.opencontainers.image.description="PilotSuite v22 for Home Assistant" \
     org.opencontainers.image.source="https://github.com/GreenhillEfka/pilotsuite" \
     org.opencontainers.image.version="${BUILD_VERSION}"
 

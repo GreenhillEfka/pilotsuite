@@ -398,3 +398,27 @@ not become findings. Authored trigger IDs and raw configuration stay private. Fi
 are transient, have no store or repair action and cannot change configuration, notes,
 learning, risk, preference or execution authority. Contract:
 docs/PRESENCE_LIFECYCLE_REVIEW.md.
+
+## ADR-034 — Presence deadlines are durable evidence, not timer-state inference
+
+Accepted 2026-09-27 as the next presence-first reliability slice. One pure,
+deterministic kernel owns occupied, grace, vacant and unknown. Continuous sources
+and activity pulses remain distinct: a pulse renews recent activity but is not a
+claim of continuous occupancy. Unknown required sources or dependency relationships
+block vacancy. A cold all-clear start cannot invent a previous presence interval,
+and manual cancellation is unknown rather than absence.
+
+The existing ContextStore persists only the bounded operational checkpoint: state,
+generation, deadline, last activity time and reason. It does not create another
+store, migration or learning owner. Source changes and reset remove this basis;
+PilotSuite configuration savepoints exclude it. A reconnect reuses an unexpired
+deadline and never restarts the full grace period. HA timer state alone does not
+prove completion or vacancy.
+
+The existing presence workspace offers five allowlisted synthetic replays after an
+explicit click. Replay performs no HA read/write, stores nothing, accepts no URL or
+service identifier from data and returns execution.allowed=false. Late or stale
+zone-revision responses are discarded. The dormant runtime consumes the same kernel,
+but its public enable route and general Apply remain closed. This release therefore
+adds explanation and fault-tested state semantics, not household actuation or a new
+learning consent. Contract: docs/PRESENCE_FIRST_INTELLIGENCE.md.

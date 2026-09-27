@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.1.0-alpha.39] - 2026-09-27
+
+### Deterministic presence kernel and explanation replay
+- Persist the bounded presence checkpoint in the existing zone context: state,
+  generation, grace deadline, last activity time and reason. Source changes and
+  resets discard this operational basis; savepoints still exclude it.
+- Distinguish motion pulses from continuous presence. A restart preserves the
+  existing deadline instead of extending it; unknown sources or dependencies never
+  become vacancy, and a cold all-clear start does not invent a grace interval.
+- Add an allowlisted synthetic scenario replay to the existing presence workspace.
+  It runs only after an explicit click, stores nothing, reads no household history
+  and cannot grant or invoke execution.
+- Prevent non-activation learning events from skipping the dormant runtime
+  reconciliation path. The public runtime activation and general Apply gates remain
+  closed.
+
+### Validation boundaries
+- Synthetic kernel, persistence, revision, API and browser regressions cover restart,
+  expiry, pulses, unknowns, invalid values, stale revisions and zero replay mutations.
+- No HA configuration, automation, actor, role, consent or productive learning change.
+
 ## [0.1.0-alpha.38] - 2026-09-27
 
 ### Presence evidence and configuration clarity

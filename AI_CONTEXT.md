@@ -1,9 +1,35 @@
 # PilotSuite AI context
 
-Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v21.
+Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v22.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.38 presence evidence and source clarity delivered
+## Resume: Alpha.39 presence kernel candidate
+
+The current branch implements the next accepted presence-first reliability package.
+A pure kernel separates continuous presence, activity pulses, grace, vacancy and
+unknown. It persists only a bounded checkpoint in the existing ContextStore; source
+changes/reset clear it and savepoints exclude it. Reconnect keeps the original
+deadline instead of silently renewing it. Unknown sources/dependencies and manual
+cancel never become vacancy. A non-activation learning event no longer returns before
+the dormant runtime reconciliation step.
+
+The existing presence workspace adds five allowlisted synthetic scenario replays.
+They require an explicit POST/click, use no household observation/history, persist
+nothing and return execution.allowed=false. Zone/revision/generation checks discard
+late answers. Public runtime enable and general Apply remain closed; no HA config,
+automation, actor, role, consent or productive-learning change is part of this slice.
+
+Local validation: repository/API contracts, 506 Python and 59 JavaScript tests pass.
+The updated synthetic full-app Chromium test is committed but still requires exact
+candidate CI, as do amd64 and reproducible-source jobs. Installed HA remains Alpha.38;
+docs/RELEASE_STATE.json remains the actual delivery receipt and must not be rewritten
+until a fresh scoped backup, merge/main CI, Store association and runtime verification.
+
+Next: complete exact Alpha.39 candidate CI, create and verify a fresh PilotSuite-only
+Alpha.38 backup, then publish/install once and verify runtime plus authenticated
+synthetic replay UI without changing household configuration.
+
+## Previous delivery: Alpha.38 presence evidence and source clarity
 
 Alpha.38 makes the existing event-to-learning handoff conservative: only frames
 accepted by WorldModel can become new evidence. Older/equal/duplicate, malformed or
@@ -90,6 +116,5 @@ Prior cumulative inventory, trigger integrity, context/plan isolation and explic
 confirmed metadata cleanup/undo remain intact. Technical-ID migration and automation
 repair execution remain unavailable. No household repair or cleanup was performed.
 
-Next: perform authenticated read-only Alpha.38 evidence and source-role acceptance in
-the saved Erdkellerbereich, then one unlike existing zone; no HA automation, learning
-or device change.
+Historical Alpha.38 acceptance remained open for the saved Erdkellerbereich and one
+unlike existing zone; no HA automation, learning or device change was authorized.

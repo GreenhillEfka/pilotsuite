@@ -16,7 +16,7 @@
     media:'M9 18V5l12-3v13M9 18a3 3 0 1 1-3-3h3M21 15a3 3 0 1 1-3-3h3',all:'M4 5h16M4 12h16M4 19h16'};
   function icon(name){const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');s.classList.add('ps-icon');const p=document.createElementNS(s.namespaceURI,'path');p.setAttribute('d',iconPaths[name]||iconPaths.zone);s.append(p);return s;}
   let prefs=M.preferences(null);try{prefs=M.preferences(JSON.parse(localStorage.getItem('pilotsuite.workspace.v1')||'null'));}catch{}
-  let activeView=prefs.view, activeModule='presence', status=null, invalid=true, requestBusy=false, generation=0, lastReview=null;
+  let activeView=prefs.view, activeModule='presence', status=null, invalid=true, requestBusy=false, generation=0, lastReview=null, lastReplay=null, presenceScenario='continuous_then_clear';
   let cockpitKey='', modulesKey='', roleFilter='all';
   const titles={cockpit:'Dein Zuhause im Blick',zone:'Zonen & Module',config:'Quellen & Konfiguration',history:'Verläufe & Muster',workbench:'Lernen & Werkbank',system:'Darstellung & System',all:'Alle Bereiche'};
   const notes={cockpit:'Wichtige Werte, offene Schritte und deine Habitus-Zonen.',zone:'Zusammenhänge sehen. Quellen verstehen. Zuständigkeiten getrennt halten.',config:'Erst auswählen, dann zuordnen. Änderungen bleiben bis zum Speichern ein Entwurf.',history:'Echte Messpunkte statt dekorativer Kurven. Du bestimmst den Zeitraum.',workbench:'Belege prüfen, Routinen entwerfen und Entscheidungen nachvollziehen.',system:'Deine Darstellung ist lokal. Hauskonfiguration und Freigaben bleiben unverändert.',all:'Vollständige Arbeitsansicht ohne Bereichswechsel.'};
@@ -132,7 +132,7 @@
         if(total&&rel!==null){const meter=E('meter');meter.min=0;meter.max=total;meter.value=rel;meter.setAttribute('aria-label',`${rel} von ${total} Entitäten relevant`);card.append(meter);}
         card.append(E('p',`${rel??'—'} relevant · ${open??'—'} ungeprüft · ${ignored??'—'} ignoriert`,'ps-muted'));
       }else card.append(E('p','Bestandszahlen derzeit nicht ausgewertet.','ps-muted'));
-      const open=B('Zone öffnen →',async()=>{if(dirty()){announce('Bitte den offenen Entwurf speichern oder abbrechen.');return;}invalid=true;generation++;lastReview=null;$('selection-zone').value=z.zone_id;await loadSelection(z.zone_id);navigate('zone');});open.dataset.psZone=z.zone_id;card.append(open);cards.append(card);
+      const open=B('Zone öffnen →',async()=>{if(dirty()){announce('Bitte den offenen Entwurf speichern oder abbrechen.');return;}invalid=true;generation++;lastReview=null;lastReplay=null;$('selection-zone').value=z.zone_id;await loadSelection(z.zone_id);navigate('zone');});open.dataset.psZone=z.zone_id;card.append(open);cards.append(card);
     }
     if(focused)[...cards.querySelectorAll('button')].find(b=>b.dataset.psZone===focused)?.focus({preventScroll:true});
   }
@@ -172,7 +172,11 @@
       }
       moduleDetail.append(box);
     }
-    if(m.id==='presence'){const seq=E('div','','ps-state-machine');seq.setAttribute('aria-label','Geplante Zustandsfolge, kein Live-Zustand');for(const t of ['Belegt','Nachlauf','Frei / Unklar'])seq.append(E('span',t));moduleDetail.append(E('h4','Zustandsmodell · kein Live-Zustand'),seq,E('p','Ein Timerablauf allein beweist keine Abwesenheit. Fehlende Quellen bleiben unklar.','ps-muted'));
+    if(m.id==='presence'){const seq=E('div','','ps-state-machine');seq.setAttribute('aria-label','Geplante Zustandsfolge, kein Live-Zustand');for(const t of ['Belegt','Nachlauf','Frei / Unklar'])seq.append(E('span',t));moduleDetail.append(E('h4','Zustandsmodell · kein Live-Zustand'),seq,E('p','Ein Zeitablauf allein beweist keine Abwesenheit. Fehlende Quellen bleiben unklar.','ps-muted'));
+      const replaySection=E('section','','ps-presence-replay');replaySection.append(E('h4','Erklärung mit synthetischem Szenario'),E('p','Nur Testdaten: keine Haushaltsbeobachtung, keine Speicherung und keine Aktivierung.','ps-muted'));
+      const replayLabel=E('label','Szenario'),replaySelect=E('select');replaySelect.id='ps-presence-scenario';
+      for(const [value,label] of [['continuous_then_clear','Dauerpräsenz, Nachlauf und Ablauf'],['pulse_refresh','Bewegungsimpuls erneuert Nachlauf'],['restart_during_grace','Neustart während des Nachlaufs'],['unknown_source','Unklare Quelle'],['dependency_unknown','Unklare Gruppenabhängigkeit']]){const option=E('option',label);option.value=value;replaySelect.append(option);}replaySelect.value=presenceScenario;replaySelect.addEventListener('change',()=>presenceScenario=replaySelect.value);replayLabel.append(replaySelect);
+      const replay=B('Synthetisches Szenario ansehen',runReplay);replay.id='ps-presence-replay';replay.disabled=requestBusy;replaySection.append(replayLabel,replay);const replayResult=E('div');replayResult.id='ps-presence-replay-result';replayResult.setAttribute('role','status');replaySection.append(replayResult);moduleDetail.append(replaySection);renderReplay();
       const review=B('Bestehende Präsenzlogik prüfen',runReview);review.id='ps-adoption-review';review.disabled=requestBusy||!f.presence_contract?.logical_owner||!f.presence_contract?.raw_sources?.length;moduleDetail.append(review,E('p','Expliziter Konfigurationsabruf. Keine Übernahme, keine Aktivierung.','ps-muted'));const result=E('div');result.id='ps-review-result';result.setAttribute('role','status');moduleDetail.append(result);renderReview();}
     for(const [role,ids] of Object.entries(configured)){if(!(role in M.roles)||!ids.length)continue;const row=E('p');row.append(E('strong',M.roles[role]+': '),document.createTextNode(ids.map(nameOf).join(' · ')));roleSummary.append(row);}if(!roleSummary.children.length)roleSummary.append(E('p','Noch keine Hauptquellen zugeordnet. Entitäten bestätigen und anschließend Rollen auswählen.'));
   }
@@ -188,6 +192,18 @@
     if(lastReview.error){root.textContent=lastReview.error;return;}const d=lastReview.response;root.append(E('p',`${M.count(d.summary?.related)??'—'} verwandte Automationen · ${M.count(d.summary?.conflicts)??'—'} mögliche Schreibkonflikte`));
     for(const row of d.automations.slice(0,50)){const p=E('p');p.append(E('strong',row.automation_id),document.createTextNode(row.classification==='conflict'?' · Schreiberkonflikt prüfen':' · Entitätsbezug prüfen'));root.append(p);}
     root.append(E('p','Nur Strukturprüfung. Kein Treffer ist kein Nachweis für Konfliktfreiheit. Templates, indirekte Aufrufe und reales Laufzeitverhalten bleiben gesondert zu prüfen.','ps-warning'));
+  }
+  async function runReplay(){if(!valid()||requestBusy)return;const zone=selectionZone,revision=contextData.revision,scenario=presenceScenario,g=++generation;requestBusy=true;lastReplay=null;renderModules(true);
+    try{const response=await json(`api/v1/zones/${encodeURIComponent(zone)}/presence-runtime/replay`,{method:'POST',body:JSON.stringify({revision,scenario})});
+      if(g!==generation||zone!==selectionZone||revision!==contextData?.revision||!valid())return;
+      if(response?.schema!=='pilotsuite-presence-replay-v1'||response.zone_id!==zone||response.revision!==revision||response.persisted!==false||response.execution?.allowed!==false||!Array.isArray(response.scenario?.steps))throw new Error('Szenarioantwort passt nicht zum aktuellen Zonenstand.');
+      lastReplay={zone,revision,response};
+    }catch(error){if(g===generation&&zone===selectionZone)lastReplay={zone,revision,error:'Szenario nicht bestätigt. '+error.message};}
+    finally{requestBusy=false;renderModules(true);}
+  }
+  function renderReplay(){const root=$('ps-presence-replay-result');if(!root)return;if(!lastReplay||lastReplay.zone!==selectionZone||lastReplay.revision!==contextData?.revision){root.textContent=requestBusy?'Szenario wird berechnet …':'Noch kein Szenario berechnet.';return;}
+    if(lastReplay.error){root.textContent=lastReplay.error;return;}const d=lastReplay.response,labels={occupied:'Belegt',grace:'Nachlauf',vacant:'Frei',unknown:'Unklar'};
+    root.append(E('p',d.scenario.title));const list=E('ol');for(const step of d.scenario.steps){const item=E('li');item.append(E('strong',`+${step.at_seconds} s · ${labels[step.state]||'Unklar'}`),document.createTextNode(' — '+step.explanation));if(step.proposed_actions?.length)item.append(E('small','Simulation: '+step.proposed_actions.join(', ')+' · nicht ausgeführt','ps-muted'));list.append(item);}root.append(list,E('p','Ergebnis wurde nicht gespeichert. Es erteilt kein Ausführungsrecht.','ps-warning'));
   }
   function viewForHash(hash){const id=decodeURIComponent(hash.slice(1));if(id.startsWith('ps-')&&M.views.includes(id.slice(3)))return id.slice(3);const node=$(id),owner=node?.closest('[data-ps-view]')?.dataset.psView.split(' ')[0];return owner?(activeView==='all'?'all':owner):null;}
   function navigate(view,{focus=false,hash=true}={}){if(!M.views.includes(view))return false;
@@ -205,7 +221,7 @@
   },true);
   window.addEventListener('hashchange',()=>{let view;try{view=viewForHash(location.hash);}catch{return;}if(view&&!navigate(view,{hash:false}))history.replaceState(null,'','#ps-'+activeView);});
   for(const id of ['zone-new','zone-edit','context-edit'])$(id).addEventListener('click',event=>{if(activeView!=='config'&&activeView!=='all'&&!navigate('config')){event.preventDefault();event.stopImmediatePropagation();}},true);
-  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();status=null;invalid=true;generation++;lastReview=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
+  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();status=null;invalid=true;generation++;lastReview=null;lastReplay=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
   $('context-cancel').addEventListener('click',()=>{if(!contextEditing&&!selectionBusy)loadContext().catch(()=>announce('Gespeicherte Rollen konnten nicht neu geladen werden. Erneut öffnen.'));});
   const observer=new MutationObserver(()=>{if(!form.hidden){setRoleFilter(roleFilter);renderDiff();}});observer.observe(form,{attributes:true,attributeFilter:['hidden']});
   // Preserve organization drafts across legacy zone controls and background refreshes.
@@ -221,7 +237,7 @@
   const oldStatus=renderStatus;renderStatus=function(s){oldStatus(s);status=s;renderCockpit();};
   const oldZone=renderZoneView;renderZoneView=function(){oldZone();renderCockpit();renderModules();};
   const oldLearning=renderLearning;renderLearning=function(){oldLearning();invalid=false;renderModules();};
-  const oldInvalid=invalidateDailyBrief;invalidateDailyBrief=function(...args){oldInvalid(...args);invalid=true;generation++;lastReview=null;renderModules(true);};
+  const oldInvalid=invalidateDailyBrief;invalidateDailyBrief=function(...args){oldInvalid(...args);invalid=true;generation++;lastReview=null;lastReplay=null;renderModules(true);};
   const oldFoundation=renderFoundationJourney;renderFoundationJourney=function(...args){oldFoundation(...args);renderModules();const b=$('helper-provision');if(b&&!valid())b.disabled=true;};
   const oldPreview=renderRolePreview;renderRolePreview=function(){oldPreview();renderDiff();};
   // Global freshness is separate from module configuration and action authority.

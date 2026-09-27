@@ -1,5 +1,24 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.39 candidate — deterministic presence kernel and explanation replay
+
+| Capability | Verified source scope |
+|---|---|
+| State model | Pure occupied/grace/vacant/unknown transition kernel; pulse and continuous evidence separated |
+| Restart | Existing generation/deadline persists in ContextStore and is not silently extended |
+| Conservative absence | Unknown source/dependency, cold start and manual cancel never assert vacancy |
+| Invalidation | Presence source change/reset clears checkpoint; savepoints omit operational state |
+| Replay | Five allowlisted synthetic scenarios, explicit POST only, no HA I/O/persistence/authority |
+| Runtime gate | Dormant reconciler uses the kernel; public enable and general Apply remain denied |
+| Local validation | 49 API routes, 506 Python and 59 JavaScript tests pass |
+
+Exact candidate Chromium, reproducible-source and amd64 CI remain pending. Alpha.38
+is still the installed/offered release; RELEASE_STATE.json is unchanged. No household
+configuration, automation, actor, role, learning consent or productive data changed.
+
+Next: complete exact Alpha.39 candidate CI and fresh scoped Alpha.38 backup, then
+publish/install once and verify runtime plus authenticated synthetic replay UI.
+
 ## Installed Alpha.38 — evidence integrity and coherent sources
 
 | Capability | Verified scope |
@@ -19,8 +38,8 @@ and zone resolution confirmed in unchanged presence_adoption_review mode. Genera
 Apply remains closed. Authenticated real Ingress remains open because the cloud
 session returned 502 connection closed before HA loaded, including one reload.
 
-Next: authenticated read-only Alpha.38 evidence and source-role acceptance in the
-saved Erdkellerbereich, then one unlike existing zone.
+Historical Alpha.38 acceptance remained open for the saved Erdkellerbereich and one
+unlike existing zone.
 
 ## Installed Alpha.37 — presence lifecycle questions
 
@@ -39,7 +58,7 @@ four jobs. Backup 0baa717d contains only Alpha.36 app/data/options. One Store re
 and one update installed Alpha.37; started, ready, connected, fresh and zone-resolved
 in unchanged presence_adoption_review mode. Options/auto_update unchanged. Real
 Ingress remains open because the authenticated cloud endpoint returned 502 before the
-UI loaded. Next: read-only Erdkellerbereich lifecycle acceptance, then one unlike zone.
+UI loaded. Historical lifecycle acceptance remained open for Erdkellerbereich and one unlike zone.
 
 ## Installed Alpha.36 — consistent inventory snapshots
 
@@ -60,7 +79,8 @@ RELEASE_STATE.json owns current evidence. Actual Ingress remains open because th
 browser runtime is offline; app-principal rights and independent data/image checks
 are not inferred. No household configuration, learning or device action changed.
 
-Next: Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.
+Historical inventory acceptance remained open for Erdkellerbereich and the other
+three existing zones without household configuration or learning changes.
 
 ## Repository contract integrity after Alpha.35
 
@@ -116,5 +136,5 @@ folders or failed parts. One Store refresh/update, no extra restart or household
 HA-wide development reads are authorized independently of productive learning consent.
 Four existing zones are user-confirmed; saved identities cannot be inferred from labels.
 
-Next: read-only acceptance of integrity findings against the four existing saved
-zones, starting with Erdkellerbereich.
+Historical acceptance of integrity findings remained open across the four saved zones,
+starting with Erdkellerbereich.

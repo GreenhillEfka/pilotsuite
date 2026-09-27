@@ -1,39 +1,37 @@
-# Current state — Alpha.38 delivered, 2026-09-27
+# Current state — Alpha.39 candidate, Alpha.38 installed, 2026-09-27
 
-## Presence evidence and configuration clarity
+## Deterministic presence kernel and synthetic explanation
 
-Only state frames accepted by the canonical WorldModel can now reach the existing
-learning-event path. Older/equal/duplicate, malformed and misaddressed frames, plus
-stale removals, cannot become new evidence. A valid delayed activity edge is retained,
-but each light/lux context channel is withheld unless all relevant timestamps exist
-and are no later than the activation. No prior evidence is rewritten or certified.
+The source candidate replaces timer-state inference in the dormant presence runtime
+with one deterministic checkpoint: occupied, grace, vacant or unknown plus generation,
+deadline, last activity and reason. Motion pulses renew grace without claiming
+continuous occupancy. Restart preserves an existing deadline; expiry requires all
+required sources to be valid and clear. Unknown sources/dependencies, cold all-clear
+startup and manual cancel do not become false vacancy.
 
-The workspace uses the server's effective roles. Derived single-source defaults remain
-derived when an unrelated setting is saved; an explicit edit is required to persist a
-manual group. Optional independent comparison temperature is displayed separately and
-only yields a difference for complete, valid, same-unit independent measurements.
-The presence-first control sequence is design documentation, not active automation.
+The checkpoint is stored in existing zone context without a schema migration or
+second owner. Source changes and reset remove it; configuration savepoints omit it.
+The existing workspace can explicitly replay five fixed synthetic scenarios. Replay
+performs no HA read/write or persistence, accepts no data-supplied action/URL and
+cannot change execution authority. Late zone/revision responses are discarded.
+Public presence activation and general Apply remain closed.
 
-A review found and fixed the unrelated-save role promotion before release. The final
-package passes 494 Python and 59 JavaScript tests. Exact candidate CI 36280638136 and
-release-main CI 36280792938 passed tests, Chromium, reproducible source and amd64.
-PR 84 release fcdebaebc1844b592914ecc2f2460ca5779e70fb; exact source tree
-67073b190cd9083ac6f3b43ad96427a6cd89367d.
+Repository/API validation and 506 Python plus 59 JavaScript tests pass locally.
+The full-app Chromium scenario has been extended but is not called successful until
+exact candidate CI completes; amd64 and reproducible-source evidence are also pending.
+No release commit, PR, Store update or installation is claimed by this source note.
 
-Backup d4f477c9 was completed before publication and contains only Alpha.37
-app/data/options, no HA/database/folders or failed parts. Alpha.38 was already offered;
-one normal update installed it without Store refresh, explicit restart or rebuild.
-Installed/offered/started, options and auto_update unchanged. Logs report ready,
-connected stream, fresh snapshot and resolved zone in unchanged
-presence_adoption_review mode. General Apply remains source- and regression-closed.
+## Installed evidence remains Alpha.38
 
-The authenticated cloud browser reached only 502 Bad Gateway / connection closed
-before HA/PilotSuite loaded, including one reload. Real Ingress presentation and
-saved Erdkellerbereich role/evidence acceptance therefore remain open; runtime health
-and synthetic Chromium do not substitute for them.
+docs/RELEASE_STATE.json remains authoritative: Alpha.38 is installed/offered/started;
+backup d4f477c9 protects the preceding Alpha.37 state. Options and auto_update were
+unchanged; runtime was ready, stream-connected, fresh and zone-resolved. Authenticated
+real Ingress acceptance remained unavailable after the documented 502 response.
+No HA configuration, automation, actor, role, learning consent or household data was
+changed for the Alpha.39 candidate.
 
-Next: perform authenticated read-only Alpha.38 evidence and source-role acceptance in
-the saved Erdkellerbereich, then one unlike existing zone.
+Next: complete exact Alpha.39 candidate CI and the fresh scoped Alpha.38 backup gate,
+then publish/install once and verify runtime plus authenticated synthetic replay UI.
 
 ## Previous delivery — Alpha.37, 2026-09-27
 
@@ -67,8 +65,8 @@ The authenticated cloud browser reached only a 502 connection-closed response be
 the HA/PilotSuite UI loaded, including one reload. Actual Ingress lifecycle review is
 therefore still open; runtime health and synthetic Chromium do not substitute for it.
 
-Next: perform authenticated read-only lifecycle acceptance in the saved
-Erdkellerbereich zone, then one unlike existing zone.
+Historical Alpha.37 acceptance remained open for the saved Erdkellerbereich zone and
+one unlike existing zone.
 
 ## Previous delivery — Alpha.36, 2026-09-26
 
@@ -118,4 +116,5 @@ rights, independent data preservation and installed-image attestation remain sep
 The user-confirmed label is Erdkellerbereich and three other zones already exist;
 canonical saved IDs and membership must be read, never inferred or recreated.
 
-Next: Authenticated read-only inventory acceptance in the saved Erdkellerbereich zone, then the other three existing zones; verify snapshot-conflict feedback without changing household configuration or learning.
+Historical Alpha.36 acceptance remained open for the saved Erdkellerbereich and the
+other three existing zones without household configuration or learning changes.
