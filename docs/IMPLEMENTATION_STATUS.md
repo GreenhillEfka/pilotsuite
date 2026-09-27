@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.43 candidate — numeric observation integrity
+## Installed Alpha.43 — numeric observation integrity
 
 | Capability | Verified source scope |
 |---|---|
@@ -10,10 +10,17 @@
 | Lighting decision | Usable/displayed lux must independently be finite and non-negative |
 | Boundary | No persistence, HA write, consent, learning or execution change |
 
-Repository/API validation, 525 Python and 59 JavaScript tests pass locally. Alpha.42
-remains the installed/offered/started app; Alpha.43 is not published or installed.
+Repository/API validation, 525 Python and 59 JavaScript tests pass. PR 94 release
+`92f5e8e`; exact candidate CI 36295107488 and release-main CI 36295203741 passed
+all four jobs. Backup `ed0fb9a7` contains only Alpha.42 app/data/options, without HA,
+database, folders or failed parts. One Store refresh and one update installed
+Alpha.43; installed/offered/started, options and auto_update unchanged. Logs report
+ready, connected stream, fresh snapshot and resolved zone. The cloud browser returned
+502 connection closed before HA loaded, including one reload; this is not Ingress UI
+acceptance.
 
-Next: publish the exact candidate branch and require all CI jobs before merge.
+Next: run the explicit current-light check in authenticated read-only Ingress for
+Erdkellerbereich and verify source and automation explanations.
 
 ## Installed Alpha.42 — current lighting decision check
 
