@@ -3,7 +3,30 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.46 retained-report integrity installed
+## Resume: Alpha.47 history-provenance integrity candidate
+
+A fresh post-Alpha.46 integrity audit reproduced a stricter attribution gap. A
+formally valid provenance row was previously historical evidence whenever it named a
+valid import ID and an existing activation. It was not rechecked against that
+receipt's authorized sources, time interval or accepted count. The stored
+`retained_from_import` value could also outlive its actual provenance rows.
+
+Alpha.47 cross-validates each provenance row against the sanitized receipt, caps it
+at the accepted import count and derives the currently retained count without
+rewriting the receipt. Invalid attribution remains ordinary activation evidence but
+is not claimed as imported history. Existing fixed integrity counters explain both
+excluded provenance and a derived receipt count. The UI now distinguishes this
+read-time boundary from normal retention housekeeping.
+
+Local repository/API validation, 535 Python and 60 JavaScript tests pass. No schema,
+new HA history read, collection, consent, feedback, preference, HA write or execution
+change is included. Alpha.46 remains installed until exact Alpha.47 candidate CI and
+the fresh scoped-backup publication gate pass.
+
+Next: run the exact Alpha.47 candidate CI; do not publish before the fresh scoped
+PilotSuite backup is verified.
+
+## Installed baseline: Alpha.46 retained-report integrity
 
 A complete post-Alpha.45 report audit reproduced a remaining persistence-boundary
 failure: malformed or legacy history-import receipts were decoded verbatim. Invalid
@@ -15,7 +38,8 @@ Alpha.46 revalidates activation evidence, history provenance/import receipts,
 coverage samples, pattern feedback and context rows on every report read. Invalid or
 unreadable rows are not evidence; unknown origins become the coarse `unknown`
 category. A fixed `retained_integrity` summary and safe UI message explain excluded
-or normalized rows. Stored rows are neither deleted nor rewritten. No schema,
+or normalized rows. The integrity projection does not repair rows; normal retention
+housekeeping remains separate. No schema,
 collection, consent, feedback, HA write or execution change is included.
 
 PR #100 and release commit `9efb1f3` passed all four candidate and release-main CI

@@ -462,3 +462,19 @@ zone-revision responses are discarded. The dormant runtime consumes the same ker
 but its public enable route and general Apply remain closed. This release therefore
 adds explanation and fault-tested state semantics, not household actuation or a new
 learning consent. Contract: docs/PRESENCE_FIRST_INTELLIGENCE.md.
+
+## ADR-035 — Historical provenance is valid only within its import receipt
+
+Accepted 2026-09-27 as a strict continuation of retained-report integrity. An
+activation is imported history only when its provenance references a sanitized
+receipt for the same zone, its entity belongs to that receipt's authorized sources,
+its timestamp is strictly inside the authorized interval and the receipt's accepted
+count is not exceeded. A valid activation that fails attribution remains ordinary
+activity evidence; missing history is never a counterexample or proof of live origin.
+
+`retained_from_import` is a current read projection derived from valid retained
+provenance. A stale stored count is reported through the existing integrity summary
+without rewriting the receipt. Deterministic ordering makes corrupt over-counts fail
+closed. No new schema, history fetch, learner, consent, preference, HA write or
+execution permission is introduced. Normal retention housekeeping remains separate
+from integrity reporting, and general Apply stays closed.

@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.0-alpha.47] - 2026-09-27
+
+### Herkunft historischer Belege
+- Eine Historienzeile zählt nur noch, wenn ihr Entity tatsächlich zu den freigegebenen
+  Quellen des zugehörigen Importbelegs gehört und ihr Zeitpunkt strikt innerhalb des
+  autorisierten Importfensters liegt.
+- Selbst formal gültige zusätzliche Herkunftszeilen können die bestätigte Anzahl eines
+  Imports nicht überschreiten. Die aktuell erhaltene Zahl wird aus gültiger Herkunft
+  abgeleitet, statt einem möglicherweise veralteten Zähler im Beleg zu vertrauen.
+- Ausgeschlossene Herkunft und abgeleitete Zähler erscheinen in den bestehenden festen
+  Integritätszählern. Die Meldung unterscheidet diese Lesebegrenzung von der normalen
+  14-Tage-Aufbewahrung.
+
+### Grenzen
+- Keine Schemaänderung, neue Historienabfrage, Sammlung, Zustimmung, Präferenz,
+  HA-Konfiguration oder Geräteausführung. Allgemeines Apply bleibt gesperrt.
+
 ## [0.1.0-alpha.46] - 2026-09-27
 
 ### Integrität des vollständigen Lernberichts
@@ -11,8 +28,8 @@
   Herkunft wird konservativ als `unknown` normalisiert; unbrauchbare Zeilen werden
   nicht als Beobachtung oder Präferenz gewertet.
 - Der Bericht weist ausgeschlossene oder normalisierte Zeilen mit festen Zählern aus.
-  Die Oberfläche erklärt diesen Zustand, ohne gespeicherte Rohdaten still zu löschen
-  oder umzuschreiben.
+  Die Oberfläche erklärt diesen Zustand, ohne die Integritätsmeldung als Reparatur
+  auszugeben; die normale Aufbewahrungsgrenze bleibt davon getrennt wirksam.
 
 ### Grenzen
 - Keine Schemaänderung, neue Sammlung, Zustimmung, Feedbackänderung, HA-Konfiguration

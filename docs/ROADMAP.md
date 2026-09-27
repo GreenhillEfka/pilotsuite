@@ -37,6 +37,9 @@
 - Alpha.46 applies the same rule to the complete retained learning report:
   activity, provenance/imports, coverage and feedback are revalidated on read;
   excluded or normalized rows are explained without rewriting storage.
+- Alpha.47 closes the remaining history-attribution relationship gap: provenance
+  must match the receipt's authorized source group and interval, cannot exceed its
+  accepted count, and its current retained count is derived rather than trusted.
 - The complete 51-route `/api/v1` inventory is now checked against the explicit
   registration source; route/documentation drift fails validation instead of accumulating.
 - Candidate/main CI, scoped Alpha.40 backup, Store association, installation and
@@ -54,9 +57,8 @@
 - Alpha.46 candidate/main CI, scoped Alpha.45 backup, Store association, installation
   and runtime gates passed. Authenticated Safari Ingress completed post-update API
   reads; visual HTML/JS/CSS acceptance remains separate.
-- Next: perform one authenticated visual current-light, retained-context and integrity-
-  warning check for the saved Erdkellerbereich without changing configuration,
-  consent, feedback or devices.
+- Next: run exact Alpha.47 candidate CI; do not publish before the fresh scoped
+  PilotSuite backup is verified.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before

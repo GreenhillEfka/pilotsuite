@@ -1,4 +1,28 @@
-# Current state — Alpha.46 retained-report integrity installed, 2026-09-27
+# Current state — Alpha.47 history-provenance integrity candidate, 2026-09-27
+
+The post-Alpha.46 audit reproduced a historical-attribution defect. The report
+accepted a provenance row once its import ID and activation existed, without proving
+that the activation's entity belonged to the import's authorized source group, its
+timestamp fell inside the authorized interval, or the import's accepted count had
+not already been exhausted. It also trusted a retained-count snapshot that can become
+stale as bounded evidence expires.
+
+Alpha.47 cross-validates those relationships deterministically on every read.
+Unmatched attribution remains a live activation, never imported history. Valid
+provenance is capped by the accepted receipt count, and `retained_from_import` is
+derived from the valid rows currently retained without rewriting storage. Existing
+integrity counters report excluded provenance and normalized receipt projections.
+The UI warning now states that ordinary retention still applies.
+
+Local repository/API validation, 535 Python and 60 JavaScript tests pass. No schema,
+new HA history request, collection, consent, feedback, preference, HA write or
+execution change is included. Alpha.46 remains installed and unchanged while the
+Alpha.47 release candidate awaits exact CI and the runbook publication gate.
+
+Next: run the exact Alpha.47 candidate CI; do not publish before the fresh scoped
+PilotSuite backup is verified.
+
+## Installed baseline — Alpha.46
 
 The complete report review found a reproducible downstream failure after Alpha.45:
 stored history-import receipts were still decoded and exported verbatim. Malformed
@@ -10,7 +34,8 @@ Alpha.46 validates every retained report family against its type, identity, time
 relationship contract. Invalid rows cannot count as activity, historical provenance,
 coverage or preference. Unknown origins are normalized to the existing coarse
 `unknown` category. A deterministic integrity summary and bounded UI warning explain
-excluded or normalized rows. Raw storage is not deleted or rewritten.
+excluded or normalized rows. The integrity projection does not repair raw rows;
+normal retention housekeeping remains active.
 
 PR #100, candidate CI 36304061558 and release-main CI 36304136860 passed all four
 jobs. Backup `b76d8fff` verified only PilotSuite Alpha.45 and its app data before

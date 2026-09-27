@@ -1,5 +1,23 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.47 candidate — history-provenance integrity
+
+| Capability | Verified source scope |
+|---|---|
+| Source binding | Imported entity must occur in the sanitized receipt source group |
+| Time binding | Imported event must be strictly inside the authorized receipt interval |
+| Count binding | Attributed events cannot exceed the receipt's accepted count |
+| Current retention | `retained_from_import` is derived from valid currently retained provenance |
+| Transparency | Existing fixed counters expose exclusions and derived receipt normalization |
+| Boundary | No schema, HA history read, collection, consent, feedback, write or execution change |
+
+Local repository/API validation, 535 Python and 60 JavaScript tests pass. Alpha.46
+remains installed and unchanged. Alpha.47 is not published or installed until exact
+candidate CI and the fresh scoped-backup release gate pass.
+
+Next: run exact Alpha.47 candidate CI; do not publish before verifying the scoped
+PilotSuite backup.
+
 ## Installed Alpha.46 — retained-report integrity
 
 | Capability | Verified source scope |

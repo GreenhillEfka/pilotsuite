@@ -238,7 +238,7 @@ class ContextStore(OrganizationContextMixin):
             rows.append((entity, occurred, origin))
         row_keys = {(entity, occurred) for entity, occurred, _ in rows}
 
-        history_imports, valid_import_ids = [], set()
+        history_imports, valid_imports = [], {}
         for import_id, created, payload in db.execute(
                 'SELECT id,created,payload FROM history_imports WHERE zone_id=? ORDER BY created DESC',
                 (zone_id,)):
@@ -253,17 +253,29 @@ class ContextStore(OrganizationContextMixin):
                 excluded['history_imports'] += 1
                 continue
             history_imports.append(receipt)
-            valid_import_ids.add(import_id)
+            valid_imports[import_id] = receipt
 
         historical = set()
+        retained_by_import = Counter()
         for entity, occurred, import_id in db.execute(
-                'SELECT entity_id,occurred,import_id FROM history_provenance WHERE zone_id=?',
+                'SELECT entity_id,occurred,import_id FROM history_provenance '
+                'WHERE zone_id=? ORDER BY occurred,entity_id,import_id',
                 (zone_id,)):
-            if ((entity, occurred) not in row_keys or import_id not in valid_import_ids
-                    or not isinstance(import_id, str) or not IMPORT_ID.fullmatch(import_id)):
+            receipt = valid_imports.get(import_id)
+            if ((entity, occurred) not in row_keys or receipt is None
+                    or not isinstance(import_id, str) or not IMPORT_ID.fullmatch(import_id)
+                    or entity not in receipt['sources']
+                    or not receipt['start'] < occurred < receipt['end']
+                    or retained_by_import[import_id] >= receipt['accepted']):
                 excluded['history_provenance'] += 1
                 continue
             historical.add((entity, occurred))
+            retained_by_import[import_id] += 1
+        for index, receipt in enumerate(history_imports):
+            retained = retained_by_import[receipt['id']]
+            if retained != receipt['retained_from_import']:
+                normalized['history_imports'] += 1
+                history_imports[index] = {**receipt, 'retained_from_import': retained}
         historical_times = {t for _,t in historical}
         feedback = {}
         for pattern_id, decision, updated in db.execute(
@@ -369,7 +381,8 @@ class ContextStore(OrganizationContextMixin):
                                        'history_imports', 'pattern_feedback',
                                        'coverage_checks', 'activity_context')},
                     'normalized_rows': {key: normalized[key] for key in
-                                        ('activity_evidence', 'activity_context')},
+                                        ('activity_evidence', 'history_imports',
+                                         'activity_context')},
                     'basis': 'invalid_or_unreadable_retained_rows_are_not_evidence'},
                 'limitations': 'Nur beobachtete Aktivierungen, keine Anwesenheitsdauer oder Wahrscheinlichkeit. Ausfälle und inaktive Lernzeiten sind unbeobachtet; Herkunft ist kein Beweis menschlicher Bedienung.'}
 
