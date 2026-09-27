@@ -16,6 +16,16 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('[data-ps-module="presence"]').click();await page.locator('.ps-nav [data-ps-nav="zone"]').click();await page.locator('#ps-zone-configure:not([disabled])').waitFor();
   assert.deepEqual(errors,[]);const baseline=await command({action:'snapshot'});assert.equal(baseline.learning,false);assert.equal(baseline.view.current.state,'occupied');
   assert.equal(baseline.helper_creates,0);assert.equal(baseline.output_calls,0);
+  await page.locator('[data-ps-live="sources"] summary').click();
+  const passive=await page.evaluate(async()=>{
+    window.scrollTo(0,450);
+    const before=document.scrollingElement.scrollTop,button=document.getElementById('ps-zone-configure'),context=contextData;
+    await load({background:true});await load({background:true});
+    return {before,after:document.scrollingElement.scrollTop,buttonRetained:button===document.getElementById('ps-zone-configure'),contextRetained:context===contextData,sourcesOpen:document.querySelector('[data-ps-live="sources"]').open};
+  });
+  assert.equal(passive.after,passive.before);assert.equal(passive.buttonRetained,true);
+  assert.equal(passive.contextRetained,true);assert.equal(passive.sourcesOpen,true);
+  console.log('ok 0 - passive refresh retains reading position, controls, context and open sources');
   await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
   await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();assert.equal(await page.locator('#ps-zone-form').isVisible(),true);
   await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
