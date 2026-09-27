@@ -21,6 +21,22 @@ class PresenceAdoptionTests(unittest.TestCase):
         self.assertEqual("ready_for_separate_takeover_approval",plan["recommendation"])
         self.assertFalse(plan["execution"]["allowed"]);self.assertEqual([],plan["execution"]["actions"])
         self.assertEqual(64,len(plan["fingerprint"]))
+    def test_disabled_or_dynamic_references_do_not_create_confirmed_overlap(self):
+        for state,limitation in (("unavailable","disabled_step"),("unknown","dynamic_enablement")):
+            report=self.inspection([{"target_references":["input_boolean.room_presence"],"availability":state}],
+                                   [limitation])
+            report["sections"]["triggers"][0]["availability"]=state
+            row=classify_inspection(report,self.runtime)
+            self.assertEqual("unrelated",row["classification"])
+            self.assertFalse(row["overlap"]);self.assertFalse(row["takeover_ready"])
+            self.assertIn(limitation,row["blockers"])
+            self.assertIn("no_direct_presence_source_trigger",row["blockers"])
+    def test_new_alignment_contract_is_the_confirmed_owner(self):
+        report=self.inspection([{"target_references":["input_boolean.room_presence"]}])
+        report["alignment"]={"source_trigger_references":[],"target_action_references":[]}
+        row=classify_inspection(report,self.runtime)
+        self.assertEqual("unrelated",row["classification"])
+        self.assertFalse(row["overlap"])
     def test_ids_are_bounded_and_canonical(self):
         self.assertEqual(["automation.a"],validate_automation_ids(["automation.a","automation.a"]))
         with self.assertRaises(HomeAssistantError): validate_automation_ids(["script.a"])

@@ -1,4 +1,4 @@
-# PilotSuite capability ledger — Alpha.50 live, Alpha.51 candidate
+# PilotSuite capability ledger — Alpha.51 live, Alpha.52 candidate
 
 | Capability | Actual boundary |
 |---|---|
@@ -10,18 +10,19 @@
 | Display name/ontology labels | Preview/apply/readback/restore delivered; physical areas preserved |
 | Technical entity-ID rename | Blocked pending complete consumer migration |
 | Existing automation/helper takeover | Not implemented |
-| Static event-filter references | Alpha.51 candidate recognizes literal trigger `event_data.entity_id`; action payloads remain opaque |
+| Static event-filter references | Alpha.51 installed; literal trigger `event_data.entity_id` is recognized while action payloads remain opaque |
+| Step availability in automation review | Alpha.52 candidate separates available, disabled and dynamic/unknown nested references; only available matches confirm alignment |
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
-| Live runtime | Alpha.50 started, ready, stream connected, snapshot fresh and zone resolved |
+| Live runtime | Alpha.51 started, ready, stream connected, snapshot fresh and zone resolved |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded
 review mode, not a general execution grant. No household configuration change was used to
 prove this delivery.
 
-Next: exact Alpha.51 candidate CI, then merge/main CI and the fresh Alpha.50
-PilotSuite-only backup gate. After actual installation, perform authenticated read-only
-acceptance of `Erdkellerbereich` and one unlike existing zone, including preservation of
-all four saved zones and unsaved UI input across refresh. An internal HTTP response is
-not substituted for the remaining Ingress observation.
+Next: exact Alpha.52 candidate/main CI and backup-bound delivery. Then perform
+authenticated read-only acceptance of `Erdkellerbereich` and one unlike existing zone,
+including all four saved zones, unsaved UI input across refresh and the distinct
+active/disabled/unknown reference explanations. An internal HTTP response is not
+substituted for the remaining Ingress observation.

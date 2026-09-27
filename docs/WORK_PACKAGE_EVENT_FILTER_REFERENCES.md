@@ -34,13 +34,14 @@ repository; the regression uses synthetic data only.
    source-reference gap.
 2. An action's `event_data.entity_id` never becomes an action target.
 3. A dynamic event filter stays unresolved, opens review and does not expose its text.
-4. The complete Python, JavaScript and repository contract suites remain green before
-   candidate publication; exact remote CI remains a separate gate.
-5. The live Alpha.50 receipt is unchanged until Alpha.51 is actually published and
-   installed through the existing backup-bound runbook.
+4. The complete Python, JavaScript and repository contract suites remain green on the
+   exact candidate and final main source.
+5. The actual Alpha.51 publication, scoped backup and installation are recorded only in
+   `docs/RELEASE_STATE.json`.
 
 ## Next step
 
-Pass exact candidate CI, then create and verify one fresh PilotSuite-only Alpha.50
-backup before publication. After installation, repeat the read-only automation review
-in authenticated Ingress; do not change household configuration or Apply authority.
+Repeat the read-only automation review in authenticated Ingress for the saved
+`Erdkellerbereich`, then one unlike saved zone. Confirm all four saved zones and the
+corrected event-filter source explanation; do not change household configuration or
+Apply authority.

@@ -151,6 +151,26 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
         for path in self.path.glob('*'):
             if path.is_file(): self.assertNotIn(b'PRIVATE_CANARY',path.read_bytes())
 
+    async def test_detail_endpoint_does_not_confirm_disabled_or_dynamic_alignment(self):
+        draft=await self.review_draft()
+        self.service.client.related_automations=AsyncMock(return_value={
+            'binary_sensor.synthetic':['automation.synthetic'],
+            'light.synthetic':['automation.synthetic']})
+        self.service.client.automation_config=AsyncMock(return_value={
+            'triggers':[{'trigger':'state','entity_id':'binary_sensor.synthetic','enabled':'{{ private }}'}],
+            'actions':[{'sequence':[{'action':'light.turn_on','target':{'entity_id':'light.synthetic'}}],
+                        'enabled':False}]})
+        response=await self.client.post(self.url+'/'+draft['id']+'/automation-inspection',json={
+            'revision':2,'zone_revision':2,'automation_id':'automation.synthetic','previous_fingerprint':None})
+        self.assertEqual(200,response.status,await response.text())
+        inspection=(await response.json())['inspection'];alignment=inspection['alignment']
+        self.assertEqual([],alignment['source_trigger_references'])
+        self.assertEqual([],alignment['target_action_references'])
+        self.assertEqual(['binary_sensor.synthetic'],alignment['unknown_source_trigger_references'])
+        self.assertEqual(['light.synthetic'],alignment['unavailable_target_action_references'])
+        self.assertTrue({'source_gap','target_gap'} <= {row['id'] for row in inspection['checklist']})
+        self.assertFalse(inspection['execution']['allowed'])
+
     async def test_details_cannot_fetch_unrelated_or_malformed_automation(self):
         draft=await self.review_draft()
         self.service.client.related_automations=AsyncMock(return_value={'light.synthetic':['automation.synthetic']})

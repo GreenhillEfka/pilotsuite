@@ -29,19 +29,23 @@ Known modern/legacy sections, direct entity references, service calls and nested
 choose/if/repeat/parallel/sequence/condition/wait structures are summarized.
 This is structure, not an evaluator: branch conditions, thresholds, timing values,
 messages, scripts, scenes, blueprints and templates are not executed or expanded.
-Disabled/dynamic steps and unsupported structures carry limitations. References
-inside nested waits or conditional/disabled paths do not prove an initiating cause
-or an action that actually runs.
+Disabled/dynamic steps and unsupported structures carry limitations. Alpha.52 also
+projects each step as `available`, `unavailable` or `unknown`, inheriting the most
+conservative status through nested waits, conditions and action branches. References
+inside an unavailable or unknown path remain visible, but cannot satisfy confirmed
+source/target alignment or close its review gap.
 
 Only draft source/target identifiers are returned as references; unrelated IDs are
 counts. Aliases, descriptions, raw values and service payloads are discarded.
 Direct script service names are masked as script.* because they can identify
 unrelated entities. Known generic service identifiers may be displayed.
 
-Alignment distinguishes source references in trigger structures from target
-references in service-call structures. Missing sources/targets create open review
-items. Further open checks cover intent, timing/conditions, manual override,
-enabled status and risk/recovery. User-authored intent is not proof of behavior.
+Alignment distinguishes source references in structurally available trigger
+structures from target references in structurally available service-call structures.
+Unavailable and dynamically/otherwise unknown matches have separate bounded lists.
+Missing confirmed sources/targets create open review items. Further open checks cover
+intent, timing/conditions, manual override, whole-automation runtime status and
+risk/recovery. User-authored intent is not proof of behavior.
 All checklist states remain open; there is no approval or execution control.
 
 ## Bounded and transient

@@ -32,13 +32,20 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
     if has_template: warnings.add('templates_not_evaluated')
     if 'use_blueprint' in config: warnings.add('blueprint_not_expanded')
 
-    def walk(value, section, path):
+    def walk(value, section, path, inherited_availability='available'):
         if isinstance(value,list):
-            for i,item in enumerate(value): walk(item,section,f'{path}[{i}]')
+            for i,item in enumerate(value): walk(item,section,f'{path}[{i}]',inherited_availability)
             return
         if not isinstance(value,dict):
             warnings.add('unsupported_structure');return
         if sum(map(len,sections.values()))>=200: raise HomeAssistantError('Automation step limit exceeded')
+        enabled=value.get('enabled',True)
+        if enabled is False:
+            availability='unavailable'
+        elif enabled is not True:
+            availability='unavailable' if inherited_availability=='unavailable' else 'unknown'
+        else:
+            availability=inherited_availability
         refs=set();unknown=set()
         containers = [value, value.get('target',{}), value.get('data',{})]
         # Event triggers commonly carry an exact entity filter below event_data.
@@ -72,9 +79,10 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
                 if call.startswith('script.'): service='script.*'
             else: kind=next((k for k in sorted(FLOW) if k in value),'unsupported')
         if kind=='unsupported': unknown.add('unsupported_step')
-        if value.get('enabled') is False: unknown.add('disabled_step')
-        if isinstance(value.get('enabled'),str): unknown.add('dynamic_enablement')
+        if availability=='unavailable': unknown.add('disabled_step')
+        if availability=='unknown': unknown.add('dynamic_enablement')
         entry={'path':path,'kind':kind,'service':service,
+               'availability':availability,
                'source_references':sorted(refs & sources),'target_references':sorted(refs & targets),
                'other_reference_count':len(refs-sources-targets),'limitations':sorted(unknown)}
         sections[section].append(entry);warnings.update(unknown)
@@ -83,7 +91,7 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
                                   ('then','actions'),('else','actions'),('sequence','actions'),
                                   ('default','actions'),('parallel','actions'),('wait_for_trigger','triggers')]:
             child=value.get(key)
-            if isinstance(child,(list,dict)): walk(child,child_section,path+'.'+key)
+            if isinstance(child,(list,dict)): walk(child,child_section,path+'.'+key,availability)
             elif key in value and key != 'condition': warnings.add('unsupported_structure')
         if 'choose' in value:
             branches=value['choose']
@@ -91,12 +99,12 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
                 for i,branch in enumerate(branches):
                     if not isinstance(branch,dict): warnings.add('unsupported_structure');continue
                     for k,s in [('conditions','conditions'),('sequence','actions')]:
-                        if k in branch: walk(branch[k],s,f'{path}.choose[{i}].{k}')
+                        if k in branch: walk(branch[k],s,f'{path}.choose[{i}].{k}',availability)
             else: warnings.add('unsupported_structure')
         repeat=value.get('repeat')
         if isinstance(repeat,dict):
             for k,s in [('while','conditions'),('until','conditions'),('sequence','actions')]:
-                if k in repeat: walk(repeat[k],s,path+'.repeat.'+k)
+                if k in repeat: walk(repeat[k],s,path+'.repeat.'+k,availability)
         elif 'repeat' in value: warnings.add('unsupported_structure')
 
     for plural,singular in [('triggers','trigger'),('conditions','condition'),('actions','action')]:
@@ -108,8 +116,12 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
         ('manual_override','Verify manual control and exceptions; authored text is not proof'),
         ('enabled','Check live enabled state; configuration is not runtime state'),
         ('risk','Assess effects and recovery separately; no action approval')]]
-    action_targets=sorted({e for step in sections['actions'] if step['kind']=='service_call' for e in step['target_references']})
-    source_triggers=sorted({e for step in sections['triggers'] for e in step['source_references']})
+    action_targets=sorted({e for step in sections['actions'] if step['kind']=='service_call' and step['availability']=='available' for e in step['target_references']})
+    source_triggers=sorted({e for step in sections['triggers'] if step['availability']=='available' for e in step['source_references']})
+    unavailable_targets=sorted({e for step in sections['actions'] if step['kind']=='service_call' and step['availability']=='unavailable' for e in step['target_references']})
+    unknown_targets=sorted({e for step in sections['actions'] if step['kind']=='service_call' and step['availability']=='unknown' for e in step['target_references']})
+    unavailable_sources=sorted({e for step in sections['triggers'] if step['availability']=='unavailable' for e in step['source_references']})
+    unknown_sources=sorted({e for step in sections['triggers'] if step['availability']=='unknown' for e in step['source_references']})
     if targets-set(action_targets): checklist.insert(0,{'id':'target_gap','state':'open','reason':'Targets lack direct service-call references; indirect behavior may still exist'})
     if sources-set(source_triggers): checklist.insert(0,{'id':'source_gap','state':'open','reason':'Some pattern sources have no recognized direct trigger reference'})
     if warnings: checklist.insert(0,{'id':'unknowns','state':'open','reason':'Resolve unsupported, indirect or dynamic behavior'})
@@ -119,6 +131,10 @@ def inspect_automation(config, draft, automation_id, previous_fingerprint=None):
             'sections':sections,'limitations':sorted(warnings),
             'trigger_integrity':inspect_trigger_integrity(config),
             'alignment':{'source_trigger_references':source_triggers,'target_action_references':action_targets,
+                         'unavailable_source_trigger_references':unavailable_sources,
+                         'unknown_source_trigger_references':unknown_sources,
+                         'unavailable_target_action_references':unavailable_targets,
+                         'unknown_target_action_references':unknown_targets,
                          'sources_without_direct_trigger_reference':sorted(sources-set(source_triggers)),
                          'targets_without_direct_action_reference':sorted(targets-set(action_targets)),
                          'semantic_equivalence':'not_determined'},

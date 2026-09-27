@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.1.0-alpha.52] - 2026-09-27
+
+### Aktivierungsstatus in der Automations-Detailprüfung
+- Deaktivierte oder dynamisch aktivierte Auslöser und Dienstaufrufe bleiben als
+  Fundstellen sichtbar, erfüllen aber nicht länger einen bestätigten direkten
+  Quellen- oder Zielbezug. Quellen-/Ziellücken bleiben dadurch offen, statt von
+  einem Schritt geschlossen zu werden, der strukturell nicht sicher aktiv ist.
+- Der Status wird durch verschachtelte `choose`-, `if`-, `repeat`-,
+  `parallel`-, Bedingungs- und Wartezweige vererbt. Ein aktiver unabhängiger
+  Geschwisterschritt bleibt weiterhin ein bestätigter Bezug.
+- Die bestehende Oberfläche unterscheidet strukturell aktive, deaktivierte und
+  dynamisch/unbekannte Fundstellen. Der Laufzeitstatus der gesamten Automation
+  bleibt ausdrücklich ungeprüft.
+- Die Präsenz-Übernahmeanalyse verwendet dieselbe bestätigte Projektion; ältere
+  synthetische Verträge bleiben kompatibel.
+
+### Grenzen und Prüfung
+- Rein lesende, flüchtige Auswertung bereits ausdrücklich gelesener
+  Automationskonfigurationen. Keine HA-Automation wird aktiviert, deaktiviert,
+  geändert oder ausgeführt; allgemeines Apply und produktive Übernahme bleiben zu.
+- Synthetische Einheits-, API- und Browserregressionen decken deaktivierte,
+  dynamische, verschachtelte und konkurrierende Fundstellen ab.
+- Lokal bestehen 567 Python-, 68 JavaScript- und 62 API-/Repository-Verträge;
+  der vollständige gepinnte Chromium-Lauf bleibt zusätzlich verbindliches CI-Gate.
+
 ## [0.1.0-alpha.51] - 2026-09-27
 
 ### Vollständige statische Ereignisfilter im Automationsvergleich
