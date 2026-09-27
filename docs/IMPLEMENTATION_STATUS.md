@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.46 candidate — retained-report integrity
+## Installed Alpha.46 — retained-report integrity
 
 | Capability | Verified source scope |
 |---|---|
@@ -11,9 +11,11 @@
 | Transparency | Fixed integrity counters and bounded UI warning; raw rows unchanged |
 | Boundary | No schema, collection, consent, feedback, HA write or execution change |
 
-Repository/API validation, 533 Python and 60 JavaScript tests pass locally, including
-storage, strict HTTP JSON and presentation regressions. Next: publish the exact
-candidate and require complete CI before merge or Store delivery.
+Repository/API validation, 533 Python and 60 JavaScript tests pass. Candidate and
+release-main CI passed Backend/Frontend, Chromium, amd64 container and reproducible
+source jobs. Backup `b76d8fff` verified only Alpha.45 app/data before publication.
+Alpha.46 is installed and ready with unchanged options; authenticated Safari Ingress
+made successful post-update API reads. Visual HTML/JS/CSS acceptance remains open.
 
 ## Installed Alpha.45 — bounded retained-context export
 

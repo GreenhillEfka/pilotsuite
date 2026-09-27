@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.46 retained-report integrity candidate
+## Resume: Alpha.46 retained-report integrity installed
 
 A complete post-Alpha.45 report audit reproduced a remaining persistence-boundary
 failure: malformed or legacy history-import receipts were decoded verbatim. Invalid
@@ -18,12 +18,19 @@ category. A fixed `retained_integrity` summary and safe UI message explain exclu
 or normalized rows. Stored rows are neither deleted nor rewritten. No schema,
 collection, consent, feedback, HA write or execution change is included.
 
-Repository/API validation, 533 Python and 60 JavaScript tests pass locally, including
-storage, strict HTTP JSON and presentation regressions. Next: publish the exact
-candidate, require complete CI and then use the scoped Alpha.45 backup/Store routine.
-Authenticated household Ingress acceptance remains separate.
+PR #100 and release commit `9efb1f3` passed all four candidate and release-main CI
+jobs. Scoped backup `b76d8fff` verified only PilotSuite Alpha.45 and app data before
+publication. Alpha.46 is installed, offered and started with unchanged options and
+auto-update; logs show `presence_adoption_review`, ready, connected, fresh snapshot
+and resolved Erdkellerbereich. Authenticated Safari Ingress made successful post-
+update read-only API requests; visual HTML/JS/CSS acceptance remains separate.
 
-## Installed baseline: Alpha.45 bounded context export
+Repository/API validation, 533 Python and 60 JavaScript tests pass. Next: perform one
+authenticated visual current-light, retained-context and integrity-warning check for
+the saved Erdkellerbereich without changing configuration, consent, feedback or
+devices.
+
+## Previous baseline: Alpha.45 bounded context export
 
 A fresh post-Alpha.44 integrity review found one remaining downstream path: derived
 context windows were sanitized, but individual retained context evidence was still

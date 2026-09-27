@@ -34,7 +34,7 @@
 - Alpha.45 closes the remaining explicit-export path: retained rows are
   projected through the same bounded context contract instead of returning legacy
   JSON verbatim. Invalid rows remain unknown and valid older evidence is preserved.
-- Alpha.46 candidate applies the same rule to the complete retained learning report:
+- Alpha.46 applies the same rule to the complete retained learning report:
   activity, provenance/imports, coverage and feedback are revalidated on read;
   excluded or normalized rows are explained without rewriting storage.
 - The complete 51-route `/api/v1` inventory is now checked against the explicit
@@ -51,9 +51,12 @@
   a separate gate.
 - Alpha.45 candidate/main CI, scoped Alpha.44 backup, Store association, installation
   and runtime gates passed. Authenticated Erdkellerbereich Ingress remains separate.
-- Next: require complete CI for the exact Alpha.46 candidate, then use the scoped
-  Alpha.45 backup/Store routine. Authenticated Erdkellerbereich Ingress remains
-  separate.
+- Alpha.46 candidate/main CI, scoped Alpha.45 backup, Store association, installation
+  and runtime gates passed. Authenticated Safari Ingress completed post-update API
+  reads; visual HTML/JS/CSS acceptance remains separate.
+- Next: perform one authenticated visual current-light, retained-context and integrity-
+  warning check for the saved Erdkellerbereich without changing configuration,
+  consent, feedback or devices.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before
