@@ -49,6 +49,8 @@ const path=require('node:path');
   const lightingText=await page.locator('#ps-lighting-preview-result').innerText();
   assert.match(lightingText,/Stabilisierung/);
   assert.match(lightingText,/Mindestabstand/);
+  assert.match(lightingText,/Leuchten 1\/1 · Innen-Lux 1\/1 · binäre Helligkeit 0\/0/);
+  assert.match(lightingText,/Innen-Lux oder Eigenlicht bestätigen keine Außenhelligkeit/);
   assert.match(lightingText,/Vorschau: Ein · 35 % · nicht ausgeführt/);
   assert.deepEqual(preLighting,await command({action:'snapshot'}));
   await page.getByRole('button',{name:'Quellen konfigurieren',exact:true}).click();

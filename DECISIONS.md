@@ -1,5 +1,14 @@
 # Architecture Decision Log
 
+## ADR-036 — Synthetic daylight is not real-zone provenance
+
+Alpha.41 keeps source semantics explicit: `illuminance` is an indoor measurement
+unless separately proven otherwise, `daylight_binary` is only a categorical signal,
+and neither confirms an outdoor daylight reference. Synthetic preview input is not
+household evidence. Missing current brightness blocks bounded adjustment rather than
+being relabeled as a target capability limitation. Assigned and currently usable
+counts stay separate; none of them grants execution authority.
+
 ## ADR-035 — Lighting preview is pure, stable and capability-bounded
 
 The existing lighting policy remains the single semantic owner. Alpha.40 adds no

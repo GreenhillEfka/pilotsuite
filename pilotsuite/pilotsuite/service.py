@@ -337,11 +337,26 @@ class PilotSuiteService(OrganizationServiceMixin):
                 raise SelectionConflict("Zone changed; reload lighting preview")
             cfg = await self.context.get(zone_id)
             roles = cfg.get("roles", {})
-            target_count = len(roles.get("light", []))
-            reference_count = len(roles.get("illuminance", [])) + len(roles.get("daylight_binary", []))
+            by_id = {row.get("entity_id"): row for row in inventory.get("items", [])}
+            def source_count(role):
+                configured = roles.get(role, [])
+                usable = [entity_id for entity_id in configured
+                          if by_id.get(entity_id, {}).get("decision") == "relevant"
+                          and by_id[entity_id].get("suggested_role") == role
+                          and by_id[entity_id].get("state") not in (None, "", "unknown", "unavailable")]
+                return {"configured": len(configured), "currently_usable": len(usable)}
+            inputs = {role: source_count(role)
+                      for role in ("light", "illuminance", "daylight_binary")}
         return {"schema": "pilotsuite-lighting-preview-v1", "zone_id": zone_id,
-                "revision": payload["revision"], "configured_target_count": target_count,
-                "configured_reference_count": reference_count,
+                "revision": payload["revision"], "configured_target_count": inputs["light"]["configured"],
+                "configured_reference_count": (inputs["illuminance"]["configured"]
+                                               + inputs["daylight_binary"]["configured"]),
+                "zone_inputs": inputs,
+                "daylight_basis": {
+                    "kind": "synthetic_outdoor_lux",
+                    "household_measurements_used": False,
+                    "configured_daylight_reference_confirmed": False,
+                    "reason": "no_explicit_outdoor_daylight_provenance"},
                 "scenario": replay_lighting_scenario(payload["scenario"]), "persisted": False,
                 "execution": {"allowed": False, "reason": "synthetic_preview_only", "actions": []}}
 

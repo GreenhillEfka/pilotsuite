@@ -3,7 +3,15 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.40 daylight and mood preview delivered
+## Resume: Alpha.40 installed; Alpha.41 lighting-source integrity candidate
+
+Alpha.41 continues the same lighting policy owner. It separates configured/currently
+usable light targets, indoor lux and binary brightness in the synthetic preview,
+never certifies those signals as outdoor daylight provenance, holds when current
+brightness is unavailable and rejects incoherent/future checkpoints. Backup
+`bc501582` is the verified Alpha.40 app/data/options rollback point. Finish exact
+candidate/main CI and delivery before marking this installed. Authenticated Ingress
+acceptance remains independent.
 
 The current branch extends the existing pure lighting policy instead of adding a
 controller or second owner. A deterministic preview separates presence state,
@@ -12,7 +20,7 @@ capabilities and execution authority. It requires a stable daylight band, applie
 deadband and minimum proposal interval, and bounds each brightness step. Missing lux
 is unknown, not darkness; unknown presence and manual operation hold the proposal.
 
-Six allowlisted synthetic scenarios run only after explicit POST/click. They read no
+Seven allowlisted synthetic scenarios run only after explicit POST/click. They read no
 household measurement or history, persist nothing and return execution.allowed=false.
 Responses are bound to the current zone/revision/generation; only fixed `on`,
 `brightness_pct` and `color_temp_kelvin` setting keys can be displayed. No service

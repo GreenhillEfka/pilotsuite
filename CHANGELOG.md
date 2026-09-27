@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.0-alpha.41] - 2026-09-27
+
+### Integrität der Lichtvorschau
+- Weist zugeordnete und aktuell nutzbare Leuchten, Innen-Luxquellen und binäre
+  Helligkeitssignale getrennt aus. Keine dieser Quellen wird ohne eigenen
+  Herkunftsnachweis als Außen-/Tageslichtreferenz bestätigt.
+- Die Oberfläche erklärt sichtbar, dass Szenario-Luxwerte synthetisch sind und
+  Innen-Lux oder Eigenlicht keine Außenhelligkeit belegen.
+- Fehlende aktuelle Leuchtenhelligkeit hält die Vorschau jetzt an, statt den Fall
+  fälschlich als fehlende Gerätefähigkeit zu bezeichnen. Inkonsistente oder
+  rückwärts laufende Zwischenstände werden abgewiesen.
+
+### Grenzen
+- Weiterhin keine Haushaltsmessung, Persistenz, HA-Konfigurationsänderung,
+  Lernfreigabe oder Geräteausführung. Bestehende Automationen bleiben unangetastet.
+
 ## [0.1.0-alpha.40] - 2026-09-27
 
 ### Tageslicht- und Stimmungsvorschau

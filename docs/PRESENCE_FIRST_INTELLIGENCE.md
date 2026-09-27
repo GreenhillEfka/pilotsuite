@@ -78,6 +78,14 @@ so a late response cannot overwrite a newer basis.
 
 ## Implemented in Alpha.40 source: light policy preview
 
+Alpha.41 hardens this preview's evidence boundary. The response and workspace now
+separate assigned/currently usable light targets, indoor illuminance and binary
+brightness signals. Synthetic outdoor lux remains explicitly synthetic; neither an
+indoor lux sensor nor the controlled light proves an outdoor daylight reference.
+Missing current brightness stops bounded adjustment, and inconsistent/future
+preview checkpoints are rejected. This is still a pure preview without HA reads,
+persistence or authority.
+
 Presence permits a desired light state; ambient light decides whether/how much light
 is needed. Keep outdoor/daylight reference, indoor measured illuminance and actuator
 brightness percentage distinct. Lux is not a dimmer percentage. Where indoor lux

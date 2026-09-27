@@ -1,5 +1,22 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.41 candidate — lighting-source integrity
+
+| Capability | Verified source scope |
+|---|---|
+| Source meaning | Assigned/usable lights, indoor lux and binary brightness are separate |
+| Provenance | Synthetic scenario lux never confirms a real outdoor daylight reference |
+| Missing input | Unknown current brightness holds instead of reporting a capability defect |
+| Temporal integrity | Inconsistent and future checkpoints are rejected |
+| Boundary | No HA read/write, persistence, consent or execution added |
+
+Fresh pre-publication backup `bc501582` contains only installed Alpha.40 app/data/options;
+native details report no failed parts, no HA, database or folders. Candidate source
+awaits exact-commit CI and merge before installation.
+
+Next: complete exact candidate/main CI, then install Alpha.41 once and verify runtime;
+authenticated Ingress remains a separate acceptance gate.
+
 ## Installed Alpha.40 — daylight and mood preview
 
 | Capability | Verified source scope |
