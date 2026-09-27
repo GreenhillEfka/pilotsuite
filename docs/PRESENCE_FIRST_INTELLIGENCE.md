@@ -168,7 +168,7 @@ hardware/model service is assumed. Benchmark latency/memory before adding a mode
 | Step | Deliverable | Required proof |
 |---|---|---|
 | 38 | Event/context consistency and coherent role/reference UI | Synthetic regression, full CI, no new actions/consent |
-| 39 (candidate) | Persistent presence kernel + explanation/replay UI | Pulse vs continuous, restart deadline, expiry, unknown sensors/dependencies, no replay mutation |
+| 39 | Persistent presence kernel + explanation/replay UI | Pulse vs continuous, restart deadline, expiry, unknown sensors/dependencies, no replay mutation |
 | Next | Daylight/mood policy + preview | No oscillation; capabilities, manual override, night exit, bounded transitions |
 | Then | Scoped HA executor and one zone rollout | Before-state, per-action authority, readback, lost response and conflict handling; explicit zone approval |
 | Then | Optional music/TV arbitration | User playback/queues preserved; real group/session capabilities verified |
