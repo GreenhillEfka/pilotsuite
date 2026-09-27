@@ -3,55 +3,52 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Alpha.48 live shadow candidate
+## Resume: Alpha.48 live shadow delivered, 2026-09-27
 
-The user approved presence live comparison and light need on confirmed real sources,
-while independently cleaning their HA entities. This package implements that functional
-step, not another isolated integrity-only release. Preserve PR102's reviewed historical
-provenance fix (cc9039377824b4702a1c2e2b39fee090f1bdf97e) and tests; they are integrated,
-not overwritten. Original installed baseline was Alpha46 at 51a86351492b591f64c57a703d06fcb1137edaf7.
-Re-read live main and app metadata before publishing: other development may progress.
+PR103 merged without source changes as c33462e5f302565ea61c29fc8127b9883e906bb3.
+Root b1e89277c12843079f33361d49a05411d1c39642; app tree
+4a87e2273bd985668889123c46e11c3ccedcb79d. Candidate CI36313074583 and release-main
+CI36319498063 passed all four jobs and ten browser suites. Fresh complete-checkout
+rerun passed 555 Python / 60 JavaScript tests and 53 API contracts. PR102's historical
+provenance fix is preserved as an ancestor and its PR is merged; no separate Alpha47
+installation was required.
 
-The existing presence and lighting kernels now have an explicit per-zone start/stop
-shadow service and UI. It uses accepted real observations, a local 5-second deadline
-check and only latest checkpoints in ContextStore. No new history, learner, schema,
-HA writes or ordinary Apply capability. The HA room status is comparison-only; it
-never feeds itself into PilotSuite's presence evidence. Independent raw sensors only;
-unresolved/group/template dependencies do not become counted independent evidence.
+Fresh native backup a7c65d26 completed BEFORE publication: only Alpha46 app/data,
+54,374,400 bytes, no HA/database/folders or failed parts. Snapshot list and backup/details
+verified. One native Store refresh and one scoped update installed Alpha48. Metadata
+confirms installed/offered/started, no pending update, all options and auto_update=true
+unchanged. Startup identifies Alpha48/v23/presence_adoption_review; readiness confirms
+connected stream, fresh snapshot and resolved zone. No extra restart/rebuild or other
+app update. Do not repeat this delivery to resume.
 
-Settings and session identity share the existing zone revision. Changed membership,
-identity or configuration suspends the durable session until explicit confirmation.
-Deadlines survive reconnect/restart without renewal. Source report age is bounded;
-held helper/actuator states are not incorrectly treated as freshly measured sensors.
-Unknown sources do not become vacancy. Missing/manual/unsupported light inputs hold.
-Outdoor lux is explicitly confirmed, never inferred from indoor measurements. Atmosphere
-is a chosen profile, not emotional inference. All settings are proposals, not HA calls.
+## Functional contract
 
-GET never starts a session. Start/stop changes only shadow settings and latest state,
-not roles, evidence or learning consent. Configuration savepoints exclude the session.
-An optional shadow-storage error cannot break the shared event stream or other zones.
-See docs/PRESENCE_SHADOW.md and the actual-app tests/fixture for the full contract.
+The existing presence and lighting kernels consume confirmed real observations in an
+explicitly started per-zone shadow session. HA room status is comparison-only; it never
+feeds itself back as evidence. Raw pulse/continuous modes, grace, report age, chosen
+atmosphere, optional explicitly confirmed outdoor lux and brightness bounds are editable.
+UI: Zonenmodule > Anwesenheit > Praesenz-Livevergleich & Lichtbedarf. Existing labels
+in the UI use the original German spelling. Start/stop uses the shared zone revision.
 
-## Acceptance and release
+Accepted events and a local five-second worker update only the latest checkpoint in
+ContextStore. No new learner/history/schema. Deadlines survive reconnect/restart;
+unknown sources block false vacancy. Identity/configuration/revision changes durably
+suspend the session until explicit reconfirmation. A held HA helper state is not a
+physical measurement. No device action or automation takeover is authorized; responses
+keep execution.allowed=false and actions=[]. Contract: docs/PRESENCE_SHADOW.md.
 
-Local browser navigation was blocked by administrator policy; do not bypass it.
-The new tenth CI browser suite must pass in addition to all existing suites. Synthetic
-UI evidence is not authenticated household acceptance. No household shadow session
-is started as a release test. Do not change names, roles, user cleanup or consent.
+## Acceptance and next step
 
-Before publication: exact candidate CI, fresh verified PilotSuite-only native backup
-(auto_update remains true), expected-SHA merge, exact main CI, native Store refresh
-only if needed and one update. No other app or separate restart/rebuild. Complete the
-four-file receipt only after actual delivery; final doc CI belongs in PR comments.
-The existing RELEASE_STATE remains the last completed delivery, not this candidate.
+Exact checksum-verified synthetic desktop/mobile screenshots were visually reviewed.
+Real authenticated household UI and physical-source behavior remain unverified. No
+household session was started, role/consent changed or entity renamed during delivery.
+No old denied proxy/header/port route was retried; Ingress protection remains unchanged.
+General Apply and legacy presence activation stay closed. Existing authorized metadata
+name-cleanup capability is unchanged; do not mislabel the whole app hard_read_only.
 
-## Stable user scope
-
-Erdkellerbereich is a semantic label; existing saved IDs and the three further zones
-must be read, never guessed/recreated. Development reads may cover all HA entities
-and automations, not implicit productive learning or execution. No .storage edits,
-Ingress header/peer/port bypass or private household findings in the public repo.
-
-Next after acceptance: observe a user-started shadow session in one saved zone and
-one unlike zone, then build bounded control with explicit ownership. Music/TV and
-adaptive preferences follow separately; general Apply and legacy activation stay shut.
+Next: inspect a user-confirmed shadow session in the saved Erdkellerbereich and then
+one unlike saved zone. Compare HA/PilotSuite states, actual source report ages, grace,
+manual holds and light-need reasons before considering bounded control. Do not infer
+outdoor lux or independent raw evidence from a name. User entity cleanup continues
+independently; saved zone IDs and the three additional zones must never be recreated.
+Final documentation CI receipts belong in PR comments, not another release/doc loop.
