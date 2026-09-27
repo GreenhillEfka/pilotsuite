@@ -1,6 +1,6 @@
 # PilotSuite configuration
 
-> Alpha.50 is published and installed. Read
+> Alpha.49 development candidate. Not published or installed. Read
 > `docs/ZONE_INSTANCE_V2.md` for implementation and acceptance limits.
 
 ## Zoneninstanz: Präsenz, Daten & Ordnung
