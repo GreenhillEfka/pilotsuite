@@ -156,16 +156,17 @@ def evaluate(spec, previous, states, *, now, fresh, event=None):
                    else 'unknown')
         else: level='off'  # handled as bounded support below, never as a direct source
         if source['kind']!='support':
-            group=groups.setdefault(source['group'],{'states':[],'required':False})
-            group['states'].append(level);group['required'] |= source['required']
+            group=groups.setdefault(source['group'],{'states':[],'required_unknown':False})
+            group['states'].append(level)
+            group['required_unknown'] |= source['required'] and level=='unknown'
         memory[eid]=old
         rows.append({**source,'name':eid,'state':value if usable else 'unknown','usable':usable,
                      'age_seconds':round(age,1) if age is not None and age>=0 else None,
                      'active':active,'support_until':old.get('support_until')})
     levels=[]
     for g in groups.values():
-        levels.append('on' if 'on' in g['states'] else 'off' if 'off' in g['states'] else
-                      'unknown' if g['required'] else 'off')
+        levels.append('on' if 'on' in g['states'] else
+                      'unknown' if g['required_unknown'] else 'off')
     if not fresh: levels=['unknown']
     # Strong positive evidence wins over unavailable unrelated coverage. Pulses
     # must also be able to establish occupied before unknown data blocks vacancy.

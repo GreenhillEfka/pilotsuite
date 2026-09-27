@@ -1,6 +1,6 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.53. Read
+> Documentation for app version 0.1.0-alpha.54. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
 
@@ -9,7 +9,9 @@
 In Zonenmodule/Konfiguration/Verläufe erscheint die neue Zoneninstanz. Relevanz erlaubt
 die neue Live- und historische Zustandsauswertung ohne weitere Datenfreigabe. Aktive
 Zonen erhalten zunächst automatische24h-Pakete; ältere Intervalle bleiben frei auswählbar.
-Der Konfigurator trennt Dauerpräsenz, Bewegungsimpuls und Nutzungsindiz. Der HA-Ausgang
+Der Konfigurator trennt Dauerpräsenz, Bewegungsimpuls und Nutzungsindiz. Innerhalb
+einer Abdeckungsgruppe verhindern unbekannte erforderliche Quellen einen Frei-Status,
+auch wenn eine andere Quelle frei meldet. Der HA-Ausgang
 erfordert einen expliziten eigenen Helferplan; Erstellung allein veröffentlicht nichts.
 Ein vorhandener kanonischer Anwesenheitssensor wird nicht dupliziert oder übernommen.
 Anzeigenamen und Habitus-Rollenlabels lassen sich mit Plan und Rücknahme vereinheitlichen.
@@ -86,7 +88,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.53`
+- Release: `0.1.0-alpha.54`
 
 ## Habitus zones and entity selection
 
