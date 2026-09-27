@@ -1,8 +1,7 @@
-# PilotSuite capability ledger — Alpha.53 installed, Alpha.54 candidate
+# PilotSuite capability ledger — Alpha.54 installed
 
-`docs/RELEASE_STATE.json` is the delivery receipt. Alpha.54 is a proposed source
-correction until its exact PR/main CI, PilotSuite-only backup and installation are
-verified. None of the rows below implies household acceptance.
+`docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
+household acceptance.
 
 | Capability | Actual boundary |
 |---|---|
@@ -17,11 +16,11 @@ verified. None of the rows below implies household acceptance.
 | Static event-filter references | Alpha.51 installed; literal trigger `event_data.entity_id` is recognized while action payloads remain opaque |
 | Step availability in automation review | Alpha.52 installed; available, disabled and dynamic/unknown nested references are separate and only available matches confirm alignment |
 | Passive reading position | Alpha.53 installed and synthetically tested; authenticated household Ingress acceptance pending |
-| Required unknown source in a shared presence group | Alpha.54 candidate corrects false vacancy after grace; reproduced by a new regression test, household validation pending |
+| Required unknown source in a shared presence group | Alpha.54 installed after red/green regression and exact CI; household validation pending |
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
-| Live runtime | Alpha.53 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | Documented as preserved across updates; not independently read back in an authenticated Ingress session after Alpha.53 |
+| Live runtime | Alpha.54 started, ready, stream connected, snapshot fresh and zone resolved |
+| Four saved PilotSuite zones | Documented as preserved across updates; not independently read back in an authenticated Ingress session after Alpha.54 |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded

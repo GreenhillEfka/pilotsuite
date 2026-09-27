@@ -76,6 +76,10 @@
   source/target gaps; presence adoption reuses that confirmed projection.
 - Alpha.52 exact candidate/main CI, scoped Alpha.51 backup, Store association,
   installation and runtime gates passed.
+- Alpha.53's passive reading-position correction and Alpha.54's required-unknown
+  group correction passed exact candidate/main CI, scoped backups, Store association,
+  installation and runtime gates. Authenticated household Ingress acceptance remains
+  separate; all four saved zones have not been independently read back after Alpha.54.
 - Next: authenticated read-only acceptance of the saved `Erdkellerbereich` and one
   unlike existing zone, including active/disabled/dynamic-unknown reference explanations.
 - Development may read HA-wide entities/automations under explicit user authority.
