@@ -59,7 +59,11 @@
   reads; visual HTML/JS/CSS acceptance remains separate.
 - Alpha.48 delivered explicit real-source shadow comparison without actuation.
 - Alpha.49 candidate consolidates the first zone presence instance: relevance-authorized live/history evaluation, typed presence/support sources, bounded grace, sensor/history visualization, an owned occupancy-output package, and ontology metadata plans. Exact candidate CI plus disposable Core protocol/browser gates are mandatory before publication.
-- Next after Alpha.49 acceptance: observe/publish one explicitly configured zone, then a second unlike zone before extending lighting/media authority.
+- Alpha.50 candidate closes the owned-package restart gap without expanding authority:
+  cumulative durable receipts permit exact reconciliation and continuation, while
+  ambiguous/name-only matches remain unknown and are never replayed or adopted.
+- Next after Alpha.50 delivery: authenticated read-only acceptance of the saved
+  `Erdkellerbereich` and one unlike existing zone before any publication-mode trial.
 - Development may read HA-wide entities/automations under explicit user authority.
   A confirmed `relevant` entity authorizes PilotSuite to evaluate its available live and historical data for the zone; no second learning/history consent is required. Actuation authority remains separate.
 - Existing HA rules can contain errors; review references and desired behavior before

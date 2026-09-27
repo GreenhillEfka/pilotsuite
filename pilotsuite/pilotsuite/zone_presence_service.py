@@ -234,9 +234,35 @@ class ZonePresenceServiceMixin:
             plan=await self.plans.organization_plan_get(zid,plan_id)
             if plan['kind']!='presence_package':raise InvalidSelection('Kein Zonen-Ausgangsplan')
             plan,claimed=await self.plans.organization_claim(zid,plan_id,payload['sha256'])
-            if not claimed:return {**plan,'write_repeated':False}
+            if not claimed:
+                current=(await self.context.get(zid)).get(KEY) or {}
+                if (current.get('package') or {}).get('plan_id')==plan_id:
+                    return {**plan,'write_repeated':False,'recovery':'already_bound'}
+                if plan.get('state') not in ('applying','attention','verified'):
+                    return {**plan,'write_repeated':False}
+                # A claimed package is a durable transaction. Resumption is only
+                # allowed while its exact zone revision still exists.
+                await self._organization_basis(zid,plan['revision'])
             identities={};entities={}
             for index,op in enumerate(plan['operations']):
+                outcome=op.get('outcome')
+                if not claimed and outcome in ('verified','sending','unknown'):
+                    rows=await self.client.zone_output_registry()
+                    row=self._zone_package_receipt_row(op,rows)
+                    if row is None:
+                        if outcome=='sending':
+                            plan=await self.plans.organization_progress(zid,plan_id,index,'unknown')
+                        return {**plan,'write_repeated':False,'recovery':'ownership_unconfirmed'}
+                    identities[op['role']]=identity(row);entities[op['role']]=row['entity_id']
+                    if outcome!='verified':
+                        await self.plans.organization_receipt(zid,plan_id,index,
+                            {'identity':identity(row),'entity_id':row['entity_id']})
+                        plan=await self.plans.organization_progress(zid,plan_id,index,'verified',True)
+                    continue
+                if not claimed and outcome=='conflict':
+                    return {**plan,'write_repeated':False,'recovery':'conflict'}
+                if not claimed and outcome!='pending':
+                    return {**plan,'write_repeated':False,'recovery':'invalid_operation_state'}
                 try:
                     await self._organization_basis(zid,plan['revision'])
                     before=await self.client.zone_output_registry()
@@ -250,6 +276,8 @@ class ZonePresenceServiceMixin:
                             entities['entscheidung_gueltig'],entities['gueltig_bis'])
                         entry=result.get('result') or {};entry_id=entry.get('entry_id') if isinstance(entry,dict) else None
                         entry_id=entry_id or result.get('entry_id')
+                        if not isinstance(entry_id,str) or not entry_id:
+                            raise HomeAssistantError('Anlage nicht identifizierbar')
                         await self.plans.organization_receipt(zid,plan_id,index,{'config_entry_id':entry_id})
                     else:
                         result=await self.client.zone_create_storage_helper(op['domain'],op['name'],grace_seconds=plan['details']['grace_seconds'])
@@ -272,6 +300,11 @@ class ZonePresenceServiceMixin:
                     await self.plans.organization_progress(zid,plan_id,index,'verified',True)
                 except SelectionConflict:return await self.plans.organization_progress(zid,plan_id,index,'conflict')
                 except (HomeAssistantError,TimeoutError):return await self.plans.organization_progress(zid,plan_id,index,'unknown')
+            latest={r['entity_id']:r for r in await self.client.zone_output_registry()}
+            if len(entities)!=len(plan['operations']) or any(
+                not same_identity(identities[role],latest.get(eid,{})) or
+                latest[eid].get('disabled_by') is not None for role,eid in entities.items()):
+                raise SelectionConflict('Ausgangsidentität vor Bindung geändert')
             async with self._projection_lock:
                 inv,cfg,catalog,relevant=await self._zone_basis(zid)
                 if inv['revision']!=plan['revision']:
@@ -280,6 +313,30 @@ class ZonePresenceServiceMixin:
                 config['mode']='compare' # Creation never turns on presence/control.
                 await self.context.save_zone_presence(zid,inv['revision'],config)
             return await self.plans.organization_plan_get(zid,plan_id)
+
+    @staticmethod
+    def _zone_package_receipt_row(op,rows):
+        """Resolve only an output proven by this plan's durable receipt.
+
+        Entity names or display names never establish ownership. The registry row
+        must match the recorded stable storage/config-entry identifier or the
+        independently read-back identity. Ambiguity remains unknown.
+        """
+        receipt=op.get('receipt')
+        if not isinstance(receipt,dict):return None
+        matches=[]
+        saved=receipt.get('identity')
+        if isinstance(saved,dict) and receipt.get('entity_id')==op.get('entity_id'):
+            matches=[r for r in rows if r.get('entity_id')==op['entity_id'] and same_identity(saved,r)
+                     and r.get('disabled_by') is None]
+        elif op.get('domain')=='template' and isinstance(receipt.get('config_entry_id'),str) and receipt['config_entry_id']:
+            matches=[r for r in rows if r.get('entity_id')==op['entity_id'] and r.get('platform')=='template'
+                     and r.get('config_entry_id')==receipt['config_entry_id'] and r.get('unique_id')
+                     and r.get('disabled_by') is None]
+        elif isinstance(receipt.get('storage_id'),str) and receipt['storage_id']:
+            matches=[r for r in rows if r.get('entity_id')==op['entity_id'] and r.get('platform')==op.get('domain')
+                     and r.get('unique_id')==receipt['storage_id'] and r.get('disabled_by') is None]
+        return matches[0] if len(matches)==1 else None
 
     async def _zone_invalidate_package(self,package):
         # Verify identity before touching a held output, including pause/stop.

@@ -1,11 +1,12 @@
-# Zoneninstanz, Relevanz und Ontologie — Alpha.49-Kandidat
+# Zoneninstanz, Relevanz und Ontologie — Alpha.49 mit Alpha.50-Wiederanlauf
 
 ## Verifizierter Ausgangspunkt
 
-Kanonisch: GreenhillEfka/pilotsuite, App 0d79c5e8_pilotsuite, installiert Alpha.48.
-Basis: da8b56b7910b9c42a5edec8f1c12dbbdb451784f. Das vollständige Repository wurde aus
-Actions-Artefakt 10932705196 mit geprüftem SHA-256 lokal wiederhergestellt.
-Dieser Kandidat wurde NICHT zu GitHub übertragen oder in HA installiert.
+Kanonisch: GreenhillEfka/pilotsuite, App 0d79c5e8_pilotsuite. Alpha.49 ist aus
+`dde31b82fc0829a96f7d058f25c62be9c0641574` veröffentlicht und installiert; exakte
+Kandidaten-/Main-CI, wegwerfbares HA-Protokoll und App-Startprüfung sind in
+`docs/RELEASE_STATE.json` belegt. Alpha.50 ist der darauf aufbauende
+Wiederanlauf-Kandidat und bleibt bis zu seinen eigenen Release-Gates uninstalliert.
 
 Das echte Storage-Dashboard „Habituszonen“ wurde gelesen. Seine Struktur dient als
 fachliche Referenz, nicht als unfehlbare Steuerungslogik. Keine Dashboard-Konfiguration,
@@ -87,10 +88,14 @@ nächsten Minutenwechsel dauern. Daher keine sekundengenaue 90-Sekunden-Abschalt
 
 Das ist keine atomare HA-/SQLite-Transaktion. Bei unklarer Helferanlage wird der Plan
 mit Einzelschritt und Identitätsbeleg behalten; es gibt weder blinde Wiederholung noch
-automatisches Löschen fremder Objekte. Vollständige komfortable Wiederaufnahme einer
-teilweise angelegten Helferkette ist noch offen. Ein lokaler Konfigurations-Speicherpunkt
-enthält diese neuen Betriebs-/Ausgangspakete nicht; native App-/Datensicherungen bleiben
-für die vollständige Wiederherstellung erforderlich.
+automatisches Löschen fremder Objekte. Alpha.50 bewahrt Erstellungs- und Registry-Beleg
+kumulativ und kann nach einem Abbruch ausschließlich exakt belegte eigene Ausgaben erneut
+lesen. Danach dürfen noch nie gestartete Schritte desselben bestätigten Plans fortgesetzt
+oder ein vollständig belegtes Paket ohne erneute Anlage gebunden werden. Fehlende Belege,
+Namensähnlichkeit, mehrdeutige Identitäten, Fremdzonen oder geänderte Revisionen bleiben
+gesperrt. Ein lokaler Konfigurations-Speicherpunkt enthält diese neuen Betriebs-/
+Ausgangspakete nicht; native App-/Datensicherungen bleiben für die vollständige
+Wiederherstellung erforderlich.
 
 ## Visualisierung und Konfigurator
 
@@ -131,16 +136,15 @@ implementiert. Darum keine Behauptung einer vollständigen Ein-Klick-ID-Bereinig
 Lokale Produktionspfad-Tests verwenden echte HTTP-Routen und SQLite, aber ein synthetisches
 HA-Gegenüber. Transporttests prüfen die tatsächlichen WS/Flow-Payloadformen. Das ist kein
 Nachweis der installierten App-Berechtigungen oder realen HA-Konfigurationsflow-Schemata.
-Ein Standard-Browsertest gegen die lokale Testanwendung erhielt
-`net::ERR_BLOCKED_BY_ADMINISTRATOR`. Keine alternative Route, Portfreigabe, Header-Manipulation
-oder Browserrichtlinienänderung wurde versucht. Browser- und Screenshotabnahme fehlen.
+Alpha.49 bestand zusätzlich den isolierten CI-Lauf mit Home Assistant Core 2026.9.3 und
+die vollständige Chromium-Anwendungsfolge. Die angemeldete Haushalt-Ingress-Oberfläche
+bleibt ein eigener Nachweis; direkter Zugriff wurde korrekt mit 403 abgewiesen.
 
-Vor Veröffentlichung: exakte Remote-CI einschließlich aller elf Browsersuiten, Build mit
-deklarierten Abhängigkeiten, Protokoll-/Hilferstellung in einer wegwerfbaren HA-Instanz,
-Codeprüfung der Fehler-/Wiederanlaufpfade und Rollen-/Verfügbarkeitsabnahme. Danach frische
-native PilotSuite-only-Sicherung, kontrollierte Veröffentlichung und ein Store-Update nach
-dem bestehenden RELEASE_RUNBOOK. Keine bestehenden Hausautomationen als Installationstest
-anhalten. GitHub-Schreiben und native HA-Verwaltung waren in dieser Sitzung nicht angeboten.
+Der Alpha.50-Kandidat besteht lokal 560 Python-, 68 JavaScript- und 62
+API-/Repository-Verträge. Vor Veröffentlichung bleiben exakte Remote-CI einschließlich
+Browsersuiten, Container und wegwerfbarem HA-Protokoll sowie die frische native
+PilotSuite-only-Sicherung nach `docs/RELEASE_RUNBOOK.md` verbindlich. Keine bestehende
+Hausautomation und kein Haushalt-Helfer dient als Installationstest.
 
 Primärreferenzen: https://www.home-assistant.io/integrations/timer/
 https://www.home-assistant.io/integrations/template/
@@ -149,16 +153,8 @@ https://www.home-assistant.io/docs/configuration/state_object/
 
 ## Release acceptance continuation
 
-The uploaded candidate was recovered byte-for-byte on the same Alpha48 main. The
-local 624 Python / 68 JavaScript / 62 API checks were repeated. Native publishing
-actions are now available. An additional isolated CI job installs actual Home
-Assistant Core 2026.9.3 and tests the production WS/REST helper creation, native
-template, output validity, timer, and metadata rollback using real authentication.
-This test never connects to household HA or retains its disposable credentials.
-Final remote results, corrections and installation are recorded in the PR receipt;
-this paragraph is not a claim that pending checks or delivery have succeeded.
-
-The resumed review also separates a new template sensor’s ASCII creation identity
-from its Unicode display name. Both identities and the final display name are
-read back independently; no pre-existing entity ID is renamed. A regression covers
-Wohnküche, and the real-HA protocol fixture includes Protocol Küche.
+Der isolierte HA-Protokolljob installiert eine wegwerfbare Core-Instanz und prüft den
+produktiven WS-/REST-Pfad für Helfer, natives Template, Gültigkeit, Timer und
+Metadatenrücknahme mit echter Authentifizierung. Er verbindet sich nie mit dem Haushalt
+und behält keine Zugangsdaten. Alpha.50 muss denselben exakten Kandidatenpfad bestehen;
+lokale Tests oder die frühere Alpha.49-Abnahme ersetzen diesen Nachweis nicht.

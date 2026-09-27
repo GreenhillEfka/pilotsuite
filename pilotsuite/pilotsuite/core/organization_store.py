@@ -152,11 +152,18 @@ class OrganizationPlanMixin:
 
     def _organization_receipt(self,zone_id,plan_id,index,receipt):
         self._organization_plan_get(zone_id,plan_id)
+        if not isinstance(receipt,dict) or not receipt:
+            raise InvalidSelection('Ungültiger Helferbeleg')
         with closing(sqlite3.connect(self._context.path,timeout=10)) as db,db:
             db.execute('BEGIN IMMEDIATE')
             plan=json.loads(db.execute('SELECT value FROM zone_meta WHERE key=?',(PREFIX+plan_id,)).fetchone()[0])
-            if plan['kind']!='presence_package' or plan['operations'][index].get('outcome')!='sending':
+            if plan['kind']!='presence_package' or plan['operations'][index].get('outcome') not in ('sending','unknown'):
                 raise SelectionConflict('Keine laufende Helferoperation')
-            plan['operations'][index]['receipt']=deepcopy(receipt)
+            # Creation response and independent registry read-back are separate
+            # evidence. Preserve both so a restart can prove ownership without
+            # repeating an uncertain Home Assistant write.
+            merged=deepcopy(plan['operations'][index].get('receipt') or {})
+            merged.update(deepcopy(receipt))
+            plan['operations'][index]['receipt']=merged
             db.execute('UPDATE zone_meta SET value=? WHERE key=?',(json.dumps(plan,allow_nan=False),PREFIX+plan_id))
             return plan
