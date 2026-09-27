@@ -1,13 +1,14 @@
-# Current state — Alpha.40 installed; Alpha.41 candidate, 2026-09-27
+# Current state — Alpha.41 installed, 2026-09-27
 
-Alpha.41 is the bounded lighting-source integrity follow-up. It separates
+Alpha.41 is the installed lighting-source integrity follow-up. It separates
 assigned/currently usable lights, indoor lux and binary brightness in the existing
 synthetic preview, explicitly withholds outdoor-daylight confirmation, holds on a
 missing current brightness value and rejects incoherent/future checkpoints. Local
 validation passes 515 Python and 59 JavaScript tests. Fresh scoped backup `bc501582`
-contains only installed Alpha.40 app/data/options and has no failed components.
-Candidate/main CI, merge, installation and authenticated Ingress acceptance remain
-separate gates.
+contains only the previous Alpha.40 app/data/options and has no failed components.
+PR 90 release `e0bfc77`; candidate CI 36289439619 and release-main CI 36289511093
+passed all four jobs. One Store refresh and one update installed Alpha.41. Only
+authenticated Ingress acceptance remains a separate gate.
 
 ## Daylight and mood preview delivered
 
@@ -29,17 +30,20 @@ four jobs: tests/source contracts, Chromium, amd64 and reproducible source.
 
 ## Installed evidence
 
-Fresh backup ee6f2dfa contains only Alpha.39 app/data/options, no HA, database,
-folders or failed parts. One Store refresh and one normal update installed Alpha.40.
+Fresh backup `bc501582` contains only Alpha.40 app/data/options, no HA, database,
+folders or failed parts. One Store refresh and one normal update installed Alpha.41.
 It is installed/offered/started with unchanged options and auto_update. Runtime is
-ready, stream connected, snapshot fresh and the saved Erdkellerbereich is resolved
-in unchanged presence_adoption_review mode. Public presence activation and general
-Apply remain closed. No HA configuration, automation, actor, role, consent,
-productive learning or household data changed.
+ready, stream connected, snapshot fresh and the saved zone is resolved in unchanged
+presence_adoption_review mode. Public presence activation and general Apply remain
+closed. Read-only HA inspection confirmed actual area `erdkeller` / `Erdkeller Innen`,
+the user semantic label Erdkellerbereich, two indoor illuminance sources and existing
+automation context. No HA configuration, automation, actor, role, consent, productive
+learning or household state changed.
 
-Next: verify the explicit synthetic lighting preview in authenticated read-only
-Ingress for Erdkellerbereich, then one unlike existing zone; compare only against
-already existing automations and do not change HA configuration or execution rights.
+Next: verify the explicit Alpha.41 lighting preview in authenticated read-only Ingress
+for Erdkellerbereich, including that the two indoor lux sources are not shown as
+outdoor daylight proof, then repeat with one unlike existing zone. Do not change HA
+configuration, consent, devices or execution rights.
 
 ## Previous delivery — Alpha.39, 2026-09-27
 
