@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.40 candidate — daylight and mood preview
+## Installed Alpha.40 — daylight and mood preview
 
 | Capability | Verified source scope |
 |---|---|
@@ -12,12 +12,16 @@
 | UI integrity | Zone/revision/generation checks, safe text, selection retained, no GET side effects |
 | Local validation | 50 API routes, 515 Python and 59 JavaScript tests pass |
 
-Exact candidate Chromium, reproducible-source and amd64 CI remain pending. Alpha.39
-remains installed/offered; RELEASE_STATE.json is unchanged. No household configuration,
-automation, actor, role, consent, productive data or execution authority changed.
+PR 88 release f09dd27; candidate CI 36286331268 and release-main CI 36286428926
+passed all four jobs, including Chromium, amd64 and reproducible source. Backup
+ee6f2dfa contains only Alpha.39 app/data/options. One Store refresh and one update
+installed Alpha.40; installed/offered/started with options and auto_update unchanged.
+Ready, stream, fresh snapshot and the saved Erdkellerbereich are confirmed. No
+household configuration, automation, actor, role, consent, productive data or
+execution authority changed.
 
-Next: complete exact Alpha.40 candidate CI and fresh scoped Alpha.39 backup, then
-publish/install once and verify runtime plus authenticated synthetic lighting preview.
+Next: explicit synthetic lighting preview in authenticated read-only Ingress for
+Erdkellerbereich, then one unlike existing zone; runtime health is not UI acceptance.
 
 ## Installed Alpha.39 — deterministic presence kernel and explanation replay
 

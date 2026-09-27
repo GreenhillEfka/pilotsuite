@@ -4,22 +4,22 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.39",
-    "commit": "892cbab950c5442a944d6edf0d23b2b4cc8e0d6f",
-    "tree": "489010812b7f31fd0d86e62d018c6dd8a9d289e4",
-    "app_tree": "331ad1efafc495f17cc55240e45539ead7ffd772",
-    "pull_request": 86,
-    "candidate_commit": "46a7b0480e41b1b42c91f90ce9474d68df2d40b4",
-    "candidate_ci_run_id": 36283655159,
-    "ci_run_id": 36283761672,
+    "version": "0.1.0-alpha.40",
+    "commit": "f09dd27a2a3e635f8d98e47eb989d76371d75c64",
+    "tree": "ff64629bc0825a16df3f41e03807bc8a9852b4b4",
+    "app_tree": "ae38f6f236272a8952b0f95bc71459747de0e691",
+    "pull_request": 88,
+    "candidate_commit": "9b1ec7134e4b0288eb5410c988faebfa888217cd",
+    "candidate_ci_run_id": 36286331268,
+    "ci_run_id": 36286428926,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "618bc607",
-    "name": "PilotSuite Alpha38 before Alpha39 presence kernel",
-    "date": "2026-09-27T00:51:00.605367+00:00",
+    "backup_id": "ee6f2dfa",
+    "name": "PilotSuite Alpha39 before Alpha40 daylight mood preview",
+    "date": "2026-09-27T01:43:45.668666+00:00",
     "size_bytes": 54333440,
-    "app_version": "0.1.0-alpha.38",
+    "app_version": "0.1.0-alpha.39",
     "app_slugs": ["0d79c5e8_pilotsuite"],
     "homeassistant_included": false,
     "database_included": false,
@@ -34,11 +34,11 @@
     "verification": ["native snapshot list", "native backup/details"],
     "restore_drill_performed": false,
     "archive_extraction_performed": false,
-    "rollback": "hassio.restore_partial, slug=618bc607, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
+    "rollback": "hassio.restore_partial, slug=ee6f2dfa, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data since backup, no full restore"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.39",
-    "offered_version": "0.1.0-alpha.39",
+    "installed_version": "0.1.0-alpha.40",
+    "offered_version": "0.1.0-alpha.40",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -54,27 +54,27 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-27T02:54:00Z",
+    "startup_log_timestamp": "2026-09-27T03:45:56Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
-    "post_start_ready_log_timestamps": ["2026-09-27T02:54:01Z"],
+    "post_start_ready_log_timestamps": ["2026-09-27T03:45:57Z"],
     "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
   },
   "tests": {
-    "local_python_passed": 506,
+    "local_python_passed": 515,
     "local_javascript_passed": 59,
-    "new_python_regressions": 12,
+    "new_python_regressions": 9,
     "new_javascript_regressions": 0,
     "candidate_and_release_main_ci": "all four jobs successful",
     "container_platform": "linux/amd64",
-    "local_browser": "authenticated browser attempted after installation; remote HA endpoint returned 502 Bad Gateway / connection closed. Exact candidate and main synthetic Chromium jobs, including explicit presence replay, passed"
+    "local_browser": "no authenticated household Ingress session was available in this delivery. Exact candidate and main synthetic Chromium jobs, including explicit lighting preview, passed"
   },
   "ui_review": {
     "synthetic_only": true,
     "visual_inspection_this_run": false,
-    "authenticated_household_ingress": "attempted for Alpha.39 after installation; authenticated cloud browser returned 502 Bad Gateway / connection closed before HA or PilotSuite loaded. One reload had the same result. No proxy retry, auth bypass or weakened ingress protection."
+    "authenticated_household_ingress": "not performed for Alpha.40; runtime health and CI Chromium are not household Ingress acceptance. No auth bypass or weakened ingress protection."
   },
   "boundaries": {
     "household_name_apply_or_undo": "not invoked",
@@ -88,17 +88,17 @@
     "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
   "household_changes": [],
-  "next_step": "Authenticated read-only Alpha.39 synthetic presence replay and role/evidence acceptance in the saved Erdkellerbereich zone; resolve canonical identities in PilotSuite and do not change HA configuration, automation, learning or devices.",
+  "next_step": "Run the explicit Alpha.40 lighting preview in authenticated read-only Ingress for the saved Erdkellerbereich, then one unlike existing zone; compare explanations with existing HA automations without changing configuration, consent or devices.",
   "published_source": {
-    "version": "0.1.0-alpha.39",
-    "commit": "892cbab950c5442a944d6edf0d23b2b4cc8e0d6f",
-    "tree": "489010812b7f31fd0d86e62d018c6dd8a9d289e4",
-    "app_tree": "331ad1efafc495f17cc55240e45539ead7ffd772",
-    "pull_request": 86,
-    "candidate_commit": "46a7b0480e41b1b42c91f90ce9474d68df2d40b4",
-    "candidate_ci_run_id": 36283655159,
-    "ci_run_id": 36283761672,
+    "version": "0.1.0-alpha.40",
+    "commit": "f09dd27a2a3e635f8d98e47eb989d76371d75c64",
+    "tree": "ff64629bc0825a16df3f41e03807bc8a9852b4b4",
+    "app_tree": "ae38f6f236272a8952b0f95bc71459747de0e691",
+    "pull_request": 88,
+    "candidate_commit": "9b1ec7134e4b0288eb5410c988faebfa888217cd",
+    "candidate_ci_run_id": 36286331268,
+    "ci_run_id": 36286428926,
     "ci_conclusion": "success"
   },
-  "checked_at": "2026-09-27T00:56:25Z"
+  "checked_at": "2026-09-27T01:46:00Z"
 }

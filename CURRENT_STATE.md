@@ -1,6 +1,6 @@
-# Current state — Alpha.40 candidate, Alpha.39 installed, 2026-09-27
+# Current state — Alpha.40 installed, 2026-09-27
 
-## Daylight and mood preview candidate
+## Daylight and mood preview delivered
 
 The existing pure lighting policy now models stable daylight bands, a five-point
 deadband, sixty-second minimum interval and at most fifteen percentage points per
@@ -14,20 +14,23 @@ explicit click. The response is zone/revision/generation bound and stores nothin
 It accepts no household payload, target, service or URL and can emit only fixed
 setting keys for explanation. Reload and ordinary GETs do not run the preview.
 
-Repository/API validation and 515 Python plus 59 JavaScript tests pass locally.
-Exact candidate Chromium, amd64 and reproducible-source CI remain pending. No release
-commit, backup, Store update or installation is claimed for this candidate.
+Repository/API validation and 515 Python plus 59 JavaScript tests pass. PR 88 release
+f09dd27; exact candidate CI 36286331268 and release-main CI 36286428926 passed all
+four jobs: tests/source contracts, Chromium, amd64 and reproducible source.
 
-## Installed evidence remains Alpha.39
+## Installed evidence
 
-docs/RELEASE_STATE.json remains authoritative. Alpha.39 is installed/offered/started,
-with backup 618bc607 protecting Alpha.38 app/data/options. Runtime is ready, stream
-connected, snapshot fresh and zone resolved in unchanged presence_adoption_review
-mode. Public presence activation and general Apply remain closed. No HA configuration,
-automation, actor, role, consent, productive learning or household data changed.
+Fresh backup ee6f2dfa contains only Alpha.39 app/data/options, no HA, database,
+folders or failed parts. One Store refresh and one normal update installed Alpha.40.
+It is installed/offered/started with unchanged options and auto_update. Runtime is
+ready, stream connected, snapshot fresh and the saved Erdkellerbereich is resolved
+in unchanged presence_adoption_review mode. Public presence activation and general
+Apply remain closed. No HA configuration, automation, actor, role, consent,
+productive learning or household data changed.
 
-Next: complete exact Alpha.40 candidate CI and fresh scoped Alpha.39 backup, then
-publish/install once and verify runtime plus authenticated synthetic lighting preview.
+Next: verify the explicit synthetic lighting preview in authenticated read-only
+Ingress for Erdkellerbereich, then one unlike existing zone; compare only against
+already existing automations and do not change HA configuration or execution rights.
 
 ## Previous delivery — Alpha.39, 2026-09-27
 

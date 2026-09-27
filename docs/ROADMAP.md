@@ -14,16 +14,16 @@
   existing ContextStore/service path plus an explicit synthetic replay in the current
   workspace. Durable deadlines survive restart without renewal; pulse/continuous and
   unknown/vacant remain separate. Productive runtime activation stays closed.
-- Alpha.40 candidate integrates the next pure daylight/mood preview in the same
+- Alpha.40 integrates the next pure daylight/mood preview in the same
   workspace. It explains stable daylight bands, deadband, rate limiting, bounded
   transitions, manual priority, night exit and target capabilities without HA I/O.
 - The complete 50-route `/api/v1` inventory is now checked against the explicit
   registration source; route/documentation drift fails validation instead of accumulating.
-- Candidate/main CI, scoped Alpha.38 backup, Store association, installation and
-  runtime gates passed. Authenticated Ingress remains separately open after a 502.
-- Next: complete Alpha.40 candidate CI and scoped backup/release gates, then run its
-  synthetic lighting preview in authenticated Ingress. Read canonical zone IDs; do
-  not infer membership or change HA.
+- Candidate/main CI, scoped Alpha.39 backup, Store association, installation and
+  runtime gates passed. Authenticated Alpha.40 Ingress remains separately open.
+- Next: run the Alpha.40 synthetic lighting preview in authenticated read-only
+  Ingress for Erdkellerbereich, then one unlike existing zone. Read canonical zone
+  IDs; do not infer membership or change HA.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before
