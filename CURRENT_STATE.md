@@ -1,6 +1,6 @@
-# Current state — Alpha.51 live, Alpha.52 candidate
+# Current state — Alpha.52 delivered
 
-Alpha.52 is the bounded structural-availability integrity candidate. The selected
+Alpha.52 is the delivered bounded structural-availability integrity correction. The selected
 automation inspector previously exposed disabled/dynamic steps as limitations while
 still allowing their direct references to close source/target gaps. A disabled parent
 could also leave its nested service calls looking active. Each step now derives and
@@ -11,10 +11,12 @@ reuses the confirmed projection without gaining takeover or execution authority.
 
 Synthetic unit, endpoint and Chromium fixtures cover disabled, dynamic, inherited and
 available-sibling cases. Local validation passes 567 Python tests, 68 JavaScript tests,
-62 API/repository contracts and Python compilation. The local Chromium executable was
-not available, so the complete pinned browser run remains an exact-CI gate. No household
-configuration was copied into source/tests and no HA object was changed. Candidate CI,
-merge, main CI, backup and installation have not yet occurred.
+62 API/repository contracts and Python compilation. Exact candidate and main CI passed
+all five jobs; one unrelated main zone-instance startup timeout passed on the targeted
+rerun. No household configuration was copied into source/tests and no HA object changed.
+Fresh backup `97450786` contains only Alpha.51 app/data/options. Alpha.52 is installed,
+started and ready with connected stream, fresh snapshot and resolved zone; options and
+`auto_update` remain unchanged.
 
 Alpha.51 is the delivered bounded automation-reference integrity correction. The authorized
 read-only inventory showed a real existing automation whose static source constraint is
@@ -80,7 +82,6 @@ stream, fresh snapshot and resolved zone. Options and `auto_update` remain uncha
 Direct proxy reads still correctly return `403 Ingress access required`; protection was
 not weakened and all four saved zones are therefore not claimed from internal HTTP.
 
-Next: exact Alpha.52 candidate/main CI and the existing backup-bound release gates;
-after installation, authenticated read-only Ingress acceptance of `Erdkellerbereich`
-and one unlike existing zone, confirming all four saved zones and active/disabled/
-unknown reference explanations without any household apply action.
+Next: authenticated read-only Ingress acceptance of `Erdkellerbereich` and one unlike
+existing zone, confirming all four saved zones and active/disabled/dynamic-unknown
+reference explanations without any household apply action.

@@ -71,11 +71,13 @@
   automation owner, write, learner or execution right.
 - Alpha.51 exact candidate/main CI, scoped Alpha.50 backup, Store association,
   installation and runtime gates passed.
-- Alpha.52 candidate separates structurally available, disabled and dynamic/unknown
+- Alpha.52 separates structurally available, disabled and dynamic/unknown
   steps in the existing automation detail review. Only available references may close
   source/target gaps; presence adoption reuses that confirmed projection.
-- Next: exact Alpha.52 candidate/main CI and backup-bound delivery, then authenticated
-  read-only acceptance of the saved `Erdkellerbereich` and one unlike existing zone.
+- Alpha.52 exact candidate/main CI, scoped Alpha.51 backup, Store association,
+  installation and runtime gates passed.
+- Next: authenticated read-only acceptance of the saved `Erdkellerbereich` and one
+  unlike existing zone, including active/disabled/dynamic-unknown reference explanations.
 - Development may read HA-wide entities/automations under explicit user authority.
   A confirmed `relevant` entity authorizes PilotSuite to evaluate its available live and historical data for the zone; no second learning/history consent is required. Actuation authority remains separate.
 - Existing HA rules can contain errors; review references and desired behavior before
