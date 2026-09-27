@@ -22,7 +22,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('#ps-zone-form').waitFor({state:'hidden'});await page.locator('#ps-zone-configure:not([disabled])').waitFor();
   assert.equal((await command({action:'snapshot'})).mode,'compare');console.log('ok 1 - relevance-based presence, typed configuration, no extra grant, dirty guard');
   await page.getByRole('button',{name:'Sensordaten & Verläufe',exact:true}).click();
-  try{await page.locator('.ps-zone-chart').first().waitFor();}catch(e){throw Error('Historienansicht blieb leer: '+await page.locator('#ps-zone-presence .ps-notice').first().textContent()+' / '+e.message);}assert.equal(await page.locator('.ps-zone-chart').count()>0,true);
+  try{await page.locator('.ps-zone-chart:visible').first().waitFor();}catch(e){throw Error('Historienansicht blieb leer: '+await page.locator('#ps-zone-presence .ps-notice').first().textContent()+' / '+e.message);}assert.equal(await page.locator('.ps-zone-chart:visible').count()>0,true);
   assert.equal((await command({action:'snapshot'})).history_reads,1);
   const out=process.env.PILOTSUITE_SCREENSHOTS;if(out)await fs.mkdir(out,{recursive:true});
   if(out)await page.screenshot({path:path.join(out,'zone-data-desktop.png'),fullPage:true});
