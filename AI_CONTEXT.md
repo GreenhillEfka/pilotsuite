@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v22.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.39 presence kernel candidate
+## Resume: Alpha.39 presence kernel delivered
 
 The current branch implements the next accepted presence-first reliability package.
 A pure kernel separates continuous presence, activity pulses, grace, vacancy and
@@ -20,14 +20,27 @@ late answers. Public runtime enable and general Apply remain closed; no HA confi
 automation, actor, role, consent or productive-learning change is part of this slice.
 
 Local validation: repository/API contracts, 506 Python and 59 JavaScript tests pass.
-The updated synthetic full-app Chromium test is committed but still requires exact
-candidate CI, as do amd64 and reproducible-source jobs. Installed HA remains Alpha.38;
-docs/RELEASE_STATE.json remains the actual delivery receipt and must not be rewritten
-until a fresh scoped backup, merge/main CI, Store association and runtime verification.
+PR 86 release 892cbab950c5442a944d6edf0d23b2b4cc8e0d6f; tree
+489010812b7f31fd0d86e62d018c6dd8a9d289e4 and app tree
+331ad1efafc495f17cc55240e45539ead7ffd772. Candidate CI 36283655159 and
+release-main CI 36283761672 passed all four jobs, including Chromium, amd64 and
+reproducible source.
 
-Next: complete exact Alpha.39 candidate CI, create and verify a fresh PilotSuite-only
-Alpha.38 backup, then publish/install once and verify runtime plus authenticated
-synthetic replay UI without changing household configuration.
+Fresh backup 618bc607 contains only Alpha.38 app/data/options, with no HA, database,
+folders or failed parts. One native Store refresh exposed Alpha.39 and one update
+installed it; no explicit restart, rebuild or other app update. It is
+installed/offered/started with options and auto_update unchanged. Logs report
+presence_adoption_review, ready, connected stream, fresh snapshot and resolved zone.
+Public presence activation and general Apply remain closed.
+
+Authenticated real Ingress acceptance remains open: after installation the available
+cloud browser still returned 502 Bad Gateway / connection closed after the single
+allowed reload. Do not retry alternate proxies, weaken access or infer UI acceptance
+from runtime health.
+
+Next: run the explicit synthetic Alpha.39 presence replay and read-only role/evidence
+acceptance in the saved Erdkellerbereich zone in authenticated Ingress; do not change
+HA configuration, automation, learning consent or devices.
 
 ## Previous delivery: Alpha.38 presence evidence and source clarity
 

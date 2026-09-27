@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.39 candidate — deterministic presence kernel and explanation replay
+## Installed Alpha.39 — deterministic presence kernel and explanation replay
 
 | Capability | Verified source scope |
 |---|---|
@@ -12,12 +12,17 @@
 | Runtime gate | Dormant reconciler uses the kernel; public enable and general Apply remain denied |
 | Local validation | 49 API routes, 506 Python and 59 JavaScript tests pass |
 
-Exact candidate Chromium, reproducible-source and amd64 CI remain pending. Alpha.38
-is still the installed/offered release; RELEASE_STATE.json is unchanged. No household
-configuration, automation, actor, role, learning consent or productive data changed.
+PR 86 release 892cbab; candidate CI 36283655159 and release-main CI 36283761672
+passed all four jobs, including Chromium, amd64 and reproducible source. Backup
+618bc607 contains only Alpha.38 app/data/options. One Store refresh and one update
+installed Alpha.39; installed/offered/started with options and auto_update unchanged.
+Ready, stream, snapshot and zone resolution are confirmed in unchanged
+presence_adoption_review mode. No explicit restart, rebuild, other app or household
+change. Public presence activation and general Apply remain closed.
 
-Next: complete exact Alpha.39 candidate CI and fresh scoped Alpha.38 backup, then
-publish/install once and verify runtime plus authenticated synthetic replay UI.
+Authenticated Ingress remains open because the cloud browser returned 502 connection
+closed before HA loaded, including one reload after installation. Next: explicit
+synthetic replay and read-only role/evidence acceptance in saved Erdkellerbereich.
 
 ## Installed Alpha.38 — evidence integrity and coherent sources
 

@@ -1,4 +1,4 @@
-# Current state — Alpha.39 candidate, Alpha.38 installed, 2026-09-27
+# Current state — Alpha.39 installed, 2026-09-27
 
 ## Deterministic presence kernel and synthetic explanation
 
@@ -17,21 +17,27 @@ cannot change execution authority. Late zone/revision responses are discarded.
 Public presence activation and general Apply remain closed.
 
 Repository/API validation and 506 Python plus 59 JavaScript tests pass locally.
-The full-app Chromium scenario has been extended but is not called successful until
-exact candidate CI completes; amd64 and reproducible-source evidence are also pending.
-No release commit, PR, Store update or installation is claimed by this source note.
+PR 86 release 892cbab; exact candidate CI 36283655159 and release-main CI
+36283761672 passed all four jobs: tests/source contracts, Chromium, amd64 container
+and reproducible source.
 
-## Installed evidence remains Alpha.38
+## Installed evidence
 
-docs/RELEASE_STATE.json remains authoritative: Alpha.38 is installed/offered/started;
-backup d4f477c9 protects the preceding Alpha.37 state. Options and auto_update were
-unchanged; runtime was ready, stream-connected, fresh and zone-resolved. Authenticated
-real Ingress acceptance remained unavailable after the documented 502 response.
-No HA configuration, automation, actor, role, learning consent or household data was
-changed for the Alpha.39 candidate.
+Fresh scoped backup 618bc607 contains only Alpha.38 app/data/options, no HA,
+database, folders or failed parts. One native Store refresh and one normal update
+installed Alpha.39. It is installed/offered/started; options and auto_update are
+unchanged. Startup/readiness logs confirm presence_adoption_review, ready, connected
+stream, fresh snapshot and resolved zone. No explicit restart, rebuild or other app
+update occurred. Public presence activation and general Apply remain closed.
 
-Next: complete exact Alpha.39 candidate CI and the fresh scoped Alpha.38 backup gate,
-then publish/install once and verify runtime plus authenticated synthetic replay UI.
+Authenticated real Ingress acceptance remains unavailable: the cloud browser returned
+502 Bad Gateway / connection closed before HA or PilotSuite loaded, including one
+reload after installation. Runtime health is not UI acceptance. No HA configuration,
+automation, actor, role, learning consent or household data changed.
+
+Next: run the explicit synthetic Alpha.39 presence replay and read-only role/evidence
+acceptance in the saved Erdkellerbereich zone in authenticated Ingress, without HA
+configuration, automation, learning or device changes.
 
 ## Previous delivery — Alpha.37, 2026-09-27
 
