@@ -12,8 +12,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   const page=await browser.newPage({viewport:{width:1440,height:1100}});page.setDefaultTimeout(10000);const errors=[],network=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());page.on('request',r=>{if(r.method()!=='GET')network.push({method:r.method(),url:r.url()});});
   await page.clock.install({time:new Date(info.now*1000)});await page.goto(info.url);
-  await page.locator('.ps-nav [data-ps-nav="config"]').click();
-  const zoneSelect=page.locator('#selection-zone');await zoneSelect.waitFor();await zoneSelect.selectOption('room');
+  await page.evaluate(async()=>{await loadSelection('room');});
   await page.locator('.ps-nav [data-ps-nav="zone"]').click();await page.locator('#ps-zone-configure:not([disabled])').waitFor();
   assert.deepEqual(errors,[]);const baseline=await command({action:'snapshot'});assert.equal(baseline.learning,false);assert.equal(baseline.view.current.state,'occupied');
   assert.equal(baseline.helper_creates,0);assert.equal(baseline.output_calls,0);
