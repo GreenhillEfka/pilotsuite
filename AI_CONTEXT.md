@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.43 numeric integrity candidate
+## Resume: Alpha.43 numeric integrity installed
 
 The current branch closes one observation-integrity defect found by a fresh review:
 a directly supplied good-quality NaN/infinite numeric observation could survive the
@@ -13,10 +13,18 @@ humidity and illuminance values, preserves them as invalid/unknown, and sanitize
 individual/reference projections. The current lighting brief independently requires
 finite non-negative lux for both source usability and displayed aggregation.
 
-Local repository/API validation, 525 Python and 59 JavaScript tests pass. Alpha.42
-remains installed/offered/started with no household or option change. The candidate is
-not published or installed. Next: publish the exact Alpha.43 candidate and require
-complete candidate CI before merge or deployment.
+Local repository/API validation, 525 Python and 59 JavaScript tests pass. PR 94
+release `92f5e8e36823e885d5456c9a9a3b12b51968f32b`; candidate CI 36295107488
+and release-main CI 36295203741 passed all four jobs. Fresh backup `ed0fb9a7`
+contains only Alpha.42 app/data/options, with no HA, database, folders or failed
+parts. One Store refresh and one normal update installed Alpha.43; it is offered,
+started, ready, stream-connected, snapshot-fresh and zone-resolved with options and
+auto_update unchanged. General Apply remains closed and no household state changed.
+
+Authenticated Ingress remains open: the available cloud browser returned 502 Bad
+Gateway / connection closed before HA loaded, including the single allowed reload.
+Next: run the explicit current-light check in authenticated read-only Ingress for the
+saved Erdkellerbereich and verify source and automation explanations.
 
 ## Installed baseline: Alpha.42 current lighting decision
 

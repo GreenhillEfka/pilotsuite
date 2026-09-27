@@ -24,7 +24,7 @@
   canonical roles/current observations plus freshly read related automation
   structures, with revision/role recheck and exactly one internal next step. It
   persists and executes nothing and makes no duplicate or safety verdict.
-- Alpha.43 candidate closes a numeric observation-integrity gap at the shared summary
+- Alpha.43 closes a numeric observation-integrity gap at the shared summary
   and current-light boundaries: non-finite or physically impossible values remain
   invalid/unknown and cannot escape as non-standard JSON or usable lux.
 - The complete 51-route `/api/v1` inventory is now checked against the explicit
@@ -33,8 +33,11 @@
   runtime gates passed. Authenticated Alpha.41 Ingress remains separately open.
 - Alpha.42 candidate/main CI, scoped backup, Store association, installation and
   runtime gates passed. Authenticated household Ingress acceptance remains separate.
-- Next: require complete CI for the exact Alpha.43 candidate before merge or Store
-  delivery. Authenticated Erdkellerbereich Ingress acceptance remains a separate gate.
+- Alpha.43 candidate/main CI, scoped Alpha.42 backup, Store association, installation
+  and runtime gates passed. Authenticated Erdkellerbereich Ingress acceptance remains
+  a separate gate because the available cloud-browser route ended before HA loaded.
+- Next: run the explicit current-light check in authenticated read-only Ingress for
+  the saved Erdkellerbereich and verify source and automation explanations.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before

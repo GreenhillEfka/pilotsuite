@@ -1,4 +1,4 @@
-# Current state — Alpha.43 numeric integrity candidate, 2026-09-27
+# Current state — Alpha.43 numeric integrity installed, 2026-09-27
 
 Alpha.43 is a bounded observation-integrity correction. A direct good-quality
 non-finite value could previously make a zone summary appear available while the
@@ -7,13 +7,20 @@ physically impossible temperature, humidity and illuminance values, projects the
 unknown/invalid and keeps uncertainty intact. The current lighting check independently
 rechecks finite non-negative lux before treating a configured source as usable.
 
-Repository/API validation, 525 Python and 59 JavaScript tests pass locally. The
-installed Home Assistant app remains Alpha.42, started and unchanged; this candidate
-has not been published or installed. No household configuration, automation, role,
-consent, stored evidence or device state changed.
+Repository/API validation, 525 Python and 59 JavaScript tests pass. PR 94 release
+`92f5e8e`; exact candidate CI 36295107488 and release-main CI 36295203741 passed
+test/source contracts, Chromium, amd64 and reproducible source. Fresh backup
+`ed0fb9a7` contains only Alpha.42 app/data/options with no failed parts.
 
-Next: publish the exact Alpha.43 candidate branch and require complete candidate CI
-before merge or any Store update.
+One Store refresh and one normal update installed Alpha.43. It is installed, offered
+and started with options and auto_update unchanged. Logs report version Alpha.43,
+ready, connected stream, fresh snapshot and resolved saved zone. No HA configuration,
+automation, actor, role, consent, productive learning or household state changed.
+
+The available authenticated cloud-browser route still returned 502 Bad Gateway /
+connection closed before HA loaded, including one reload. Next: perform the explicit
+current-light check in authenticated read-only Ingress for Erdkellerbereich; UI
+acceptance remains separate from runtime and CI health.
 
 ## Installed baseline — Alpha.42
 
