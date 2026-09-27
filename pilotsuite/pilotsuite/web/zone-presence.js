@@ -145,7 +145,9 @@
  async function openOntology(){
    if(!data||busy)return;startEditor('Entität benennen und ontologisch zuordnen');
    await save(async()=>{
-     ontology=await api('ontology');const entities=select(ontology.catalog.filter(r=>r.in_registry&&!r.disabled).map(r=>[r.entity_id,r.name+' · '+r.entity_id]),'');
+     ontology=await api('ontology');const eligible=ontology.catalog.filter(r=>r.in_registry&&!r.disabled);
+     if(!eligible.length)throw Error('Keine aktive stabile Entität für die Zuordnung verfügbar');
+     const entities=select(eligible.map(r=>[r.entity_id,r.name+' · '+r.entity_id]),eligible[0].entity_id);
      const name=E('input');name.maxLength=120;const target=E('input');target.placeholder='Unverändert lassen';
      const zoneLabel=select([['','Zonenlabel auswählen'],...ontology.labels.map(l=>[l.label_id,l.name])],'');
      const roleBox=E('div','','ps-zone-data-choices'),roleInputs=[];
