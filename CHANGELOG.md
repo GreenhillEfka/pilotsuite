@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.0-alpha.50] - 2026-09-27
+
+### Wiederanlaufsichere eigene Ausgangspakete
+- Helfer-Anlagebelege bewahren Erstellungsantwort und unabhängige Registry-Identität
+  gemeinsam auf. Ein späterer Read-back überschreibt den stabilen Ursprungsbeleg nicht.
+- Nach Prozessabbruch kann ein bestätigtes Paket exakt belegte eigene Ausgaben erneut
+  lesen, als vorhanden bestätigen und noch nicht begonnene Schritte fortsetzen. Bereits
+  vollständig angelegte Pakete werden ohne erneute HA-Anlage an die Zone gebunden.
+- Namen, technische Ziel-IDs oder ähnliche Konfiguration allein beweisen kein Eigentum.
+  Fehlender oder mehrdeutiger Beleg bleibt `unknown`; der Schreibschritt wird nicht
+  wiederholt. Zonenrevision und alle Identitäten werden vor der Bindung erneut geprüft.
+
+### Grenzen und Prüfung
+- Keine bestehende Entität wird adoptiert, umbenannt oder gelöscht. Erstellung schaltet
+  den Publisher nicht ein und erteilt weder Geräte- noch allgemeines Apply-Recht.
+- Vier neue synthetische Neustart-/Belegregressionen erhöhen den vollständigen lokalen
+  Stand auf 560 Python-Tests; 68 JavaScript-Vertragstests bleiben grün. Haushalt und
+  installierte Alpha.49 blieben bei der Entwicklung unverändert.
+
 ## [0.1.0-alpha.49] - 2026-09-27
 
 ### Zoneninstanz, Daten und Ordnung — Entwicklungskandidat

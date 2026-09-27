@@ -478,3 +478,19 @@ without rewriting the receipt. Deterministic ordering makes corrupt over-counts 
 closed. No new schema, history fetch, learner, consent, preference, HA write or
 execution permission is introduced. Normal retention housekeeping remains separate
 from integrity reporting, and general Apply stays closed.
+
+## ADR-036 — Owned output recovery requires a cumulative durable receipt
+
+Accepted 2026-09-27 as an integrity correction to the Alpha.49 zone-output package.
+HA helper creation and registry read-back are separate evidence and must be merged in
+the existing durable organization plan instead of overwriting each other. A restarted
+confirmed transaction may reconcile an output only from its recorded stable storage or
+config-entry identifier, or its independently read-back identity. Entity ID, display
+name or similarity alone never establishes ownership.
+
+After exact reconciliation, operations still marked pending may continue because their
+durable sending marker proves no write was started. An operation in sending/unknown
+without a uniquely matching receipt remains unknown and is never replayed. A fully
+verified but not yet locally bound package may be bound only while the exact zone
+revision and every active output identity still match. Recovery never deletes or adopts
+foreign objects, enables publication, changes learning/consent or grants general Apply.

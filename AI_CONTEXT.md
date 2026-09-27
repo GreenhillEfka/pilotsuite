@@ -26,13 +26,21 @@ execution grant.
 Five integrated defects were fixed before release: stale save/cancel revision bases,
 global-refresh stale-control races, missing stable accessible labels, an invalid empty
 entity default and an incomplete synthetic HA refresh fixture. Current regression counts
-are 556 Python, 68 JavaScript and 62 API/repository contracts.
+are 560 Python, 68 JavaScript and 62 API/repository contracts on the Alpha.50 candidate.
+
+Alpha.50 is a development candidate on top of the installed Alpha.49. It preserves
+creation and registry evidence cumulatively and resumes only an already confirmed owned
+output transaction whose stable identifiers and exact zone revision still match. A
+name-only or receipt-free match is never adopted or replayed. A completed-but-unbound
+package can be bound after restart without recreating helpers. This changes no learning,
+publisher mode, general Apply boundary or household configuration by itself.
 
 No authenticated HA browser session was available for household Ingress acceptance.
 Direct app probing returned the intended `403 Ingress access required`; never bypass or
 weaken it. No household helper, metadata, automation, consent or device state changed.
 
-Next: authenticated read-only Ingress acceptance for saved `Erdkellerbereich` and one
-unlike existing zone. Verify all four saved zones remain present, refresh recovery,
-history gaps, ontology preview and unsaved-input preservation. Do not apply household
-changes during that acceptance.
+Next: exact Alpha.50 PR CI, including disposable-HA protocol and browser jobs. Only after
+those checks and a fresh scoped Alpha.49 backup may Alpha.50 be published and installed;
+then perform authenticated read-only Ingress acceptance for saved `Erdkellerbereich`
+and one unlike existing zone. Do not apply household helper or metadata changes during
+that acceptance.

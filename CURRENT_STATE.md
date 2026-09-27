@@ -1,4 +1,4 @@
-# Current state — Alpha.49 delivered
+# Current state — Alpha.50 candidate on delivered Alpha.49
 
 Alpha.49 is merged at `dde31b82fc0829a96f7d058f25c62be9c0641574`, published and installed.
 The exact candidate and final main commit passed all five CI jobs: unit/contract tests,
@@ -25,6 +25,17 @@ Authenticated household Ingress was not independently observable because no sign
 browser session was available. Direct app access correctly rejected the probe with
 `403 Ingress access required`; that protection was not bypassed.
 
-Next: perform authenticated read-only Ingress acceptance for saved `Erdkellerbereich`
-and one unlike existing zone, confirming four-zone preservation, refresh recovery,
-history gaps and ontology preview without applying household changes.
+The Alpha.50 candidate closes a restart-integrity gap in owned output packages. Durable
+receipts now retain both the HA creation identifier and independent registry identity.
+After an interrupted confirmed transaction, only exactly evidenced owned outputs can be
+reconciled; pending steps can then continue and a fully created package can be bound
+without replaying creation. Name similarity never proves ownership, and an unknown
+outcome without receipt remains blocked. Final binding rechecks zone revision and every
+output identity. No household helper or other HA object was used for these tests.
+
+Local candidate checks: 560 Python and 68 JavaScript tests pass; repository compile and
+diff checks pass. Alpha.49 remains installed until exact candidate CI, disposable-HA
+protocol checks and the fresh scoped backup/release gates pass.
+
+Next: run exact Alpha.50 PR CI, including the disposable Home Assistant helper protocol,
+before any publication or household update.
