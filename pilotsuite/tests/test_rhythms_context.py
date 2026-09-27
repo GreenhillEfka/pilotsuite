@@ -55,6 +55,42 @@ class LocalTimeTests(unittest.TestCase):
         self.assertTrue(data['light']['value'])
         self.assertIsNone(data['illuminance']['value'])
 
+    def test_context_rejects_invalid_current_lux_and_malformed_sources(self):
+        roles = {'illuminance': ['sensor.lux']}
+        for value in (float('nan'), float('inf'), float('-inf'), -1, True, '20'):
+            data = activation_context(
+                {'illuminance': {'sources': ['sensor.lux'], 'status': 'available', 'value': value}},
+                roles,
+            )
+            self.assertEqual({'value': None, 'sources': ['sensor.lux'], 'status': 'unknown'},
+                             data['illuminance'])
+        data = activation_context(
+            {'illuminance': {'sources': ['sensor.lux', {'bad': 'source'}],
+                             'status': 'available', 'value': 20}}, roles)
+        self.assertEqual(20, data['illuminance']['value'])
+
+    def test_historical_context_never_exports_invalid_lux(self):
+        invalid = (float('nan'), float('inf'), float('-inf'), -1, True, '20')
+        records = [
+            (stamp(f'2026-09-2{index}T08:00:00+00:00'),
+             {'light': {'value': True, 'sources': ['light.a', 'Not.AnEntity', {'bad': 'source'}]},
+              'illuminance': {'value': value, 'sources': ['sensor.lux']}})
+            for index, value in enumerate(invalid)
+        ]
+        report = context_report(records, {'min_events': 5, 'min_days': 3})[0]
+        self.assertEqual(0, report['lux_count'])
+        self.assertIsNone(report['lux_median'])
+        self.assertEqual(['light.a', 'sensor.lux'], report['sources'])
+        json.dumps(report, allow_nan=False)
+
+    def test_invalid_time_inputs_are_controlled_or_ignored(self):
+        for value in (float('nan'), float('inf'), float('-inf'), True, 'now'):
+            with self.assertRaises(InvalidSelection):
+                time_bucket(value, {'timezone': 'UTC'})
+        report = coverage_report([(float('nan'), 'ready'), (0, 'ready')])
+        self.assertEqual(1, report['sampled_slots'])
+        self.assertEqual([], context_report([(float('inf'), {})], {'min_events': 5, 'min_days': 3}))
+
     def test_unknown_days_cannot_qualify_light_context(self):
         records = [(stamp(f'2026-09-{day}T08:00:00+00:00'), {'light':{'value': True if day==20 else None}}) for day in (20,21,22)]
         records += [(stamp(f'2026-09-20T08:{minute}:00+00:00'), {'light':{'value':True}}) for minute in (10,20,30,40)]
@@ -89,6 +125,22 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(2, report['event_count']); self.assertEqual(1,len(report['context_evidence']))
         self.assertEqual(1, report['context_windows'][0]['light_on'])
         self.assertEqual([], (await self.store.report('other',now=self.now+302))['context_evidence'])
+
+    async def test_invalid_event_time_and_context_are_not_persisted(self):
+        await self.configure(context_learning=True)
+        self.assertFalse(await self.store.record(
+            'a', 'binary_sensor.p', float('nan'), 'unknown', now=self.now,
+            context=self.data,
+        ))
+        malformed = {'illuminance': {'value': float('nan'), 'sources': ['sensor.lux']}}
+        self.assertTrue(await self.store.record(
+            'a', 'binary_sensor.p', self.now, 'unknown', now=self.now,
+            context=malformed,
+        ))
+        report = await self.store.report('a', now=self.now)
+        self.assertEqual(1, report['event_count'])
+        self.assertEqual([], report['context_evidence'])
+        json.dumps(report, allow_nan=False)
 
     async def test_bounded_origin_categories_persist_but_identifiers_do_not(self):
         await self.configure()

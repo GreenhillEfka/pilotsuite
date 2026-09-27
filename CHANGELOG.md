@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.0-alpha.44] - 2026-09-27
+
+### Integrität historischer Lernkontexte
+- Nicht-endliche, negative oder typfremde Luxwerte können weder beim aktuellen
+  Lernkontext noch in vorhandenen Kontextfenstern als bekannter Wert oder Median
+  erscheinen. Die Projektion bleibt strikt JSON-konform.
+- Ungültige Zeitstempel und beschädigte Quellenlisten werden an der Berichtsgrenze
+  kontrolliert verworfen, statt den gesamten Zonenbericht abzubrechen oder beliebige
+  Werte als Quellen zu übernehmen.
+- Ein gültiges Präsenzereignis bleibt erhalten, wenn ausschließlich sein optionaler
+  Kontext unbrauchbar ist; der fehlerhafte Kontext wird nicht gespeichert.
+
+### Grenzen
+- Keine neue Sammlung, Migration, Lernfreigabe oder Geräteausführung. Vorhandene
+  gültige Evidenz, Nutzerfeedback, Rollen und Home-Assistant-Konfiguration bleiben
+  unverändert.
+
 ## [0.1.0-alpha.43] - 2026-09-27
 
 ### Integrität numerischer Beobachtungen

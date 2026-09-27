@@ -3,7 +3,22 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.43 numeric integrity installed
+## Resume: Alpha.44 historical context integrity candidate
+
+The current branch closes the remaining downstream numeric integrity gap found after
+Alpha.43. Historical learning-context windows previously accepted NaN, infinity,
+negative and boolean lux values as known samples; a non-finite median could again
+escape as non-standard JSON. Current capture and historical projection now require
+finite non-negative lux, sanitize source identifiers and control invalid timestamps.
+A valid activation remains evidence when only its optional context is malformed; the
+context itself is not persisted.
+
+Repository/API validation and the full test suite must pass before publication.
+Alpha.43 remains installed/offered/started with no household or option change. Next:
+publish the exact Alpha.44 candidate and require complete candidate CI before merge
+or Store delivery. Authenticated Erdkellerbereich Ingress acceptance remains separate.
+
+## Installed baseline: Alpha.43 numeric integrity
 
 The current branch closes one observation-integrity defect found by a fresh review:
 a directly supplied good-quality NaN/infinite numeric observation could survive the
@@ -23,8 +38,8 @@ auto_update unchanged. General Apply remains closed and no household state chang
 
 Authenticated Ingress remains open: the available cloud browser returned 502 Bad
 Gateway / connection closed before HA loaded, including the single allowed reload.
-Next: run the explicit current-light check in authenticated read-only Ingress for the
-saved Erdkellerbereich and verify source and automation explanations.
+Next live acceptance: run the explicit current-light check in authenticated read-only
+Ingress for the saved Erdkellerbereich and verify source and automation explanations.
 
 ## Installed baseline: Alpha.42 current lighting decision
 
