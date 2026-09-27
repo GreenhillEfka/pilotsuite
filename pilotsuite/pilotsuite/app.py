@@ -136,6 +136,8 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post('/api/v1/zones/{zone_id}/history/import', _history_import)
     app.router.add_get('/api/v1/zones/{zone_id}/context', _context_get)
     app.router.add_post('/api/v1/zones/{zone_id}/helpers/provision', _helper_provision)
+    app.router.add_get('/api/v1/zones/{zone_id}/presence-shadow', _presence_shadow)
+    app.router.add_post('/api/v1/zones/{zone_id}/presence-shadow', _presence_shadow)
     app.router.add_get('/api/v1/zones/{zone_id}/presence-runtime', _presence_runtime)
     app.router.add_patch('/api/v1/zones/{zone_id}/presence-runtime', _presence_runtime)
     app.router.add_post('/api/v1/zones/{zone_id}/presence-runtime/replay', _presence_replay)
@@ -427,6 +429,18 @@ async def _presence_adoption_review(request):
     except ValueError as exc: raise InvalidSelection("invalid JSON") from exc
     return web.json_response(await request.app[SERVICE_KEY].presence_adoption_review(request.match_info["zone_id"],payload),
                              headers={"Cache-Control":"no-store"})
+
+
+async def _presence_shadow(request):
+    service=request.app[SERVICE_KEY]
+    zone_id=request.match_info['zone_id']
+    if request.method in ('GET','HEAD'):
+        result=await service.presence_shadow(zone_id)
+    else:
+        try: payload=await request.json()
+        except ValueError as exc: raise InvalidSelection('Ungültiges JSON') from exc
+        result=await service.configure_presence_shadow(zone_id,payload)
+    return web.json_response(result,headers={'Cache-Control':'no-store'})
 
 
 async def _presence_runtime(request):

@@ -49,7 +49,10 @@ def validate_detector(value):
 from .organization_store import OrganizationContextMixin
 
 
-class ContextStore(OrganizationContextMixin):
+from .shadow_store import ShadowContextMixin
+
+
+class ContextStore(OrganizationContextMixin, ShadowContextMixin):
     def __init__(self, selections):
         self.selections = selections
         self.path = selections.path

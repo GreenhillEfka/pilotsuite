@@ -1,324 +1,42 @@
-# Current state — Alpha.47 history-provenance integrity candidate, 2026-09-27
-
-The post-Alpha.46 audit reproduced a historical-attribution defect. The report
-accepted a provenance row once its import ID and activation existed, without proving
-that the activation's entity belonged to the import's authorized source group, its
-timestamp fell inside the authorized interval, or the import's accepted count had
-not already been exhausted. It also trusted a retained-count snapshot that can become
-stale as bounded evidence expires.
-
-Alpha.47 cross-validates those relationships deterministically on every read.
-Unmatched attribution remains a live activation, never imported history. Valid
-provenance is capped by the accepted receipt count, and `retained_from_import` is
-derived from the valid rows currently retained without rewriting storage. Existing
-integrity counters report excluded provenance and normalized receipt projections.
-The UI warning now states that ordinary retention still applies.
-
-Local repository/API validation, 535 Python and 60 JavaScript tests pass. No schema,
-new HA history request, collection, consent, feedback, preference, HA write or
-execution change is included. Alpha.46 remains installed and unchanged while the
-Alpha.47 release candidate awaits exact CI and the runbook publication gate.
-
-Next: run the exact Alpha.47 candidate CI; do not publish before the fresh scoped
-PilotSuite backup is verified.
-
-## Installed baseline — Alpha.46
-
-The complete report review found a reproducible downstream failure after Alpha.45:
-stored history-import receipts were still decoded and exported verbatim. Malformed
-JSON aborted the report; retained `NaN` values broke strict JSON and unknown fields
-escaped. Persisted activation, provenance, coverage and feedback rows likewise needed
-the same read-time contract enforcement.
-
-Alpha.46 validates every retained report family against its type, identity, time and
-relationship contract. Invalid rows cannot count as activity, historical provenance,
-coverage or preference. Unknown origins are normalized to the existing coarse
-`unknown` category. A deterministic integrity summary and bounded UI warning explain
-excluded or normalized rows. The integrity projection does not repair raw rows;
-normal retention housekeeping remains active.
-
-PR #100, candidate CI 36304061558 and release-main CI 36304136860 passed all four
-jobs. Backup `b76d8fff` verified only PilotSuite Alpha.45 and its app data before
-publication. Alpha.46 is installed, offered and started with unchanged options and
-auto-update. Startup/readiness logs show `presence_adoption_review`, connected event
-stream, fresh snapshot, resolved Erdkellerbereich and readiness. Authenticated Safari
-Ingress made successful post-update read-only API calls; visual HTML/JS/CSS acceptance
-was not independently observed.
-
-Repository/API validation, 533 Python and 60 JavaScript tests pass. No schema,
-collection, consent, feedback, preference, HA write or execution change is included.
-
-Next: perform one authenticated visual current-light, retained-context and integrity-
-warning check for the saved Erdkellerbereich without changing configuration, consent,
-feedback or devices.
-
-## Previous baseline — Alpha.45
-
-The follow-up integrity review found that Alpha.44 sanitized derived context windows
-but still returned each retained context record verbatim in the explicit export. A
-legacy NaN could therefore remain non-standard JSON, and unknown legacy fields could
-escape the documented projection.
-
-Alpha.45 uses one bounded read projection for both window aggregation and individual
-evidence export. It validates light/lux values, entity sources, status, timing and the
-optional aware capture timestamp. Invalid JSON becomes unknown context, unsupported
-row timestamps are ignored and valid early rows without a status field remain usable.
-No stored row is deleted or rewritten.
-
-Repository/API validation, 532 Python and 59 JavaScript tests pass, including storage
-and HTTP export regressions. PR 98 release `3bbe21c`; exact candidate CI 36300845766
-and release-main CI 36300924716 passed test/source contracts, Chromium, amd64 and
-reproducible source. Fresh backup `7c0f650d` contains only Alpha.44 app/data/options,
-without HA, database, folders or failed parts.
-
-One Store refresh and one normal update installed Alpha.45. It is installed, offered
-and started with options and auto_update unchanged. Logs report Alpha.45, ready,
-connected stream, fresh snapshot and resolved saved Erdkellerbereich. No schema,
-collection, consent, feedback, preference, HA write, execution authority or household
-state changed.
-
-Next: perform the explicit current-light and retained-context checks in authenticated
-read-only Ingress for Erdkellerbereich; UI acceptance remains separate from runtime
-and CI health.
-
-## Installed baseline — Alpha.44
-
-Alpha.44 is a bounded downstream observation-integrity correction. Historical
-learning-context windows previously accepted NaN, infinity, negative and boolean lux
-as known values; the resulting median could again make an API response non-standard
-JSON. Current context capture and retained projections now require finite non-negative
-lux, sanitize source identifiers and discard invalid timestamps. If only optional
-context is malformed, the valid activation remains while that context is withheld.
-
-No schema migration, new collection, learning consent, feedback change, HA write or
-execution authority is part of the release. Repository/API validation, 529 Python
-and 59 JavaScript tests pass. PR 96 release `2606ef5`; exact candidate CI
-36298041709 and release-main CI 36298123047 passed test/source contracts, Chromium,
-amd64 and reproducible source. Fresh backup `6c7c870d` contains only Alpha.43
-app/data/options with no failed parts.
-
-One Store refresh and one normal update installed Alpha.44. It is installed, offered
-and started with options and auto_update unchanged. Logs report Alpha.44, ready,
-connected stream, fresh snapshot and resolved saved zone. No HA configuration,
-automation, actor, role, consent, feedback or household state changed.
-
-Next: perform the explicit current-light and retained-context checks in authenticated
-read-only Ingress for Erdkellerbereich; UI acceptance remains separate from runtime
-and CI health.
-
-## Installed baseline — Alpha.43
-
-Alpha.43 is a bounded observation-integrity correction. A direct good-quality
-non-finite value could previously make a zone summary appear available while the
-result was not strict JSON. The summary boundary now rejects NaN, infinity and
-physically impossible temperature, humidity and illuminance values, projects them as
-unknown/invalid and keeps uncertainty intact. The current lighting check independently
-rechecks finite non-negative lux before treating a configured source as usable.
-
-Repository/API validation, 525 Python and 59 JavaScript tests pass. PR 94 release
-`92f5e8e`; exact candidate CI 36295107488 and release-main CI 36295203741 passed
-test/source contracts, Chromium, amd64 and reproducible source. Fresh backup
-`ed0fb9a7` contains only Alpha.42 app/data/options with no failed parts.
-
-One Store refresh and one normal update installed Alpha.43. It is installed, offered
-and started with options and auto_update unchanged. Logs report version Alpha.43,
-ready, connected stream, fresh snapshot and resolved saved zone. No HA configuration,
-automation, actor, role, consent, productive learning or household state changed.
-
-The available authenticated cloud-browser route still returned 502 Bad Gateway /
-connection closed before HA loaded, including one reload. Next: perform the explicit
-current-light check in authenticated read-only Ingress for Erdkellerbereich; UI
-acceptance remains separate from runtime and CI health.
-
-## Installed baseline — Alpha.42
-
-Alpha.42 adds an explicit current lighting decision check in the existing workspace.
-It combines canonical source roles and current observations with freshly read related
-automation structures without persistence. Configured/usable sources, transport and
-physical freshness, indoor lux and outdoor provenance remain separate. A related
-automation is neither a duplicate verdict nor a safety proof. Changed revisions or
-roles invalidate the answer, and the brief exposes exactly one fixed internal next
-step with execution still denied.
-
-Local repository/API validation, 522 Python and 59 JavaScript tests pass. PR 92
-release `be537ce`; candidate CI 36292600442 and release-main CI 36292681509 passed
-test/source contracts, Chromium, amd64 and reproducible source. Fresh backup
-`a90ec2d3` contains only Alpha.41 app/data/options with no failed parts.
-
-One Store refresh and one normal update installed Alpha.42. It is installed, offered
-and started with options and auto_update unchanged. Logs report version Alpha.42,
-ready, connected stream, fresh snapshot and resolved saved zone. No HA configuration,
-automation, actor, role, consent, productive learning or household state changed.
-
-Next: perform the explicit Alpha.42 current-light check in authenticated read-only
-Ingress for Erdkellerbereich; UI acceptance remains separate from runtime health.
-
-## Previous delivery — Alpha.41 installed
-
-Alpha.41 is the installed lighting-source integrity follow-up. It separates
-assigned/currently usable lights, indoor lux and binary brightness in the existing
-synthetic preview, explicitly withholds outdoor-daylight confirmation, holds on a
-missing current brightness value and rejects incoherent/future checkpoints. Local
-validation passes 515 Python and 59 JavaScript tests. Fresh scoped backup `bc501582`
-contains only the previous Alpha.40 app/data/options and has no failed components.
-PR 90 release `e0bfc77`; candidate CI 36289439619 and release-main CI 36289511093
-passed all four jobs. One Store refresh and one update installed Alpha.41. Only
-authenticated Ingress acceptance remains a separate gate.
-
-## Daylight and mood preview delivered
-
-The existing pure lighting policy now models stable daylight bands, a five-point
-deadband, sixty-second minimum interval and at most fifteen percentage points per
-brightness proposal. Presence, lux, brightness, selected atmosphere, manual override,
-target capabilities and execution authority stay separate. Missing lux is not
-darkness; unknown presence and manual operation hold. A confirmed vacant night
-scenario can preview off, but no setting is executed.
-
-The existing lighting workspace offers six fixed synthetic scenarios only after an
-explicit click. The response is zone/revision/generation bound and stores nothing.
-It accepts no household payload, target, service or URL and can emit only fixed
-setting keys for explanation. Reload and ordinary GETs do not run the preview.
-
-Repository/API validation and 515 Python plus 59 JavaScript tests pass. PR 88 release
-f09dd27; exact candidate CI 36286331268 and release-main CI 36286428926 passed all
-four jobs: tests/source contracts, Chromium, amd64 and reproducible source.
-
-## Installed evidence
-
-Fresh backup `bc501582` contains only Alpha.40 app/data/options, no HA, database,
-folders or failed parts. One Store refresh and one normal update installed Alpha.41.
-It is installed/offered/started with unchanged options and auto_update. Runtime is
-ready, stream connected, snapshot fresh and the saved zone is resolved in unchanged
-presence_adoption_review mode. Public presence activation and general Apply remain
-closed. Read-only HA inspection confirmed actual area `erdkeller` / `Erdkeller Innen`,
-the user semantic label Erdkellerbereich, two indoor illuminance sources and existing
-automation context. No HA configuration, automation, actor, role, consent, productive
-learning or household state changed.
-
-Next: verify the explicit Alpha.41 lighting preview in authenticated read-only Ingress
-for Erdkellerbereich, including that the two indoor lux sources are not shown as
-outdoor daylight proof, then repeat with one unlike existing zone. Do not change HA
-configuration, consent, devices or execution rights.
-
-## Previous delivery — Alpha.39, 2026-09-27
-
-## Deterministic presence kernel and synthetic explanation
-
-The source candidate replaces timer-state inference in the dormant presence runtime
-with one deterministic checkpoint: occupied, grace, vacant or unknown plus generation,
-deadline, last activity and reason. Motion pulses renew grace without claiming
-continuous occupancy. Restart preserves an existing deadline; expiry requires all
-required sources to be valid and clear. Unknown sources/dependencies, cold all-clear
-startup and manual cancel do not become false vacancy.
-
-The checkpoint is stored in existing zone context without a schema migration or
-second owner. Source changes and reset remove it; configuration savepoints omit it.
-The existing workspace can explicitly replay five fixed synthetic scenarios. Replay
-performs no HA read/write or persistence, accepts no data-supplied action/URL and
-cannot change execution authority. Late zone/revision responses are discarded.
-Public presence activation and general Apply remain closed.
-
-Repository/API validation and 506 Python plus 59 JavaScript tests pass locally.
-PR 86 release 892cbab; exact candidate CI 36283655159 and release-main CI
-36283761672 passed all four jobs: tests/source contracts, Chromium, amd64 container
-and reproducible source.
-
-## Installed evidence
-
-Fresh scoped backup 618bc607 contains only Alpha.38 app/data/options, no HA,
-database, folders or failed parts. One native Store refresh and one normal update
-installed Alpha.39. It is installed/offered/started; options and auto_update are
-unchanged. Startup/readiness logs confirm presence_adoption_review, ready, connected
-stream, fresh snapshot and resolved zone. No explicit restart, rebuild or other app
-update occurred. Public presence activation and general Apply remain closed.
-
-Authenticated real Ingress acceptance remains unavailable: the cloud browser returned
-502 Bad Gateway / connection closed before HA or PilotSuite loaded, including one
-reload after installation. Runtime health is not UI acceptance. No HA configuration,
-automation, actor, role, learning consent or household data changed.
-
-## Previous delivery — Alpha.37, 2026-09-27
-
-## Presence lifecycle review package
-
-The existing explicit inventory analysis now derives two bounded questions from
-literal current automation structure and current device-class metadata. It can show
-that a boundary-close branch clears a plausible bidirectionally set room-status helper,
-or that an activity edge is the only recognized start/refresh of a presence timer.
-Closing a door does not prove absence; continuous active motion supplies no new state
-edge. These remain intent questions, not automatic defect or safety claims.
-
-Stale snapshots, disabled/dynamic paths, ambiguous selectors and indirect targets do
-not become findings. Trigger IDs, raw config and private payloads are withheld. The
-existing inventory view adds one deterministic filter and a direct next review step.
-Nothing is stored or repaired; no learning or execution authority changes.
-
-Local repository validation passes with 484 Python and 56 JavaScript tests. The new
-full-app browser scenario covers both findings, private-ID removal, filtering and no
-ContextStore/PlanStore/HA/control mutation. PR 82 release
-93e6df76d23a3171edcecfa9130330f192aa5d5f; exact candidate CI 36277330306 and
-release-main CI 36277424359 passed all four jobs, including Chromium and amd64.
-
-Fresh scoped backup 0baa717d contains only Alpha.36 app/data/options, no HA/database/
-folders or failed components. One Store refresh and one update installed Alpha.37.
-Installed/offered/started, options and auto_update unchanged. Startup/readiness logs
-confirm presence_adoption_review, connected stream, fresh snapshot and resolved zone.
-No extra restart, other app, household configuration, learning or device action.
-
-The authenticated cloud browser reached only a 502 connection-closed response before
-the HA/PilotSuite UI loaded, including one reload. Actual Ingress lifecycle review is
-therefore still open; runtime health and synthetic Chromium do not substitute for it.
-
-Historical Alpha.37 acceptance remained open for the saved Erdkellerbereich zone and
-one unlike existing zone.
-
-## Previous delivery — Alpha.36, 2026-09-26
-
-## Fixed: inconsistent inventory snapshots
-
-The existing inventory reader could promote an old catalog after reconnect, retain
-earlier fresh findings after losing the connection partway through a batch, and
-recommend replacements despite changes to availability or registry metadata.
-Repair previews could persist those outdated choices.
-
-Alpha.36 retains conservative freshness across the entire explicit read batch,
-including failed configuration reads. Relevant catalog changes return HTTP 409.
-Ordinary available measurement changes remain allowed; snapshot values are not
-presented as proof of current physical measurements. Repair previews require fresh
-transport and unchanged catalog inputs before persistence; they remain non-executable.
-
-## Code and tests
-
-PR 80, release b8ebc1ba2a32450ceb35e71269399d2f62cabe54.
-Seven new synthetic integration regressions; 475 Python and 56 JavaScript tests pass.
-Exact candidate CI 36272344492 and release-main CI 36272461571 passed all four jobs:
-tests/release-source contracts, nine Chromium suites, amd64 container and source bundle.
-The local runtime disconnected after tests; the anchored patch was reconstructed via
-native GitHub tools from the verified base. Exact remote diff and CI were checked.
-The 48-route API contract inventory and prior cumulative/trigger integrity features
-remain covered. Historical delivery details remain in IMPLEMENTATION_STATUS and Git.
-
-## Actual installation
-
-Backup 67fa033b was completed and verified before publication through native snapshot
-list and backup/details: only Alpha.35 app/data/options, 54,353,920 bytes, unprotected,
-no failed components, HA, database or folders. Targeted app-only rollback would
-overwrite PilotSuite data since that backup. No archive extraction or restore drill.
-
-One native Store refresh and one update installed Alpha.36. Installed/offered/started,
-options and auto_update unchanged; no extra restart/rebuild. Startup/readiness logs
-confirm presence_adoption_review, connected stream, fresh snapshot and resolved zone.
-General Apply remains READ_ONLY_RELEASE=True in exact tested source; no live Apply.
-No other app, household configuration, device action, role or learning change.
-
-## Acceptance and next step
-
-RELEASE_STATE.json separates source, backup, installation and runtime evidence.
-The browser runtime returned environment_offline; actual Alpha.36 Ingress remains
-unverified. No failed proxy retry or weakened access. App-principal configuration
-rights, independent data preservation and installed-image attestation remain separate.
-The user-confirmed label is Erdkellerbereich and three other zones already exist;
-canonical saved IDs and membership must be read, never inferred or recreated.
-
-Historical Alpha.36 acceptance remained open for the saved Erdkellerbereich and the
-other three existing zones without household configuration or learning changes.
+# Current state — Alpha.48 live shadow candidate, 2026-09-27
+
+Implements the approved presence-live-comparison and light-need package on the
+existing presence kernel, lighting policy, WorldModel and ContextStore. No second
+presence algorithm, database or HA execution route.
+
+The initially read installed/source baseline was Alpha.46, main51a86351492b591f64c57a703d06fcb1137edaf7.
+Existing PR102's cc9039377824b4702a1c2e2b39fee090f1bdf97e provenance correction and its
+tests are preserved. Alpha47 was its reserved development version; the integrated
+functional package uses Alpha48. Do not infer installation from candidate code.
+
+## Functional scope
+
+Explicit start/stop in Zonenmodule > Anwesenheit (also visible for lighting), confirmed
+raw input modes, grace deadline, source report-age limit, chosen atmosphere, outdoor
+lux declaration and bounded brightness parameters. HA status vs computed status,
+reasons, source quality, deadline and non-executable light proposals are visible.
+
+A local five-second worker and accepted source events advance the existing kernels.
+Only the latest operational checkpoint is stored, without learner/history additions.
+HA room status is never its own evidence. Unknown/derived sources cannot establish
+vacancy; pulse-high levels cannot endlessly renew grace or prove clear after expiry.
+Reconnect/restart preserves deadlines. Changes to bindings, identities or shared
+revision suspend the session durably; explicit confirmation is required to resume.
+Source timestamps are HA reports, not physical freshness certification. Held helper
+and actuator states remain distinct from physical source measurements.
+
+Existing roles, learning consent, evidence and ordinary HA automation ownership are
+unchanged. Savepoints exclude operational shadow state. Metadata cleanup, repair
+execution and productive control are not enabled by this package. No household
+shadow activation, entity rename or test actuation was performed during development.
+
+## Gates
+
+Repository validation, current tests and the new live-shadow HTTP/store integration
+suite must pass, plus all existing Chromium suites and the added shadow browser flow.
+Local browser navigation was blocked by administrator policy and not bypassed.
+Fresh scoped backup before publication; exact CI/source association and native update
+follow RELEASE_RUNBOOK.md. RELEASE_STATE.json remains the last completed receipt.
+
+Contract and remaining scope: docs/PRESENCE_SHADOW.md. After delivery, a user explicitly
+configures a real-zone session; no runtime or synthetic check is household acceptance.
