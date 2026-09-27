@@ -12,6 +12,7 @@ import socket
 import sys
 import tempfile
 from homeassistant.auth.const import GROUP_ID_ADMIN
+from homeassistant import loader
 from homeassistant.bootstrap import async_from_config_dict
 from homeassistant.const import __version__
 from homeassistant.core import HomeAssistant
@@ -28,6 +29,8 @@ async def main():
     logging.basicConfig(level=logging.WARNING,stream=sys.stderr)
     with tempfile.TemporaryDirectory(prefix='pilotsuite-core-protocol-') as temp:
         hass=HomeAssistant(temp)
+        # Match Core bootstrap: initialize loader caches after config_dir is set.
+        loader.async_setup(hass)
         with socket.socket() as sock:
             sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
         config={'homeassistant':{'name':'Disposable protocol test','latitude':0,'longitude':0,
