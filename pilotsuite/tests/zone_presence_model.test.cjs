@@ -1,5 +1,29 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const M=require('../pilotsuite/web/zone-presence-model.js');
+test('canonical current state is the only presence truth; missing never means vacant',()=>{
+ const data={analysis_enabled:true,mode:'compare',current:{state:'occupied',explanation:'Signal aktiv'}};
+ assert.equal(M.summary(data).state,'Belegt');
+ assert.equal(M.summary({...data,current:{state:'grace'}}).state,'Nachlauf');
+ assert.equal(M.summary({...data,current:{state:'vacant'}}).state,'Frei');
+ for(const current of [null,{state:'unknown'},{state:'unavailable'},{state:'new_state'}]){
+  assert.equal(M.summary({...data,current}).state,'Unklar');
+ }
+ assert.equal(M.summary(null).state,'Unklar');
+ assert.equal(M.summary({...data,analysis_enabled:false}).state,'Pausiert');
+ assert.equal(M.summary({...data,mode:'paused'}).state,'Pausiert');
+});
+test('publication is distinct from calculation and cannot be claimed without a package',()=>{
+ const data={analysis_enabled:true,mode:'publish',current:{state:'occupied'},publication:'verified'};
+ assert.equal(M.summary(data).publication,'Nicht eingerichtet');
+ const packageData={...data,package:{entities:{sensor:'binary_sensor.demo'}}};
+ assert.equal(M.summary(packageData).publication,'Bestätigt');
+ for(const publication of ['not_published','unknown_or_conflict','suspended_after_unknown_outcome','unexpected']){
+  assert.equal(M.summary({...packageData,publication}).publication,'Nicht bestätigt');
+ }
+ assert.equal(M.summary({...packageData,mode:'compare'}).publication,'Nur vergleichen');
+ assert.equal(M.summary({...packageData,mode:'paused'}).publication,'Pausiert');
+ assert.equal(M.summary({...packageData,analysis_enabled:false}).publication,'Pausiert');
+});
 test('numeric unknown values split curves, zero remains a measurement',()=>{
  const p=M.plot({kind:'numeric',points:[[0,0],[1,5],[2,null],[3,0]]},0,4);
  assert.equal(p.segments.length,2);assert.equal(p.segments[0][0].value,0);assert.equal(p.segments[1][0].value,0);

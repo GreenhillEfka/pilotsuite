@@ -104,7 +104,12 @@ Wiederherstellung erforderlich.
 
 ## Visualisierung und Konfigurator
 
-Neue Karte in Zonenmodule/Konfiguration/Verläufe: aktueller unabhängiger Status, optionaler
+Alpha.55 ordnet die vorhandene Karte zuerst unter Zustand/Einrichtung/Verlauf ein;
+sie bleibt unabhängig von der Diagnose-Modulauswahl. Fehlende Grundlage wird unklar,
+Pause und HA-Veröffentlichung werden getrennt ausgewiesen. Module und alter expliziter
+Schattenvergleich bleiben aufklappbare Diagnose, nicht ein zweiter Alltagsstatus.
+
+Die Karte zeigt aktuellen unabhängigen Status, optionalen
 HA-Vergleich, Quellen mit Signaltyp/Gültigkeit/Meldealter, verbleibender Nachlauf und
 Publikationsstatus. Konfigurator bietet pro Quelle Suchfilter und unverlierbare Auswahl.
 Der Sitzungsverlauf enthält höchstens 128 Übergänge im Arbeitsspeicher; er ist nicht

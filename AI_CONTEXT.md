@@ -20,8 +20,9 @@ docs/ARCHITECTURE.md maps actual owners; docs/ZONE_INSTANCE_V2.md defines presen
   Do not describe the current review mode as universal hard_read_only.
 - Release source, tests, installation and household acceptance are distinct.
 
-The 2026-09-28 concept review replaces stale entry documentation with a zone-first
-consolidation plan. It changes no app behavior or release receipt. Existing legacy
+PR #118 replaced stale entry documentation with a zone-first consolidation plan.
+Alpha.55 implements its navigation/primary presence view in the existing frontend.
+Use the receipt for delivery, not the candidate version marker. Existing legacy
 analysis and shadow contracts remain readable; a tested migration is required
 before removing their settings or endpoints. AGENTS.md, when present, is preserved.
 

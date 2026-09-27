@@ -2,6 +2,7 @@
 (function(root) {
   'use strict';
   const views = Object.freeze(['cockpit','zone','config','history','workbench','system','all']);
+  const primaryView = view => ['cockpit','zone','config','history'].includes(view)?'cockpit':view;
   const roles = Object.freeze({presence:'Präsenz & Bewegung',temperature:'Temperatur',humidity:'Feuchte',
     illuminance:'Helligkeit (Lux)',daylight_binary:'Helligkeitsindikator',light:'Leuchten',
     climate:'Klimaregler',media:'Medienplayer',atmosphere:'Atmosphärenwunsch',reference_temperature:'Vergleichstemperatur'});
@@ -90,7 +91,7 @@
     }
     return {degraded:value?.status==='degraded'&&affected>0,affected};
   }
-  const api=Object.freeze({views,roles,modules,number,count,preferences,current,metric,diff,
+  const api=Object.freeze({views,primaryView,roles,modules,number,count,preferences,current,metric,diff,
     effectiveRoles,roleOrigin,rolesForSave,temperatureComparison,retainedIntegrity});
   if(typeof module!=='undefined' && module.exports) module.exports=api;
   if(root) root.PilotSuiteWorkspaceModel=api;

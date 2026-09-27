@@ -16,12 +16,16 @@ async def main():
  logging.basicConfig(level=logging.CRITICAL,stream=sys.stderr)
  tmp=tempfile.TemporaryDirectory();p=Path(tmp.name);now=NOW
  clock=patch('time.time',side_effect=lambda:now);clock.start()
- app=create_app(Settings(p,p/'options.json',golden_zone_area_ids=('room',),supervisor_token='',
+ app=create_app(Settings(p,p/'options.json',golden_zone_area_ids=('room','z_empty','z_paused','z_other'),supervisor_token='',
    refresh_interval_seconds=3600,ingress_allowed_peers=('127.0.0.1',)))
  http=TestClient(TestServer(app));await http.start_server();s=app[SERVICE_KEY]
  for t in s._tasks:t.cancel()
  await asyncio.gather(*s._tasks,return_exceptions=True);s._tasks=[]
  world=await seed_shadow(s,now)
+ for zid,title in [('z_empty','Demo ohne Quellen'),('z_paused','Demo pausiert'),('z_other','Demo weiterer Raum')]:
+  world['areas'].append({'area_id':zid,'name':title})
+  old=next(z for z in await s.zones.list() if z['zone_id']==zid)
+  await s.zones.save({'name':title,'area_ids':[zid],'extra_entity_ids':[],'enabled':zid!='z_paused','profile':'observe'},zid,old['revision'])
  s.client.snapshot=AsyncMock(side_effect=lambda:deepcopy(world))
  registry=[{'entity_id':e['entity_id'],'unique_id':e['unique_id'],'platform':e['platform'],
    'name':e['name'],'labels':[],'disabled_by':None} for e in world['entities']]
@@ -70,7 +74,7 @@ async def main():
    if cmd['action']=='tick':await tick(cmd.get('seconds',1),cmd.get('values',{}))
    elif cmd['action']!='snapshot':raise ValueError('Invalid fixture command')
    cfg=await s.context.get('room')
-   print(json.dumps({'view':await s.zone_presence_view('room'),'mode':(cfg.get(KEY)or{}).get('mode'),
+   print(json.dumps({'view':await s.zone_presence_view('room'),'zones':[{k:v for k,v in z.items() if k!='revision'} for z in await s.zones.list()],'mode':(cfg.get(KEY)or{}).get('mode'),
     'learning':cfg['learning'],'roles':cfg['roles'],'history_reads':s.client.history.await_count,
     'helper_creates':s.client.zone_create_storage_helper.await_count+s.client.zone_create_binary_sensor.await_count,
     'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)

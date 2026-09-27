@@ -18,7 +18,7 @@ const fs=require('node:fs/promises');
   const page=await browser.newPage({viewport:{width:1440,height:1000}});page.setDefaultTimeout(10000);
   const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))requests.push(r.url());});
   await page.goto(info.url);await page.waitForFunction(()=>contextData&&!selectionBusy&&document.body.classList.contains('ps-workspace-ready'));
-  await page.locator('.ps-nav [data-ps-nav=config]').click();await page.locator('#org-load').click();
+  await page.locator('.ps-nav [data-ps-nav=workbench]').click();await page.locator('#org-load').click();
   await page.locator('#org-timing').waitFor();
   let snapshot=await command({action:'snapshot'});assert.equal(snapshot.automation_reads,0);assert.equal(snapshot.name_writes,0);
   const before=structuredClone(snapshot.config);
