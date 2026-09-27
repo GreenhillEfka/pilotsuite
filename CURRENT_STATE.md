@@ -1,4 +1,25 @@
-# Current state — Alpha.52 delivered
+# Current state — Alpha.53 delivered
+
+Alpha.53 fixes passive redraws that could shift the reading position on long pages.
+Identical context and zone responses retain the DOM; changed passive responses preserve
+scroll position, focus and open details. Presence and shadow controls survive their
+five-second updates, and the live source list and trace are collapsible. The root cause
+is supported by source review and synthetic browser regressions; household Ingress
+reproduction and visual acceptance remain open.
+
+The exact candidate `a420c4bff3e6edbadb4ffa3bcd45bc3406d1ba66` and main commit
+`8a46aaecf19deae1eae3d95b265fe46f3bb94e94` passed all five CI jobs. Local
+checks passed 567 Python and 70 JavaScript tests. Fresh native backup `94c7032e`
+contains only Alpha.52 PilotSuite app/data/options and completed before publication.
+One Store refresh and one PilotSuite app update installed Alpha.53. It starts in
+`presence_adoption_review` with ready transport, connected stream, fresh snapshot
+and resolved zone. Four Supervisor options and `auto_update` are unchanged. No HA
+automation, helper, metadata, consent, device or other app was changed.
+
+Next: authenticated read-only Ingress acceptance in saved `Erdkellerbereich` and
+one unlike zone. After more than 15 seconds and multiple passive refreshes, check
+scroll position, focus, open source/details, current values and all four saved zones.
+`docs/RELEASE_STATE.json` records exact delivery evidence and remaining limits.
 
 Alpha.52 is the delivered bounded structural-availability integrity correction. The selected
 automation inspector previously exposed disabled/dynamic steps as limitations while
