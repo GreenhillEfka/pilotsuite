@@ -1,4 +1,26 @@
-# Current state — Alpha.44 historical context integrity installed, 2026-09-27
+# Current state — Alpha.45 bounded context export candidate, 2026-09-27
+
+The follow-up integrity review found that Alpha.44 sanitized derived context windows
+but still returned each retained context record verbatim in the explicit export. A
+legacy NaN could therefore remain non-standard JSON, and unknown legacy fields could
+escape the documented projection.
+
+Alpha.45 uses one bounded read projection for both window aggregation and individual
+evidence export. It validates light/lux values, entity sources, status, timing and the
+optional aware capture timestamp. Invalid JSON becomes unknown context, unsupported
+row timestamps are ignored and valid early rows without a status field remain usable.
+No stored row is deleted or rewritten.
+
+Repository/API validation, 532 Python and 59 JavaScript tests pass locally, including
+storage and HTTP export regressions. No schema, collection, consent, feedback,
+preference, HA write or execution change is included. Alpha.44 remains installed,
+offered and started with options and auto_update unchanged.
+
+Next: publish the exact Alpha.45 candidate, require complete CI and only then deliver
+through the scoped backup/Store routine. Authenticated Ingress acceptance remains
+separate.
+
+## Installed baseline — Alpha.44
 
 Alpha.44 is a bounded downstream observation-integrity correction. Historical
 learning-context windows previously accepted NaN, infinity, negative and boolean lux

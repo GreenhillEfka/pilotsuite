@@ -3,7 +3,25 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.44 historical context integrity installed
+## Resume: Alpha.45 bounded context export candidate
+
+A fresh post-Alpha.44 integrity review found one remaining downstream path: derived
+context windows were sanitized, but individual retained context evidence was still
+exported from the stored JSON verbatim. A legacy NaN could therefore produce
+non-standard JSON, and unknown legacy fields could leave the bounded public contract.
+
+Alpha.45 projects every retained row through one canonical light/illuminance view.
+It validates sources, typed values, status, timing and optional capture timestamp;
+unknown fields are omitted. Invalid JSON becomes an explicit unknown context, invalid
+row timestamps are ignored, and valid early rows without a status field remain usable.
+Stored evidence is neither deleted nor rewritten. General Apply remains closed.
+
+Local repository/API validation, 532 Python and 59 JavaScript tests pass. Before
+publication, require the exact candidate CI and a fresh Alpha.44-only backup because
+auto_update remains enabled. Alpha.44 is still installed/offered/started and healthy.
+Authenticated household Ingress acceptance remains separate.
+
+## Installed baseline: Alpha.44 historical context integrity
 
 The current branch closes the remaining downstream numeric integrity gap found after
 Alpha.43. Historical learning-context windows previously accepted NaN, infinity,
