@@ -1,4 +1,4 @@
-# Current state — Alpha.46 retained-report integrity candidate, 2026-09-27
+# Current state — Alpha.46 retained-report integrity installed, 2026-09-27
 
 The complete report review found a reproducible downstream failure after Alpha.45:
 stored history-import receipts were still decoded and exported verbatim. Malformed
@@ -12,15 +12,22 @@ coverage or preference. Unknown origins are normalized to the existing coarse
 `unknown` category. A deterministic integrity summary and bounded UI warning explain
 excluded or normalized rows. Raw storage is not deleted or rewritten.
 
-Repository/API validation, 533 Python and 60 JavaScript tests pass locally, including
-strict storage/HTTP regressions and the safe UI projection. No schema, collection,
-consent, feedback, preference, HA write or execution change is included.
+PR #100, candidate CI 36304061558 and release-main CI 36304136860 passed all four
+jobs. Backup `b76d8fff` verified only PilotSuite Alpha.45 and its app data before
+publication. Alpha.46 is installed, offered and started with unchanged options and
+auto-update. Startup/readiness logs show `presence_adoption_review`, connected event
+stream, fresh snapshot, resolved Erdkellerbereich and readiness. Authenticated Safari
+Ingress made successful post-update read-only API calls; visual HTML/JS/CSS acceptance
+was not independently observed.
 
-Next: publish the exact Alpha.46 candidate, require complete CI and only then deliver
-through the scoped Alpha.45 backup/Store routine. Authenticated Ingress acceptance
-remains separate.
+Repository/API validation, 533 Python and 60 JavaScript tests pass. No schema,
+collection, consent, feedback, preference, HA write or execution change is included.
 
-## Installed baseline — Alpha.45
+Next: perform one authenticated visual current-light, retained-context and integrity-
+warning check for the saved Erdkellerbereich without changing configuration, consent,
+feedback or devices.
+
+## Previous baseline — Alpha.45
 
 The follow-up integrity review found that Alpha.44 sanitized derived context windows
 but still returned each retained context record verbatim in the explicit export. A
