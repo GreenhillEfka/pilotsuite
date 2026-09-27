@@ -4,22 +4,22 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.41",
-    "commit": "e0bfc778f930accf7b4b4899e38eff8558fade24",
-    "tree": "7762b038ff4137ff622ddf9ccc30d10afd756633",
-    "app_tree": "cbf56b4406efe0e50e256f59873aaf85a199d622",
-    "pull_request": 90,
-    "candidate_commit": "2fd8509317317f6909d7ca2970e89b2c15535a21",
-    "candidate_ci_run_id": 36289439619,
-    "ci_run_id": 36289511093,
+    "version": "0.1.0-alpha.42",
+    "commit": "be537ceaffffeb0bf88b5ac3ad04e3402aa47f58",
+    "tree": "8547980e039aeb441ad11e515897bfb71855bb36",
+    "app_tree": "9c86fac3955c874c80a728256fd92b1b8cb5b393",
+    "pull_request": 92,
+    "candidate_commit": "cc626cc608f5cf9ec723ca3832e6996e6a3e534d",
+    "candidate_ci_run_id": 36292600442,
+    "ci_run_id": 36292681509,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "bc501582",
-    "name": "PilotSuite Alpha40 before Alpha41 lighting source integrity",
-    "date": "2026-09-27T02:41:43.910540+00:00",
+    "backup_id": "a90ec2d3",
+    "name": "PilotSuite Alpha41 before Alpha42 current lighting decision",
+    "date": "2026-09-27T03:48:38.194302+00:00",
     "size_bytes": 54353920,
-    "app_version": "0.1.0-alpha.40",
+    "app_version": "0.1.0-alpha.41",
     "app_slugs": ["0d79c5e8_pilotsuite"],
     "homeassistant_included": false,
     "database_included": false,
@@ -34,11 +34,11 @@
     "verification": ["native snapshot list", "native backup/details"],
     "restore_drill_performed": false,
     "archive_extraction_performed": false,
-    "rollback": "hassio.restore_partial, slug=bc501582, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data/options since backup, no full restore"
+    "rollback": "hassio.restore_partial, slug=a90ec2d3, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data/options since backup, no full restore"
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.41",
-    "offered_version": "0.1.0-alpha.41",
+    "installed_version": "0.1.0-alpha.42",
+    "offered_version": "0.1.0-alpha.42",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -54,22 +54,20 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-27T04:50:13Z",
+    "startup_log_timestamp": "2026-09-27T05:56:03Z",
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
     "post_start_ready_log_timestamps": [
-      "2026-09-27T04:50:14Z",
-      "2026-09-27T04:50:44Z",
-      "2026-09-27T04:51:15Z"
+      "2026-09-27T05:56:04Z"
     ],
     "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
   },
   "tests": {
-    "local_python_passed": 515,
+    "local_python_passed": 522,
     "local_javascript_passed": 59,
-    "regression_scope": "missing brightness, inconsistent/future checkpoints, separated configured/usable source roles and synthetic-daylight provenance",
+    "regression_scope": "current lighting source quality, lookup batching, concurrent refresh/revision/role changes, explicit reads and zero write mutations",
     "candidate_and_release_main_ci": "all four jobs successful",
     "container_platform": "linux/amd64",
     "local_browser": "local Chromium was unavailable; exact candidate and release-main synthetic Chromium jobs passed"
@@ -77,7 +75,7 @@
   "ui_review": {
     "synthetic_only": true,
     "visual_inspection_this_run": false,
-    "authenticated_household_ingress": "not performed for Alpha.41; the available Nabu Casa browser session returned 502 connection closed before HA/PilotSuite loaded, including one reload. Runtime health and CI Chromium are not household Ingress acceptance. No auth bypass or weakened ingress protection."
+    "authenticated_household_ingress": "not performed for Alpha.42; no authenticated HA browser session was available. Runtime health and CI Chromium are not household Ingress acceptance. No auth bypass or weakened ingress protection."
   },
   "household_read_only_observations": {
     "ha_area_id": "erdkeller",
@@ -101,17 +99,17 @@
     "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
   },
   "household_changes": [],
-  "next_step": "Run the explicit Alpha.41 lighting preview in authenticated read-only Ingress for the saved Erdkellerbereich, verify that two indoor lux sources are not presented as outdoor daylight proof, then repeat with one unlike existing zone without changing configuration, consent or devices.",
+  "next_step": "Run the explicit Alpha.42 current-light check in authenticated read-only Ingress for the saved Erdkellerbereich and verify source and automation explanations without changing configuration, consent or devices.",
   "published_source": {
-    "version": "0.1.0-alpha.41",
-    "commit": "e0bfc778f930accf7b4b4899e38eff8558fade24",
-    "tree": "7762b038ff4137ff622ddf9ccc30d10afd756633",
-    "app_tree": "cbf56b4406efe0e50e256f59873aaf85a199d622",
-    "pull_request": 90,
-    "candidate_commit": "2fd8509317317f6909d7ca2970e89b2c15535a21",
-    "candidate_ci_run_id": 36289439619,
-    "ci_run_id": 36289511093,
+    "version": "0.1.0-alpha.42",
+    "commit": "be537ceaffffeb0bf88b5ac3ad04e3402aa47f58",
+    "tree": "8547980e039aeb441ad11e515897bfb71855bb36",
+    "app_tree": "9c86fac3955c874c80a728256fd92b1b8cb5b393",
+    "pull_request": 92,
+    "candidate_commit": "cc626cc608f5cf9ec723ca3832e6996e6a3e534d",
+    "candidate_ci_run_id": 36292600442,
+    "ci_run_id": 36292681509,
     "ci_conclusion": "success"
   },
-  "checked_at": "2026-09-27T02:51:20Z"
+  "checked_at": "2026-09-27T03:56:30Z"
 }
