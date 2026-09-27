@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.50",
-    "commit": "9aea467a81fcdbd9fc96a0199cb2a1c57826702b",
-    "tree": "fa025b193b5c28ab24dc7ae4f1f3afc811892d40",
-    "app_tree": "8c9d0c6206948a3ad03e9cd31ad44559b88ca9e5",
-    "pull_request": 107,
-    "candidate_commit": "1b535ec7ffd5a8cec7ff289edc869d1695963359",
-    "candidate_ci_run_id": 36345255370,
-    "ci_run_id": 36345389028,
+    "version": "0.1.0-alpha.51",
+    "commit": "5250c6b7ef6aaef3fb7a88f28b51fef23c051a67",
+    "tree": "3437d4300bf3d263b30d1c42cbc8c41c96e2c0f0",
+    "app_tree": "2be307783ae4c76c8d67ae34a63b35c4c3f0eb13",
+    "pull_request": 109,
+    "candidate_commit": "2d4b7711f8acf107bfa7a487a56ae64275dc77da",
+    "candidate_ci_run_id": 36348858158,
+    "ci_run_id": 36348965200,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.50",
-    "commit": "9aea467a81fcdbd9fc96a0199cb2a1c57826702b",
-    "tree": "fa025b193b5c28ab24dc7ae4f1f3afc811892d40",
-    "app_tree": "8c9d0c6206948a3ad03e9cd31ad44559b88ca9e5",
-    "pull_request": 107,
-    "candidate_commit": "1b535ec7ffd5a8cec7ff289edc869d1695963359",
-    "candidate_ci_run_id": 36345255370,
-    "ci_run_id": 36345389028,
+    "version": "0.1.0-alpha.51",
+    "commit": "5250c6b7ef6aaef3fb7a88f28b51fef23c051a67",
+    "tree": "3437d4300bf3d263b30d1c42cbc8c41c96e2c0f0",
+    "app_tree": "2be307783ae4c76c8d67ae34a63b35c4c3f0eb13",
+    "pull_request": 109,
+    "candidate_commit": "2d4b7711f8acf107bfa7a487a56ae64275dc77da",
+    "candidate_ci_run_id": 36348858158,
+    "ci_run_id": 36348965200,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "c31afe38",
-    "name": "PilotSuite alpha.49 before alpha.50",
-    "date": "2026-09-27T19:46:20.834034+00:00",
-    "size_bytes": 54425600,
-    "app_version": "0.1.0-alpha.49",
+    "backup_id": "ca634a6c",
+    "name": "PilotSuite alpha.50 before alpha.51",
+    "date": "2026-09-27T20:43:26.210360+00:00",
+    "size_bytes": 54446080,
+    "app_version": "0.1.0-alpha.50",
     "app_slugs": ["0d79c5e8_pilotsuite"],
     "homeassistant_included": false,
     "database_included": false,
@@ -48,9 +48,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.50",
-    "offered_version": "0.1.0-alpha.50",
-    "previous_version": "0.1.0-alpha.49",
+    "installed_version": "0.1.0-alpha.51",
+    "offered_version": "0.1.0-alpha.51",
+    "previous_version": "0.1.0-alpha.50",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -67,8 +67,8 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-27T21:47:06Z",
-    "post_start_ready_log_timestamps": ["2026-09-27T21:47:07Z"],
+    "startup_log_timestamp": "2026-09-27T22:44:27Z",
+    "post_start_ready_log_timestamps": ["2026-09-27T22:44:28Z"],
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
@@ -78,7 +78,7 @@
     "capabilities_partial": ["humidity", "motion", "presence", "light"]
   },
   "tests": {
-    "local_python_passed": 560,
+    "local_python_passed": 562,
     "local_javascript_passed": 68,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful",
@@ -90,23 +90,25 @@
   "ui_review": {
     "synthetic_browser": "success on exact candidate and main release source",
     "authenticated_household_ingress": "Not independently observed; no authenticated browser session was available and direct app proxy correctly returned 403 Ingress access required.",
+    "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false
   },
   "boundaries": {
+    "household_automation_changed": false,
     "household_presence_configuration_changed": false,
     "household_helper_or_metadata_apply": false,
     "new_learning_consent": false,
     "automation_repair_execution": false,
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
-    "general_apply": "READ_ONLY_RELEASE=True; no live Apply call",
-    "independent_data_preservation": "Options are unchanged and the existing app starts ready. HA still exposes the real erdkeller and erdkeller_eingang areas; authenticated UI observation of all four saved PilotSuite zones remains pending."
+    "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
+    "independent_data_preservation": "Options are unchanged and the existing app starts ready. Authenticated UI observation of all four saved PilotSuite zones remains pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "9eda570d5bdc67f5a76bb980e6f439494b4df99f:docs/RELEASE_STATE.json",
-    "integrated_pr": 107,
-    "integrated_commit": "9aea467a81fcdbd9fc96a0199cb2a1c57826702b"
+    "previous_receipt_at": "d2fac978b0334f9f762e347419b7628d5ffee834:docs/RELEASE_STATE.json",
+    "integrated_pr": 109,
+    "integrated_commit": "5250c6b7ef6aaef3fb7a88f28b51fef23c051a67"
   },
-  "next_step": "Perform authenticated read-only Ingress acceptance for the saved Erdkellerbereich and one unlike existing zone: verify four-zone preservation, configurator defaults, refresh recovery, history gaps and ontology preview without applying household changes."
+  "next_step": "Use authenticated read-only Ingress for the saved Erdkellerbereich and one unlike existing zone: confirm all four saved zones and the corrected event-filter source explanation without applying household changes."
 }
