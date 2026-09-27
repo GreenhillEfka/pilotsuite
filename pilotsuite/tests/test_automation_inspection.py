@@ -35,6 +35,24 @@ class InspectionTests(unittest.TestCase):
         self.assertEqual('state',report['sections']['triggers'][0]['kind'])
         self.assertEqual(['light.synthetic'],report['alignment']['target_action_references'])
 
+    def test_static_event_filter_is_a_source_but_action_payload_is_not_a_target(self):
+        report=self.inspect({'triggers':[{'trigger':'event','event_type':'synthetic_change',
+                'event_data':{'entity_id':'binary_sensor.synthetic'}}],
+            'actions':[{'event':'synthetic_notice',
+                'event_data':{'entity_id':'light.synthetic'}}]})
+        self.assertEqual(['binary_sensor.synthetic'],report['alignment']['source_trigger_references'])
+        self.assertEqual([],report['alignment']['sources_without_direct_trigger_reference'])
+        self.assertNotIn('source_gap',[x['id'] for x in report['checklist']])
+        self.assertEqual([],report['alignment']['target_action_references'])
+
+    def test_dynamic_event_filter_stays_unknown_and_private_value_stays_opaque(self):
+        report=self.inspect({'triggers':[{'trigger':'event','event_type':'synthetic_change',
+                'event_data':{'entity_id':'{{ private_entity }}'}}]})
+        self.assertEqual([],report['alignment']['source_trigger_references'])
+        self.assertIn('dynamic_or_invalid_entity_reference',report['limitations'])
+        self.assertIn('source_gap',[x['id'] for x in report['checklist']])
+        self.assertNotIn('private_entity',json.dumps(report))
+
     def test_nested_choose_repeat_parallel_if_and_conditions(self):
         action={'action':'light.turn_off','target':{'entity_id':'light.synthetic'}}
         config={'actions':[{'choose':[{'conditions':[{'condition':'and','conditions':[{'condition':'state','entity_id':'binary_sensor.synthetic'}]}],

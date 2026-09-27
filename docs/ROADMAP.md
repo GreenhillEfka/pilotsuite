@@ -65,8 +65,12 @@
 - Alpha.50 exact candidate/main CI, scoped Alpha.49 backup, Store association,
   installation and runtime gates passed. The real HA areas `erdkeller` and
   `erdkeller_eingang` remain inputs to the aggregate saved `Erdkellerbereich` zone.
-- Next: authenticated read-only acceptance of the saved
-  `Erdkellerbereich` and one unlike existing zone before any publication-mode trial.
+- Alpha.51 candidate closes the read-only event-filter reference gap found in the real
+  automation inventory: literal trigger `event_data.entity_id` is a source reference,
+  while action payloads and dynamic values remain opaque/unknown. It adds no scanner,
+  automation owner, write, learner or execution right.
+- Next: exact Alpha.51 candidate/main CI and backup-bound delivery, then authenticated
+  read-only acceptance of the saved `Erdkellerbereich` and one unlike existing zone.
 - Development may read HA-wide entities/automations under explicit user authority.
   A confirmed `relevant` entity authorizes PilotSuite to evaluate its available live and historical data for the zone; no second learning/history consent is required. Actuation authority remains separate.
 - Existing HA rules can contain errors; review references and desired behavior before
