@@ -3,7 +3,7 @@
 Stand: 2026-09-22. Zielbild, nicht Funktionsversprechen der aktuellen Alpha.
 
 PilotSuite steigert den Komfort mit den vorhandenen Home-Assistant-Geräten und
-Automationen: beobachten, Zusammenhänge erklären, Gewohnheiten mit Zustimmung
+Automationen: beobachten, Zusammenhänge erklären, Gewohnheiten aus ausdrücklich als relevant markierten Quellen
 erkennen, passende Verbesserungen vorschlagen und freigegebene Maßnahmen prüfen.
 Bestehende Automationen haben Vorrang vor neu erzeugten Duplikaten.
 
@@ -61,7 +61,7 @@ Freigaben haben Scope und Ablaufzeit; Zustände werden unmittelbar vor Ausführu
 erneut geprüft. Widerruf und Not-Aus müssen sichtbar sein. Ein physischer Effekt
 oder eine gesprochene Nachricht ist nicht allgemein rückgängig zu machen.
 
-Lernen benötigt Zustimmung, begrenzte Aufbewahrung, Export und Löschen/Reset.
+Die Markierung `relevant` autorisiert Live- und verfügbare historische Auswertung dieser Quelle. Aufbewahrung, Export und Löschen/Reset bleiben kontrollierbar; Ausführungsrechte sind davon getrennt.
 Keine ungeprüften Alt-Datenimporte, keine unverschlüsselten zentralen Secret-Dateien.
 Keine direkte Änderung von HA `.storage`; bestehende Konfigurationen erhalten.
 
