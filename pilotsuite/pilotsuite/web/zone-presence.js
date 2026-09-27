@@ -57,7 +57,7 @@
  }
  function startEditor(title){editing=true;editor.replaceChildren(E('h3',title));tools.querySelectorAll('button').forEach(b=>b.disabled=true);}
  function cancel(){if(busy)return;editing=false;plan=null;editor.replaceChildren();render();if(typeof load==='function')load().catch(()=>note('Aktuellen Zonenstand erneut laden.'));}
- async function save(action){if(busy)return;busy=true;try{await action();}catch(e){note(e.message);}finally{if(!editing&&typeof load==='function'){try{await load();}catch{note('Aktuellen Zonenstand erneut laden.');}}busy=false;if(!editing&&data)render();}}
+ async function save(action){if(busy)return;busy=true;try{await action();}catch(e){note(e.message);}finally{if(!editing&&typeof load==='function'){try{await load();}catch{note('Aktuellen Zonenstand erneut laden.');}}busy=false;if(!editing){if(data)render();else if(eligible())await read();}}}
  function openEditor(){
    if(!data||busy)return;startEditor('Präsenzverhalten je Zone');
    const form=E('form');form.id='ps-zone-form';const values=data.spec;
