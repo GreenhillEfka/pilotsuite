@@ -2,6 +2,7 @@ import copy
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 from aiohttp.test_utils import TestClient, TestServer
 
@@ -15,6 +16,7 @@ from pilotsuite.core.lighting_policy import (
     should_adjust,
     validate_lighting_checkpoint,
 )
+from pilotsuite.core.lighting_decision import build_lighting_decision
 from pilotsuite.core.selections import InvalidSelection
 from pilotsuite.core.settings import Settings
 
@@ -126,6 +128,77 @@ class LightingPolicyTests(unittest.TestCase):
                 self.assertTrue(any("nicht ausgeführt" in text for text in report["limitations"]))
 
 
+class LightingDecisionTests(unittest.TestCase):
+    def fixture(self, *, ready=True, light_state="on", lux_state="30"):
+        roles = {"light": ["light.room"], "illuminance": ["sensor.lux"],
+                 "daylight_binary": [], "presence": ["binary_sensor.motion"]}
+        inventory = {"items": [
+            {"entity_id": "light.room", "decision": "relevant", "suggested_role": "light",
+             "state": light_state},
+            {"entity_id": "sensor.lux", "decision": "relevant", "suggested_role": "illuminance",
+             "state": lux_state},
+            {"entity_id": "binary_sensor.motion", "decision": "relevant", "suggested_role": "motion",
+             "state": "off"},
+        ]}
+        summary = {"illuminance": {"status": "available", "value": 30, "unit": "lx",
+                                    "aggregation": "median", "measurements": [
+                                        {"entity_id": "sensor.lux", "value": 30,
+                                         "unit": "lx", "quality": "good"}]},
+                   "daylight_binary": {"status": "not_present", "active": None},
+                   "light": {"status": "available", "active": True}}
+        inspection = {"entity_id": "automation.room_light", "config_fingerprint": "a" * 64,
+                      "limitations": [], "alignment": {
+                          "source_trigger_references": ["binary_sensor.motion"],
+                          "target_action_references": ["light.room"]}}
+        return build_lighting_decision(zone_id="room", revision=3, roles=roles,
+            inventory=inventory, summary=summary, transport_ready=ready,
+            inspections=[inspection], checked_at="2026-09-27T00:00:00+00:00")
+
+    def test_current_indoor_value_never_becomes_outdoor_daylight_proof(self):
+        result = self.fixture()
+        self.assertEqual("withheld", result["state"])
+        self.assertEqual(30, result["current_zone_observation"]["illuminance"]["value"])
+        self.assertEqual("not_determined",
+                         result["current_zone_observation"]["physical_measurement_current"])
+        self.assertFalse(result["daylight_basis"]["outdoor_daylight_confirmed"])
+        self.assertEqual("direct_path", result["automation_review"]["items"][0]["state"])
+        self.assertEqual("not_determined",
+                         result["automation_review"]["items"][0]["duplicate_assessment"])
+        self.assertEqual("run_synthetic_preview", result["next_step"]["id"])
+        self.assertFalse(result["execution"]["allowed"])
+
+    def test_missing_sources_and_transport_have_one_prioritized_next_step(self):
+        disconnected = self.fixture(ready=False)
+        self.assertEqual("reload_zone", disconnected["next_step"]["id"])
+        no_light = self.fixture(light_state="unavailable")
+        self.assertEqual("configure_sources", no_light["next_step"]["id"])
+        no_lux = self.fixture(lux_state="unknown")
+        self.assertEqual("configure_sources", no_lux["next_step"]["id"])
+        for result in (disconnected, no_light, no_lux):
+            self.assertEqual({"id", "label"}, set(result["next_step"]))
+            self.assertFalse(result["persisted"])
+
+    def test_invalid_raw_lux_is_not_currently_usable(self):
+        roles = {"light": ["light.room"], "illuminance": ["sensor.lux"]}
+        inventory = {"items": [
+            {"entity_id": "light.room", "decision": "relevant", "suggested_role": "light",
+             "state": "on"},
+            {"entity_id": "sensor.lux", "decision": "relevant",
+             "suggested_role": "illuminance", "state": "NaN"},
+        ]}
+        summary = {"illuminance": {"status": "unavailable", "value": None,
+                                     "measurements": [{"entity_id": "sensor.lux",
+                                                       "value": None, "quality": "invalid"}]},
+                   "light": {"status": "available", "active": True}}
+        result = build_lighting_decision(
+            zone_id="room", revision=3, roles=roles, inventory=inventory,
+            summary=summary, transport_ready=True, inspections=[],
+            checked_at="2026-09-27T00:00:00+00:00")
+        self.assertEqual([], result["source_groups"]["illuminance"]["currently_usable"])
+        self.assertEqual("no_usable_brightness_reference", result["reason"])
+        self.assertEqual("configure_sources", result["next_step"]["id"])
+
+
 class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -150,6 +223,7 @@ class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):
             {"light.room": "relevant", "sensor.lux": "relevant"})
         await self.service.context.configure("room", 1,
             {"light": ["light.room"], "illuminance": ["sensor.lux"]}, False)
+        await self.service._derive()
 
     async def asyncTearDown(self):
         await self.client.close()
@@ -186,6 +260,82 @@ class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(status, response.status)
         malformed = await self.client.post("/api/v1/zones/room/lighting-preview", data="{broken")
         self.assertEqual(400, malformed.status)
+
+    async def test_live_decision_is_explicit_transient_and_structurally_reads_automations(self):
+        self.service._connected = self.service._stream_connected = True
+        from datetime import UTC, datetime
+        self.service._last_refresh_at = datetime.now(UTC).isoformat()
+        self.service.client.related_automations = AsyncMock(return_value={
+            "sensor.lux": ["automation.room_light"], "light.room": ["automation.room_light"]})
+        self.service.client.automation_config = AsyncMock(return_value={
+            "triggers": [{"trigger": "numeric_state", "entity_id": "sensor.lux"}],
+            "actions": [{"action": "light.turn_on", "target": {"entity_id": "light.room"}}]})
+        inventory = await self.service.selection_inventory("room")
+        before = copy.deepcopy(await self.service.context.get("room"))
+        response = await self.client.post("/api/v1/zones/room/lighting-decision",
+                                          json={"revision": inventory["revision"]})
+        self.assertEqual(200, response.status)
+        body = await response.json()
+        self.assertEqual("pilotsuite-lighting-decision-v1", body["schema"])
+        self.assertEqual("withheld", body["state"])
+        self.assertEqual(30.0, body["current_zone_observation"]["illuminance"]["value"])
+        self.assertFalse(body["daylight_basis"]["outdoor_daylight_confirmed"])
+        self.assertEqual("direct_path", body["automation_review"]["items"][0]["state"])
+        self.assertFalse(body["persisted"])
+        self.assertEqual([], body["execution"]["actions"])
+        self.assertEqual(before, await self.service.context.get("room"))
+        self.service.client.related_automations.assert_awaited_once()
+        self.service.client.automation_config.assert_awaited_once_with("automation.room_light")
+
+    async def test_live_decision_rejects_stale_or_malformed_requests_before_ha_reads(self):
+        self.service.client.related_automations = AsyncMock()
+        inventory = await self.service.selection_inventory("room")
+        for payload, status in [({"revision": inventory["revision"] + 1}, 409),
+                                ({"revision": True}, 400),
+                                ({"revision": inventory["revision"], "url": "https://example.invalid"}, 400),
+                                ([], 400)]:
+            with self.subTest(payload=payload):
+                response = await self.client.post("/api/v1/zones/room/lighting-decision", json=payload)
+                self.assertEqual(status, response.status)
+        self.service.client.related_automations.assert_not_awaited()
+
+    async def test_live_decision_rejects_roles_changed_during_automation_read(self):
+        self.service._connected = self.service._stream_connected = True
+        from datetime import UTC, datetime
+        self.service._last_refresh_at = datetime.now(UTC).isoformat()
+        self.service.client.related_automations = AsyncMock(return_value={
+            "sensor.lux": ["automation.room_light"]})
+
+        async def change_roles(_automation_id):
+            current = await self.service.selection_inventory("room")
+            await self.service.context.configure(
+                "room", current["revision"],
+                {"light": ["light.room"], "illuminance": []}, False)
+            return {"triggers": [], "actions": []}
+
+        self.service.client.automation_config = AsyncMock(side_effect=change_roles)
+        inventory = await self.service.selection_inventory("room")
+        response = await self.client.post(
+            "/api/v1/zones/room/lighting-decision",
+            json={"revision": inventory["revision"]})
+        self.assertEqual(409, response.status)
+
+    async def test_live_decision_batches_more_than_forty_source_references(self):
+        inventory = await self.service.selection_inventory("room")
+        roles = {
+            "light": [f"light.synthetic_{index}" for index in range(20)],
+            "illuminance": [f"sensor.synthetic_{index}" for index in range(20)],
+            "presence": ["binary_sensor.synthetic_presence"],
+        }
+        await self.service.context.configure("room", inventory["revision"], roles, False)
+        self.service.client.related_automations = AsyncMock(return_value={})
+        current = await self.service.selection_inventory("room")
+        response = await self.client.post(
+            "/api/v1/zones/room/lighting-decision",
+            json={"revision": current["revision"]})
+        self.assertEqual(200, response.status)
+        self.assertEqual([40, 1], [len(call.args[0])
+                                   for call in self.service.client.related_automations.await_args_list])
 
 
 if __name__=="__main__": unittest.main()

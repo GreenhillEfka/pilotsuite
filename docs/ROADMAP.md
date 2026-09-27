@@ -20,14 +20,17 @@
 - Alpha.41 closes the first real-zone integrity gap found in that preview:
   indoor lux, binary brightness and light targets remain separate; no configured
   signal becomes a confirmed outdoor reference. Missing current brightness holds.
-- The complete 50-route `/api/v1` inventory is now checked against the explicit
+- Alpha.42 adds the explicit current lighting decision check in the same workspace:
+  canonical roles/current observations plus freshly read related automation
+  structures, with revision/role recheck and exactly one internal next step. It
+  persists and executes nothing and makes no duplicate or safety verdict.
+- The complete 51-route `/api/v1` inventory is now checked against the explicit
   registration source; route/documentation drift fails validation instead of accumulating.
 - Candidate/main CI, scoped Alpha.40 backup, Store association, installation and
   runtime gates passed. Authenticated Alpha.41 Ingress remains separately open.
-- Next: run the explicit Alpha.41 preview in authenticated read-only Ingress for
-  Erdkellerbereich, confirm that its two indoor lux sources are not shown as outdoor
-  daylight proof, then repeat with one unlike existing zone. Read canonical zone IDs;
-  do not infer membership or change HA.
+- Next: complete Alpha.42 candidate/main CI, scoped backup and installation, then run
+  its explicit read-only decision check for Erdkellerbereich as far as authenticated
+  Ingress permits. Read canonical zone IDs; do not infer membership or change HA.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before

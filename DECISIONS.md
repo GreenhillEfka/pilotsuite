@@ -1,5 +1,20 @@
 # Architecture Decision Log
 
+## ADR-037 — Current lighting evidence is a transient, revision-bound brief
+
+Alpha.42 adds no controller, queue or second lighting owner. An explicit POST derives
+one brief from the canonical zone selection and roles, the current projection and
+freshly read related automation structures. Configured and currently usable sources,
+transport freshness, physical measurement freshness and outdoor-daylight provenance
+remain separate. Indoor lux never proves outdoor daylight; missing history is not
+counterevidence. A related automation is neither a duplicate verdict nor a safety
+assessment.
+
+The brief is discarded when the zone revision or effective roles change during the
+read. Only fixed internal next-step identifiers are returned. GET/reload performs no
+review; results are not persisted and never grant execution. Productive lighting,
+configuration repair, learning consent and general Apply remain separately gated.
+
 ## ADR-036 — Synthetic daylight is not real-zone provenance
 
 Alpha.41 keeps source semantics explicit: `illuminance` is an indoor measurement

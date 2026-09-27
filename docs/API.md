@@ -52,6 +52,7 @@ it appears in this inventory.
 | `PATCH` | `/api/v1/zones/{zone_id}/presence-runtime` | Save presence runtime configuration with the endpoint's consent and revision checks. |
 | `POST` | `/api/v1/zones/{zone_id}/presence-runtime/replay` | Replay one allowlisted synthetic presence scenario without reading or changing HA, consent or stored runtime state. |
 | `POST` | `/api/v1/zones/{zone_id}/lighting-preview` | Preview one allowlisted synthetic daylight/mood scenario without reading or changing HA, consent or stored state. `zone_inputs` separates configured/currently usable lights, indoor illuminance and binary brightness; `daylight_basis` states that scenario lux is synthetic and no configured signal is thereby confirmed as an outdoor daylight reference. The legacy aggregate `configured_reference_count` is only a configured-signal count, not provenance evidence. |
+| `POST` | `/api/v1/zones/{zone_id}/lighting-decision` | Explicit transient check of the current canonical zone roles, cached observations and freshly read related automation structures. Returns exactly one next step, never treats indoor lux as confirmed outdoor daylight, never infers physical measurement freshness from transport freshness, persists nothing and cannot execute. |
 | `POST` | `/api/v1/zones/{zone_id}/presence-adoption/review` | Perform an explicit read-only adoption review of existing presence automations. |
 
 ## Routine drafts, comparisons and review notes

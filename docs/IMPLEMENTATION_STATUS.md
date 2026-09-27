@@ -1,5 +1,24 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.42 candidate — current lighting decision check
+
+| Capability | Verified source scope |
+|---|---|
+| Current basis | Canonical roles and current projected zone observations |
+| HA relation | Fresh bounded related-automation lookup plus structural config reads |
+| Integrity | Revision and effective roles rechecked after HA reads |
+| Semantics | Indoor lux is no outdoor proof; transport is no physical freshness proof |
+| Decision | Exactly one allowlisted internal next step; no duplicate/safety verdict |
+| Boundary | Explicit POST, no persistence, configuration write, learning or execution |
+
+Local repository/API validation, 522 Python and 59 JavaScript tests pass. Local
+Chromium is unavailable; exact candidate CI remains required. Alpha.41 is installed
+and unchanged. No Alpha.42 backup, publication, Store update or live Ingress
+acceptance is claimed yet.
+
+Next: verify exact candidate CI, then create and verify one fresh Alpha.41 app-only
+backup before merge/publication and normal installation.
+
 ## Installed Alpha.41 — lighting-source integrity
 
 | Capability | Verified source scope |
