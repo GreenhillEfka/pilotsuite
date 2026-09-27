@@ -57,8 +57,9 @@
 - Alpha.46 candidate/main CI, scoped Alpha.45 backup, Store association, installation
   and runtime gates passed. Authenticated Safari Ingress completed post-update API
   reads; visual HTML/JS/CSS acceptance remains separate.
-- Next: run exact Alpha.47 candidate CI; do not publish before the fresh scoped
-  PilotSuite backup is verified.
+- Alpha.48 delivered explicit real-source shadow comparison without actuation.
+- Alpha.49 candidate consolidates the first zone presence instance: relevance-authorized live/history evaluation, typed presence/support sources, bounded grace, sensor/history visualization, an owned occupancy-output package, and ontology metadata plans. Exact candidate CI plus disposable Core protocol/browser gates are mandatory before publication.
+- Next after Alpha.49 acceptance: observe/publish one explicitly configured zone, then a second unlike zone before extending lighting/media authority.
 - Development may read HA-wide entities/automations under explicit user authority.
   A confirmed `relevant` entity authorizes PilotSuite to evaluate its available live and historical data for the zone; no second learning/history consent is required. Actuation authority remains separate.
 - Existing HA rules can contain errors; review references and desired behavior before
