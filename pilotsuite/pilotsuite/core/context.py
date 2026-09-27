@@ -10,7 +10,9 @@ from collections import Counter, defaultdict
 from contextlib import closing
 from datetime import datetime, UTC
 from .learning_views import (temporal_settings, time_bucket, coverage_report,
-                             context_report, sanitize_context_record, _valid_timestamp)
+                             context_report, sanitize_context_record,
+                             sanitize_history_import, ENTITY_ID, IMPORT_ID,
+                             _valid_timestamp)
 from .attribution import ALLOWED_ORIGINS
 from .selections import InvalidSelection, SelectionConflict
 from .history import retrospective
@@ -25,6 +27,8 @@ MIN_EVENTS = 5
 MIN_DAYS = 3
 
 DEFAULT_DETECTOR = {'min_events': MIN_EVENTS, 'min_days': MIN_DAYS}
+COVERAGE_STATES = {'ready', 'disconnected', 'no_source', 'partial_source', 'paused'}
+FEEDBACK_DECISIONS = {'accepted', 'rejected', 'later'}
 
 
 def validate_detector(value):
@@ -218,23 +222,88 @@ class ContextStore(OrganizationContextMixin):
         """Build the canonical projection using the caller's transaction."""
         self.prune(db, now)
         cfg = self.read(db, zone_id)
-        rows = db.execute('SELECT entity_id, occurred, origin FROM activity_evidence WHERE zone_id=? ORDER BY occurred', (zone_id,)).fetchall()
-        historical = {(e,t) for e,t in db.execute('SELECT entity_id,occurred FROM history_provenance WHERE zone_id=?', (zone_id,))}
+        excluded, normalized = Counter(), Counter()
+        rows = []
+        for entity, occurred, origin in db.execute(
+                'SELECT entity_id, occurred, origin FROM activity_evidence WHERE zone_id=? ORDER BY occurred',
+                (zone_id,)):
+            if (not isinstance(entity, str) or not ENTITY_ID.fullmatch(entity)
+                    or not _valid_timestamp(occurred)
+                    or not now-RETENTION <= occurred <= now+5):
+                excluded['activity_evidence'] += 1
+                continue
+            if origin not in ALLOWED_ORIGINS:
+                origin = 'unknown'
+                normalized['activity_evidence'] += 1
+            rows.append((entity, occurred, origin))
+        row_keys = {(entity, occurred) for entity, occurred, _ in rows}
+
+        history_imports, valid_import_ids = [], set()
+        for import_id, created, payload in db.execute(
+                'SELECT id,created,payload FROM history_imports WHERE zone_id=? ORDER BY created DESC',
+                (zone_id,)):
+            try:
+                decoded = json.loads(payload)
+            except (TypeError, ValueError):
+                decoded = None
+            receipt = sanitize_history_import(
+                decoded, row_id=import_id, created=created, now=now,
+                retention=RETENTION, limit=MAX_EVIDENCE)
+            if receipt is None:
+                excluded['history_imports'] += 1
+                continue
+            history_imports.append(receipt)
+            valid_import_ids.add(import_id)
+
+        historical = set()
+        for entity, occurred, import_id in db.execute(
+                'SELECT entity_id,occurred,import_id FROM history_provenance WHERE zone_id=?',
+                (zone_id,)):
+            if ((entity, occurred) not in row_keys or import_id not in valid_import_ids
+                    or not isinstance(import_id, str) or not IMPORT_ID.fullmatch(import_id)):
+                excluded['history_provenance'] += 1
+                continue
+            historical.add((entity, occurred))
         historical_times = {t for _,t in historical}
-        feedback = dict(db.execute('SELECT pattern_id,decision FROM pattern_feedback WHERE zone_id=?', (zone_id,)))
+        feedback = {}
+        for pattern_id, decision, updated in db.execute(
+                'SELECT pattern_id,decision,updated FROM pattern_feedback WHERE zone_id=?',
+                (zone_id,)):
+            if (not isinstance(pattern_id, str) or len(pattern_id) != 24
+                    or any(char not in '0123456789abcdef' for char in pattern_id)
+                    or decision not in FEEDBACK_DECISIONS or not _valid_timestamp(updated)
+                    or updated > now+5):
+                excluded['pattern_feedback'] += 1
+                continue
+            feedback[pattern_id] = decision
         detector = cfg['detector']
         local_zone, day_mode = temporal_settings(detector)
         context_records = []
+        evidence_times = {occurred for _, occurred, _ in rows}
         for occurred, payload in db.execute(
                 'SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred',
                 (zone_id,)):
-            if not _valid_timestamp(occurred):
+            if not _valid_timestamp(occurred) or occurred not in evidence_times:
+                excluded['activity_context'] += 1
                 continue
             try:
                 decoded = json.loads(payload)
             except (TypeError, ValueError):
                 decoded = {}
+                normalized['activity_context'] += 1
+            if not isinstance(decoded, dict):
+                decoded = {}
+                normalized['activity_context'] += 1
             context_records.append((occurred, sanitize_context_record(decoded)))
+        coverage_rows = []
+        for slot, state in db.execute(
+                'SELECT slot,state FROM coverage_checks WHERE zone_id=? ORDER BY slot',
+                (zone_id,)):
+            if (type(slot) is not int or slot % 300 or not _valid_timestamp(slot)
+                    or not now-RETENTION <= slot <= now or state not in COVERAGE_STATES):
+                excluded['coverage_checks'] += 1
+                continue
+            coverage_rows.append((slot, state))
         buckets = defaultdict(list)
         for entity, occurred, origin in rows:
             if entity in cfg['roles'].get('presence', []):
@@ -285,18 +354,27 @@ class ContextStore(OrganizationContextMixin):
                              'last_evidence_at': datetime.fromtimestamp(rows[-1][1], UTC).isoformat() if rows else None,
                              'observed_days': len({time_bucket(row[1], detector)[1] for row in rows}),
                              'observed_days_utc': len({datetime.fromtimestamp(row[1], UTC).date() for row in rows})},
-                'coverage': coverage_report(db.execute('SELECT slot, state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,)).fetchall()),
-                'coverage_samples': [{'slot': slot, 'state': state} for slot,state in db.execute('SELECT slot,state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,))],
+                'coverage': coverage_report(coverage_rows),
+                'coverage_samples': [{'slot': slot, 'state': state} for slot,state in coverage_rows],
                 'context_windows': context_report(context_records, detector),
                 'context_evidence': [{'occurred': datetime.fromtimestamp(t, UTC).isoformat(),
                                       'context': data} for t, data in context_records],
-                'history_imports': [json.loads(p) for (p,) in db.execute('SELECT payload FROM history_imports WHERE zone_id=? ORDER BY created DESC', (zone_id,))],
-                'historical_event_count': db.execute('SELECT COUNT(*) FROM history_provenance WHERE zone_id=?', (zone_id,)).fetchone()[0],
+                'history_imports': history_imports,
+                'historical_event_count': len(historical),
                 'time_basis': local_zone.key, 'day_mode': day_mode, 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o, 'recording_source': 'ha_history' if (e,t) in historical else 'live'} for e,t,o in rows],
+                'retained_integrity': {
+                    'status': 'degraded' if sum(excluded.values()) + sum(normalized.values()) else 'ok',
+                    'excluded_rows': {key: excluded[key] for key in
+                                      ('activity_evidence', 'history_provenance',
+                                       'history_imports', 'pattern_feedback',
+                                       'coverage_checks', 'activity_context')},
+                    'normalized_rows': {key: normalized[key] for key in
+                                        ('activity_evidence', 'activity_context')},
+                    'basis': 'invalid_or_unreadable_retained_rows_are_not_evidence'},
                 'limitations': 'Nur beobachtete Aktivierungen, keine Anwesenheitsdauer oder Wahrscheinlichkeit. Ausfälle und inaktive Lernzeiten sind unbeobachtet; Herkunft ist kein Beweis menschlicher Bedienung.'}
 
     async def feedback(self, zone_id, pattern_id, decision):
-        if decision not in ('accepted', 'rejected', 'later'):
+        if decision not in FEEDBACK_DECISIONS:
             raise InvalidSelection('invalid feedback')
         await asyncio.to_thread(self._feedback, zone_id, pattern_id, decision)
 

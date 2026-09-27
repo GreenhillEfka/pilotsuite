@@ -77,8 +77,21 @@
       Array.isArray(zone.sources)&&!zone.sources.includes(source);
     return {value:ref.value,unit:ref.unit||null,delta:comparable?zone.value-ref.value:null};
   }
+  function retainedIntegrity(value) {
+    const keys=['activity_evidence','history_provenance','history_imports',
+      'pattern_feedback','coverage_checks','activity_context'];
+    let affected=0;
+    for(const group of ['excluded_rows','normalized_rows']) {
+      const rows=value && typeof value[group]==='object' && !Array.isArray(value[group])?value[group]:{};
+      for(const key of keys) {
+        const amount=count(rows[key]);
+        if(amount!==null) affected=Math.min(Number.MAX_SAFE_INTEGER,affected+amount);
+      }
+    }
+    return {degraded:value?.status==='degraded'&&affected>0,affected};
+  }
   const api=Object.freeze({views,roles,modules,number,count,preferences,current,metric,diff,
-    effectiveRoles,roleOrigin,rolesForSave,temperatureComparison});
+    effectiveRoles,roleOrigin,rolesForSave,temperatureComparison,retainedIntegrity});
   if(typeof module!=='undefined' && module.exports) module.exports=api;
   if(root) root.PilotSuiteWorkspaceModel=api;
 })(typeof window!=='undefined'?window:null);

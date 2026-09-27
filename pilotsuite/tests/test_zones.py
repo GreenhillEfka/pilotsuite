@@ -188,6 +188,13 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
                 '"illuminance":{"value":NaN,"status":"available",'
                 '"sources":["sensor.lux"]},"private":"CANARY"}',
             ))
+            db.execute('INSERT INTO history_imports VALUES (?,?,?,?)', (
+                'bad', 'a', now,
+                '{"id":"bad","accepted":NaN,"private":"CANARY"}',
+            ))
+            db.execute('INSERT INTO history_imports VALUES (?,?,?,?)', (
+                'b' * 32, 'a', now, '{broken',
+            ))
         response = await self.client.get('/api/v1/zones/a/context/export')
         self.assertEqual(200, response.status)
         body = await response.text()
@@ -200,6 +207,9 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(['light.a'], context['light']['sources'])
         self.assertIsNone(context['illuminance']['value'])
         self.assertEqual('unknown', context['illuminance']['status'])
+        self.assertEqual([], exported['history_imports'])
+        self.assertEqual('degraded', exported['retained_integrity']['status'])
+        self.assertEqual(2, exported['retained_integrity']['excluded_rows']['history_imports'])
 
     async def test_detector_api_config_and_module_status(self):
         path = '/api/v1/zones/a/context'
