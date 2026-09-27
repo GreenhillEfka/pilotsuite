@@ -1,6 +1,6 @@
-# Current state — Alpha.50 live, Alpha.51 candidate
+# Current state — Alpha.51 delivered
 
-Alpha.51 is the bounded automation-reference integrity candidate. The authorized
+Alpha.51 is the delivered bounded automation-reference integrity correction. The authorized
 read-only inventory showed a real existing automation whose static source constraint is
 stored as `event_data.entity_id`. PilotSuite's discovery found that automation, while
 the existing draft inspector did not recognize the nested literal and could report a
@@ -9,11 +9,12 @@ Action event payloads remain opaque, and dynamic filters remain unresolved witho
 exposing authored text. No household configuration was copied into tests or source.
 
 Local checks pass 562 Python tests, 68 JavaScript tests, Python compilation and 62
-repository/API contracts. The packaged documentation now states only its own version;
-actual delivery remains owned by `docs/RELEASE_STATE.json`. Exact candidate CI, merge,
-main CI, fresh Alpha.50 backup and installation have not yet occurred.
+repository/API contracts. Exact candidate commit `2d4b771` and final main commit
+`5250c6b` passed all five CI jobs. The packaged documentation now states only its own
+version; actual delivery remains owned by `docs/RELEASE_STATE.json`.
 
-Alpha.50 is merged at `9aea467a81fcdbd9fc96a0199cb2a1c57826702b`, published and installed.
+Alpha.50 was the previous installed release. Its owned-package recovery boundary remains
+unchanged in Alpha.51.
 The exact candidate and final main commit passed all five CI jobs: unit/contract tests,
 amd64 container build, reproducible source checkout, disposable Home Assistant protocol
 and the complete Chromium application flow.
@@ -57,7 +58,12 @@ HA read-only inventory still exposes the real `erdkeller` (`Erdkeller Innen`) an
 Ingress remains unavailable in this session, so preservation of all four saved zones is
 not claimed from an internal HTTP response.
 
-Next: pass exact Alpha.51 candidate CI and the existing backup-bound release gates; only
-after installation repeat authenticated read-only Ingress acceptance of
-`Erdkellerbereich` and one unlike existing zone, with all four saved zones preserved and
-no household apply action.
+Alpha.51 is installed and started. Fresh backup `ca634a6c` contains only Alpha.50
+app/data/options. Logs confirm version Alpha.51, `presence_adoption_review`, connected
+stream, fresh snapshot and resolved zone. Options and `auto_update` remain unchanged.
+Direct proxy reads still correctly return `403 Ingress access required`; protection was
+not weakened and all four saved zones are therefore not claimed from internal HTTP.
+
+Next: authenticated read-only Ingress acceptance of `Erdkellerbereich` and one unlike
+existing zone, confirming all four saved zones and the corrected event-filter source
+explanation without any household apply action.
