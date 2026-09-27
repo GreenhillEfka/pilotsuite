@@ -360,6 +360,68 @@ class PilotSuiteService(OrganizationServiceMixin):
                 "scenario": replay_lighting_scenario(payload["scenario"]), "persisted": False,
                 "execution": {"allowed": False, "reason": "synthetic_preview_only", "actions": []}}
 
+    async def lighting_decision(self, zone_id, payload):
+        """Read current canonical inputs and related HA logic without persistence or control."""
+        from pilotsuite.core.lighting_decision import build_lighting_decision
+        from pilotsuite.core.presence_adoption import validate_automation_ids
+        from pilotsuite.domain.automation_inspection import inspect_automation
+        if (not isinstance(payload, dict) or set(payload) != {"revision"}
+                or type(payload["revision"]) is not int):
+            raise InvalidSelection("revision required")
+        if self._automation_review_lock.locked():
+            raise HomeAssistantError("An automation review is already running")
+
+        async def basis():
+            inventory = await self.selection_inventory(zone_id)
+            if inventory["revision"] != payload["revision"]:
+                raise SelectionConflict("Zone changed; reload lighting decision")
+            cfg = await self.context.get(zone_id)
+            saved_roles = cfg.get("roles", {})
+            roles = {key: list(saved_roles.get(key, []))
+                     for key in ("light", "illuminance", "daylight_binary", "presence", "atmosphere")}
+            origins = {key: "explicit" for key in roles}
+            relevant = [row for row in inventory.get("items", [])
+                        if row.get("decision") == "relevant"]
+            for key in ("light", "illuminance", "daylight_binary"):
+                if key in saved_roles:
+                    continue
+                candidates = sorted(row["entity_id"] for row in relevant
+                                    if row.get("suggested_role") == key)
+                roles[key] = candidates if key == "light" or len(candidates) == 1 else []
+                origins[key] = "derived"
+            zone = next((row for row in self._zone_results if row.get("zone_id") == zone_id), {})
+            status = await self.status()
+            refs = sorted({entity_id for values in roles.values() for entity_id in values})
+            return inventory, roles, origins, zone.get("summary", {}), status["ready"], refs
+
+        async with self._automation_review_lock:
+            async with self._projection_lock:
+                inventory, roles, origins, summary, ready, refs = await basis()
+            relations = await self.client.related_automations(refs) if refs else {}
+            ids = validate_automation_ids(sorted({automation for values in relations.values()
+                                                  for automation in values}))
+            draft = {"current_pattern": {"sources": sorted(set(
+                        roles["illuminance"] + roles["daylight_binary"] +
+                        roles["presence"] + roles["atmosphere"]))},
+                     "fields": {"target_ids": roles["light"]}}
+            inspections = []
+            try:
+                async with asyncio.timeout(60):
+                    for automation_id in ids:
+                        config = await self.client.automation_config(automation_id)
+                        inspections.append(inspect_automation(config, draft, automation_id, None))
+            except TimeoutError as exc:
+                raise HomeAssistantError("Lighting automation review timed out") from exc
+            async with self._projection_lock:
+                current_inventory, current_roles, current_origins, current_summary, current_ready, current_refs = await basis()
+                if current_roles != roles or current_origins != origins or current_refs != refs:
+                    raise SelectionConflict("Lighting sources changed during review; retry")
+                return build_lighting_decision(
+                    zone_id=zone_id, revision=payload["revision"], roles=current_roles,
+                    inventory=current_inventory, summary=current_summary,
+                    transport_ready=current_ready, inspections=inspections,
+                    role_origins=current_origins)
+
     async def configure_presence_runtime(self, zone_id, payload):
         if isinstance(payload, dict) and payload.get("enabled") is True:
             raise InvalidSelection("Steuerungsübernahme gesperrt: Timer-Ereignisse und bestehende Zuständigkeiten müssen vor Aktivierung separat abgenommen werden. Bestand & Ordnung bleibt nutzbar.")

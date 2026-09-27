@@ -3,7 +3,28 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.41 lighting-source integrity installed
+## Resume: Alpha.42 current lighting decision candidate
+
+The current branch adds a transient, explicit lighting decision brief to the existing
+lighting workspace. It reads canonical roles/current observations and freshly reads
+related HA automation structures, while separating configured/usable sources,
+transport freshness, physical measurement freshness and outdoor-light provenance.
+Indoor lux never becomes outdoor proof. Related automation structure is not a
+duplicate or safety verdict. Exactly one allowlisted internal next step is returned.
+
+The endpoint is POST-only, zone/revision bound and rechecks roles after HA reads.
+Reload and GET do not trigger review; stale/malformed/concurrent responses are
+rejected. Nothing is stored or executed. Alpha.41 remains installed until exact
+candidate and release-main CI, fresh app-only backup and normal Store update pass.
+
+Local validation: 520 Python and 59 JavaScript tests plus repository/API contracts
+pass. Local Chromium is unavailable; candidate CI must provide the browser result.
+
+Next: publish and verify the exact Alpha.42 candidate, create and verify one fresh
+Alpha.41 app-only backup, then merge/install and perform the read-only
+Erdkellerbereich decision check as far as authenticated Ingress permits.
+
+## Previous delivery: Alpha.41 lighting-source integrity installed
 
 Alpha.41 continues the same lighting policy owner. It separates configured/currently
 usable light targets, indoor lux and binary brightness in the synthetic preview,
@@ -28,7 +49,6 @@ Responses are bound to the current zone/revision/generation; only fixed `on`,
 `brightness_pct` and `color_temp_kelvin` setting keys can be displayed. No service
 name, URL or target is accepted from data. Reload performs no preview or mutation.
 
-Local validation: repository/API contracts, 515 Python and 59 JavaScript tests pass.
 Local validation passes repository/API contracts, 515 Python and 59 JavaScript tests.
 Exact Alpha.41 source, candidate and release-main CI passed Chromium, amd64, test and
 reproducible-source jobs. Fresh backup bc501582 contains only Alpha.40 app/data/options.

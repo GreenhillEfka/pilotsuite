@@ -1,4 +1,22 @@
-# Current state — Alpha.41 installed, 2026-09-27
+# Current state — Alpha.42 candidate; Alpha.41 installed, 2026-09-27
+
+Alpha.42 adds an explicit current lighting decision check in the existing workspace.
+It combines canonical source roles and current observations with freshly read related
+automation structures without persistence. Configured/usable sources, transport and
+physical freshness, indoor lux and outdoor provenance remain separate. A related
+automation is neither a duplicate verdict nor a safety proof. Changed revisions or
+roles invalidate the answer, and the brief exposes exactly one fixed internal next
+step with execution still denied.
+
+Local repository/API validation, 520 Python and 59 JavaScript tests pass. Local
+Chromium is unavailable, so candidate CI remains the browser gate. Alpha.41 is still
+installed; no release, Store update or HA mutation has yet been made for Alpha.42.
+
+Next: verify the exact Alpha.42 candidate in all CI jobs, take one fresh verified
+Alpha.41 app-only backup, then merge/install and perform the explicit read-only
+Erdkellerbereich decision check as far as authenticated Ingress permits.
+
+## Previous delivery — Alpha.41 installed
 
 Alpha.41 is the installed lighting-source integrity follow-up. It separates
 assigned/currently usable lights, indoor lux and binary brightness in the existing

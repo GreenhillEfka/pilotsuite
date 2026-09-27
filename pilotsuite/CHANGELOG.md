@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.0-alpha.42] - 2026-09-27
+
+### Aktueller Licht-Entscheidungscheck
+- Verbindet erst nach einem ausdrücklichen Klick den aktuellen kanonischen Zonenstand
+  mit tatsächlich gelesenen, passenden Home-Assistant-Automationsstrukturen.
+- Trennt konfigurierte von aktuell nutzbaren Quellen, Innen-Helligkeit von nicht
+  bestätigter Außenhelligkeit sowie Transport-Aktualität von physischer Messaktualität.
+- Zeigt genau einen sicheren nächsten Schritt. Geänderte Revisionen oder Rollen
+  verwerfen das Ergebnis; Reload, GET und verspätete Antworten lösen keine Prüfung aus.
+
+### Grenzen und Prüfung
+- Das Ergebnis wird nicht gespeichert, bewertet weder Duplikat noch Sicherheit und
+  gewährt keine Ausführung. Es ändert keine HA-Konfiguration, Automation, Rolle,
+  Lernfreigabe oder Geräteaktion.
+
 ## [0.1.0-alpha.41] - 2026-09-27
 
 ### Integrität der Lichtvorschau
