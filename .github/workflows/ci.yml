@@ -35,6 +35,8 @@ jobs:
           python scripts/release_preflight.py --candidate "$CANDIDATE_SHA" --published "$PUBLISHED_SHA" --allow-unchanged
       - name: Check frontend syntax and selection model
         run: |
+          node --check pilotsuite/pilotsuite/web/zone-presence.js
+          node --check pilotsuite/pilotsuite/web/zone-presence-model.js
           node --check pilotsuite/pilotsuite/web/presence-shadow.js
           node --check pilotsuite/pilotsuite/web/organization.js
           node --check pilotsuite/pilotsuite/web/appearance.js
@@ -136,6 +138,10 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_presence_shadow_browser.cjs
+      - name: Exercise zone configurator, relevant histories and ontology plans
+        env:
+          PILOTSUITE_SCREENSHOTS: ui-review
+        run: node scripts/test_zone_instance_browser.cjs
       - name: Save synthetic UI review screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -171,3 +177,27 @@ jobs:
           path: source-evidence/*
           retention-days: 1
           if-no-files-found: error
+
+  protocol:
+    name: Disposable Home Assistant protocol
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out the exact candidate without saved credentials
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up supported Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Install HA and PilotSuite in separate dependency environments
+        run: |
+          python -m venv .ha-protocol-env
+          .ha-protocol-env/bin/python -m pip install --disable-pip-version-check 'homeassistant==2026.9.3'
+          python -m pip install --disable-pip-version-check --requirement pilotsuite/requirements.txt
+      - name: Verify native helpers, template flow, publisher and metadata rollback
+        env:
+          PYTHONPATH: pilotsuite
+          HA_PROTOCOL_PYTHON: .ha-protocol-env/bin/python
+        run: python scripts/test_disposable_ha_zone.py

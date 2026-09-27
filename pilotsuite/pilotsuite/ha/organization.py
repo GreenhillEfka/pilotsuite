@@ -23,6 +23,7 @@ class OrganizationWorldMixin:
                     'state':state.get('state'),'unit':attrs.get('unit_of_measurement'),
                     'device_class':row.get('device_class') or attrs.get('device_class'),
                     'in_registry':eid in self._entities,
+                    'member_entity_ids':list(attrs.get('entity_id',[])) if isinstance(attrs.get('entity_id'),list) else [],
                     'derived':row.get('platform') in ('input_boolean','template','group','threshold','min_max')})
             return result
 

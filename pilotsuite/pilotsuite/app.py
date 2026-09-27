@@ -18,6 +18,7 @@ from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
 from pilotsuite.review_notes_api import register_review_notes
 from pilotsuite.maintenance_api import register_maintenance
+from pilotsuite.zone_presence_api import register_zone_presence
 from pilotsuite.workspace_api import register_workspace, workspace_page
 from pilotsuite.organization_api import register_organization
 
@@ -112,6 +113,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app[SERVICE_KEY] = service
     register_maintenance(app, SERVICE_KEY, WEB_DIR)
     register_workspace(app, WEB_DIR)
+    register_zone_presence(app, SERVICE_KEY)
     register_organization(app, SERVICE_KEY, WEB_DIR)
     app.on_startup.append(_startup)
     app.on_cleanup.append(_cleanup)

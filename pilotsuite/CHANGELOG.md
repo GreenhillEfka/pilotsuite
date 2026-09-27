@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.1.0-alpha.49] - 2026-09-27
+
+### Zoneninstanz, Daten und Ordnung — Entwicklungskandidat
+- Neuer Zonen-Konfigurator auf dem vorhandenen Präsenzkern: Dauerpräsenz, Impulse,
+  optionale Nutzungsindizien, explizite Abdeckungsgruppen, Start-/Haltewirkung und
+  zeitlich begrenzte Nachläufe. Keine unabhängige zweite Sensorwahrheit.
+- Relevanz autorisiert die neue Live- und Recorder-Zustandsauswertung ohne zusätzliche
+  Lern- oder Historienzustimmung. Automatisch zunächst 24 Stunden in begrenzten Paketen;
+  ältere Intervalle sind bis 31 Tage je Abruf direkt auswertbar. Aufzeichnungslücken
+  werden nicht als Abwesenheit oder Nullwerte ausgegeben.
+- Aktuelle Quellen, Sitzungsverlauf und historische Mess-/Zustandsreihen mit Einheiten,
+  Datenlücken, Tabellen und getrennten kategorialen Zuständen. Keine erfundenen Kurven.
+- Dauerhafte Pläne für neue eigene Boolean-/Timer-/Gültigkeitshelfer und einen öffentlichen
+  Template-Anwesenheitssensor. Erstellung aktiviert die Veröffentlichung nicht. Der
+  Publisher prüft Identitäten und Rückleseergebnisse; unklare Ausgänge werden ausgesetzt.
+- Anzeigenamen und sechs Habitus-Rollenlabels in einem bestätigten Plan vereinheitlichen,
+  mit Vorherzustand, unabhängiger Prüfung und expliziter konfliktsicherer Rücknahme.
+  Physische Bereiche und fremde Labels bleiben erhalten; vorhandene Zonenanker blockieren
+  eine doppelte Ausgangsanlage. Technische ID-Migration bleibt gesondert gesperrt.
+- Neue synthetische Store-/HTTP-/Transporttests und eine zusätzliche tatsächliche
+  Anwendungs-Browsersuite (deren lokale Navigation administrativ blockiert war).
+- Ein bestehender Test nahm zufällig an, dass zwei aktuelle Zeitpunkte im gleichen
+  Zweistundenfenster liegen. Auf unveränderter Alpha.48 reproduziert; deterministisch
+  fixiert und eine zusätzliche Grenzprüfung ergänzt, keine Produktionslogik abgeschwächt.
+
+### Grenzen
+- Kandidat, nicht installiert. Keine Hauskonfiguration oder Entität in dieser Entwicklung
+  verändert. Browser-, Container-, exakte Remote-CI und echte HA-Protokollabnahme fehlen.
+- Bestehende Automationszuständigkeit wird nicht automatisch übernommen. Vorhandene
+  Ausgangshelfer werden nicht nach Namen adoptiert, technische ID-Referenzen nicht blind
+  migriert. Legacy-Lernfelder bleiben für ältere Ansichten kompatibel, sind aber keine
+  Freigabesperre des neuen Zonenpfads. Ein vollständiger adaptiver Lerner folgt separat.
+
 ## [0.1.0-alpha.48] - 2026-09-27
 
 ### Live-Schattenvergleich und Lichtbedarf

@@ -26,7 +26,10 @@ class HomeAssistantError(RuntimeError):
 from .organization import OrganizationClientMixin
 
 
-class HomeAssistantClient(OrganizationClientMixin):
+from .zone_output import ZoneOutputClientMixin
+
+
+class HomeAssistantClient(OrganizationClientMixin, ZoneOutputClientMixin):
     def __init__(self, ws_url: str, token: str) -> None:
         self._ws_url = ws_url
         self._token = token

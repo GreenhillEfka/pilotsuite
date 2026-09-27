@@ -163,3 +163,18 @@ The `/api/v1` prefix is stable, but alpha response fields may grow. Existing
 fields are not silently repurposed. Every explicitly registered `/api/v1` method and
 canonical path must be present in the endpoint inventory; the repository validator
 fails when implementation and documentation drift.
+
+## Zone presence configurator and relevance-authorized data (Alpha.49 candidate)
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/v1/zones/{zone_id}/presence` | Current typed presence, relevant live sources and configuration; no HA writes. |
+| `PUT` | `/api/v1/zones/{zone_id}/presence` | Revision-bound behavior save; publish requires an owned verified output package. |
+| `POST` | `/api/v1/zones/{zone_id}/data` | Relevant raw history and numerical/state visualizations, no extra data consent. |
+| `POST` | `/api/v1/zones/{zone_id}/presence/package` | Prepare an explicitly reviewable new helper package; no HA write. |
+| `POST` | `/api/v1/zones/{zone_id}/presence/package/{plan_id}/apply` | Confirm exact helper-creation plan with durable receipts and no blind replay. |
+| `GET` | `/api/v1/zones/{zone_id}/ontology` | Current entity/label inventory and canonical Habitus roles. |
+| `POST` | `/api/v1/zones/{zone_id}/ontology` | Preview custom display name and exact role labels; ID migration remains blocked. |
+| `POST` | `/api/v1/zones/{zone_id}/ontology/{plan_id}/apply` | Apply exact metadata plan; no physical area or entity-ID mutation. |
+
+| `POST` | `/api/v1/zones/{zone_id}/ontology/{plan_id}/restore-preview` | Prepare a guarded metadata rollback only if the current after-image still matches. |
