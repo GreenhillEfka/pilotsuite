@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.44 candidate — historical context integrity
+## Installed Alpha.44 — historical context integrity
 
 | Capability | Verified source scope |
 |---|---|
@@ -11,8 +11,15 @@
 | Evidence continuity | Valid activation retained when only optional context is malformed |
 | Boundary | No schema, consent, feedback, HA write, learning or execution change |
 
-Next: complete repository, Python and JavaScript validation and require exact
-candidate CI before merge or deployment.
+Repository/API validation, 529 Python and 59 JavaScript tests pass. PR 96 release
+`2606ef5`; exact candidate CI 36298041709 and release-main CI 36298123047 passed all
+four jobs. Backup `6c7c870d` contains only Alpha.43 app/data/options, without HA,
+database, folders or failed parts. One Store refresh and one update installed
+Alpha.44; installed/offered/started, options and auto_update unchanged. Logs report
+ready, connected stream, fresh snapshot and resolved zone.
+
+Next: run the explicit current-light and retained-context checks in authenticated
+read-only Ingress for Erdkellerbereich.
 
 ## Installed Alpha.43 — numeric observation integrity
 

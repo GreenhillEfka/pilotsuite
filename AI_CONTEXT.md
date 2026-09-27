@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.44 historical context integrity candidate
+## Resume: Alpha.44 historical context integrity installed
 
 The current branch closes the remaining downstream numeric integrity gap found after
 Alpha.43. Historical learning-context windows previously accepted NaN, infinity,
@@ -13,10 +13,17 @@ finite non-negative lux, sanitize source identifiers and control invalid timesta
 A valid activation remains evidence when only its optional context is malformed; the
 context itself is not persisted.
 
-Repository/API validation and the full test suite must pass before publication.
-Alpha.43 remains installed/offered/started with no household or option change. Next:
-publish the exact Alpha.44 candidate and require complete candidate CI before merge
-or Store delivery. Authenticated Erdkellerbereich Ingress acceptance remains separate.
+Repository/API validation, 529 Python and 59 JavaScript tests pass. PR 96 release
+`2606ef59930b640c4c6d6eccbb73618e4141e629`; candidate CI 36298041709 and
+release-main CI 36298123047 passed all four jobs. Fresh backup `6c7c870d` contains
+only Alpha.43 app/data/options, with no HA, database, folders or failed parts. One
+Store refresh and one normal update installed Alpha.44; it is offered, started,
+ready, stream-connected, snapshot-fresh and zone-resolved with options and auto_update
+unchanged. General Apply remains closed and no household state changed.
+
+Authenticated Alpha.44 Ingress remains open; the prior available cloud route ended
+before HA with 502 and was not repeatedly probed. Next: run the explicit current-light
+and retained-context checks in authenticated read-only Ingress for Erdkellerbereich.
 
 ## Installed baseline: Alpha.43 numeric integrity
 
