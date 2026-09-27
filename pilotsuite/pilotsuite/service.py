@@ -397,7 +397,9 @@ class PilotSuiteService(OrganizationServiceMixin):
         async with self._automation_review_lock:
             async with self._projection_lock:
                 inventory, roles, origins, summary, ready, refs = await basis()
-            relations = await self.client.related_automations(refs) if refs else {}
+            relations = {}
+            for offset in range(0, len(refs), 40):
+                relations.update(await self.client.related_automations(refs[offset:offset + 40]))
             ids = validate_automation_ids(sorted({automation for values in relations.values()
                                                   for automation in values}))
             draft = {"current_pattern": {"sources": sorted(set(

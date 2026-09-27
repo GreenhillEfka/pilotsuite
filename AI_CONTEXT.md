@@ -17,7 +17,7 @@ Reload and GET do not trigger review; stale/malformed/concurrent responses are
 rejected. Nothing is stored or executed. Alpha.41 remains installed until exact
 candidate and release-main CI, fresh app-only backup and normal Store update pass.
 
-Local validation: 520 Python and 59 JavaScript tests plus repository/API contracts
+Local validation: 522 Python and 59 JavaScript tests plus repository/API contracts
 pass. Local Chromium is unavailable; candidate CI must provide the browser result.
 
 Next: publish and verify the exact Alpha.42 candidate, create and verify one fresh

@@ -141,7 +141,9 @@ class LightingDecisionTests(unittest.TestCase):
              "state": "off"},
         ]}
         summary = {"illuminance": {"status": "available", "value": 30, "unit": "lx",
-                                    "aggregation": "median"},
+                                    "aggregation": "median", "measurements": [
+                                        {"entity_id": "sensor.lux", "value": 30,
+                                         "unit": "lx", "quality": "good"}]},
                    "daylight_binary": {"status": "not_present", "active": None},
                    "light": {"status": "available", "active": True}}
         inspection = {"entity_id": "automation.room_light", "config_fingerprint": "a" * 64,
@@ -175,6 +177,26 @@ class LightingDecisionTests(unittest.TestCase):
         for result in (disconnected, no_light, no_lux):
             self.assertEqual({"id", "label"}, set(result["next_step"]))
             self.assertFalse(result["persisted"])
+
+    def test_invalid_raw_lux_is_not_currently_usable(self):
+        roles = {"light": ["light.room"], "illuminance": ["sensor.lux"]}
+        inventory = {"items": [
+            {"entity_id": "light.room", "decision": "relevant", "suggested_role": "light",
+             "state": "on"},
+            {"entity_id": "sensor.lux", "decision": "relevant",
+             "suggested_role": "illuminance", "state": "NaN"},
+        ]}
+        summary = {"illuminance": {"status": "unavailable", "value": None,
+                                     "measurements": [{"entity_id": "sensor.lux",
+                                                       "value": None, "quality": "invalid"}]},
+                   "light": {"status": "available", "active": True}}
+        result = build_lighting_decision(
+            zone_id="room", revision=3, roles=roles, inventory=inventory,
+            summary=summary, transport_ready=True, inspections=[],
+            checked_at="2026-09-27T00:00:00+00:00")
+        self.assertEqual([], result["source_groups"]["illuminance"]["currently_usable"])
+        self.assertEqual("no_usable_brightness_reference", result["reason"])
+        self.assertEqual("configure_sources", result["next_step"]["id"])
 
 
 class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):
@@ -297,6 +319,23 @@ class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):
             "/api/v1/zones/room/lighting-decision",
             json={"revision": inventory["revision"]})
         self.assertEqual(409, response.status)
+
+    async def test_live_decision_batches_more_than_forty_source_references(self):
+        inventory = await self.service.selection_inventory("room")
+        roles = {
+            "light": [f"light.synthetic_{index}" for index in range(20)],
+            "illuminance": [f"sensor.synthetic_{index}" for index in range(20)],
+            "presence": ["binary_sensor.synthetic_presence"],
+        }
+        await self.service.context.configure("room", inventory["revision"], roles, False)
+        self.service.client.related_automations = AsyncMock(return_value={})
+        current = await self.service.selection_inventory("room")
+        response = await self.client.post(
+            "/api/v1/zones/room/lighting-decision",
+            json={"revision": current["revision"]})
+        self.assertEqual(200, response.status)
+        self.assertEqual([40, 1], [len(call.args[0])
+                                   for call in self.service.client.related_automations.await_args_list])
 
 
 if __name__=="__main__": unittest.main()

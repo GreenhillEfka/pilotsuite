@@ -8,7 +8,7 @@ automation is neither a duplicate verdict nor a safety proof. Changed revisions 
 roles invalidate the answer, and the brief exposes exactly one fixed internal next
 step with execution still denied.
 
-Local repository/API validation, 520 Python and 59 JavaScript tests pass. Local
+Local repository/API validation, 522 Python and 59 JavaScript tests pass. Local
 Chromium is unavailable, so candidate CI remains the browser gate. Alpha.41 is still
 installed; no release, Store update or HA mutation has yet been made for Alpha.42.
 

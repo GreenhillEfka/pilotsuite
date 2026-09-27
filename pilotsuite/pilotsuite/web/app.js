@@ -385,7 +385,7 @@ load().catch((error) => {
 
 // Refresh the display without forcing additional HA snapshots.
 setInterval(() => {
-  if (!document.hidden && !selectionBusy && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty && !document.activeElement?.closest('#zone-tabs, #learned-patterns, #zone-summary')) load().catch((error) => {
+  if (!document.hidden && !selectionBusy && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty && !window.PilotSuiteWorkspaceBusy?.() && !document.activeElement?.closest('#zone-tabs, #learned-patterns, #zone-summary')) load().catch((error) => {
     byId("error").textContent = error.message;
     byId("error").hidden = false;
   });

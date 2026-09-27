@@ -11,7 +11,7 @@
 | Decision | Exactly one allowlisted internal next step; no duplicate/safety verdict |
 | Boundary | Explicit POST, no persistence, configuration write, learning or execution |
 
-Local repository/API validation, 520 Python and 59 JavaScript tests pass. Local
+Local repository/API validation, 522 Python and 59 JavaScript tests pass. Local
 Chromium is unavailable; exact candidate CI remains required. Alpha.41 is installed
 and unchanged. No Alpha.42 backup, publication, Store update or live Ingress
 acceptance is claimed yet.

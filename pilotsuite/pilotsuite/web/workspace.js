@@ -275,7 +275,8 @@
   const oldStatus=renderStatus;renderStatus=function(s){oldStatus(s);status=s;renderCockpit();};
   const oldZone=renderZoneView;renderZoneView=function(){oldZone();renderCockpit();renderModules();};
   const oldLearning=renderLearning;renderLearning=function(){oldLearning();invalid=false;renderModules();};
-  const oldInvalid=invalidateDailyBrief;invalidateDailyBrief=function(...args){oldInvalid(...args);invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderModules(true);};
+  window.PilotSuiteWorkspaceBusy=()=>requestBusy;
+  const oldInvalid=invalidateDailyBrief;invalidateDailyBrief=function(...args){if(requestBusy&&args[1]===true)return;oldInvalid(...args);invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderModules(true);};
   const oldFoundation=renderFoundationJourney;renderFoundationJourney=function(...args){oldFoundation(...args);renderModules();const b=$('helper-provision');if(b&&!valid())b.disabled=true;};
   const oldPreview=renderRolePreview;renderRolePreview=function(){oldPreview();renderDiff();};
   // Global freshness is separate from module configuration and action authority.
