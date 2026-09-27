@@ -1,4 +1,4 @@
-# Current state — Alpha.45 bounded context export candidate, 2026-09-27
+# Current state — Alpha.45 bounded context export installed, 2026-09-27
 
 The follow-up integrity review found that Alpha.44 sanitized derived context windows
 but still returned each retained context record verbatim in the explicit export. A
@@ -11,14 +11,21 @@ optional aware capture timestamp. Invalid JSON becomes unknown context, unsuppor
 row timestamps are ignored and valid early rows without a status field remain usable.
 No stored row is deleted or rewritten.
 
-Repository/API validation, 532 Python and 59 JavaScript tests pass locally, including
-storage and HTTP export regressions. No schema, collection, consent, feedback,
-preference, HA write or execution change is included. Alpha.44 remains installed,
-offered and started with options and auto_update unchanged.
+Repository/API validation, 532 Python and 59 JavaScript tests pass, including storage
+and HTTP export regressions. PR 98 release `3bbe21c`; exact candidate CI 36300845766
+and release-main CI 36300924716 passed test/source contracts, Chromium, amd64 and
+reproducible source. Fresh backup `7c0f650d` contains only Alpha.44 app/data/options,
+without HA, database, folders or failed parts.
 
-Next: publish the exact Alpha.45 candidate, require complete CI and only then deliver
-through the scoped backup/Store routine. Authenticated Ingress acceptance remains
-separate.
+One Store refresh and one normal update installed Alpha.45. It is installed, offered
+and started with options and auto_update unchanged. Logs report Alpha.45, ready,
+connected stream, fresh snapshot and resolved saved Erdkellerbereich. No schema,
+collection, consent, feedback, preference, HA write, execution authority or household
+state changed.
+
+Next: perform the explicit current-light and retained-context checks in authenticated
+read-only Ingress for Erdkellerbereich; UI acceptance remains separate from runtime
+and CI health.
 
 ## Installed baseline — Alpha.44
 

@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.45 candidate — bounded retained-context export
+## Installed Alpha.45 — bounded retained-context export
 
 | Capability | Verified source scope |
 |---|---|
@@ -11,9 +11,16 @@
 | Compatibility | Valid early rows without a status field remain usable; stored rows are not rewritten |
 | Boundary | No schema, collection, consent, feedback, HA write or execution change |
 
-Repository/API validation, 532 Python and 59 JavaScript tests pass locally, including
-storage and HTTP export regressions. Next: publish the exact candidate and require
-complete CI before merge or Store delivery.
+Repository/API validation, 532 Python and 59 JavaScript tests pass, including storage
+and HTTP export regressions. PR 98 release `3bbe21c`; exact candidate CI 36300845766
+and release-main CI 36300924716 passed all four jobs. Backup `7c0f650d` contains only
+Alpha.44 app/data/options, without HA, database, folders or failed parts. One Store
+refresh and one update installed Alpha.45; installed/offered/started, options and
+auto_update unchanged. Logs report ready, connected stream, fresh snapshot and
+resolved zone.
+
+Next: run the explicit current-light and retained-context checks in authenticated
+read-only Ingress for Erdkellerbereich.
 
 ## Installed Alpha.44 — historical context integrity
 

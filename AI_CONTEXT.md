@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.45 bounded context export candidate
+## Resume: Alpha.45 bounded context export installed
 
 A fresh post-Alpha.44 integrity review found one remaining downstream path: derived
 context windows were sanitized, but individual retained context evidence was still
@@ -16,10 +16,18 @@ unknown fields are omitted. Invalid JSON becomes an explicit unknown context, in
 row timestamps are ignored, and valid early rows without a status field remain usable.
 Stored evidence is neither deleted nor rewritten. General Apply remains closed.
 
-Local repository/API validation, 532 Python and 59 JavaScript tests pass. Before
-publication, require the exact candidate CI and a fresh Alpha.44-only backup because
-auto_update remains enabled. Alpha.44 is still installed/offered/started and healthy.
-Authenticated household Ingress acceptance remains separate.
+Repository/API validation, 532 Python and 59 JavaScript tests pass. PR 98 release
+`3bbe21c0099ac5db8fc82c729399ed9003e93ce0`; candidate CI 36300845766 and
+release-main CI 36300924716 passed all four jobs. Fresh backup `7c0f650d` contains
+only Alpha.44 app/data/options, with no HA, database, folders or failed parts. One
+Store refresh and one normal update installed Alpha.45; it is offered, started,
+ready, stream-connected, snapshot-fresh and zone-resolved with options and auto_update
+unchanged. General Apply remains closed and no household state changed.
+
+Authenticated Alpha.45 Ingress remains open; the unchanged available cloud route
+previously ended before HA with 502 and was not repeatedly probed. Next: run the
+explicit current-light and retained-context checks in authenticated read-only Ingress
+for Erdkellerbereich.
 
 ## Installed baseline: Alpha.44 historical context integrity
 
