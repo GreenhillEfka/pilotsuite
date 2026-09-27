@@ -60,22 +60,22 @@
 - Next: run exact Alpha.47 candidate CI; do not publish before the fresh scoped
   PilotSuite backup is verified.
 - Development may read HA-wide entities/automations under explicit user authority.
-  Productive learning still requires its own source/zone consent. No new collection.
+  A confirmed `relevant` entity authorizes PilotSuite to evaluate its available live and historical data for the zone; no second learning/history consent is required. Actuation authority remains separate.
 - Existing HA rules can contain errors; review references and desired behavior before
   proposing repairs. Missing IDs never justify guessed replacements or broad writes.
 - Preserve canonical ownership; transport freshness, physical validity and domain
   completeness differ. Demonstrated comfort benefit precedes new algorithms.
 
-## 0.2 — consented read-only learning
+## 0.2 — relevance-authorized read-only learning
 - Compose Habitus zones and sensor roles from HA identifiers.
 - SQLite schema/migrations for own definitions, bounded evidence and feedback.
 - Attribute manual/existing-automation/own actions where possible.
 - Separate observed statistics, confidence, severity and preference.
 - One traceable habit -> proposal -> durable feedback loop.
-- Consent, retention, export, delete/reset and replay regression fixtures.
+- Relevance scope, retention, export, delete/reset and replay regression fixtures.
 - Test a second unlike zone; no execution.
 
-Implemented bounded slice: correlate HA service/state contexts only with active consent,
+Legacy bounded slice: older retained learning rows may still carry historical consent metadata; new zone evaluation is authorized by confirmed relevance,
 store no identifiers, and expose uncertainty. Exact automation identity is not
 available from generic context alone. Own-action exclusion remains blocked until a
 governed execution owner exists; the read-only alpha cannot generate own actions.
