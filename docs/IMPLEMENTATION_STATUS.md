@@ -1,5 +1,20 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.43 candidate — numeric observation integrity
+
+| Capability | Verified source scope |
+|---|---|
+| Numeric boundary | Rejects NaN, infinity and impossible temperature/humidity/lux |
+| Summary semantics | Invalid remains unknown; never zero, available or unremarkable |
+| JSON contract | Individual and reference projections contain no non-finite numbers |
+| Lighting decision | Usable/displayed lux must independently be finite and non-negative |
+| Boundary | No persistence, HA write, consent, learning or execution change |
+
+Repository/API validation, 525 Python and 59 JavaScript tests pass locally. Alpha.42
+remains the installed/offered/started app; Alpha.43 is not published or installed.
+
+Next: publish the exact candidate branch and require all CI jobs before merge.
+
 ## Installed Alpha.42 — current lighting decision check
 
 | Capability | Verified source scope |

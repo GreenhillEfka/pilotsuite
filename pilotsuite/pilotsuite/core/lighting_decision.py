@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import math
 from typing import Any
 
 from .context import ROLE_KINDS
@@ -9,6 +10,10 @@ from .context import ROLE_KINDS
 
 ROLES = ("light", "illuminance", "daylight_binary", "presence", "atmosphere")
 UNUSABLE_STATES = {None, "", "unknown", "unavailable"}
+
+
+def _valid_lux(value: Any) -> bool:
+    return type(value) in (int, float) and math.isfinite(value) and value >= 0
 
 
 def _ids(value: Any) -> list[str]:
@@ -61,9 +66,15 @@ def build_lighting_decision(*, zone_id: str, revision: int, roles: dict[str, Any
     illuminance = summary.get("illuminance") if isinstance(summary.get("illuminance"), dict) else {}
     valid_lux = {row.get("entity_id") for row in illuminance.get("measurements", [])
                  if isinstance(row, dict) and row.get("quality") == "good"
-                 and type(row.get("value")) in (int, float)}
+                 and _valid_lux(row.get("value"))}
     usable["illuminance"] = [entity_id for entity_id in usable["illuminance"]
                               if entity_id in valid_lux]
+    lux_value = illuminance.get("value")
+    if not usable["illuminance"] or not _valid_lux(lux_value):
+        lux_value = None
+    lux_status = illuminance.get("status", "unknown")
+    if lux_value is None and lux_status in {"available", "partial"}:
+        lux_status = "unavailable"
     origins = role_origins if isinstance(role_origins, dict) else {}
     source_groups = {role: {"configured": configured[role], "currently_usable": usable[role],
                             "configured_count": len(configured[role]),
@@ -96,8 +107,9 @@ def build_lighting_decision(*, zone_id: str, revision: int, roles: dict[str, Any
         "reason": reason,
         "source_groups": source_groups,
         "current_zone_observation": {
-            "illuminance": {"status": illuminance.get("status", "unknown"),
-                            "value": illuminance.get("value"), "unit": illuminance.get("unit"),
+            "illuminance": {"status": lux_status,
+                            "value": lux_value,
+                            "unit": illuminance.get("unit") if lux_value is not None else None,
                             "aggregation": illuminance.get("aggregation"),
                             "scope": "configured_indoor_zone_sources"},
             "daylight_binary": {"status": daylight.get("status", "unknown"),
