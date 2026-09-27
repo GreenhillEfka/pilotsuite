@@ -297,11 +297,31 @@ class PilotSuiteService(OrganizationServiceMixin):
             foundation=build_foundation(inventory,{"effective_roles":roles,"config":cfg})
             timer=next((f"timer.{h['key']}" for h in foundation.get("helper_plan",[]) if h.get("domain")=="timer"),None)
             state=dict(self._presence_runtime.get(zone_id,{}))
+            checkpoint=await self.context.presence_checkpoint(zone_id)
             return {"zone_id":zone_id,"revision":inventory["revision"],"enabled":zone_id in self._presence_runtime_enabled,
                 "owner":owners[0] if len(owners)==1 else None,"raw_sources":raw,"timer":timer,
                 "state":state.get("state","disabled" if zone_id not in self._presence_runtime_enabled else "unknown"),
                 "reason":state.get("reason","not_evaluated"),"last_evaluated_at":state.get("at"),
+                "kernel_checkpoint":checkpoint,
                 "execution":{"allowed":zone_id in self._presence_runtime_enabled and len(owners)==1 and bool(raw) and bool(timer)}}
+
+    async def presence_replay(self, zone_id, payload):
+        """Replay one allowlisted synthetic scenario; no HA read, write or persistence."""
+        from pilotsuite.core.presence_kernel import SCENARIOS, replay_scenario
+        if (not isinstance(payload,dict) or set(payload)!={"revision","scenario"}
+                or type(payload["revision"]) is not int or not isinstance(payload["scenario"],str)
+                or payload["scenario"] not in SCENARIOS):
+            raise InvalidSelection("revision and an allowed synthetic scenario required")
+        async with self._projection_lock:
+            inventory=await self.selection_inventory(zone_id)
+            if inventory["revision"]!=payload["revision"]:
+                raise SelectionConflict("Zone changed; reload presence replay")
+            cfg=await self.context.get(zone_id)
+            source_count=len(cfg.get("roles",{}).get("presence",[]))
+        return {"schema":"pilotsuite-presence-replay-v1","zone_id":zone_id,
+                "revision":payload["revision"],"configured_source_count":source_count,
+                "scenario":replay_scenario(payload["scenario"]),"persisted":False,
+                "execution":{"allowed":False,"reason":"synthetic_replay_only","actions":[]}}
 
     async def configure_presence_runtime(self, zone_id, payload):
         if isinstance(payload, dict) and payload.get("enabled") is True:
@@ -323,7 +343,7 @@ class PilotSuiteService(OrganizationServiceMixin):
         else: self._presence_runtime[zone_id]={"state":"disabled","reason":"explicit_disable","at":datetime.now(UTC).isoformat()}
         return await self.presence_runtime(zone_id)
 
-    async def _reconcile_presence_zone(self, zone_id, reason):
+    async def _reconcile_presence_zone(self, zone_id, reason, *, pulse=False, restart=False):
         if zone_id not in self._presence_runtime_enabled or not self._connected or not self._stream_connected: return
         async with self._presence_runtime_lock:
             async with self._projection_lock:
@@ -334,23 +354,43 @@ class PilotSuiteService(OrganizationServiceMixin):
                 foundation=build_foundation(inventory,{"effective_roles":roles,"config":cfg})
                 timer=next((f"timer.{h['key']}" for h in foundation.get("helper_plan",[]) if h.get("domain")=="timer"),None)
                 scope=await self.world.scope(tuple(),tuple(raw+owners+([timer] if timer else [])))
-                states={i["entity_id"]:i["state"].get("state") for i in scope["entities"]};revision=inventory["revision"]
+                entities={i["entity_id"]:i for i in scope["entities"]}
+                states={entity_id:item["state"].get("state") for entity_id,item in entities.items()};revision=inventory["revision"]
             if len(owners)!=1 or not raw or not timer or timer not in states:
                 self._presence_runtime[zone_id]={"state":"unknown","reason":"runtime_prerequisite_missing","at":datetime.now(UTC).isoformat()};return
-            from pilotsuite.core.presence_foundation import evaluate_presence
-            decision=evaluate_presence({e:states.get(e) for e in raw},states.get(timer))
+            from pilotsuite.core.presence_kernel import advance_presence
+            continuous=[]
+            for entity_id in raw:
+                item=entities.get(entity_id,{})
+                value=states.get(entity_id)
+                device_class=(item.get("state",{}).get("attributes") or {}).get("device_class")
+                # Motion is edge evidence.  Its current "on" value is not replayed as
+                # a fresh pulse after restart; only the accepted event can renew grace.
+                if device_class=="motion":
+                    continuous.append("off" if value in {"on","off"} else "unknown")
+                else:
+                    continuous.append(value if value in {"on","off"} else "unknown")
+            previous=await self.context.presence_checkpoint(zone_id)
+            transition=advance_presence(previous,continuous=continuous,pulse=pulse,
+                restart=restart,now=datetime.now(UTC).timestamp())
             async with self._projection_lock:
                 if (await self.selection_inventory(zone_id))["revision"]!=revision:return
             try:
-                if decision.timer_action=="start": await self.client.call_bounded_service("timer","start",timer)
-                elif decision.timer_action=="cancel": await self.client.call_bounded_service("timer","cancel",timer)
-                desired="on" if decision.desired_owner is True else "off" if decision.desired_owner is False else None
-                if desired is not None and states.get(owners[0])!=desired:
-                    await self.client.call_bounded_service("input_boolean","turn_on" if desired=="on" else "turn_off",owners[0])
+                for action in transition.proposed_actions:
+                    if action=="timer.start": await self.client.call_bounded_service("timer","start",timer)
+                    elif action=="timer.cancel": await self.client.call_bounded_service("timer","cancel",timer)
+                    elif action=="owner.on" and states.get(owners[0])!="on":
+                        await self.client.call_bounded_service("input_boolean","turn_on",owners[0])
+                    elif action=="owner.off" and states.get(owners[0])!="off":
+                        await self.client.call_bounded_service("input_boolean","turn_off",owners[0])
             except HomeAssistantError:
                 self._presence_runtime[zone_id]={"state":"unknown","reason":"write_outcome_unknown","at":datetime.now(UTC).isoformat()};return
-            self._presence_runtime[zone_id]={"state":decision.state,"reason":decision.reason,"at":datetime.now(UTC).isoformat()}
-            await self.audit.append("presence.reconciled",details={"zone_id":zone_id,"state":decision.state,"reason":decision.reason,"trigger":reason})
+            try:
+                checkpoint=await self.context.save_presence_checkpoint(zone_id,revision,transition.checkpoint)
+            except SelectionConflict:
+                self._presence_runtime[zone_id]={"state":"unknown","reason":"zone_changed_during_reconcile","at":datetime.now(UTC).isoformat()};return
+            self._presence_runtime[zone_id]={"state":checkpoint["state"],"reason":checkpoint["reason"],"at":datetime.now(UTC).isoformat()}
+            await self.audit.append("presence.reconciled",details={"zone_id":zone_id,"state":checkpoint["state"],"reason":checkpoint["reason"],"trigger":reason})
 
     @staticmethod
     def _recent_versions():
@@ -607,50 +647,52 @@ class PilotSuiteService(OrganizationServiceMixin):
             self.attribution.clear()
 
     async def _on_state_change(self, event_data: dict[str, Any]) -> None:
+        pulse_event=False
         async with self._projection_lock:
             accepted = await self.world.update_state(event_data)
             if not accepted:
                 return
             entity_id = event_data.get("entity_id")
             presence_zones=list(self._presence_runtime_enabled)
+            old, new = event_data.get('old_state'), event_data.get('new_state')
+            pulse_event=(isinstance(old,dict) and isinstance(new,dict) and
+                old.get('state')=='off' and new.get('state')=='on')
             if any(item.entity_id == entity_id for item in self._neurons):
                 await self._derive()
-                old, new = event_data.get('old_state'), event_data.get('new_state')
-                if not isinstance(old, dict) or not isinstance(new, dict) or old.get('state') != 'off' or new.get('state') != 'on':
-                    return
                 fresh = self._last_refresh_at and (datetime.now(UTC)-datetime.fromisoformat(self._last_refresh_at)).total_seconds() <= max(60, self.settings.refresh_interval_seconds*2)
-                if not self._connected or not self._stream_connected or not fresh: return
-                try:
-                    stamp = datetime.fromisoformat(new['last_changed'])
-                    if stamp.tzinfo is None: return
-                    occurred = stamp.timestamp()
-                except (KeyError, ValueError, TypeError):
-                    return
-                origin = self.attribution.classify_state(new)
-                for zone_id, source in self._learning_sources.items():
-                    if entity_id in source:
-                        from pilotsuite.core.learning_views import activation_context
-                        cfg = await self.context.get(zone_id)
-                        result = next((z for z in self._zone_results if z['zone_id'] == zone_id), {})
-                        context = activation_context(result.get('summary', {}), cfg['roles']) if cfg['context_learning'] else None
-                        if context is not None:
-                            captured = datetime.now(UTC)
-                            # A delayed activation must not inherit a later light/lux
-                            # state. Preserve its valid activity evidence, not false context.
-                            for kind in ('light', 'illuminance'):
-                                group = context[kind]
-                                aligned = (stamp <= captured and
-                                    await self.world.context_at_or_before(group['sources'], stamp))
-                                group['timing'] = 'at_or_before_event' if aligned else 'unverified'
-                                if not aligned:
-                                    group['value'] = None
-                                    group['status'] = 'unknown'
-                            context['captured_at'] = captured.isoformat()
-                        await self.context.record(zone_id, entity_id, occurred, origin, context=context)
+                if pulse_event and self._connected and self._stream_connected and fresh:
+                    try:
+                        stamp = datetime.fromisoformat(new['last_changed'])
+                        valid_stamp=stamp.tzinfo is not None
+                    except (KeyError, ValueError, TypeError):
+                        valid_stamp=False
+                    if valid_stamp:
+                        occurred = stamp.timestamp();origin = self.attribution.classify_state(new)
+                        for zone_id, source in self._learning_sources.items():
+                            if entity_id in source:
+                                from pilotsuite.core.learning_views import activation_context
+                                cfg = await self.context.get(zone_id)
+                                result = next((z for z in self._zone_results if z['zone_id'] == zone_id), {})
+                                context = activation_context(result.get('summary', {}), cfg['roles']) if cfg['context_learning'] else None
+                                if context is not None:
+                                    captured = datetime.now(UTC)
+                                    # A delayed activation must not inherit a later light/lux
+                                    # state. Preserve its valid activity evidence, not false context.
+                                    for kind in ('light', 'illuminance'):
+                                        group = context[kind]
+                                        aligned = (stamp <= captured and
+                                            await self.world.context_at_or_before(group['sources'], stamp))
+                                        group['timing'] = 'at_or_before_event' if aligned else 'unverified'
+                                        if not aligned:
+                                            group['value'] = None
+                                            group['status'] = 'unknown'
+                                    context['captured_at'] = captured.isoformat()
+                                await self.context.record(zone_id, entity_id, occurred, origin, context=context)
         for zone_id in presence_zones:
             runtime=await self.presence_runtime(zone_id)
             watched=set(runtime.get("raw_sources",[])+([runtime.get("timer")] if runtime.get("timer") else []))
-            if entity_id in watched: await self._reconcile_presence_zone(zone_id,"state_change")
+            if entity_id in watched: await self._reconcile_presence_zone(zone_id,"state_change",
+                pulse=pulse_event and entity_id in runtime.get("raw_sources",[]))
 
     async def _on_service_call(self, event: dict[str, Any]) -> None:
         # Context correlation is useful only for zones with explicit active
@@ -665,7 +707,7 @@ class PilotSuiteService(OrganizationServiceMixin):
         if connected:
             # Resynchronize after subscription, including every reconnect.
             await self.refresh(reason="stream_connected")
-            for zone_id in list(self._presence_runtime_enabled): await self._reconcile_presence_zone(zone_id,"stream_reconnect")
+            for zone_id in list(self._presence_runtime_enabled): await self._reconcile_presence_zone(zone_id,"stream_reconnect",restart=True)
         else:
             self.attribution.clear()
             async with self._projection_lock:

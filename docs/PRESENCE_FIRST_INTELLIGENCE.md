@@ -1,7 +1,7 @@
 # Presence-first intelligence: decisions, stages and acceptance
 
-Status: design accepted for implementation planning, not a claim of delivered control.
-Alpha.38 implements only the event-evidence and workspace fixes described below.
+Status: design accepted; Alpha.39 implements the deterministic kernel and synthetic
+explanation replay described below, but does not activate productive control.
 Canonical project remains GreenhillEfka/pilotsuite; no alternative runtime or store.
 
 ## Product contract
@@ -38,10 +38,10 @@ optional independent context measurement, never a thermostat setpoint or median 
 Difference display requires good values, matching units, an independent source and
 an available zone aggregate. Failed/disconnected reads do not retain the difference.
 
-## Planned first: presence kernel and scenario replay
+## Implemented in Alpha.39 source: presence kernel and scenario replay
 
-Implement the corrected kernel through existing service/context/plan owners, not a
-second independent learner. Expose an explanation and replay view before activation.
+The corrected kernel uses the existing service and ContextStore, not a second
+independent learner. The workspace exposes explanation and replay before activation.
 The functional state is occupied, grace, vacant or unknown; manual override is a
 separate authority flag, not another kind of sensor truth.
 
@@ -63,10 +63,17 @@ explicit; user confirmation may choose the authoritative existing group/status.
 
 HA timer idle can mean finished, cancelled or never started. An explicit finish event
 or approved durable deadline must disambiguate it. Timer restore does not emit a
-missed finish event after downtime. Persist lifecycle generation/deadline in the
-existing store; do not reset an old grace interval on every snapshot. Pause and manual
-cancel need distinct policies. No previously disabled activation path is reopened
-until these real event sequences and action failures pass tests.
+missed finish event after downtime. Alpha.39 persists lifecycle state, generation and
+deadline inside the existing zone context and does not renew it on reconnect. Source
+changes/reset discard that operational basis; configuration savepoints omit it.
+Manual cancellation remains unknown, not absence. The public runtime enable path and
+general Apply remain closed until real sequences, dependencies and action failures
+receive separate approval and tests.
+
+Replay accepts exactly five fixed synthetic scenarios. It performs no HA read, write
+or persistence and returns an explicit non-execution receipt. Browser GET/reload does
+not run it. Results are bound to zone revision and invalidated on zone/revision change,
+so a late response cannot overwrite a newer basis.
 
 ## Planned light policy
 
@@ -160,9 +167,9 @@ hardware/model service is assumed. Benchmark latency/memory before adding a mode
 
 | Step | Deliverable | Required proof |
 |---|---|---|
-| 38 (this package) | Event/context consistency and coherent role/reference UI | Synthetic regression, full CI, no new actions/consent |
-| Next | Persistent presence kernel + explanation/replay UI | Out-of-order events, pulse vs continuous, group overlap, restart, stale finish, unknown sensors |
-| Then | Daylight/mood policy + preview | No oscillation; capabilities, manual override, night exit, bounded transitions |
+| 38 | Event/context consistency and coherent role/reference UI | Synthetic regression, full CI, no new actions/consent |
+| 39 (candidate) | Persistent presence kernel + explanation/replay UI | Pulse vs continuous, restart deadline, expiry, unknown sensors/dependencies, no replay mutation |
+| Next | Daylight/mood policy + preview | No oscillation; capabilities, manual override, night exit, bounded transitions |
 | Then | Scoped HA executor and one zone rollout | Before-state, per-action authority, readback, lost response and conflict handling; explicit zone approval |
 | Then | Optional music/TV arbitration | User playback/queues preserved; real group/session capabilities verified |
 | Then | Adaptive preferences | Permitted training evidence, chronological validation, bounded changes, visible freeze/reset |

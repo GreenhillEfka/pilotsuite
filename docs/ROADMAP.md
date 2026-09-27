@@ -10,11 +10,15 @@
 - Alpha.37 adds conservative presence-lifecycle questions to that same explicit scan:
   boundary-close absence assumptions and activity-edge-only timeout refresh. These are
   review prompts, not defect verdicts or repairs.
-- The complete 48-route `/api/v1` inventory is now checked against the explicit
+- Alpha.39 candidate implements the accepted deterministic presence kernel in the
+  existing ContextStore/service path plus an explicit synthetic replay in the current
+  workspace. Durable deadlines survive restart without renewal; pulse/continuous and
+  unknown/vacant remain separate. Productive runtime activation stays closed.
+- The complete 49-route `/api/v1` inventory is now checked against the explicit
   registration source; route/documentation drift fails validation instead of accumulating.
-- Next: authenticated read-only Alpha.37 acceptance against the saved Erdkellerbereich
-  zone, confirming or rejecting both lifecycle questions in context; then inspect one
-  unlike existing zone. Read canonical IDs; do not infer membership or change HA.
+- Next: finish Alpha.39 candidate CI and scoped-backup/release gates, then run the
+  synthetic explanation in authenticated Ingress. Read canonical zone IDs; do not
+  infer membership or change HA.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before

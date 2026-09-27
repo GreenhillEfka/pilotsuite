@@ -138,6 +138,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post('/api/v1/zones/{zone_id}/helpers/provision', _helper_provision)
     app.router.add_get('/api/v1/zones/{zone_id}/presence-runtime', _presence_runtime)
     app.router.add_patch('/api/v1/zones/{zone_id}/presence-runtime', _presence_runtime)
+    app.router.add_post('/api/v1/zones/{zone_id}/presence-runtime/replay', _presence_replay)
     app.router.add_post('/api/v1/zones/{zone_id}/presence-adoption/review', _presence_adoption_review)
     app.router.add_patch('/api/v1/zones/{zone_id}/context', _context_patch)
     app.router.add_get('/api/v1/zones/{zone_id}/context/export', _context_export)
@@ -432,6 +433,13 @@ async def _presence_runtime(request):
     try: payload=await request.json()
     except ValueError as exc: raise InvalidSelection("invalid JSON") from exc
     return web.json_response(await service.configure_presence_runtime(zone_id,payload),headers={"Cache-Control":"no-store"})
+
+
+async def _presence_replay(request):
+    try: payload=await request.json()
+    except ValueError as exc: raise InvalidSelection("invalid JSON") from exc
+    return web.json_response(await request.app[SERVICE_KEY].presence_replay(
+        request.match_info["zone_id"],payload),headers={"Cache-Control":"no-store"})
 
 
 async def _helper_provision(request):
