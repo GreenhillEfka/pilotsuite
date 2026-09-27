@@ -35,7 +35,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.getByText('Planstatus: verified',{exact:true}).waitFor();
   const created=await command({action:'snapshot'});assert.equal(created.helper_creates,5);assert.equal(created.output_calls,0);assert.equal(created.metadata_calls,1);
   await page.getByRole('button',{name:'Schließen',exact:true}).last().click();
-  await page.locator('#refresh').click();await page.locator('#ps-zone-configure[disabled]').waitFor();await page.locator('#refresh:not([disabled])').waitFor();await page.locator('#ps-zone-configure:not([disabled])').waitFor();
+  await page.locator('#refresh').click();await page.locator('#ps-zone-configure[disabled]').waitFor();await page.getByRole('button',{name:'Jetzt abgleichen',exact:true}).waitFor();await page.locator('#ps-zone-configure:not([disabled])').waitFor();
   console.log('ok 3 - reviewed owned output package creates only on explicit click, publishing remains off');
   await page.getByRole('button',{name:'Entitäten → Ontologie',exact:true}).click();
   await page.getByLabel('Anzeigename',{exact:true}).fill('Demo · Präsenz');await page.getByLabel('Logische Zonenmitgliedschaft',{exact:true}).selectOption('zone');await page.getByLabel('Habitus Übersicht',{exact:true}).check();

@@ -5,7 +5,7 @@
  const B=(text,fn)=>{const b=E('button',text);b.type='button';b.addEventListener('click',fn);return b;};
  const select=(items,value)=>{const s=E('select');for(const [v,t] of items){const o=E('option',t);o.value=v;s.append(o);}s.value=value??'';return s;};
  const number=(value,min,max)=>{const n=E('input');n.type='number';n.value=value;n.min=min;n.max=max;return n;};
- const labelled=(text,input)=>{const l=E('label',text);l.append(input);return l;};
+ const labelled=(text,input)=>{const l=E('label',text);input.setAttribute('aria-label',text);l.append(input);return l;};
  const fmt=v=>typeof v==='number'&&Number.isFinite(v)?v.toLocaleString('de-DE',{maximumFractionDigits:1}):'—';
  const date=t=>typeof t==='number'?new Date(t*1000).toLocaleString('de-DE'):'—';
  const state=s=>({occupied:'Belegt',grace:'Nachlauf',vacant:'Frei',unknown:'Unklar',on:'An',off:'Aus',unavailable:'Nicht verfügbar'}[s]||s||'Unklar');
