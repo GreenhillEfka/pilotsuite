@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.0-alpha.45] - 2026-09-27
+
+### Begrenzter Export gespeicherter Kontextbelege
+- Einzelne ältere Kontextbelege werden beim Lesen auf den dokumentierten Licht- und
+  Helligkeitsvertrag projiziert. Unbekannte Zusatzfelder gelangen nicht mehr in den
+  Export; Quellen, Status und optionale Erfassungszeit werden streng geprüft.
+- Nicht-endliche oder typfremde Werte bleiben auch im Rohbeleg unbekannt. Beschädigte
+  JSON-Zeilen und ungültige Zeitstempel brechen weder Zonenbericht noch Export ab.
+- Gültige ältere Belege ohne historisches Statusfeld bleiben nutzbar. Es findet keine
+  Löschung oder stille Umschreibung der gespeicherten Daten statt.
+
+### Grenzen
+- Keine neue Datensammlung, Migration, Zustimmung, Präferenzänderung oder
+  Geräteausführung. Allgemeines Apply bleibt gesperrt.
+
 ## [0.1.0-alpha.44] - 2026-09-27
 
 ### Integrität historischer Lernkontexte

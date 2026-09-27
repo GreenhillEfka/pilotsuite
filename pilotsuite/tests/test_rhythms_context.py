@@ -8,7 +8,9 @@ from pathlib import Path
 from pilotsuite.core.selections import SelectionStore, InvalidSelection
 from pilotsuite.core.zones import ZoneStore
 from pilotsuite.core.context import ContextStore, validate_detector
-from pilotsuite.core.learning_views import time_bucket, coverage_report, activation_context, context_report
+from pilotsuite.core.learning_views import (time_bucket, coverage_report,
+                                             activation_context, context_report,
+                                             sanitize_context_record)
 
 
 def stamp(value):
@@ -91,6 +93,24 @@ class LocalTimeTests(unittest.TestCase):
         self.assertEqual(1, report['sampled_slots'])
         self.assertEqual([], context_report([(float('inf'), {})], {'min_events': 5, 'min_days': 3}))
 
+    def test_retained_context_projection_is_bounded_and_strict(self):
+        result = sanitize_context_record({
+            'light': {'value': True, 'status': 'available',
+                      'sources': ['light.a', 'INVALID', 'light.a'],
+                      'timing': 'at_or_before_event', 'private': 'CANARY'},
+            'illuminance': {'value': float('nan'), 'status': 'available',
+                            'sources': ['sensor.lux'], 'timing': 'invented'},
+            'captured_at': '2026-09-27T06:00:00Z', 'private': 'CANARY',
+        })
+        self.assertEqual(True, result['light']['value'])
+        self.assertEqual(['light.a'], result['light']['sources'])
+        self.assertIsNone(result['illuminance']['value'])
+        self.assertEqual('unknown', result['illuminance']['status'])
+        self.assertNotIn('timing', result['illuminance'])
+        self.assertNotIn('private', json.dumps(result))
+        self.assertEqual('2026-09-27T06:00:00+00:00', result['captured_at'])
+        json.dumps(result, allow_nan=False)
+
     def test_unknown_days_cannot_qualify_light_context(self):
         records = [(stamp(f'2026-09-{day}T08:00:00+00:00'), {'light':{'value': True if day==20 else None}}) for day in (20,21,22)]
         records += [(stamp(f'2026-09-20T08:{minute}:00+00:00'), {'light':{'value':True}}) for minute in (10,20,30,40)]
@@ -140,6 +160,34 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         report = await self.store.report('a', now=self.now)
         self.assertEqual(1, report['event_count'])
         self.assertEqual([], report['context_evidence'])
+        json.dumps(report, allow_nan=False)
+
+    async def test_legacy_context_rows_are_sanitized_without_breaking_export(self):
+        with sqlite3.connect(self.selections.path) as db:
+            db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
+                       ('a', 'binary_sensor.p', self.now, 'unknown'))
+            db.execute('INSERT INTO activity_context VALUES (?,?,?)', (
+                'a', self.now,
+                '{"light":{"value":true,"status":"available",'
+                '"sources":["light.a","INVALID"]},'
+                '"illuminance":{"value":NaN,"status":"available",'
+                '"sources":["sensor.lux"]},"private":"CANARY"}',
+            ))
+            db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
+                       ('a', 'binary_sensor.p', self.now + 301, 'unknown'))
+            db.execute('INSERT INTO activity_context VALUES (?,?,?)',
+                       ('a', self.now + 301, '{broken'))
+            db.execute('INSERT INTO activity_context VALUES (?,?,?)',
+                       ('a', float('inf'), '{"private":"CANARY"}'))
+        report = await self.store.report('a', now=self.now + 301)
+        self.assertEqual(2, len(report['context_evidence']))
+        first = report['context_evidence'][0]['context']
+        self.assertEqual(True, first['light']['value'])
+        self.assertEqual(['light.a'], first['light']['sources'])
+        self.assertIsNone(first['illuminance']['value'])
+        self.assertEqual('unknown', first['illuminance']['status'])
+        self.assertNotIn('CANARY', json.dumps(report))
+        self.assertEqual(2, report['context_windows'][0]['activations'])
         json.dumps(report, allow_nan=False)
 
     async def test_bounded_origin_categories_persist_but_identifiers_do_not(self):

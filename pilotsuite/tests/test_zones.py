@@ -174,6 +174,33 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         self.assertGreaterEqual(report['coverage']['impaired_slots'],1)
         self.assertEqual('disconnected',report['collection_state'])
 
+    async def test_legacy_context_export_is_strict_and_bounded(self):
+        import sqlite3
+        import time
+        now = time.time()
+        with sqlite3.connect(self.service.selections.path) as db:
+            db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
+                       ('a', 'binary_sensor.p', now, 'unknown'))
+            db.execute('INSERT INTO activity_context VALUES (?,?,?)', (
+                'a', now,
+                '{"light":{"value":true,"status":"available",'
+                '"sources":["light.a","INVALID"]},'
+                '"illuminance":{"value":NaN,"status":"available",'
+                '"sources":["sensor.lux"]},"private":"CANARY"}',
+            ))
+        response = await self.client.get('/api/v1/zones/a/context/export')
+        self.assertEqual(200, response.status)
+        body = await response.text()
+        self.assertNotIn('NaN', body)
+        self.assertNotIn('CANARY', body)
+        exported = json.loads(
+            body, parse_constant=lambda value: self.fail(f'non-standard JSON constant: {value}')
+        )
+        context = exported['context_evidence'][0]['context']
+        self.assertEqual(['light.a'], context['light']['sources'])
+        self.assertIsNone(context['illuminance']['value'])
+        self.assertEqual('unknown', context['illuminance']['status'])
+
     async def test_detector_api_config_and_module_status(self):
         path = '/api/v1/zones/a/context'
         payload = {'revision': 0, 'roles': {}, 'learning': False, 'detector': {'min_events': 12, 'min_days': 6}}

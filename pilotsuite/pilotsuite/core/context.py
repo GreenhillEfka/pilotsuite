@@ -9,7 +9,8 @@ import time
 from collections import Counter, defaultdict
 from contextlib import closing
 from datetime import datetime, UTC
-from .learning_views import temporal_settings, time_bucket, coverage_report, context_report
+from .learning_views import (temporal_settings, time_bucket, coverage_report,
+                             context_report, sanitize_context_record, _valid_timestamp)
 from .attribution import ALLOWED_ORIGINS
 from .selections import InvalidSelection, SelectionConflict
 from .history import retrospective
@@ -223,6 +224,17 @@ class ContextStore(OrganizationContextMixin):
         feedback = dict(db.execute('SELECT pattern_id,decision FROM pattern_feedback WHERE zone_id=?', (zone_id,)))
         detector = cfg['detector']
         local_zone, day_mode = temporal_settings(detector)
+        context_records = []
+        for occurred, payload in db.execute(
+                'SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred',
+                (zone_id,)):
+            if not _valid_timestamp(occurred):
+                continue
+            try:
+                decoded = json.loads(payload)
+            except (TypeError, ValueError):
+                decoded = {}
+            context_records.append((occurred, sanitize_context_record(decoded)))
         buckets = defaultdict(list)
         for entity, occurred, origin in rows:
             if entity in cfg['roles'].get('presence', []):
@@ -275,8 +287,9 @@ class ContextStore(OrganizationContextMixin):
                              'observed_days_utc': len({datetime.fromtimestamp(row[1], UTC).date() for row in rows})},
                 'coverage': coverage_report(db.execute('SELECT slot, state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,)).fetchall()),
                 'coverage_samples': [{'slot': slot, 'state': state} for slot,state in db.execute('SELECT slot,state FROM coverage_checks WHERE zone_id=? ORDER BY slot', (zone_id,))],
-                'context_windows': context_report([(t, json.loads(p)) for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))], detector),
-                'context_evidence': [{'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'context': json.loads(p)} for t,p in db.execute('SELECT occurred,payload FROM activity_context WHERE zone_id=? ORDER BY occurred', (zone_id,))],
+                'context_windows': context_report(context_records, detector),
+                'context_evidence': [{'occurred': datetime.fromtimestamp(t, UTC).isoformat(),
+                                      'context': data} for t, data in context_records],
                 'history_imports': [json.loads(p) for (p,) in db.execute('SELECT payload FROM history_imports WHERE zone_id=? ORDER BY created DESC', (zone_id,))],
                 'historical_event_count': db.execute('SELECT COUNT(*) FROM history_provenance WHERE zone_id=?', (zone_id,)).fetchone()[0],
                 'time_basis': local_zone.key, 'day_mode': day_mode, 'patterns': patterns, 'evidence': [{'source': e, 'occurred': datetime.fromtimestamp(t, UTC).isoformat(), 'origin': o, 'recording_source': 'ha_history' if (e,t) in historical else 'live'} for e,t,o in rows],

@@ -1,5 +1,20 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.45 candidate — bounded retained-context export
+
+| Capability | Verified source scope |
+|---|---|
+| Shared projection | Window aggregation and individual export use the same bounded context view |
+| Numeric integrity | Non-finite, negative, boolean and textual lux remain unknown |
+| Privacy boundary | Unknown legacy keys are omitted; entity sources are validated and deduplicated |
+| Corrupt rows | Invalid JSON becomes unknown context; invalid row timestamps are skipped |
+| Compatibility | Valid early rows without a status field remain usable; stored rows are not rewritten |
+| Boundary | No schema, collection, consent, feedback, HA write or execution change |
+
+Repository/API validation, 532 Python and 59 JavaScript tests pass locally, including
+storage and HTTP export regressions. Next: publish the exact candidate and require
+complete CI before merge or Store delivery.
+
 ## Installed Alpha.44 — historical context integrity
 
 | Capability | Verified source scope |

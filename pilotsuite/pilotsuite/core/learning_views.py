@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from .selections import InvalidSelection
 
 ENTITY_ID = re.compile(r"[a-z0-9_]+\.[a-z0-9_]+\Z")
+CONTEXT_TIMINGS = {'at_or_before_event', 'unverified'}
 
 
 def _valid_timestamp(value):
@@ -32,6 +33,40 @@ def _source_ids(value):
         if (isinstance(item, str) and len(item) <= 255 and ENTITY_ID.fullmatch(item)
                 and item not in result):
             result.append(item)
+    return result
+
+
+def sanitize_context_record(value):
+    """Project one retained context row onto the bounded public contract.
+
+    Older rows can predate current validation.  Never return their raw JSON:
+    unknown fields are not evidence, invalid values remain unknown and optional
+    capture metadata is retained only when it is a supported aware timestamp.
+    """
+    value = value if isinstance(value, dict) else {}
+    result = {}
+    for kind in ('light', 'illuminance'):
+        info = value.get(kind, {})
+        info = info if isinstance(info, dict) else {}
+        sources = _source_ids(info.get('sources', []))
+        raw = info.get('value')
+        valid = type(raw) is bool if kind == 'light' else _valid_lux(raw)
+        # Early context rows did not carry a status field. Preserve their valid
+        # typed value; an explicit non-available status still wins.
+        available = info.get('status') in (None, 'available') and valid
+        item = {'value': raw if available else None, 'sources': sources,
+                'status': 'available' if available else 'unknown'}
+        if info.get('timing') in CONTEXT_TIMINGS:
+            item['timing'] = info['timing']
+        result[kind] = item
+    captured = value.get('captured_at')
+    if isinstance(captured, str) and len(captured) <= 64:
+        try:
+            parsed = datetime.fromisoformat(captured.replace('Z', '+00:00'))
+        except ValueError:
+            parsed = None
+        if parsed is not None and parsed.tzinfo is not None:
+            result['captured_at'] = parsed.astimezone(UTC).isoformat()
     return result
 
 
@@ -97,7 +132,7 @@ def context_report(records, detector):
             key, day = time_bucket(occurred, detector)
         except InvalidSelection:
             continue
-        data = data if isinstance(data, dict) else {}
+        data = sanitize_context_record(data)
         group = buckets.setdefault(key, {'days': set(), 'known_light_days': set(), 'light_on': 0, 'light_off': 0, 'light_unknown': 0, 'lux': [], 'count': 0, 'sources': set()})
         group['days'].add(day); group['count'] += 1
         light_info = data.get('light', {})
