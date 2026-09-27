@@ -1,4 +1,28 @@
-# Current state — Alpha.53 delivered
+# Current state — Alpha.54 delivered
+
+Alpha.54 fixes a reproduced false-vacancy path in a shared required presence group:
+an `off` member could mask another `unavailable` member after the durable grace
+deadline. The focused regression failed on Alpha.53 and now requires `unknown`;
+confirmed positive evidence and optional unknown evidence retain their prior roles.
+The exact candidate `76194da58ae623b2386ef15a1d71218656eb5607` and main commit
+`d6995476bcb92b7f603f71719d93fa0fc4657c4b` passed all five CI jobs. Local
+checks passed 568 Python, 70 JavaScript and 62 repository/API contracts.
+
+Native backup `c14fc3d5` was completed and verified before branch publication. It
+contains only PilotSuite Alpha.53 app/data/options; no HA, database or folders.
+One Store refresh and one PilotSuite update installed Alpha.54. Startup/readiness
+logs show `presence_adoption_review`, connected stream, fresh snapshot and resolved
+zone. All four Supervisor options and `auto_update` remain unchanged. No household
+helper, automation, metadata, consent, device or other app was changed.
+
+Authenticated household Ingress remains unobserved: no signed-in browser was
+available. All four saved PilotSuite zones have not been independently read back
+after this update, and household presence behavior has not been accepted. Next:
+read-only Ingress acceptance of `Erdkellerbereich` and an unlike saved zone after
+multiple passive refreshes, checking all four zones, unknown/disabled explanations,
+reading position, focus and open details. Do not use Apply or switch house devices.
+
+## Previous release — Alpha.53
 
 Alpha.53 fixes passive redraws that could shift the reading position on long pages.
 Identical context and zone responses retain the DOM; changed passive responses preserve
