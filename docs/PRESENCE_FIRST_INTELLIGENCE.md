@@ -1,7 +1,8 @@
 # Presence-first intelligence: decisions, stages and acceptance
 
-Status: design accepted; Alpha.39 implements the deterministic kernel and synthetic
-explanation replay described below, but does not activate productive control.
+Status: design accepted; Alpha.39 implements the deterministic presence kernel and
+Alpha.40 candidate adds the synthetic lighting preview described below. Neither
+activates productive control.
 Canonical project remains GreenhillEfka/pilotsuite; no alternative runtime or store.
 
 ## Product contract
@@ -75,7 +76,7 @@ or persistence and returns an explicit non-execution receipt. Browser GET/reload
 not run it. Results are bound to zone revision and invalidated on zone/revision change,
 so a late response cannot overwrite a newer basis.
 
-## Planned light policy
+## Implemented in Alpha.40 source: light policy preview
 
 Presence permits a desired light state; ambient light decides whether/how much light
 is needed. Keep outdoor/daylight reference, indoor measured illuminance and actuator
@@ -169,7 +170,7 @@ hardware/model service is assumed. Benchmark latency/memory before adding a mode
 |---|---|---|
 | 38 | Event/context consistency and coherent role/reference UI | Synthetic regression, full CI, no new actions/consent |
 | 39 | Persistent presence kernel + explanation/replay UI | Pulse vs continuous, restart deadline, expiry, unknown sensors/dependencies, no replay mutation |
-| Next | Daylight/mood policy + preview | No oscillation; capabilities, manual override, night exit, bounded transitions |
+| 40 (candidate) | Daylight/mood policy + preview | No oscillation; capabilities, manual override, night exit, bounded transitions |
 | Then | Scoped HA executor and one zone rollout | Before-state, per-action authority, readback, lost response and conflict handling; explicit zone approval |
 | Then | Optional music/TV arbitration | User playback/queues preserved; real group/session capabilities verified |
 | Then | Adaptive preferences | Permitted training evidence, chronological validation, bounded changes, visible freeze/reset |
