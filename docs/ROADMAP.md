@@ -28,9 +28,11 @@
   registration source; route/documentation drift fails validation instead of accumulating.
 - Candidate/main CI, scoped Alpha.40 backup, Store association, installation and
   runtime gates passed. Authenticated Alpha.41 Ingress remains separately open.
-- Next: complete Alpha.42 candidate/main CI, scoped backup and installation, then run
-  its explicit read-only decision check for Erdkellerbereich as far as authenticated
-  Ingress permits. Read canonical zone IDs; do not infer membership or change HA.
+- Alpha.42 candidate/main CI, scoped backup, Store association, installation and
+  runtime gates passed. Authenticated household Ingress acceptance remains separate.
+- Next: run its explicit read-only decision check for Erdkellerbereich as far as
+  authenticated Ingress permits. Read canonical zone IDs; do not infer membership or
+  change HA.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before

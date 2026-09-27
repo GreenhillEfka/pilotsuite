@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.42 current lighting decision candidate
+## Resume: Alpha.42 current lighting decision installed
 
 The current branch adds a transient, explicit lighting decision brief to the existing
 lighting workspace. It reads canonical roles/current observations and freshly reads
@@ -14,15 +14,19 @@ duplicate or safety verdict. Exactly one allowlisted internal next step is retur
 
 The endpoint is POST-only, zone/revision bound and rechecks roles after HA reads.
 Reload and GET do not trigger review; stale/malformed/concurrent responses are
-rejected. Nothing is stored or executed. Alpha.41 remains installed until exact
-candidate and release-main CI, fresh app-only backup and normal Store update pass.
+rejected. Nothing is stored or executed. Source-rich zones use bounded lookup
+batches, invalid lux is not usable and background refresh cannot discard an active
+check.
 
-Local validation: 522 Python and 59 JavaScript tests plus repository/API contracts
-pass. Local Chromium is unavailable; candidate CI must provide the browser result.
+PR 92 release `be537ceaffffeb0bf88b5ac3ad04e3402aa47f58`; candidate CI
+36292600442 and release-main CI 36292681509 passed all four jobs. Fresh backup
+`a90ec2d3` contains only Alpha.41 app/data/options. One Store refresh and one normal
+update installed Alpha.42 with options and auto_update unchanged. Logs confirm v23,
+ready, connected stream, fresh snapshot and resolved saved zone.
 
-Next: publish and verify the exact Alpha.42 candidate, create and verify one fresh
-Alpha.41 app-only backup, then merge/install and perform the read-only
-Erdkellerbereich decision check as far as authenticated Ingress permits.
+Next: run the explicit Alpha.42 current-light check in authenticated read-only
+Ingress for Erdkellerbereich and verify source/automation explanations; runtime and
+synthetic Chromium health are not household UI acceptance.
 
 ## Previous delivery: Alpha.41 lighting-source integrity installed
 

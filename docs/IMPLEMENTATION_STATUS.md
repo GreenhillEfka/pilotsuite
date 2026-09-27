@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.42 candidate — current lighting decision check
+## Installed Alpha.42 — current lighting decision check
 
 | Capability | Verified source scope |
 |---|---|
@@ -11,13 +11,15 @@
 | Decision | Exactly one allowlisted internal next step; no duplicate/safety verdict |
 | Boundary | Explicit POST, no persistence, configuration write, learning or execution |
 
-Local repository/API validation, 522 Python and 59 JavaScript tests pass. Local
-Chromium is unavailable; exact candidate CI remains required. Alpha.41 is installed
-and unchanged. No Alpha.42 backup, publication, Store update or live Ingress
-acceptance is claimed yet.
+Local repository/API validation, 522 Python and 59 JavaScript tests pass. PR 92
+release `be537ce`; exact candidate CI 36292600442 and release-main CI 36292681509
+passed all four jobs. Backup `a90ec2d3` contains only Alpha.41 app/data/options,
+without HA, database, folders or failed parts. One Store refresh and one update
+installed Alpha.42; installed/offered/started, options and auto_update unchanged.
+Logs report ready, connected stream, fresh snapshot and resolved zone.
 
-Next: verify exact candidate CI, then create and verify one fresh Alpha.41 app-only
-backup before merge/publication and normal installation.
+Next: run the explicit current-light check in authenticated read-only Ingress for
+Erdkellerbereich; CI/runtime health is not household UI acceptance.
 
 ## Installed Alpha.41 — lighting-source integrity
 
