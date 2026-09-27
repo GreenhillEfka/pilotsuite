@@ -16,6 +16,8 @@ function setup() {
     json: () => new Promise((resolve, reject) => requests.push({resolve, reject})),
     renderLearning: () => scope.renders++,
     historyCheckRevision: () => scope.historyChecks++,
+    keepReadingPosition: update => { scope.preserved++; update(); },
+    preserved: 0,
   };
   vm.createContext(scope); vm.runInContext(source, scope);
   return {scope, requests};
@@ -62,4 +64,24 @@ test('invalidating an in-flight read preserves a newer mutation result', async (
   scope.contextGeneration++; scope.contextData = {revision:2, preference:'accepted'};
   requests[0].resolve({revision:1, preference:null}); await pending;
   assert.equal(scope.contextData.preference, 'accepted'); assert.equal(scope.renders, 0);
+});
+
+test('passive unchanged context keeps the rendered nodes and the context identity', async () => {
+  const {scope, requests} = setup();
+  const previous = {revision: 2, pattern: ['a']}; scope.contextData = previous;
+  const pending = scope.loadContext({background: true});
+  requests[0].resolve({revision: 2, pattern: ['a']}); await pending;
+  assert.equal(scope.contextData, previous);
+  assert.equal(scope.renders, 0);
+  assert.equal(scope.preserved, 0);
+});
+
+test('passive changed context renders once with the reading position preserved', async () => {
+  const {scope, requests} = setup();
+  scope.contextData = {revision: 2, pattern: ['a']};
+  const pending = scope.loadContext({background: true});
+  requests[0].resolve({revision: 2, pattern: ['b']}); await pending;
+  assert.equal(scope.renders, 1);
+  assert.equal(scope.preserved, 1);
+  assert.equal(scope.contextData.pattern[0], 'b');
 });

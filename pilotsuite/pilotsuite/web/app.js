@@ -115,7 +115,20 @@ function formatTime(value) {
   return new Intl.DateTimeFormat("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(value));
 }
 
-async function load() {
+let backgroundLoading = false;
+let renderedZoneKey = null;
+// Keep the reader's position when a passive refresh changes content above it.
+function keepReadingPosition(update) {
+  const scroller = document.scrollingElement;
+  const before = scroller?.scrollTop ?? 0;
+  update();
+  if (scroller && scroller.scrollTop !== before) scroller.scrollTop = before;
+}
+
+async function load({background = false} = {}) {
+  if (background && backgroundLoading) return;
+  if (background) backgroundLoading = true;
+  try {
   if(byId('release-install'))byId('release-install').hidden=true;
   byId("error").hidden = true;
   const [status, suggestions] = await Promise.all([
@@ -132,8 +145,16 @@ async function load() {
     const data = await json('api/v1/zones');
     zoneDefinitions = data.items; zoneResults = data.results || [];
   }
-  if (!contextEditing && !selectionBusy && selectionZone) await loadContext();
-  renderZoneView();
+  if (!contextEditing && !selectionBusy && selectionZone) await loadContext({background});
+  if (!background) { renderedZoneKey = null; renderZoneView(); }
+  else {
+    const zone = zoneDefinitions.find(z => z.zone_id === selectionZone);
+    const result = zoneResults.find(z => z.zone_id === selectionZone);
+    const key = JSON.stringify([zone, result, dashboardSuggestions.filter(item => item.scope?.includes(selectionZone)), selectionDraft?.dirty]);
+    if (key !== renderedZoneKey) keepReadingPosition(() => renderZoneView());
+    renderedZoneKey = key;
+  }
+  } finally { if (background) backgroundLoading = false; }
 }
 
 async function refresh() {
@@ -386,7 +407,7 @@ load().catch((error) => {
 
 // Refresh the display without forcing additional HA snapshots.
 setInterval(() => {
-  if (!document.hidden && !selectionBusy && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty && !window.PilotSuiteWorkspaceBusy?.() && !document.activeElement?.closest('#zone-tabs, #learned-patterns, #zone-summary')) load().catch((error) => {
+  if (!document.hidden && !selectionBusy && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty && !window.PilotSuiteWorkspaceBusy?.() && !window.PilotSuiteOrganization?.dirty() && !window.PilotSuiteShadow?.dirty() && !window.PilotSuiteZonePresence?.dirty()) load({background:true}).catch((error) => {
     byId("error").textContent = error.message;
     byId("error").hidden = false;
   });
@@ -501,9 +522,10 @@ function renderCompactSummary(result) {
 }
 
 async function loadContext() {
+  const {background = false} = arguments[0] || {};
   const zone = selectionZone;
   const generation = ++contextGeneration;
-  invalidateDailyBrief('Alltagsbrief wird neu geprüft …', true);
+  if (!background) invalidateDailyBrief('Alltagsbrief wird neu geprüft …', true);
   let result;
   try { result = await json(`api/v1/zones/${encodeURIComponent(zone)}/context`); }
   catch (error) {
@@ -513,9 +535,13 @@ async function loadContext() {
   }
   // A zone can be revisited, and overlapping reads can finish out of order.
   if (zone !== selectionZone || generation !== contextGeneration) return false;
-  contextData = result;
+  const unchanged = background && JSON.stringify(contextData) === JSON.stringify(result);
+  if (!unchanged) contextData = result;
   if (typeof historyCheckRevision === "function") historyCheckRevision();
-  renderLearning();
+  if (!unchanged) {
+    if (background) keepReadingPosition(() => renderLearning());
+    else renderLearning();
+  }
   return true;
 }
 function renderZoneGuide() {
@@ -876,7 +902,10 @@ function renderLearning() {
     card.append(title, stats, proposal); contextRoot.append(card);
   }
   byId('learning-export').href = endpoint(`api/v1/zones/${encodeURIComponent(selectionZone)}/context/export`);
-  const root = byId('learned-patterns'); root.replaceChildren();
+  const root = byId('learned-patterns');
+  const openPatterns = new Set([...root.querySelectorAll('article[data-pattern-id] details[open]')].map(e => e.closest('article').dataset.patternId));
+  const focusedPattern = root.contains(document.activeElement) ? document.activeElement.closest('article[data-pattern-id]')?.dataset.patternId : null;
+  root.replaceChildren();
   text('pattern-summary', 'Noch keine aktuellen Muster.');
   if (!contextData.patterns?.length) { root.textContent = `Noch kein Musterkandidat: mindestens ${progress?.required_events ?? 5} beobachtete Aktivierungen an ${progress?.required_days ?? 3} verschiedenen lokalen Tagen derselben Tagesgruppe im gleichen Zwei-Stunden-Fenster nötig.`; return; }
   const filter = byId('pattern-filter').value;
@@ -885,6 +914,7 @@ function renderLearning() {
   if (!visible.length) root.textContent = 'Keine Muster in dieser Auswahl.';
   for (const pattern of visible) {
     const card = document.createElement('article'); card.className = 'suggestion';
+    card.dataset.patternId = pattern.id;
     const title = document.createElement('h3'); title.textContent = pattern.title;
     const stats = pattern.statistics || {};
     const originLabels = {user_context:'Nutzerkontext',parented_service_context:'verketteter Serviceaufruf (mögliche Automation / mögliches Skript)',service_context:'Serviceaufruf ohne belegten Auslöser',derived_context:'abgeleiteter Kontext ohne beobachteten Service',unknown:'unbekannt'};
@@ -901,6 +931,7 @@ function renderLearning() {
     const review = contextData.reviews?.find(item => item.pattern_id === pattern.id);
     if (review) {
       const details = document.createElement('details');
+      details.open = openPatterns.has(pattern.id);
       const heading = document.createElement('summary'); heading.textContent = 'Belegkette und Prüfentwurf'; details.append(heading);
       const chain = document.createElement('ol'); chain.setAttribute('aria-label', 'Belegkette');
       for (const node of review.evidence_graph.nodes) {
@@ -946,6 +977,7 @@ function renderLearning() {
     }
     root.append(card);
   }
+  if (focusedPattern) [...root.querySelectorAll('article[data-pattern-id]')].find(e => e.dataset.patternId === focusedPattern)?.querySelector('details summary')?.focus({preventScroll:true});
 }
 const roleKinds = {temperature:['temperature'], humidity:['humidity'], illuminance:['illuminance'], daylight_binary:['daylight_binary'], light:['light'], presence:['motion','occupancy','presence','input_boolean'], climate:['climate'], media:['media_player'], atmosphere:['input_select'], reference_temperature:['temperature']};
 byId('pattern-filter').addEventListener('change', renderLearning);
