@@ -1,42 +1,59 @@
-# Current state — Alpha.48 live shadow candidate, 2026-09-27
+# Current state — Alpha.48 installed, 2026-09-27
 
-Implements the approved presence-live-comparison and light-need package on the
-existing presence kernel, lighting policy, WorldModel and ContextStore. No second
-presence algorithm, database or HA execution route.
+The approved real presence-shadow and light-need package is delivered. PR103 release
+c33462e5f302565ea61c29fc8127b9883e906bb3 has the exact tested root
+b1e89277c12843079f33361d49a05411d1c39642 and app tree
+4a87e2273bd985668889123c46e11c3ccedcb79d. Candidate d6ebcd172b305bc8f54b9575ed848b4286a40a34,
+CI36313074583 and release-main CI36319498063 passed all four jobs and ten browser suites.
+A fresh checksum-verified local checkout passed 555 Python / 60 JS tests, compilation,
+53 API contracts and release-preflight. PR102's provenance correction was included
+through ancestry; its PR is merged without a separate Alpha47 deployment.
 
-The initially read installed/source baseline was Alpha.46, main51a86351492b591f64c57a703d06fcb1137edaf7.
-Existing PR102's cc9039377824b4702a1c2e2b39fee090f1bdf97e provenance correction and its
-tests are preserved. Alpha47 was its reserved development version; the integrated
-functional package uses Alpha48. Do not infer installation from candidate code.
+## Delivered user capability
 
-## Functional scope
+Zonenmodule > Anwesenheit > Präsenz-Livevergleich & Lichtbedarf now offers explicit
+shadow configuration/start/stop on confirmed real sources. HA status and independently
+computed PilotSuite status are shown together, with reasons, disagreement, source report
+age, generation and grace deadline. Pulse/continuous modes, grace, age limit, atmosphere,
+explicit outdoor-lux provenance and bounded brightness proposals are configurable.
 
-Explicit start/stop in Zonenmodule > Anwesenheit (also visible for lighting), confirmed
-raw input modes, grace deadline, source report-age limit, chosen atmosphere, outdoor
-lux declaration and bounded brightness parameters. HA status vs computed status,
-reasons, source quality, deadline and non-executable light proposals are visible.
+Accepted events and a local five-second worker advance the existing kernels. Only the
+latest operational checkpoint is retained in the existing ContextStore; no new history,
+learner or consent is created. Identity/shared revision changes durably suspend the
+session. Deadlines survive reconnect/restart. Unknown data and manual holds suppress
+unsafe conclusions/proposals. Groups/templates are not implicitly independent sources.
 
-A local five-second worker and accepted source events advance the existing kernels.
-Only the latest operational checkpoint is stored, without learner/history additions.
-HA room status is never its own evidence. Unknown/derived sources cannot establish
-vacancy; pulse-high levels cannot endlessly renew grace or prove clear after expiry.
-Reconnect/restart preserves deadlines. Changes to bindings, identities or shared
-revision suspend the session durably; explicit confirmation is required to resume.
-Source timestamps are HA reports, not physical freshness certification. Held helper
-and actuator states remain distinct from physical source measurements.
+This is shadow evaluation, not actuation. Existing HA automation ownership, entity IDs,
+roles, learning grants, legacy activation and general Apply remain unchanged. No real
+household shadow session, metadata cleanup or actor action was invoked during delivery.
+Contract and limits: docs/PRESENCE_SHADOW.md.
 
-Existing roles, learning consent, evidence and ordinary HA automation ownership are
-unchanged. Savepoints exclude operational shadow state. Metadata cleanup, repair
-execution and productive control are not enabled by this package. No household
-shadow activation, entity rename or test actuation was performed during development.
+## Native deployment evidence
 
-## Gates
+Fresh backup a7c65d26, 2026-09-27T12:33:27.162716+00:00, contains only PilotSuite
+Alpha46 app/data/options, 54,374,400 bytes. Native snapshot/list and backup/details
+verified no HA/database/folders, no failed parts/agents or errors, and unprotected local
+agent. Verification preceded publication at 12:35:26Z. No extraction or restore drill.
 
-Repository validation, current tests and the new live-shadow HTTP/store integration
-suite must pass, plus all existing Chromium suites and the added shadow browser flow.
-Local browser navigation was blocked by administrator policy and not bypassed.
-Fresh scoped backup before publication; exact CI/source association and native update
-follow RELEASE_RUNBOOK.md. RELEASE_STATE.json remains the last completed receipt.
+One Store refresh exposed Alpha48; one normal update installed it. Fresh metadata:
+installed/offered 0.1.0-alpha.48, started, update_available=false, options and auto_update
+unchanged. Exact startup log: 2026-09-27T14:39:46Z, Alpha48/v23/presence_adoption_review;
+readiness at 14:39:47Z reports ready, connected stream, fresh snapshot and resolved zone.
+Log timestamps are copied as emitted, not independently clock-validated. Existing
+partial source capabilities are not transport failures. No additional restart/rebuild
+or unrelated app update.
 
-Contract and remaining scope: docs/PRESENCE_SHADOW.md. After delivery, a user explicitly
-configures a real-zone session; no runtime or synthetic check is household acceptance.
+## Acceptance boundary and next step
+
+Synthetic source artifact10928804129 and UI artifact10929985628 were checksum-verified;
+phone/dark and desktop/light shadow screenshots were viewed. Real household rendering,
+physical-source correctness and independent installed-image/data attestation remain
+separate. No Ingress bypass or new household test session was attempted.
+
+Next: a user explicitly confirms sources/settings for one saved-zone shadow session,
+then compare against the existing HA status through actual occupancy and grace events.
+Repeat with one unlike saved zone before any proposed control/ownership handover.
+
+Previous completed receipt remains at
+c33462e5f302565ea61c29fc8127b9883e906bb3:docs/RELEASE_STATE.json.
+This four-file closure changes no application code/version; final doc CI goes in comments.

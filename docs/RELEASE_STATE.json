@@ -4,112 +4,146 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.46",
-    "commit": "9efb1f3a96871bfbe2775fadc61aa3737717d265",
-    "tree": "5abb2e02becd2a7af00701b15a3e2fd107e7cd3c",
-    "app_tree": "2fdb4945b165f171168bf59d2fec8ae4be2e10da",
-    "pull_request": 100,
-    "candidate_commit": "8d3cf99c835af547c3cebbbfd16868ea589aa450",
-    "candidate_ci_run_id": 36304061558,
-    "ci_run_id": 36304136860,
+    "version": "0.1.0-alpha.48",
+    "commit": "c33462e5f302565ea61c29fc8127b9883e906bb3",
+    "tree": "b1e89277c12843079f33361d49a05411d1c39642",
+    "app_tree": "4a87e2273bd985668889123c46e11c3ccedcb79d",
+    "pull_request": 103,
+    "candidate_commit": "d6ebcd172b305bc8f54b9575ed848b4286a40a34",
+    "candidate_ci_run_id": 36313074583,
+    "ci_run_id": 36319498063,
+    "ci_conclusion": "success"
+  },
+  "published_source": {
+    "version": "0.1.0-alpha.48",
+    "commit": "c33462e5f302565ea61c29fc8127b9883e906bb3",
+    "tree": "b1e89277c12843079f33361d49a05411d1c39642",
+    "app_tree": "4a87e2273bd985668889123c46e11c3ccedcb79d",
+    "pull_request": 103,
+    "candidate_commit": "d6ebcd172b305bc8f54b9575ed848b4286a40a34",
+    "candidate_ci_run_id": 36313074583,
+    "ci_run_id": 36319498063,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "b76d8fff",
-    "name": "PilotSuite Alpha45 before Alpha46 retained report integrity",
-    "date": "2026-09-27T07:43:22.299465+00:00",
-    "size_bytes": 54353920,
-    "app_version": "0.1.0-alpha.45",
-    "app_slugs": ["0d79c5e8_pilotsuite"],
+    "backup_id": "a7c65d26",
+    "name": "PilotSuite Alpha46 before Alpha48 verified delivery",
+    "date": "2026-09-27T12:33:27.162716+00:00",
+    "size_bytes": 54374400,
+    "app_version": "0.1.0-alpha.46",
+    "app_slugs": [
+      "0d79c5e8_pilotsuite"
+    ],
     "homeassistant_included": false,
     "database_included": false,
     "folders": [],
     "failed_addons": [],
-    "failed_agent_ids": [],
     "failed_folders": [],
+    "failed_agent_ids": [],
     "agent_errors": {},
-    "agent_ids": ["hassio.local"],
+    "agent_ids": [
+      "hassio.local"
+    ],
     "protected": false,
     "completion_verified_before_publication": true,
-    "verification": ["native snapshot list", "native backup/details"],
-    "restore_drill_performed": false,
+    "verification": [
+      "native snapshot list",
+      "native backup/details"
+    ],
     "archive_extraction_performed": false,
-    "rollback": "hassio.restore_partial, slug=b76d8fff, apps=[0d79c5e8_pilotsuite], homeassistant=false, folders=[]; overwrites PilotSuite data/options since backup, no full restore"
+    "restore_drill_performed": false,
+    "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.46",
-    "offered_version": "0.1.0-alpha.46",
+    "installed_version": "0.1.0-alpha.48",
+    "offered_version": "0.1.0-alpha.48",
+    "previous_version": "0.1.0-alpha.46",
     "state": "started",
     "auto_update": true,
     "update_available": false,
     "options_unchanged": true,
+    "options_verification": "All four values compared before and after; not republished.",
     "store_refresh_calls": 1,
     "update_calls": 1,
     "explicit_restart_calls": 0,
     "rebuild_calls": 0,
     "other_app_update_calls": 0,
-    "source_association": "repository/version/app-tree; not independently verified Supervisor checkout or installed-image attestation"
+    "source_association": "repository/version/app-tree; not independent installed-image attestation"
   },
   "runtime": {
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-27T09:48:07Z",
+    "startup_log_timestamp": "2026-09-27T14:39:46Z",
+    "post_start_ready_log_timestamps": [
+      "2026-09-27T14:39:47Z"
+    ],
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
-    "post_start_ready_log_timestamps": [
-      "2026-09-27T09:48:08Z"
+    "timestamp_note": "Copied as emitted by app logs; no independent clock validation.",
+    "capabilities_available": [
+      "temperature",
+      "illuminance"
     ],
-    "timestamp_note": "timestamps copied as emitted by app logs; no independent clock validation"
+    "capabilities_partial": [
+      "humidity",
+      "motion",
+      "presence",
+      "light"
+    ]
   },
   "tests": {
-    "local_python_passed": 533,
+    "local_python_passed": 555,
     "local_javascript_passed": 60,
-    "regression_scope": "retained activation/history/import/coverage/feedback/context read validation; strict JSON; malformed, future and unbound rows; unknown fields withheld without rewriting retained rows",
+    "api_contracts": 53,
+    "local_python_version": "3.13.5",
+    "local_node_version": "22.16.0",
+    "local_aiohttp_version": "3.13.3",
+    "ci_aiohttp_requirement": "3.13.5",
     "candidate_and_release_main_ci": "all four jobs successful",
+    "browser_suites": 10,
     "container_platform": "linux/amd64",
-    "local_browser": "local Chromium was unavailable; exact candidate and release-main synthetic Chromium jobs passed"
+    "local_browser": "No new local full-browser run; prior administrator-policy denial was not bypassed."
+  },
+  "source_evidence": {
+    "artifact_id": 10928804129,
+    "run_id": 36313074583,
+    "sha256": "24903bb81ca3db8759f91bad4770cfc0a425bae29f8c9a6cf4f701b6e364a651",
+    "complete_checkout": true,
+    "candidate_tree_verified": true
   },
   "ui_review": {
-    "synthetic_only": false,
-    "visual_inspection_this_run": false,
-    "authenticated_household_ingress": "Post-update authenticated Safari Ingress made successful read-only GET requests to status, suggestions, zones and the saved Erdkellerbereich context at 09:48:21 and 09:48:36 as emitted by app logs. Visual HTML/JS/CSS rendering and user-facing integrity-warning appearance were not independently observed. No auth bypass or weakened ingress protection."
-  },
-  "household_read_only_observations": {
-    "ha_area_id": "erdkeller",
-    "ha_area_name": "Erdkeller Innen",
-    "user_semantic_label": "Erdkellerbereich",
-    "additional_existing_areas_confirmed_by_user": 3,
-    "indoor_illuminance_entities_observed": 2,
-    "existing_automation_context_observed": true,
-    "configuration_or_state_changed": false,
-    "privacy_note": "entity IDs and authored automation details remain outside this public receipt"
+    "artifact_id": 10929985628,
+    "run_id": 36313074583,
+    "sha256": "a5ba1a61799cd72c0005b704441a1332bcc4b33e3223d5ca60cce1fc71b4663a",
+    "synthetic_only": true,
+    "viewed_screenshots": [
+      "presence-shadow-light-1440.png",
+      "presence-shadow-dark-390.png"
+    ],
+    "authenticated_household_ingress": "Not independently observed in this delivery; no denied proxy retry or authentication bypass."
   },
   "boundaries": {
+    "household_shadow_session_started": false,
+    "new_learning_consent": false,
     "household_name_apply_or_undo": "not invoked",
-    "app_principal_configuration_read_and_registry_rights": "not separately verified",
-    "independent_data_preservation": "not separately verified; options unchanged and persisted application starts ready",
-    "technical_entity_id_migration": false,
     "automation_repair_execution": false,
+    "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
-    "legacy_helper_and_presence_activation": "withheld unchanged; deterministic dormant kernel installed",
+    "shadow_execution": "allowed=false; actions=[]",
+    "general_apply": "READ_ONLY_RELEASE=True; no live Apply call",
     "ingress_protection_weakened": false,
-    "general_apply_gate": "READ_ONLY_RELEASE=True in exact source; existing denial tests passed; no real Apply request made"
+    "independent_data_preservation": "Not separately attested; existing app starts ready and options are unchanged."
   },
   "household_changes": [],
-  "next_step": "Perform one authenticated visual Alpha.46 current-light, retained-context and integrity-warning check for the saved Erdkellerbereich without changing configuration, consent, feedback or devices.",
-  "published_source": {
-    "version": "0.1.0-alpha.46",
-    "commit": "9efb1f3a96871bfbe2775fadc61aa3737717d265",
-    "tree": "5abb2e02becd2a7af00701b15a3e2fd107e7cd3c",
-    "app_tree": "2fdb4945b165f171168bf59d2fec8ae4be2e10da",
-    "pull_request": 100,
-    "candidate_commit": "8d3cf99c835af547c3cebbbfd16868ea589aa450",
-    "candidate_ci_run_id": 36304061558,
-    "ci_run_id": 36304136860,
-    "ci_conclusion": "success"
+  "history": {
+    "previous_receipt_at": "c33462e5f302565ea61c29fc8127b9883e906bb3:docs/RELEASE_STATE.json",
+    "integrated_pr": 102,
+    "integrated_commit": "cc9039377824b4702a1c2e2b39fee090f1bdf97e",
+    "separate_alpha47_deployment": false,
+    "earlier_backup_checked": "2eb9a967: actual Alpha46 despite Alpha47 label; superseded for deployment by fresh a7c65d26"
   },
-  "checked_at": "2026-09-27T07:48:50Z"
+  "next_step": "Observe a user-confirmed shadow session in saved Erdkellerbereich and one unlike zone; verify sources, deadline, manual holds and light reasons before bounded control. Do not repeat Alpha48 deployment for documentation."
 }
