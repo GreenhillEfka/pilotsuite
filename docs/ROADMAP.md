@@ -31,7 +31,7 @@
   contexts: malformed lux, timestamps and source lists cannot become a known median,
   break a whole report or contaminate future captures. A valid activation remains
   separate from its optional context.
-- Alpha.45 candidate closes the remaining explicit-export path: retained rows are
+- Alpha.45 closes the remaining explicit-export path: retained rows are
   projected through the same bounded context contract instead of returning legacy
   JSON verbatim. Invalid rows remain unknown and valid older evidence is preserved.
 - The complete 51-route `/api/v1` inventory is now checked against the explicit
@@ -46,8 +46,11 @@
 - Alpha.44 candidate/main CI, scoped Alpha.43 backup, Store association, installation
   and runtime gates passed. Authenticated Erdkellerbereich Ingress acceptance remains
   a separate gate.
-- Next: require complete CI for the exact Alpha.45 candidate, then use the scoped
-  backup/Store routine. Authenticated Erdkellerbereich Ingress remains separate.
+- Alpha.45 candidate/main CI, scoped Alpha.44 backup, Store association, installation
+  and runtime gates passed. Authenticated Erdkellerbereich Ingress remains separate.
+- Next: run the explicit current-light and retained-context checks in authenticated
+  read-only Ingress for the saved Erdkellerbereich without changing configuration,
+  consent, feedback or devices.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before
