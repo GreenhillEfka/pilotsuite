@@ -140,6 +140,7 @@ async function refresh() {
   const button = byId("refresh");
   button.disabled = true;
   button.textContent = "Gleiche ab …";
+  window.PilotSuiteZonePresence?.invalidate();
   try {
     await json("api/v1/refresh", { method: "POST", body: "{}" });
     await load();
