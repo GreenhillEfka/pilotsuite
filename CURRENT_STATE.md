@@ -1,6 +1,6 @@
-# Current state — Alpha.50 candidate on delivered Alpha.49
+# Current state — Alpha.50 delivered
 
-Alpha.49 is merged at `dde31b82fc0829a96f7d058f25c62be9c0641574`, published and installed.
+Alpha.50 is merged at `9aea467a81fcdbd9fc96a0199cb2a1c57826702b`, published and installed.
 The exact candidate and final main commit passed all five CI jobs: unit/contract tests,
 amd64 container build, reproducible source checkout, disposable Home Assistant protocol
 and the complete Chromium application flow.
@@ -25,7 +25,7 @@ Authenticated household Ingress was not independently observable because no sign
 browser session was available. Direct app access correctly rejected the probe with
 `403 Ingress access required`; that protection was not bypassed.
 
-The Alpha.50 candidate closes a restart-integrity gap in owned output packages. Durable
+Alpha.50 closes a restart-integrity gap in owned output packages. Durable
 receipts now retain both the HA creation identifier and independent registry identity.
 After an interrupted confirmed transaction, only exactly evidenced owned outputs can be
 reconciled; pending steps can then continue and a fully created package can be bound
@@ -33,9 +33,16 @@ without replaying creation. Name similarity never proves ownership, and an unkno
 outcome without receipt remains blocked. Final binding rechecks zone revision and every
 output identity. No household helper or other HA object was used for these tests.
 
-Local candidate checks: 560 Python and 68 JavaScript tests pass; repository compile and
-diff checks pass. Alpha.49 remains installed until exact candidate CI, disposable-HA
-protocol checks and the fresh scoped backup/release gates pass.
+Local checks passed 560 Python and 68 JavaScript tests plus repository compile/diff and
+62 API/repository contracts. Exact PR and final main CI passed all five jobs. Backup
+`c31afe38` contains only Alpha.49 app/data/options. Store refresh exposed Alpha.50, one
+update installed it, and logs confirm `presence_adoption_review`, ready transport,
+connected stream, fresh snapshot and resolved zone. Options remain unchanged.
 
-Next: run exact Alpha.50 PR CI, including the disposable Home Assistant helper protocol,
-before any publication or household update.
+HA read-only inventory still exposes the real `erdkeller` (`Erdkeller Innen`) and
+`erdkeller_eingang` areas used by the saved aggregate `Erdkellerbereich`. Authenticated
+Ingress remains unavailable in this session, so preservation of all four saved zones is
+not claimed from an internal HTTP response.
+
+Next: authenticated read-only Ingress acceptance of `Erdkellerbereich` and one unlike
+existing zone, with all four saved zones preserved and no household apply action.

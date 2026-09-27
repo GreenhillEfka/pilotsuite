@@ -58,11 +58,14 @@
   and runtime gates passed. Authenticated Safari Ingress completed post-update API
   reads; visual HTML/JS/CSS acceptance remains separate.
 - Alpha.48 delivered explicit real-source shadow comparison without actuation.
-- Alpha.49 candidate consolidates the first zone presence instance: relevance-authorized live/history evaluation, typed presence/support sources, bounded grace, sensor/history visualization, an owned occupancy-output package, and ontology metadata plans. Exact candidate CI plus disposable Core protocol/browser gates are mandatory before publication.
-- Alpha.50 candidate closes the owned-package restart gap without expanding authority:
+- Alpha.49 consolidates the first zone presence instance: relevance-authorized live/history evaluation, typed presence/support sources, bounded grace, sensor/history visualization, an owned occupancy-output package, and ontology metadata plans.
+- Alpha.50 closes the owned-package restart gap without expanding authority:
   cumulative durable receipts permit exact reconciliation and continuation, while
   ambiguous/name-only matches remain unknown and are never replayed or adopted.
-- Next after Alpha.50 delivery: authenticated read-only acceptance of the saved
+- Alpha.50 exact candidate/main CI, scoped Alpha.49 backup, Store association,
+  installation and runtime gates passed. The real HA areas `erdkeller` and
+  `erdkeller_eingang` remain inputs to the aggregate saved `Erdkellerbereich` zone.
+- Next: authenticated read-only acceptance of the saved
   `Erdkellerbereich` and one unlike existing zone before any publication-mode trial.
 - Development may read HA-wide entities/automations under explicit user authority.
   A confirmed `relevant` entity authorizes PilotSuite to evaluate its available live and historical data for the zone; no second learning/history consent is required. Actuation authority remains separate.

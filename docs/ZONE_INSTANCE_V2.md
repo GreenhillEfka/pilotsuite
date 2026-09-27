@@ -2,11 +2,11 @@
 
 ## Verifizierter Ausgangspunkt
 
-Kanonisch: GreenhillEfka/pilotsuite, App 0d79c5e8_pilotsuite. Alpha.49 ist aus
-`dde31b82fc0829a96f7d058f25c62be9c0641574` veröffentlicht und installiert; exakte
+Kanonisch: GreenhillEfka/pilotsuite, App 0d79c5e8_pilotsuite. Alpha.50 ist aus
+`9aea467a81fcdbd9fc96a0199cb2a1c57826702b` veröffentlicht und installiert; exakte
 Kandidaten-/Main-CI, wegwerfbares HA-Protokoll und App-Startprüfung sind in
-`docs/RELEASE_STATE.json` belegt. Alpha.50 ist der darauf aufbauende
-Wiederanlauf-Kandidat und bleibt bis zu seinen eigenen Release-Gates uninstalliert.
+`docs/RELEASE_STATE.json` belegt. Die Wiederanlauflogik erweitert keine Ausführungs-
+oder Lernberechtigung.
 
 Das echte Storage-Dashboard „Habituszonen“ wurde gelesen. Seine Struktur dient als
 fachliche Referenz, nicht als unfehlbare Steuerungslogik. Keine Dashboard-Konfiguration,
@@ -140,11 +140,11 @@ Alpha.49 bestand zusätzlich den isolierten CI-Lauf mit Home Assistant Core 2026
 die vollständige Chromium-Anwendungsfolge. Die angemeldete Haushalt-Ingress-Oberfläche
 bleibt ein eigener Nachweis; direkter Zugriff wurde korrekt mit 403 abgewiesen.
 
-Der Alpha.50-Kandidat besteht lokal 560 Python-, 68 JavaScript- und 62
-API-/Repository-Verträge. Vor Veröffentlichung bleiben exakte Remote-CI einschließlich
-Browsersuiten, Container und wegwerfbarem HA-Protokoll sowie die frische native
-PilotSuite-only-Sicherung nach `docs/RELEASE_RUNBOOK.md` verbindlich. Keine bestehende
-Hausautomation und kein Haushalt-Helfer dient als Installationstest.
+Alpha.50 bestand lokal 560 Python-, 68 JavaScript- und 62 API-/Repository-Verträge sowie
+exakte Remote-CI einschließlich Browsersuiten, Container und wegwerfbarem HA-Protokoll.
+Die frische native PilotSuite-only-Sicherung `c31afe38` wurde vor Store-Abgleich und
+Installation verifiziert. Keine bestehende Hausautomation und kein Haushalt-Helfer
+diente als Installationstest.
 
 Primärreferenzen: https://www.home-assistant.io/integrations/timer/
 https://www.home-assistant.io/integrations/template/
@@ -156,5 +156,5 @@ https://www.home-assistant.io/docs/configuration/state_object/
 Der isolierte HA-Protokolljob installiert eine wegwerfbare Core-Instanz und prüft den
 produktiven WS-/REST-Pfad für Helfer, natives Template, Gültigkeit, Timer und
 Metadatenrücknahme mit echter Authentifizierung. Er verbindet sich nie mit dem Haushalt
-und behält keine Zugangsdaten. Alpha.50 muss denselben exakten Kandidatenpfad bestehen;
-lokale Tests oder die frühere Alpha.49-Abnahme ersetzen diesen Nachweis nicht.
+und behält keine Zugangsdaten. Alpha.50 bestand diesen exakten Kandidatenpfad; die noch
+offene angemeldete Ingress-Abnahme wird dadurch nicht ersetzt.
