@@ -1,29 +1,30 @@
-# Current state — Alpha.49 recovered candidate / Alpha.48 remains installed
+# Current state — Alpha.49 delivered
 
-The user-requested zone-first presence, relevant-data visualization and ontology package
-is implemented locally, based on verified main da8b56b7910b9c42a5edec8f1c12dbbdb451784f.
-The earlier candidate is recovered from its checksum-verified bundle, not reimplemented.
-Current main still matches that baseline; no competing open PR was found at resume.
-Publication and installation receipts must follow actual successful gates.
+Alpha.49 is merged at `dde31b82fc0829a96f7d058f25c62be9c0641574`, published and installed.
+The exact candidate and final main commit passed all five CI jobs: unit/contract tests,
+amd64 container build, reproducible source checkout, disposable Home Assistant protocol
+and the complete Chromium application flow.
 
-Core scope: typed direct/motion/optional TV-like inputs, bounded indirect holds, clear
-stability, restart-safe deadlines, irrelevant-source exclusion, output identity checks,
-new own helper-package plans and publisher, validity lease, independent readback, history
-series with gaps and categorical values, session trace, and reversible name/label plans.
+The package adds the existing-workspace zone presence configurator, relevance-authorized
+history and ontology previews described in `docs/ZONE_INSTANCE_V2.md`. It keeps the one
+canonical zone/store ownership model. No new learning engine, queue or shadow
+configuration was introduced.
 
-Dashboard Habituszonen was read and informed the six semantic roles plus the separation
-between physical areas and logical zone membership. Its raw household configuration was
-not copied into source, and its display/automations were not changed.
+During integrated browser acceptance, five real defects were fixed: stale revision bases
+after save and cancel, global-refresh races leaving actionable stale controls, missing
+stable accessible labels, an invalid empty entity default, and an incomplete HA refresh
+fixture. Regression coverage now exercises the full refresh/lock/recovery path.
 
-Detailed implementation, limits and review checklist: docs/ZONE_INSTANCE_V2.md.
-Important limits: no general technical Entity-ID migration, no automatic takeover of
-existing helpers/automations, no complete adaptive learner, no claim all historical event
-bus records exist. Automatic history window initially24h; older31-day batches on request.
-Legacy learning fields remain compatible but do not gate the new relevant-data path.
+The live app starts in `presence_adoption_review`, reports ready transport, connected
+event stream, fresh snapshot and resolved zone. Its four Supervisor options and
+`auto_update` remained unchanged. No household helper, metadata, automation, consent or
+device state was changed. The scoped pre-release backup and exact delivery evidence are
+in `docs/RELEASE_STATE.json`.
 
-The candidate is NOT a Store release. Exact remote CI, container/runtime dependency tests,
-UI screenshots and real disposable-HA provisioning/availability checks remain outstanding.
-Prior local browser navigation was blocked (ERR_BLOCKED_BY_ADMINISTRATOR); no bypass.
-A pinned real Core2026.9.3 protocol job is added for native collection, template flow,
-public state and metadata rollback acceptance. Fresh local625 Python/68 JS/62 API passed.
-The installed Alpha48 receipt remains in RELEASE_STATE.json; do not relabel it as Alpha49.
+Authenticated household Ingress was not independently observable because no signed-in
+browser session was available. Direct app access correctly rejected the probe with
+`403 Ingress access required`; that protection was not bypassed.
+
+Next: perform authenticated read-only Ingress acceptance for saved `Erdkellerbereich`
+and one unlike existing zone, confirming four-zone preservation, refresh recovery,
+history gaps and ontology preview without applying household changes.

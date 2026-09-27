@@ -4,36 +4,34 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.48",
-    "commit": "c33462e5f302565ea61c29fc8127b9883e906bb3",
-    "tree": "b1e89277c12843079f33361d49a05411d1c39642",
-    "app_tree": "4a87e2273bd985668889123c46e11c3ccedcb79d",
-    "pull_request": 103,
-    "candidate_commit": "d6ebcd172b305bc8f54b9575ed848b4286a40a34",
-    "candidate_ci_run_id": 36313074583,
-    "ci_run_id": 36319498063,
+    "version": "0.1.0-alpha.49",
+    "commit": "dde31b82fc0829a96f7d058f25c62be9c0641574",
+    "tree": "76e5a4793f99b4e3a9d09f81843771cd85bbb57a",
+    "app_tree": "e47ce1f2ea38c7816fb081711024858401f8402e",
+    "pull_request": 105,
+    "candidate_commit": "2b44272a9269cdf60d22b1dcee07fcac1e119da8",
+    "candidate_ci_run_id": 36342531061,
+    "ci_run_id": 36342716666,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.48",
-    "commit": "c33462e5f302565ea61c29fc8127b9883e906bb3",
-    "tree": "b1e89277c12843079f33361d49a05411d1c39642",
-    "app_tree": "4a87e2273bd985668889123c46e11c3ccedcb79d",
-    "pull_request": 103,
-    "candidate_commit": "d6ebcd172b305bc8f54b9575ed848b4286a40a34",
-    "candidate_ci_run_id": 36313074583,
-    "ci_run_id": 36319498063,
+    "version": "0.1.0-alpha.49",
+    "commit": "dde31b82fc0829a96f7d058f25c62be9c0641574",
+    "tree": "76e5a4793f99b4e3a9d09f81843771cd85bbb57a",
+    "app_tree": "e47ce1f2ea38c7816fb081711024858401f8402e",
+    "pull_request": 105,
+    "candidate_commit": "2b44272a9269cdf60d22b1dcee07fcac1e119da8",
+    "candidate_ci_run_id": 36342531061,
+    "ci_run_id": 36342716666,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "a7c65d26",
-    "name": "PilotSuite Alpha46 before Alpha48 verified delivery",
-    "date": "2026-09-27T12:33:27.162716+00:00",
-    "size_bytes": 54374400,
-    "app_version": "0.1.0-alpha.46",
-    "app_slugs": [
-      "0d79c5e8_pilotsuite"
-    ],
+    "backup_id": "f627af26",
+    "name": "PilotSuite Alpha48 before Alpha49",
+    "date": "2026-09-27T18:59:37.741574+00:00",
+    "size_bytes": 54384640,
+    "app_version": "0.1.0-alpha.48",
+    "app_slugs": ["0d79c5e8_pilotsuite"],
     "homeassistant_included": false,
     "database_included": false,
     "folders": [],
@@ -41,23 +39,18 @@
     "failed_folders": [],
     "failed_agent_ids": [],
     "agent_errors": {},
-    "agent_ids": [
-      "hassio.local"
-    ],
+    "agent_ids": ["hassio.local"],
     "protected": false,
     "completion_verified_before_publication": true,
-    "verification": [
-      "native snapshot list",
-      "native backup/details"
-    ],
+    "verification": ["native snapshot list", "native backup/details"],
     "archive_extraction_performed": false,
     "restore_drill_performed": false,
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.48",
-    "offered_version": "0.1.0-alpha.48",
-    "previous_version": "0.1.0-alpha.46",
+    "installed_version": "0.1.0-alpha.49",
+    "offered_version": "0.1.0-alpha.49",
+    "previous_version": "0.1.0-alpha.48",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,84 +67,46 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-27T14:39:46Z",
-    "post_start_ready_log_timestamps": [
-      "2026-09-27T14:39:47Z"
-    ],
+    "startup_log_timestamp": "2026-09-27T21:02:20Z",
+    "post_start_ready_log_timestamps": ["2026-09-27T21:02:21Z"],
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
     "timestamp_note": "Copied as emitted by app logs; no independent clock validation.",
-    "capabilities_available": [
-      "temperature",
-      "illuminance"
-    ],
-    "capabilities_partial": [
-      "humidity",
-      "motion",
-      "presence",
-      "light"
-    ]
+    "capabilities_available": ["temperature", "illuminance"],
+    "capabilities_partial": ["humidity", "motion", "presence", "light"]
   },
   "tests": {
-    "local_python_passed": 555,
-    "local_javascript_passed": 60,
-    "api_contracts": 53,
-    "local_python_version": "3.13.5",
-    "local_node_version": "22.16.0",
-    "local_aiohttp_version": "3.13.3",
-    "ci_aiohttp_requirement": "3.13.5",
-    "candidate_and_release_main_ci": "all four jobs successful",
-    "browser_suites": 10,
+    "local_python_passed": 556,
+    "local_javascript_passed": 68,
+    "api_contracts": 62,
+    "candidate_and_release_main_ci": "all five jobs successful",
+    "browser_suites": 11,
     "container_platform": "linux/amd64",
-    "local_browser": "No new local full-browser run; prior administrator-policy denial was not bypassed."
-  },
-  "source_evidence": {
-    "artifact_id": 10928804129,
-    "run_id": 36313074583,
-    "sha256": "24903bb81ca3db8759f91bad4770cfc0a425bae29f8c9a6cf4f701b6e364a651",
-    "complete_checkout": true,
-    "candidate_tree_verified": true
+    "disposable_home_assistant_protocol": "success",
+    "reproducible_source_checkout": "success"
   },
   "ui_review": {
-    "artifact_id": 10929985628,
-    "run_id": 36313074583,
-    "sha256": "a5ba1a61799cd72c0005b704441a1332bcc4b33e3223d5ca60cce1fc71b4663a",
-    "synthetic_only": true,
-    "viewed_screenshots": [
-      "presence-shadow-light-1440.png",
-      "presence-shadow-dark-390.png"
-    ],
-    "authenticated_household_ingress": "Not independently observed in this delivery; no denied proxy retry or authentication bypass."
+    "synthetic_browser": "success on exact candidate and main release source",
+    "authenticated_household_ingress": "Not independently observed; no authenticated browser session was available and direct app proxy correctly returned 403 Ingress access required.",
+    "ingress_protection_weakened": false
   },
   "boundaries": {
-    "household_shadow_session_started": false,
+    "household_presence_configuration_changed": false,
+    "household_helper_or_metadata_apply": false,
     "new_learning_consent": false,
-    "household_name_apply_or_undo": "not invoked",
     "automation_repair_execution": false,
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
-    "shadow_execution": "allowed=false; actions=[]",
     "general_apply": "READ_ONLY_RELEASE=True; no live Apply call",
-    "ingress_protection_weakened": false,
-    "independent_data_preservation": "Not separately attested; existing app starts ready and options are unchanged."
+    "independent_data_preservation": "Options are unchanged and existing app starts ready; authenticated UI data preservation remains to be observed."
   },
   "household_changes": [],
   "history": {
     "previous_receipt_at": "c33462e5f302565ea61c29fc8127b9883e906bb3:docs/RELEASE_STATE.json",
-    "integrated_pr": 102,
-    "integrated_commit": "cc9039377824b4702a1c2e2b39fee090f1bdf97e",
-    "separate_alpha47_deployment": false,
-    "earlier_backup_checked": "2eb9a967: actual Alpha46 despite Alpha47 label; superseded for deployment by fresh a7c65d26"
+    "integrated_pr": 105,
+    "integrated_commit": "dde31b82fc0829a96f7d058f25c62be9c0641574"
   },
-  "next_step": "Observe a user-confirmed shadow session in saved Erdkellerbereich and one unlike zone; verify sources, deadline, manual holds and light reasons before bounded control. Do not repeat Alpha48 deployment for documentation.",
-  "candidate": {
-    "version": "0.1.0-alpha.49",
-    "status": "local_only_pending_browser_native_HA_and_remote_CI",
-    "branch": "feat/alpha49-zone-presence-configurator",
-    "baseline_commit": "da8b56b7910b9c42a5edec8f1c12dbbdb451784f",
-    "published": false,
-    "installed": false
-  }
+  "next_step": "Perform authenticated read-only Ingress acceptance for the saved Erdkellerbereich and one unlike existing zone: verify four-zone preservation, configurator defaults, refresh recovery, history gaps and ontology preview without applying household changes."
 }
