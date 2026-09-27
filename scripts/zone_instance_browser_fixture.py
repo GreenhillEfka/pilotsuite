@@ -22,6 +22,7 @@ async def main():
  for t in s._tasks:t.cancel()
  await asyncio.gather(*s._tasks,return_exceptions=True);s._tasks=[]
  world=await seed_shadow(s,now)
+ s.client.snapshot=AsyncMock(side_effect=lambda:deepcopy(world))
  registry=[{'entity_id':e['entity_id'],'unique_id':e['unique_id'],'platform':e['platform'],
    'name':e['name'],'labels':[],'disabled_by':None} for e in world['entities']]
  states={e['entity_id']:deepcopy(e) for e in world['states']}

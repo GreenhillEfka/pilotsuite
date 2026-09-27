@@ -166,6 +166,6 @@
      if(!ok&&!editing){output.replaceChildren();note('Grundlage wird aktualisiert; keine veraltete Aussage.');}
      if(eligible()&&!editing&&!busy&&Date.now()-last>5000)read();
    },dirty:()=>editing||busy,
-   invalidate(){valid=false;generation++;data=null;if(output)output.replaceChildren();if(charts)charts.replaceChildren();note('Quelle oder Verbindung geändert; neu laden.');}
+   invalidate(){valid=false;generation++;data=null;if(output)output.replaceChildren();if(charts)charts.replaceChildren();if(tools)tools.querySelectorAll('button').forEach(button=>button.disabled=true);note('Quelle oder Verbindung geändert; neu laden.');}
  };
 })();

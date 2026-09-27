@@ -52,6 +52,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   }}
   const final=await command({action:'snapshot'});assert.equal(final.learning,false);assert.deepEqual(final.roles,baseline.roles);assert.deepEqual(errors,[]);
   assert.equal(network.some(r=>/presence-runtime|transactions\/.+\/apply|history\/import/.test(r.url)),false);
-  console.log('ok 5 - themes, three widths, no legacy grants and no household calls');
+  await page.evaluate(()=>window.PilotSuiteZonePresence.invalidate());assert.equal(await page.locator('#ps-zone-configure').isDisabled(),true);
+  console.log('ok 5 - themes, three widths, conservative invalidation, no legacy grants and no household calls');
  }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
 })().catch(e=>{console.error(e);process.exitCode=1;});
