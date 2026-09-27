@@ -132,7 +132,7 @@ presence kernel, transparent activity features and small contextual preference m
 Possible situations include transit, seated stay and confirmed media use; only declare
 what the configured sources support. No camera/person identification is necessary.
 
-Learn only from separately permitted evidence: explicit scene/profile choices and
+Learn only from relevant, attributable evidence: explicit scene/profile choices and
 attributable manual brightness/color/media adjustments under comparable conditions.
 The existing coarse HA context attribution is not proof of a human action. Unknown
 origin is not a positive training label; own actions are excluded to prevent self-
@@ -154,7 +154,7 @@ freeze on changed devices/bindings and expose reset/disable per model. Sparse ev
 keeps defaults or recommendations, not manufactured certainty.
 
 Runtime modes:
-1. Observe/explain: no new actuator writes; productive collection only with consent.
+1. Observe/explain: no new actuator writes; relevant sources may be evaluated live and historically.
 2. Shadow/replay: show what would have happened, with missed data and conflicts.
 3. Suggest: user approves a bounded reusable policy, not every ordinary trigger.
 4. Bounded autonomy: only the approved zone/module/targets/parameter envelope; hard
@@ -183,7 +183,7 @@ hardware/model service is assumed. Benchmark latency/memory before adding a mode
 | Then | Optional music/TV arbitration | User playback/queues preserved; real group/session capabilities verified |
 | Then | Adaptive preferences | Permitted training evidence, chronological validation, bounded changes, visible freeze/reset |
 
-Learning can run in shadow alongside the stable kernel after consent, without waiting
+Learning can run in shadow alongside the stable kernel for relevant sources, without waiting
 for every actuator module. Each step must connect existing UI/API/store/runtime paths,
 not merely ship another unused contract file. No claim of comfort improvement until
 real acceptance demonstrates it. Version numbers beyond the current slice are not
