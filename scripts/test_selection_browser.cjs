@@ -79,11 +79,11 @@ const assert = require('node:assert/strict');
           execution:{allowed:false,actions:[]}};
         if(suffix.endsWith('/automation-inspection')) {
           assert.equal(payload.automation_id,'automation.synthetic');
-          const step=(kind,service=null)=>({kind,service,source_references:[],target_references:[],other_reference_count:0,limitations:[]});
+          const step=(kind,service=null,availability='available')=>({kind,service,availability,source_references:[],target_references:[],other_reference_count:0,limitations:[]});
           data.inspection={schema:'pilotsuite-automation-inspection-v1',entity_id:payload.automation_id,
             config_fingerprint:configFingerprint,change_status:payload.previous_fingerprint===null?'first_read':payload.previous_fingerprint===configFingerprint?'unchanged':'changed',
-            sections:{triggers:[{...step('state'),source_references:draft.current_pattern.sources}],conditions:[step('template')],actions:[{...step('service_call','light.turn_on'),target_references:draft.fields.target_ids}]},
-            limitations:['templates_not_evaluated'],alignment:{source_trigger_references:draft.current_pattern.sources,target_action_references:draft.fields.target_ids,targets_without_direct_action_reference:[],semantic_equivalence:'not_determined'},
+            sections:{triggers:[{...step('state'),source_references:draft.current_pattern.sources}],conditions:[step('template')],actions:[{...step('service_call','light.turn_on'),target_references:draft.fields.target_ids},{...step('service_call','light.turn_off','unavailable'),target_references:draft.fields.target_ids,limitations:['disabled_step']}]},
+            limitations:['templates_not_evaluated','disabled_step'],alignment:{source_trigger_references:draft.current_pattern.sources,target_action_references:draft.fields.target_ids,unavailable_source_trigger_references:[],unknown_source_trigger_references:[],unavailable_target_action_references:draft.fields.target_ids,unknown_target_action_references:[],targets_without_direct_action_reference:[],semantic_equivalence:'not_determined'},
             checklist:['unknowns','intent','timing','manual_override','enabled','risk'].map(id=>({id,state:'open'})),
             coverage:'structural_only',risk:'not_assessed',execution:{allowed:false,actions:[]}};
         }
@@ -318,6 +318,8 @@ const assert = require('node:assert/strict');
     await page.waitForFunction(()=>document.querySelector('.automation-inspection')?.textContent.includes('Erste Detailprüfung'));
     for(const name of ['Auslöser','Bedingungen','Aktionen','Dein Prüfplan']) assert.equal(await page.locator('.automation-inspection').getByRole('heading',{name,exact:true}).count(),1);
     assert.match(await page.locator('.automation-inspection').innerText(),/Templates nicht ausgewertet/);
+    assert.match(await page.locator('.automation-inspection').innerText(),/strukturell aktiv/);
+    assert.match(await page.locator('.automation-inspection').innerText(),/Deaktivierte passende Bezüge/);
     assert.match(await page.locator('.automation-inspection').innerText(),/Vorrang manueller Bedienung nachweisen · offen/);
     await page.getByRole('button',{name:'Details prüfen: automation.synthetic',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('.automation-inspection')?.textContent.includes('Detailprüfung unverändert'));

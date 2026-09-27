@@ -1,4 +1,20 @@
-# Current state — Alpha.51 delivered
+# Current state — Alpha.51 live, Alpha.52 candidate
+
+Alpha.52 is the bounded structural-availability integrity candidate. The selected
+automation inspector previously exposed disabled/dynamic steps as limitations while
+still allowing their direct references to close source/target gaps. A disabled parent
+could also leave its nested service calls looking active. Each step now derives and
+inherits `available`, `unavailable` or `unknown`; only available trigger/service-call
+references satisfy confirmed alignment. Other matches remain visible in separate
+lists. The existing UI explains the distinction, and the presence-adoption review
+reuses the confirmed projection without gaining takeover or execution authority.
+
+Synthetic unit, endpoint and Chromium fixtures cover disabled, dynamic, inherited and
+available-sibling cases. Local validation passes 567 Python tests, 68 JavaScript tests,
+62 API/repository contracts and Python compilation. The local Chromium executable was
+not available, so the complete pinned browser run remains an exact-CI gate. No household
+configuration was copied into source/tests and no HA object was changed. Candidate CI,
+merge, main CI, backup and installation have not yet occurred.
 
 Alpha.51 is the delivered bounded automation-reference integrity correction. The authorized
 read-only inventory showed a real existing automation whose static source constraint is
@@ -64,6 +80,7 @@ stream, fresh snapshot and resolved zone. Options and `auto_update` remain uncha
 Direct proxy reads still correctly return `403 Ingress access required`; protection was
 not weakened and all four saved zones are therefore not claimed from internal HTTP.
 
-Next: authenticated read-only Ingress acceptance of `Erdkellerbereich` and one unlike
-existing zone, confirming all four saved zones and the corrected event-filter source
-explanation without any household apply action.
+Next: exact Alpha.52 candidate/main CI and the existing backup-bound release gates;
+after installation, authenticated read-only Ingress acceptance of `Erdkellerbereich`
+and one unlike existing zone, confirming all four saved zones and active/disabled/
+unknown reference explanations without any household apply action.
