@@ -837,7 +837,7 @@ function renderLearning() {
   text('learning-status', byId('learning-status').textContent + ` Davon ${contextData.historical_event_count || 0} historische Belege.`);
   const retainedIntegrity=window.PilotSuiteWorkspaceModel.retainedIntegrity(contextData.retained_integrity);
   if(retainedIntegrity.degraded) text('learning-status', byId('learning-status').textContent +
-    ` Hinweis: ${retainedIntegrity.affected} gespeicherte Nachweiszeilen wurden begrenzt oder nicht gewertet. Die Rohdaten blieben unverändert.`);
+    ` Hinweis: ${retainedIntegrity.affected} gespeicherte Nachweiszeilen wurden begrenzt oder nicht gewertet. Nicht gewertete Zeilen werden durch diesen Bericht nicht repariert; die normale Aufbewahrungsgrenze gilt weiter.`);
   const progress = contextData.progress;
   const timeBasis = contextData.time_basis || 'UTC';
   const dayLabels = {all:'alle Tage', weekday:'Mo–Fr', weekend:'Sa–So'};

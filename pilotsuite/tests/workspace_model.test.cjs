@@ -62,7 +62,7 @@ test('comparison temperature is separate and delta requires valid same-unit inde
 });
 test('retained integrity warning counts only bounded known row groups',()=>{
  assert.deepEqual(M.retainedIntegrity({status:'ok',excluded_rows:{activity_evidence:3}}),{degraded:false,affected:3});
- assert.deepEqual(M.retainedIntegrity({status:'degraded',excluded_rows:{activity_evidence:2,private:99},normalized_rows:{activity_context:1}}),{degraded:true,affected:3});
+ assert.deepEqual(M.retainedIntegrity({status:'degraded',excluded_rows:{activity_evidence:2,private:99},normalized_rows:{activity_context:1,history_imports:1}}),{degraded:true,affected:4});
  assert.deepEqual(M.retainedIntegrity({status:'degraded',excluded_rows:{activity_evidence:-1,history_imports:'4'},normalized_rows:{coverage_checks:NaN}}),{degraded:false,affected:0});
  assert.deepEqual(M.retainedIntegrity(null),{degraded:false,affected:0});
 });

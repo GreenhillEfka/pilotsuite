@@ -41,7 +41,10 @@ def apply_role_overrides(neurons, roles):
 from .organization_service import OrganizationServiceMixin
 
 
-class PilotSuiteService(OrganizationServiceMixin):
+from .shadow_service import PresenceShadowServiceMixin
+
+
+class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin):
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self.audit = AuditLog(settings.data_dir, settings.audit_retention)
@@ -51,6 +54,7 @@ class PilotSuiteService(OrganizationServiceMixin):
         self.plans = PlanStore(settings.data_dir, self.audit, self.context)
         self.attribution = EventAttribution()
         self._learning_sources = {}
+        self._shadow_init()
         self._presence_runtime_enabled: set[str] = set()
         self._presence_runtime: dict[str, dict[str, Any]] = {}
         self._presence_runtime_lock = asyncio.Lock()
@@ -550,6 +554,7 @@ class PilotSuiteService(OrganizationServiceMixin):
                 self._on_service_call,
             )),
             asyncio.create_task(self._refresh_loop()),
+            asyncio.create_task(self._shadow_loop()),
         ]
 
     async def close(self) -> None:
@@ -570,6 +575,7 @@ class PilotSuiteService(OrganizationServiceMixin):
                 self._last_error = None
                 self._last_refresh_at = datetime.now(UTC).isoformat()
                 await self._derive()
+                await self._shadow_tick_locked()
                 summary = await self.world.summary()
                 state = await self.status()
                 LOGGER.info("Readiness ready=%s stream=%s snapshot_fresh=%s zone_resolved=%s capabilities=%s",
@@ -789,6 +795,7 @@ class PilotSuiteService(OrganizationServiceMixin):
                                             group['status'] = 'unknown'
                                     context['captured_at'] = captured.isoformat()
                                 await self.context.record(zone_id, entity_id, occurred, origin, context=context)
+            await self._shadow_tick_locked(event=event_data)
         for zone_id in presence_zones:
             runtime=await self.presence_runtime(zone_id)
             watched=set(runtime.get("raw_sources",[])+([runtime.get("timer")] if runtime.get("timer") else []))
@@ -805,6 +812,9 @@ class PilotSuiteService(OrganizationServiceMixin):
 
     async def _on_connection(self, connected: bool) -> None:
         self._stream_connected = connected
+        if not connected:
+            self._shadow_views.clear()
+            self._shadow_seen.clear()
         if connected:
             # Resynchronize after subscription, including every reconnect.
             await self.refresh(reason="stream_connected")
@@ -813,6 +823,7 @@ class PilotSuiteService(OrganizationServiceMixin):
             self.attribution.clear()
             async with self._projection_lock:
                 await self._derive()
+                await self._shadow_tick_locked()
 
     async def _refresh_loop(self) -> None:
         while not self._stop.is_set():

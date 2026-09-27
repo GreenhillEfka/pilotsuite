@@ -115,7 +115,7 @@ def validate_lighting_checkpoint(value: LightingCheckpoint | dict[str, Any] | No
 def advance_lighting_preview(previous, *, now, presence_state, daylight_lux,
                              daylight_available=True, current_on=True,
                              current_brightness=50, atmosphere="neutral",
-                             manual_override=False, night=False,
+                             manual_override=False, night=False, off_when_vacant=False,
                              supports_brightness=True, supports_color_temp=False,
                              minimum_kelvin=2000, maximum_kelvin=6500,
                              minimum=15, maximum=85, stable_seconds=30,
@@ -124,7 +124,7 @@ def advance_lighting_preview(previous, *, now, presence_state, daylight_lux,
     point = validate_lighting_checkpoint(previous)
     if (not _number(now) or presence_state not in {"occupied", "grace", "vacant", "unknown"}
             or type(daylight_available) is not bool or type(current_on) is not bool
-            or type(manual_override) is not bool or type(night) is not bool
+            or type(manual_override) is not bool or type(night) is not bool or type(off_when_vacant) is not bool
             or type(supports_brightness) is not bool or type(supports_color_temp) is not bool
             or atmosphere not in ATMOSPHERES
             or not all(type(value) is int and 1 <= value <= 3600
@@ -148,13 +148,13 @@ def advance_lighting_preview(previous, *, now, presence_state, daylight_lux,
         return LightingTransition(point, "hold", None, {},
                                   "Unklare Präsenz erlaubt keinen neuen Lichtvorschlag.")
     if presence_state == "vacant":
-        if night and current_on:
+        if (night or off_when_vacant) and current_on:
             if point.last_proposal_at is not None and now - point.last_proposal_at < minimum_interval:
                 return LightingTransition(point, "rate_limited", None, {},
                                           "Der Mindestabstand verhindert einen wiederholten Nachtvorschlag.")
             updated = LightingCheckpoint(point.band, None, None, now, None)
             return LightingTransition(updated, "suggest", None, {"on": False},
-                                      "Nach bestätigter Abwesenheit zeigt die Nachtvorschau das Ausschalten.")
+                                      "Nach bestätigter Abwesenheit zeigt das freigegebene Abschaltziel einen Vorschlag, keine Ausführung.")
         return LightingTransition(point, "hold", None, {},
                                   "Ohne bestätigte Präsenz wird keine Beleuchtung angehoben.")
     if not daylight_available or not _number(daylight_lux, minimum=0):

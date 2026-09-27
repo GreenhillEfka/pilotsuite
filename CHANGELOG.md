@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.1.0-alpha.48] - 2026-09-27
+
+### Live-Schattenvergleich und Lichtbedarf
+- Expliziter Start und Stopp je bestehender Habitus-Zone. Bestätigte Rohquellen
+  treiben den vorhandenen Präsenzkern; der HA-Raumstatus dient nur zum Vergleich.
+- Getrennte Signaltypen für Dauerpräsenz und Bewegungsimpulse, gespeicherter
+  Nachlaufzeitpunkt und Wiederanlauf ohne stillschweigende Verlängerung.
+- Quellenalter, unbekannte Zustände, geänderte Identitäten und manuelle Sperren
+  bleiben sichtbar. Eine geänderte Grundlage erfordert erneute Bestätigung.
+- Lichtbedarf verwendet die vorhandene begrenzte Richtlinie, ausdrücklich erklärte
+  Außenhelligkeit und gewählte Atmosphäre. Alle Stellwerte bleiben Vorschläge.
+- Einstellungen und letzter Betriebszwischenstand liegen im bestehenden ContextStore.
+  Keine neue Historie, Lernerlaubnis, HA-Geräteaktion oder Automationsübernahme.
+- Neue API-/Store- und Browserregressionen ergänzen alle vorhandenen Prüfungen.
+  Der historische Herkunftsfix aus PR102 bleibt erhalten.
+
+## [0.1.0-alpha.47] - 2026-09-27
+
+### Herkunft historischer Belege
+- Eine Historienzeile zählt nur noch, wenn ihr Entity tatsächlich zu den freigegebenen
+  Quellen des zugehörigen Importbelegs gehört und ihr Zeitpunkt strikt innerhalb des
+  autorisierten Importfensters liegt.
+- Selbst formal gültige zusätzliche Herkunftszeilen können die bestätigte Anzahl eines
+  Imports nicht überschreiten. Die aktuell erhaltene Zahl wird aus gültiger Herkunft
+  abgeleitet, statt einem möglicherweise veralteten Zähler im Beleg zu vertrauen.
+- Ausgeschlossene Herkunft und abgeleitete Zähler erscheinen in den bestehenden festen
+  Integritätszählern. Die Meldung unterscheidet diese Lesebegrenzung von der normalen
+  14-Tage-Aufbewahrung.
+
+### Grenzen
+- Keine Schemaänderung, neue Historienabfrage, Sammlung, Zustimmung, Präferenz,
+  HA-Konfiguration oder Geräteausführung. Allgemeines Apply bleibt gesperrt.
+
 ## [0.1.0-alpha.46] - 2026-09-27
 
 ### Integrität des vollständigen Lernberichts
@@ -11,8 +44,8 @@
   Herkunft wird konservativ als `unknown` normalisiert; unbrauchbare Zeilen werden
   nicht als Beobachtung oder Präferenz gewertet.
 - Der Bericht weist ausgeschlossene oder normalisierte Zeilen mit festen Zählern aus.
-  Die Oberfläche erklärt diesen Zustand, ohne gespeicherte Rohdaten still zu löschen
-  oder umzuschreiben.
+  Die Oberfläche erklärt diesen Zustand, ohne die Integritätsmeldung als Reparatur
+  auszugeben; die normale Aufbewahrungsgrenze bleibt davon getrennt wirksam.
 
 ### Grenzen
 - Keine Schemaänderung, neue Sammlung, Zustimmung, Feedbackänderung, HA-Konfiguration
@@ -401,7 +434,7 @@
 
 ### Boundaries
 - No new store, learner, collection, HA configuration scan, consent or execution.
-  Retained evidence is not today's forecast, causal proof or verified comfort gain.
+- Retained evidence is not today's forecast, causal proof or verified comfort gain.
 - Local component tests, full CI, scoped backup, installation and authenticated
   household acceptance remain distinct gates. Apply remains denied.
 
@@ -426,7 +459,7 @@
 ### Boundaries
 - No autosave, background automation scan, inferred learning consent or HA writes.
 - Assessment, freshness, evidence, risk and execution permission remain separate.
-  Apply remains denied. CI does not certify authenticated household UI acceptance.
+- Apply remains denied. CI does not certify authenticated household UI acceptance.
 
 ## [0.1.0-alpha.22] - 2026-09-24
 

@@ -42,6 +42,13 @@ it appears in this inventory.
 | `POST` | `/api/v1/zones/{zone_id}/history` | Read a bounded historical view without importing it. |
 | `POST` | `/api/v1/zones/{zone_id}/history/import` | Import explicitly selected historical observations into the owned learning store. |
 
+## Live shadow comparison
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/v1/zones/{zone_id}/presence-shadow` | Read latest confirmed shadow state without starting collection or advancing its checkpoint. |
+| `POST` | `/api/v1/zones/{zone_id}/presence-shadow` | Explicit revision-bound start/stop. Persists only settings/latest checkpoint, never learning consent, history or HA actions. |
+
 ## Foundations and presence adoption
 
 | Method | Path | Purpose |

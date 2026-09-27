@@ -102,6 +102,59 @@ class ImportTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(['ha_history','live'],[e['recording_source'] for e in report['evidence']])
         self.assertEqual([],report['coverage_samples']);self.assertEqual([],report['context_evidence'])
 
+    async def test_report_rechecks_provenance_source_and_authorized_window(self):
+        occurred = self.now-8000
+        receipt = await self.run_import([(occurred,P)])
+        with sqlite3.connect(self.selections.path) as db:
+            payload = json.loads(db.execute(
+                'SELECT payload FROM history_imports WHERE id=?',
+                (receipt['id'],)).fetchone()[0])
+            payload['sources'] = ['binary_sensor.q']
+            db.execute('UPDATE history_imports SET payload=? WHERE id=?',
+                       (json.dumps(payload), receipt['id']))
+        report = await self.context.report('a', now=self.now)
+        self.assertEqual(0, report['historical_event_count'])
+        self.assertEqual('live', report['evidence'][0]['recording_source'])
+        self.assertEqual(1, report['retained_integrity']['excluded_rows']['history_provenance'])
+        self.assertEqual(0, report['history_imports'][0]['retained_from_import'])
+        self.assertEqual(1, report['retained_integrity']['normalized_rows']['history_imports'])
+
+        with sqlite3.connect(self.selections.path) as db:
+            payload['sources'] = [P]
+            payload['start'] = occurred+1
+            db.execute('UPDATE history_imports SET payload=? WHERE id=?',
+                       (json.dumps(payload), receipt['id']))
+        report = await self.context.report('a', now=self.now)
+        self.assertEqual(0, report['historical_event_count'])
+        self.assertEqual(1, report['retained_integrity']['excluded_rows']['history_provenance'])
+
+    async def test_report_caps_and_derives_current_retained_provenance(self):
+        occurred = self.now-8000
+        receipt = await self.run_import([(occurred,P)])
+        second = occurred+301
+        with sqlite3.connect(self.selections.path) as db:
+            db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
+                       ('a', P, second, 'unknown'))
+            db.execute('INSERT INTO history_provenance VALUES (?,?,?,?)',
+                       ('a', P, second, receipt['id']))
+        report = await self.context.report('a', now=self.now)
+        self.assertEqual(1, report['historical_event_count'])
+        self.assertEqual(1, report['retained_integrity']['excluded_rows']['history_provenance'])
+        self.assertEqual(1, report['history_imports'][0]['retained_from_import'])
+
+        with sqlite3.connect(self.selections.path) as db:
+            db.execute('DELETE FROM history_provenance WHERE import_id=?',
+                       (receipt['id'],))
+        report = await self.context.report('a', now=self.now)
+        self.assertEqual(0, report['historical_event_count'])
+        self.assertEqual(0, report['history_imports'][0]['retained_from_import'])
+        self.assertEqual(1, report['retained_integrity']['normalized_rows']['history_imports'])
+        with sqlite3.connect(self.selections.path) as db:
+            stored = json.loads(db.execute(
+                'SELECT payload FROM history_imports WHERE id=?',
+                (receipt['id'],)).fetchone()[0])
+        self.assertEqual(1, stored['retained_from_import'])
+
     async def test_revocation_and_revision_conflict_reject_atomically(self):
         revision=await self.rev()
         await self.context.configure('a',revision,self.roles,False)

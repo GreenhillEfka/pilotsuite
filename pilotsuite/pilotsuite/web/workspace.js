@@ -25,7 +25,7 @@
   const fieldStatus=E('p','','ps-notice');fieldStatus.id='ps-notice';fieldStatus.setAttribute('role','status');fieldStatus.hidden=true;
   function announce(message){fieldStatus.textContent=message;fieldStatus.hidden=!message;}
   function dirty(){return !!(selectionBusy||contextEditing||zoneFormOpen||selectionDraft?.dirty||
-    (typeof routineDirty!=='undefined'&&routineDirty)||(typeof reviewNoteDirty!=='undefined'&&reviewNoteDirty)||(typeof historyBusy!=='undefined'&&historyBusy)||requestBusy||window.PilotSuiteOrganization?.dirty());}
+    (typeof routineDirty!=='undefined'&&routineDirty)||(typeof reviewNoteDirty!=='undefined'&&reviewNoteDirty)||(typeof historyBusy!=='undefined'&&historyBusy)||requestBusy||(window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty()));}
   function valid(){return !invalid && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty &&
     M.current(contextData,selectionDraft?.inventory,selectionZone) && !invalidFoundationContexts.has(contextData);}
   function savePrefs(){try{localStorage.setItem('pilotsuite.workspace.v1',JSON.stringify(prefs));}catch{announce('Darstellung gilt für diese Sitzung. Browser-Speicherung ist nicht verfügbar.');}}
@@ -55,6 +55,7 @@
   const moduleCards=E('div','','ps-module-grid');moduleCards.id='ps-module-grid';
   const moduleDetail=E('div','','ps-module-detail');moduleDetail.id='ps-module-detail';
   zoneModule.append(overview,moduleCards,moduleDetail);zonePanel.after(zoneModule);
+  const shadowPanel=mark(E('section','','panel ps-shadow-panel'),'zone');shadowPanel.id='ps-shadow-panel';zoneModule.after(shadowPanel);
   mark(document.querySelector('[aria-labelledby="guide-title"]'),'cockpit zone');
   mark(document.querySelector('[aria-labelledby="daily-brief-title"]'),'cockpit');
   mark(document.querySelector('[aria-labelledby="foundation-title"]'),'zone');
@@ -137,12 +138,13 @@
     if(focused)[...cards.querySelectorAll('button')].find(b=>b.dataset.psZone===focused)?.focus({preventScroll:true});
   }
   function renderModules(force=false){window.PilotSuiteOrganization?.context(selectionZone,contextData?.revision);const ok=valid();const f=ok?contextData.foundation:null;
+    window.PilotSuiteShadow?.context(shadowPanel,selectionZone,contextData?.revision,ok,activeModule,activeView);
     const key=JSON.stringify([ok,f,activeModule,status?.ready,contextData?.effective_roles,
       zoneResults.find(z=>z.zone_id===selectionZone)?.summary]);if(!force&&key===modulesKey)return;modulesKey=key;
     moduleCards.replaceChildren();moduleDetail.replaceChildren();roleSummary.replaceChildren();
     if(!ok){moduleCards.append(E('p','Zonenstand nicht bestätigt oder Bearbeitung offen. Nach erfolgreichem Laden wird die Quellenansicht aktualisiert.','ps-empty'));return;}
     const configured=M.effectiveRoles(contextData),validated=f.validated_roles||{};
-    for(const m of M.modules){const card=B('',()=>{activeModule=m.id;renderModules(true);moduleCards.querySelector(`[data-ps-module="${m.id}"]`)?.focus({preventScroll:true});});card.className='ps-module-card';card.dataset.psModule=m.id;card.setAttribute('aria-pressed',String(activeModule===m.id));
+    for(const m of M.modules){const card=B('',()=>{if(dirty())return;activeModule=m.id;renderModules(true);moduleCards.querySelector(`[data-ps-module="${m.id}"]`)?.focus({preventScroll:true});});card.className='ps-module-card';card.dataset.psModule=m.id;card.setAttribute('aria-pressed',String(activeModule===m.id));
       const assigned=new Set(m.roles.flatMap(k=>configured[k]||[])).size,accepted=new Set(m.roles.flatMap(k=>validated[k]||[])).size;
       card.append(icon(m.icon),E('strong',m.title),E('span',`${assigned} zugeordnet · ${status?.ready?accepted:'—'} aktuell nutzbar`),E('small',m.id==='presence'?'Runtime separat prüfen; hier keine Aktivierung.':'Steuerung noch nicht implementiert.'));if(assigned){const meter=E('meter');meter.min=0;meter.max=assigned;meter.value=status?.ready?accepted:0;meter.setAttribute('aria-label',status?.ready?`${accepted} von ${assigned} zugeordneten Quellen nutzbar`:'Nutzbarkeit bei fehlender Verbindung nicht bestätigt');card.append(meter);}moduleCards.append(card);
     }
@@ -247,6 +249,7 @@
   function navigate(view,{focus=false,hash=true}={}){if(!M.views.includes(view))return false;
     if(view!==activeView&&dirty()){announce('Bearbeitung läuft. Bitte speichern oder abbrechen, bevor du den Arbeitsbereich wechselst.');return false;}
     activeView=view;prefs.view=view;savePrefs();for(const panel of panels)panel.hidden=view!=='all'&&!panel.dataset.psView.split(' ').includes(view);
+    shadowPanel.hidden=!['zone','all'].includes(view)||!['presence','lighting'].includes(activeModule);
     for(const link of nav.children){if(link.dataset.psNav===view)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
     $('ps-view-title').textContent=titles[view];$('ps-view-note').textContent=notes[view];if(hash)history.replaceState(null,'','#ps-'+view);if(focus)$('ps-view-title').focus();return true;
   }
@@ -259,18 +262,18 @@
   },true);
   window.addEventListener('hashchange',()=>{let view;try{view=viewForHash(location.hash);}catch{return;}if(view&&!navigate(view,{hash:false}))history.replaceState(null,'','#ps-'+activeView);});
   for(const id of ['zone-new','zone-edit','context-edit'])$(id).addEventListener('click',event=>{if(activeView!=='config'&&activeView!=='all'&&!navigate('config')){event.preventDefault();event.stopImmediatePropagation();}},true);
-  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();status=null;invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
+  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();window.PilotSuiteShadow?.invalidate();status=null;invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
   $('context-cancel').addEventListener('click',()=>{if(!contextEditing&&!selectionBusy)loadContext().catch(()=>announce('Gespeicherte Rollen konnten nicht neu geladen werden. Erneut öffnen.'));});
   const observer=new MutationObserver(()=>{if(!form.hidden){setRoleFilter(roleFilter);renderDiff();}});observer.observe(form,{attributes:true,attributeFilter:['hidden']});
   // Preserve organization drafts across legacy zone controls and background refreshes.
   document.addEventListener('click',event=>{
-    if(window.PilotSuiteOrganization?.dirty() && event.target.closest('#zone-overview button, #zone-setup button, #ps-roles button, #refresh, #learning-section button')) {
-      event.preventDefault();event.stopImmediatePropagation();announce('Ordnungsentwurf zuerst speichern oder verwerfen.');
+    if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty()) && event.target.closest('#zone-overview button, #zone-setup button, #ps-roles button, #refresh, #learning-section button')) {
+      event.preventDefault();event.stopImmediatePropagation();announce('Offenen Konfigurationsentwurf zuerst speichern oder verwerfen.');
     }
   },true);
-  $('selection-zone').addEventListener('change',event=>{if(window.PilotSuiteOrganization?.dirty()){event.target.value=selectionZone;event.stopImmediatePropagation();announce('Ordnungsentwurf zuerst speichern oder verwerfen.');}},true);
-  window.addEventListener('beforeunload',event=>{if(window.PilotSuiteOrganization?.dirty()){event.preventDefault();event.returnValue='';}});
-  const oldWorkspaceLoad=load;load=function(...args){return window.PilotSuiteOrganization?.dirty()?Promise.resolve():oldWorkspaceLoad(...args);};
+  $('selection-zone').addEventListener('change',event=>{if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())){event.target.value=selectionZone;event.stopImmediatePropagation();announce('Offenen Konfigurationsentwurf zuerst speichern oder verwerfen.');}},true);
+  window.addEventListener('beforeunload',event=>{if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())){event.preventDefault();event.returnValue='';}});
+  const oldWorkspaceLoad=load;load=function(...args){return (window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())?Promise.resolve():oldWorkspaceLoad(...args);};
   // Narrow bridge to the existing renderer: no new polling, data owner or write endpoint.
   const oldStatus=renderStatus;renderStatus=function(s){oldStatus(s);status=s;renderCockpit();};
   const oldZone=renderZoneView;renderZoneView=function(){oldZone();renderCockpit();renderModules();};

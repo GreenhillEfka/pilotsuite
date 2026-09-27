@@ -69,7 +69,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.46`
+- Release: `0.1.0-alpha.48`
 
 ## Habitus zones and entity selection
 
@@ -171,3 +171,19 @@ Bei erkannter beschädigter oder nicht kompatibler Datenbank bleibt eine begrenz
 Rescue-Seite erreichbar; sie überschreibt nichts. Für volle App-/Datenwiederherstellung
 die native HA-Sicherung verwenden und ausschließlich PilotSuite auswählen.
 Details: `docs/MAINTENANCE_AND_RECOVERY.md` im kanonischen Repository.
+
+## Präsenz-Livevergleich und Lichtbedarf (Alpha.48)
+
+Unter **Zonenmodule → Anwesenheit → Präsenz-Livevergleich & Lichtbedarf** den
+Schattenvergleich konfigurieren. Jede bestätigte Rohquelle benötigt den Signaltyp
+Dauerpräsenz oder Bewegungsimpuls. Wähle Nachlauf und maximales Meldealter passend
+zum Sensor. Der vorhandene HA-Raumstatus ist nur Vergleich, kein eigener Beleg.
+
+Die optionale Helligkeitsquelle muss ausdrücklich als unbeeinflusste Außenreferenz
+bestätigt werden, bevor daraus Tageslichtvorschläge entstehen. Atmosphäre, Grenzen
+und manuelle Sperren betreffen nur die Vorschau. Keine Leuchte wird geschaltet.
+
+Ein bestätigter Start speichert nur Einstellungen und den letzten Zwischenstand;
+er bleibt nach App-Neustart aktiv, solange Quellenidentität und Revision passen.
+Stoppen entfernt nur diesen Betriebszustand. Quelländerungen setzen die Sitzung aus.
+Lernfreigaben, Rollen, Automationen und historische Belege bleiben unverändert.
