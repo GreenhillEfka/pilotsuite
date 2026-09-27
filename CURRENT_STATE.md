@@ -1,4 +1,41 @@
-# Current state — Alpha.37 delivered, 2026-09-27
+# Current state — Alpha.38 delivered, 2026-09-27
+
+## Presence evidence and configuration clarity
+
+Only state frames accepted by the canonical WorldModel can now reach the existing
+learning-event path. Older/equal/duplicate, malformed and misaddressed frames, plus
+stale removals, cannot become new evidence. A valid delayed activity edge is retained,
+but each light/lux context channel is withheld unless all relevant timestamps exist
+and are no later than the activation. No prior evidence is rewritten or certified.
+
+The workspace uses the server's effective roles. Derived single-source defaults remain
+derived when an unrelated setting is saved; an explicit edit is required to persist a
+manual group. Optional independent comparison temperature is displayed separately and
+only yields a difference for complete, valid, same-unit independent measurements.
+The presence-first control sequence is design documentation, not active automation.
+
+A review found and fixed the unrelated-save role promotion before release. The final
+package passes 494 Python and 59 JavaScript tests. Exact candidate CI 36280638136 and
+release-main CI 36280792938 passed tests, Chromium, reproducible source and amd64.
+PR 84 release fcdebaebc1844b592914ecc2f2460ca5779e70fb; exact source tree
+67073b190cd9083ac6f3b43ad96427a6cd89367d.
+
+Backup d4f477c9 was completed before publication and contains only Alpha.37
+app/data/options, no HA/database/folders or failed parts. Alpha.38 was already offered;
+one normal update installed it without Store refresh, explicit restart or rebuild.
+Installed/offered/started, options and auto_update unchanged. Logs report ready,
+connected stream, fresh snapshot and resolved zone in unchanged
+presence_adoption_review mode. General Apply remains source- and regression-closed.
+
+The authenticated cloud browser reached only 502 Bad Gateway / connection closed
+before HA/PilotSuite loaded, including one reload. Real Ingress presentation and
+saved Erdkellerbereich role/evidence acceptance therefore remain open; runtime health
+and synthetic Chromium do not substitute for them.
+
+Next: perform authenticated read-only Alpha.38 evidence and source-role acceptance in
+the saved Erdkellerbereich, then one unlike existing zone.
+
+## Previous delivery — Alpha.37, 2026-09-27
 
 ## Presence lifecycle review package
 
