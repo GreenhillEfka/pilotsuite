@@ -3,7 +3,7 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.40 daylight and mood preview candidate
+## Resume: Alpha.40 daylight and mood preview delivered
 
 The current branch extends the existing pure lighting policy instead of adding a
 controller or second owner. A deterministic preview separates presence state,
@@ -19,14 +19,15 @@ Responses are bound to the current zone/revision/generation; only fixed `on`,
 name, URL or target is accepted from data. Reload performs no preview or mutation.
 
 Local validation: repository/API contracts, 515 Python and 59 JavaScript tests pass.
-The exact candidate CI must still prove the updated Chromium flow, amd64 build and
-reproducible source. Alpha.39 remains installed; RELEASE_STATE.json remains the
-actual delivery receipt until candidate/main CI, fresh scoped backup, Store/source
-association and runtime verification complete.
+PR 88 release f09dd27a2a3e635f8d98e47eb989d76371d75c64; candidate CI 36286331268
+and release-main CI 36286428926 passed Chromium, amd64, test and reproducible-source
+jobs. Fresh backup ee6f2dfa contains only Alpha.39 app/data/options. One Store refresh
+and one update installed Alpha.40 with options and auto_update unchanged. Logs confirm
+v23, ready, connected stream, fresh snapshot and resolved saved zone.
 
-Next: complete exact Alpha.40 candidate CI and fresh PilotSuite-only Alpha.39 backup,
-then publish/install once and verify runtime plus authenticated synthetic lighting
-preview without changing household configuration.
+Next: run the explicit synthetic lighting preview in authenticated read-only Ingress
+for Erdkellerbereich, then one unlike existing zone, without changing household
+configuration, consent or devices. CI/runtime health are not Ingress acceptance.
 
 ## Previous delivery: Alpha.39 presence kernel
 
