@@ -76,6 +76,9 @@ class LightingPolicyTests(unittest.TestCase):
         self.assertEqual("hold", advance_lighting_preview(None, **dict(base, presence_state="unknown")).status)
         self.assertEqual("hold", advance_lighting_preview(None, **dict(base, daylight_lux=None),
                                                            daylight_available=False).status)
+        missing = advance_lighting_preview(None, **base, current_brightness=None)
+        self.assertEqual("input_unavailable", missing.status)
+        self.assertEqual({}, missing.proposed_settings)
 
     def test_night_vacancy_and_capabilities_remain_settings_only(self):
         vacant = advance_lighting_preview(None, now=0, presence_state="vacant",
@@ -92,7 +95,10 @@ class LightingPolicyTests(unittest.TestCase):
 
     def test_invalid_checkpoint_and_inputs_are_rejected(self):
         for value in ({"band": "dark"}, {"band": "other", "candidate_band": None,
-                      "candidate_since": None, "last_proposal_at": None, "last_target": None}):
+                      "candidate_since": None, "last_proposal_at": None, "last_target": None},
+                      LightingCheckpoint("dark", "dim", None),
+                      LightingCheckpoint("dark", None, 1),
+                      LightingCheckpoint("dark", "dark", 1)):
             with self.subTest(value=value), self.assertRaises(InvalidSelection):
                 validate_lighting_checkpoint(value)
         with self.assertRaises(InvalidSelection):
@@ -101,9 +107,15 @@ class LightingPolicyTests(unittest.TestCase):
         with self.assertRaises(InvalidSelection):
             advance_lighting_preview(None, now=0, presence_state="occupied",
                                      daylight_lux=10, current_brightness=True)
+        with self.assertRaises(InvalidSelection):
+            advance_lighting_preview(LightingCheckpoint("dark", "dim", 10), now=9,
+                                     presence_state="occupied", daylight_lux=500)
+        with self.assertRaises(InvalidSelection):
+            advance_lighting_preview(LightingCheckpoint("dark", None, None, 10, 80), now=9,
+                                     presence_state="occupied", daylight_lux=10)
 
     def test_all_scenarios_are_bounded_non_executable_data(self):
-        self.assertEqual(6, len(PREVIEW_SCENARIOS))
+        self.assertEqual(7, len(PREVIEW_SCENARIOS))
         for name in PREVIEW_SCENARIOS:
             with self.subTest(name=name):
                 report = replay_lighting_scenario(name)
@@ -152,6 +164,13 @@ class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("pilotsuite-lighting-preview-v1", body["schema"])
         self.assertEqual(1, body["configured_target_count"])
         self.assertEqual(1, body["configured_reference_count"])
+        self.assertEqual({"configured": 1, "currently_usable": 1}, body["zone_inputs"]["light"])
+        self.assertEqual({"configured": 1, "currently_usable": 1}, body["zone_inputs"]["illuminance"])
+        self.assertEqual({"configured": 0, "currently_usable": 0}, body["zone_inputs"]["daylight_binary"])
+        self.assertEqual({"kind": "synthetic_outdoor_lux", "household_measurements_used": False,
+                          "configured_daylight_reference_confirmed": False,
+                          "reason": "no_explicit_outdoor_daylight_provenance"},
+                         body["daylight_basis"])
         self.assertFalse(body["persisted"])
         self.assertEqual({"allowed": False, "reason": "synthetic_preview_only", "actions": []},
                          body["execution"])

@@ -1,4 +1,13 @@
-# Current state — Alpha.40 installed, 2026-09-27
+# Current state — Alpha.40 installed; Alpha.41 candidate, 2026-09-27
+
+Alpha.41 is the bounded lighting-source integrity follow-up. It separates
+assigned/currently usable lights, indoor lux and binary brightness in the existing
+synthetic preview, explicitly withholds outdoor-daylight confirmation, holds on a
+missing current brightness value and rejects incoherent/future checkpoints. Local
+validation passes 515 Python and 59 JavaScript tests. Fresh scoped backup `bc501582`
+contains only installed Alpha.40 app/data/options and has no failed components.
+Candidate/main CI, merge, installation and authenticated Ingress acceptance remain
+separate gates.
 
 ## Daylight and mood preview delivered
 

@@ -22,6 +22,7 @@ PREVIEW_SCENARIOS = {
     "lux_unavailable": "Helligkeitsquelle ist nicht verfügbar",
     "night_vacancy": "Nächtliches Verlassen nach bestätigter Präsenz",
     "capability_limits": "Leuchte ohne Helligkeitssteuerung",
+    "brightness_unavailable": "Aktuelle Leuchtenhelligkeit ist unbekannt",
 }
 BANDS = ("dark", "dim", "daylight", "bright", "very_bright")
 
@@ -100,6 +101,9 @@ def validate_lighting_checkpoint(value: LightingCheckpoint | dict[str, Any] | No
         raise InvalidSelection("Ungültiger Lichtvorschau-Zwischenstand")
     if point.band not in {*BANDS, "unknown"} or point.candidate_band not in {*BANDS, None}:
         raise InvalidSelection("Ungültiges Helligkeitsband")
+    if ((point.candidate_band is None) != (point.candidate_since is None)
+            or point.candidate_band == point.band):
+        raise InvalidSelection("Inkonsistenter Lichtvorschau-Zwischenstand")
     for stamp in (point.candidate_since, point.last_proposal_at):
         if stamp is not None and not _number(stamp):
             raise InvalidSelection("Ungültiger Lichtvorschau-Zeitbezug")
@@ -134,6 +138,9 @@ def advance_lighting_preview(previous, *, now, presence_state, daylight_lux,
             or not 1500 <= minimum_kelvin <= maximum_kelvin <= 10000):
         raise InvalidSelection("Ungültiger Farbtemperaturbereich")
     now = float(now)
+    if ((point.candidate_since is not None and point.candidate_since > now)
+            or (point.last_proposal_at is not None and point.last_proposal_at > now)):
+        raise InvalidSelection("Lichtvorschau-Zeitbezug liegt in der Zukunft")
     if manual_override:
         return LightingTransition(point, "hold", None, {},
                                   "Manuelle Bedienung hat Vorrang; die Vorschau hält an.")
@@ -153,6 +160,9 @@ def advance_lighting_preview(previous, *, now, presence_state, daylight_lux,
     if not daylight_available or not _number(daylight_lux, minimum=0):
         return LightingTransition(point, "hold", None, {},
                                   "Fehlendes Tageslicht ist kein Dunkelheitsbeleg; der Zustand bleibt unverändert.")
+    if supports_brightness and current_brightness is None:
+        return LightingTransition(point, "input_unavailable", None, {},
+                                  "Ohne aktuelle Leuchtenhelligkeit ist keine begrenzte Änderung belegbar.")
 
     raw_band = _band(float(daylight_lux))
     if point.band != raw_band:
@@ -212,6 +222,8 @@ def replay_lighting_scenario(name: str) -> dict[str, Any]:
             supports_brightness=False, supports_color_temp=True)),
             (35, dict(common, daylight_lux=80, atmosphere="relax",
             supports_brightness=False, supports_color_temp=True))],
+        "brightness_unavailable": [(0, dict(common, daylight_lux=80,
+            current_brightness=None))],
     }
     point = LightingCheckpoint()
     steps = []
