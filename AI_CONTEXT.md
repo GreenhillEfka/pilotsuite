@@ -16,7 +16,7 @@ refresh and installation. See `docs/RELEASE_STATE.json` for the release receipt.
 
 Live status: started in `presence_adoption_review`; ready, HA event stream connected,
 snapshot fresh and zone resolved. All four Supervisor options and `auto_update` are
-unchanged. Do not redeploy Alpha.51 merely to update documentation.
+unchanged. Documentation updates alone do not require another app deployment.
 
 Alpha.53 stabilizes the reading position during passive context, zone, presence and
 shadow updates; unchanged responses keep the DOM, focus and open details. The live
