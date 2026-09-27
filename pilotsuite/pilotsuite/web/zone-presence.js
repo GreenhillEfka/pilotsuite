@@ -55,9 +55,10 @@
    }
    note(data.analysis_enabled?'Auswertung anhand relevanter Quellen. Historische Werte werden nicht als heutige Präsenzereignisse abgespielt.':'Zone pausiert; keine aktuelle Auswertung.');
  }
+ async function reloadBasis(){if(typeof loadSelection==='function'&&zone)await loadSelection(zone);else if(typeof load==='function')await load();}
  function startEditor(title){editing=true;editor.replaceChildren(E('h3',title));tools.querySelectorAll('button').forEach(b=>b.disabled=true);}
- function cancel(){if(busy)return;editing=false;plan=null;editor.replaceChildren();render();if(typeof load==='function')load().catch(()=>note('Aktuellen Zonenstand erneut laden.'));}
- async function save(action){if(busy)return;busy=true;try{await action();}catch(e){note(e.message);}finally{busy=false;if(!editing){try{if(typeof loadSelection==='function'&&zone)await loadSelection(zone);else if(typeof load==='function')await load();}catch{note('Aktuellen Zonenstand erneut laden.');}if(data)render();else if(eligible())await read();}}}
+ function cancel(){if(busy)return;editing=false;plan=null;editor.replaceChildren();render();reloadBasis().catch(()=>note('Aktuellen Zonenstand erneut laden.'));}
+ async function save(action){if(busy)return;busy=true;try{await action();}catch(e){note(e.message);}finally{busy=false;if(!editing){try{await reloadBasis();}catch{note('Aktuellen Zonenstand erneut laden.');}if(data)render();else if(eligible())await read();}}}
  function openEditor(){
    if(!data||busy)return;startEditor('Präsenzverhalten je Zone');
    const form=E('form');form.id='ps-zone-form';const values=data.spec;
