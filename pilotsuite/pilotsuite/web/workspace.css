@@ -76,3 +76,16 @@
 #ps-organization select{max-width:100%;}#org-message:empty{display:none;}
 .org-report-tools{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:20px 0 12px;padding:14px;border:1px solid var(--ps-line);border-radius:12px;background:var(--ps-soft);}.org-report-tools p{flex:1 1 360px;margin:0;}.org-report-tools label{display:grid;gap:5px;flex:0 1 310px;}
 @media(max-width:800px){.org-role-grid{grid-template-columns:1fr;}.org-finding select{width:100%;}}
+
+/* Live shadow comparison: shares workspace tokens and keyboard layout. */
+.ps-shadow-panel{overflow-wrap:anywhere;}
+.ps-shadow-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ps-gap);margin:16px 0;}
+.ps-shadow-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0;padding:var(--ps-pad);border:1px solid var(--ps-line);border-radius:14px;background:var(--ps-soft);}
+.ps-shadow-form>label{display:grid;gap:7px;min-width:0;font-size:.88rem;}
+.ps-shadow-form>h4,.ps-shadow-form>p,.ps-shadow-form>.selection-tools{grid-column:1/-1;}
+.ps-shadow-form input:not([type=checkbox]),.ps-shadow-form select{width:100%;min-width:0;max-width:100%;}
+.ps-shadow-form input[type=checkbox]{width:22px;height:22px;}
+.ps-shadow-light{margin-top:20px;border-top:1px solid var(--ps-line);padding-top:20px;}
+.ps-shadow-light-row{padding:14px 0;border-bottom:1px solid var(--ps-line);}
+.ps-shadow-light-row>strong{font-size:.88rem;}.ps-shadow-light-row>p{margin:.5em 0;font-size:.88rem;}
+@media(max-width:800px){.ps-shadow-cards{grid-template-columns:1fr;}.ps-shadow-form{grid-template-columns:1fr;}}

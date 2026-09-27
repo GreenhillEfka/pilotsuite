@@ -1,5 +1,5 @@
 """PilotSuite v23 package."""
 
-VERSION = "0.1.0-alpha.47"
+VERSION = "0.1.0-alpha.48"
 ARCHITECTURE_VERSION = "v23"
 READ_ONLY_RELEASE = True
