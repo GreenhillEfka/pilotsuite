@@ -12,8 +12,16 @@ def adoption_targets(runtime):
 def classify_inspection(inspection, runtime):
     limitations=set(inspection.get("limitations") or [])
     sections=inspection.get("sections") or {}
-    source_refs={e for s in sections.get("triggers",[]) for e in s.get("source_references",[])}
-    target_refs={e for s in sections.get("actions",[]) for e in s.get("target_references",[])}
+    alignment=inspection.get("alignment") or {}
+    if isinstance(alignment.get("source_trigger_references"),list) and isinstance(alignment.get("target_action_references"),list):
+        source_refs=set(alignment["source_trigger_references"])
+        target_refs=set(alignment["target_action_references"])
+    else:
+        # Compatibility for retained synthetic/older inspection contracts.  A
+        # step without the field predates structural availability and remains
+        # equivalent to the old direct-reference projection.
+        source_refs={e for s in sections.get("triggers",[]) if s.get("availability","available")=="available" for e in s.get("source_references",[])}
+        target_refs={e for s in sections.get("actions",[]) if s.get("availability","available")=="available" for e in s.get("target_references",[])}
     raw=set(runtime.get("raw_sources") or []);owner=runtime.get("owner");timer=runtime.get("timer")
     direct_sources=sorted(raw & source_refs)
     writes_owner=bool(owner and owner in target_refs);writes_timer=bool(timer and timer in target_refs)

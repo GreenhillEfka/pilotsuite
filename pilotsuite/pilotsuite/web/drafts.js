@@ -63,12 +63,13 @@ function appendInspection(panel, inspection, draft) {
   root.append(h,note);
   appendTriggerIntegrity(root, inspection.trigger_integrity);
   const kinds = {state:'Zustand',numeric_state:'Zahlenwert',time:'Zeit',time_pattern:'Zeitraster',sun:'Sonne',event:'Ereignis',homeassistant:'HA-Start/Stopp',zone:'Zone',template:'Template',device:'Gerät',mqtt:'MQTT',calendar:'Kalender',webhook:'Webhook',tag:'Tag',geo_location:'Standort',trigger:'Auslöserbezug',and:'Alle Bedingungen',or:'Mindestens eine Bedingung',not:'Verneinung',service_call:'Dienstaufruf',choose:'Verzweigung',if:'Wenn/Dann',repeat:'Wiederholung',parallel:'Parallel',sequence:'Abfolge',delay:'Verzögerung',wait_template:'Template abwarten',wait_for_trigger:'Ereignis abwarten',variables:'Variablen',stop:'Abbruch',unsupported:'Nicht aufgeschlüsselt'};
+  const availability = {available:'strukturell aktiv',unavailable:'deaktiviert',unknown:'Aktivierung dynamisch/unbekannt'};
   for (const [key,title] of [['triggers','Auslöser'],['conditions','Bedingungen'],['actions','Aktionen']]) {
     const heading = document.createElement('h6'); heading.textContent = title; root.append(heading);
     const list = document.createElement('ul');
     for (const step of inspection.sections[key]) {
       const row = document.createElement('li');
-      row.textContent = `${kinds[step.kind] || 'Unbekannt'}${step.service ? ' · '+step.service : ''} · Quellen: ${step.source_references.join(', ') || 'keine direkten'} · Ziele: ${step.target_references.join(', ') || 'keine direkten'}${step.other_reference_count ? ' · weitere Bezüge: '+step.other_reference_count : ''}${step.limitations.length ? ' · offen/nicht vollständig ausgewertet' : ''}`;
+      row.textContent = `${kinds[step.kind] || 'Unbekannt'}${step.service ? ' · '+step.service : ''} · ${availability[step.availability] || availability.unknown} · Quellen: ${step.source_references.join(', ') || 'keine direkten'} · Ziele: ${step.target_references.join(', ') || 'keine direkten'}${step.other_reference_count ? ' · weitere Bezüge: '+step.other_reference_count : ''}${step.limitations.length ? ' · offen/nicht vollständig ausgewertet' : ''}`;
       list.append(row);
     }
     if (!list.children.length) { const li=document.createElement('li');li.textContent='Keine aufgeschlüsselten Einträge.';list.append(li); }
@@ -77,7 +78,10 @@ function appendInspection(panel, inspection, draft) {
   const warnings = document.createElement('p');
   warnings.textContent = inspection.limitations.length ? 'Offene Grenzen: '+inspection.limitations.map(k=>({templates_not_evaluated:'Templates nicht ausgewertet',blueprint_not_expanded:'Blueprint nicht aufgelöst',unsupported_structure:'Unbekannter Aufbau',dynamic_or_invalid_entity_reference:'Dynamischer/unbekannter Entitätsbezug',indirect_target_not_resolved:'Geräte-/Bereichs-/Labelziel nicht aufgelöst',indirect_call_not_expanded:'Indirekter Aufruf nicht aufgelöst',unsupported_step:'Unbekannter Schritt',disabled_step:'Deaktivierter Schritt enthalten',dynamic_enablement:'Aktivierung dynamisch',ambiguous_section_aliases:'Mehrdeutige Abschnittsangaben'})[k] || 'Unbekanntes Verhalten').join('; ') : 'Keine zusätzlichen Strukturgrenzen erkannt. Verhalten und Risiko bleiben ungeprüft.';
   root.append(warnings);
-  const alignment=document.createElement('p');alignment.textContent=`Musterquellen in Auslösern: ${inspection.alignment.source_trigger_references.join(', ') || 'keine direkten erkannt'}. Zielgeräte in Dienstaufrufen: ${inspection.alignment.target_action_references.join(', ') || 'keine direkten erkannt'}. Dies bewertet die Bezüge, nicht die Wirkung oder Gleichwertigkeit.`;root.append(alignment);
+  const alignment=document.createElement('p');
+  const unavailable=[...(inspection.alignment.unavailable_source_trigger_references || []),...(inspection.alignment.unavailable_target_action_references || [])];
+  const unknown=[...(inspection.alignment.unknown_source_trigger_references || []),...(inspection.alignment.unknown_target_action_references || [])];
+  alignment.textContent=`Strukturell aktive Musterquellen in Auslösern: ${inspection.alignment.source_trigger_references.join(', ') || 'keine direkten erkannt'}. Strukturell aktive Zielgeräte in Dienstaufrufen: ${inspection.alignment.target_action_references.join(', ') || 'keine direkten erkannt'}.${unavailable.length?' Deaktivierte passende Bezüge: '+[...new Set(unavailable)].join(', ')+'.':''}${unknown.length?' Bezüge mit dynamischer/unbekannter Aktivierung: '+[...new Set(unknown)].join(', ')+'.':''} Der Laufzeitstatus der gesamten Automation, Wirkung und Gleichwertigkeit bleiben ungeprüft.`;root.append(alignment);
   const heading=document.createElement('h6');heading.textContent='Dein Prüfplan';root.append(heading);
   const labels={source_gap:'Musterquellen ohne direkten Auslöserbezug prüfen',target_gap:'Zielgeräte ohne direkten Dienstaufruf prüfen; indirekte Wirkung bleibt möglich',unknowns:'Unbekannte/dynamische Abläufe in HA klären',intent:'Komfortziel mit bestehendem Verhalten vergleichen',timing:'Zeitfenster, Auslöserwerte und Bedingungen in HA prüfen',manual_override:'Ausnahmen und Vorrang manueller Bedienung nachweisen',enabled:'Aktuellen Aktivierungsstatus in HA prüfen',risk:'Auswirkungen und Rückweg gesondert bewerten'};
   const plan=document.createElement('ol');

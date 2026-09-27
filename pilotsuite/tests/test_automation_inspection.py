@@ -85,9 +85,45 @@ class InspectionTests(unittest.TestCase):
         self.assertEqual([],report['alignment']['target_action_references'])
 
     def test_disabled_and_dynamic_steps_are_not_claimed_executed(self):
-        report=self.inspect({'actions':[{'action':'light.turn_on','enabled':False}, {'action':'light.turn_off','enabled':'{{ enabled }}'}]})
+        report=self.inspect({'triggers':[
+            {'trigger':'state','entity_id':'binary_sensor.synthetic','enabled':False},
+            {'trigger':'state','entity_id':'binary_sensor.synthetic','enabled':'{{ enabled }}'}],
+            'actions':[{'action':'light.turn_on','target':{'entity_id':'light.synthetic'},'enabled':False},
+                       {'action':'light.turn_off','target':{'entity_id':'light.synthetic'},'enabled':'{{ enabled }}'}]})
         self.assertIn('disabled_step',report['limitations']);self.assertIn('dynamic_enablement',report['limitations'])
         self.assertIn('enabled',[x['id'] for x in report['checklist']])
+        self.assertEqual([],report['alignment']['source_trigger_references'])
+        self.assertEqual([],report['alignment']['target_action_references'])
+        self.assertEqual(['binary_sensor.synthetic'],report['alignment']['unavailable_source_trigger_references'])
+        self.assertEqual(['binary_sensor.synthetic'],report['alignment']['unknown_source_trigger_references'])
+        self.assertEqual(['light.synthetic'],report['alignment']['unavailable_target_action_references'])
+        self.assertEqual(['light.synthetic'],report['alignment']['unknown_target_action_references'])
+        self.assertIn('source_gap',[x['id'] for x in report['checklist']])
+        self.assertIn('target_gap',[x['id'] for x in report['checklist']])
+
+    def test_parent_availability_is_inherited_without_hiding_references(self):
+        report=self.inspect({'triggers':[{'trigger':'state','entity_id':'binary_sensor.synthetic'}],
+            'actions':[{'choose':[{'conditions':[], 'sequence':[
+                {'action':'light.turn_on','target':{'entity_id':'light.synthetic'}}]}],
+                'enabled':False}]})
+        child=next(step for step in report['sections']['actions'] if step['kind']=='service_call')
+        self.assertEqual('unavailable',child['availability'])
+        self.assertEqual(['light.synthetic'],child['target_references'])
+        self.assertEqual([],report['alignment']['target_action_references'])
+        self.assertEqual(['light.synthetic'],report['alignment']['unavailable_target_action_references'])
+        self.assertIn('target_gap',[x['id'] for x in report['checklist']])
+
+    def test_confirmed_sibling_remains_aligned_beside_unavailable_copy(self):
+        report=self.inspect({'triggers':[
+            {'trigger':'state','entity_id':'binary_sensor.synthetic','enabled':False},
+            {'trigger':'state','entity_id':'binary_sensor.synthetic'}],
+            'actions':[
+            {'action':'light.turn_on','target':{'entity_id':'light.synthetic'},'enabled':False},
+            {'action':'light.turn_on','target':{'entity_id':'light.synthetic'}}]})
+        self.assertEqual(['binary_sensor.synthetic'],report['alignment']['source_trigger_references'])
+        self.assertEqual(['light.synthetic'],report['alignment']['target_action_references'])
+        self.assertNotIn('source_gap',[x['id'] for x in report['checklist']])
+        self.assertNotIn('target_gap',[x['id'] for x in report['checklist']])
 
     def test_fingerprint_changes_without_exposing_config(self):
         original=copy.deepcopy(CONFIG)

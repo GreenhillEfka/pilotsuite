@@ -6,6 +6,16 @@ Canonical repository: `GreenhillEfka/pilotsuite`. Home Assistant app:
 Read `CURRENT_STATE.md`, `docs/RELEASE_STATE.json`, `docs/RELEASE_RUNBOOK.md`,
 `DECISIONS.md`, `docs/VISION.md` and `docs/ROADMAP.md` before changing code or deploying.
 
+## Current development candidate
+
+Alpha.52 corrects one automation-review integrity gap: disabled or dynamically
+enabled steps remain visible but no longer satisfy confirmed source/target alignment.
+Availability is inherited through nested branches, the UI explains the distinction,
+and presence adoption consumes the same confirmed projection. The package is
+read-only, synthetic and adds no HA write or execution authority. Local validation
+passes 567 Python tests, 68 JavaScript tests and 62 API/repository contracts. Exact
+candidate CI, including the complete pinned Chromium suite, is the next gate.
+
 ## Live release
 
 Alpha.51 is merged, published and installed from main commit
@@ -32,6 +42,7 @@ HA read-only inventory confirms the real `erdkeller` (`Erdkeller Innen`) and
 `erdkeller_eingang` areas. They are inputs to the saved aggregate PilotSuite zone
 `Erdkellerbereich`, not a reason to rename or split it automatically.
 
-Next: perform authenticated read-only Ingress acceptance for saved `Erdkellerbereich`
-and one unlike existing zone. Confirm all four saved zones and the corrected static
-event-filter source explanation without applying household changes.
+Next: pass exact Alpha.52 candidate CI and the backup-bound release gates. After actual
+installation, perform authenticated read-only Ingress acceptance for saved
+`Erdkellerbereich` and one unlike existing zone, confirming all four saved zones and
+the distinct active/disabled/unknown reference explanations without household changes.

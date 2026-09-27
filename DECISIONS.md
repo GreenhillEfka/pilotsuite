@@ -1,5 +1,18 @@
 # Architecture Decision Log
 
+## ADR-038 — Structural availability gates confirmed automation alignment
+
+An entity reference inside a disabled or dynamically enabled automation step remains
+a relevant review finding, but is not a confirmed available trigger/action match.
+Step availability is inherited through nested branches. Only structurally available
+trigger and service-call references close source/target alignment gaps; unavailable
+and unknown matches remain separately visible. This is not an observation of the
+whole automation entity's runtime enabled state or proof that a branch will execute.
+
+The presence-adoption review reuses the same confirmed projection. It adds no second
+inspector, persistence or takeover authority. Raw authored values remain private,
+risk stays unassessed and every execution/apply path remains separately closed.
+
 ## ADR-037 — Current lighting evidence is a transient, revision-bound brief
 
 Alpha.42 adds no controller, queue or second lighting owner. An explicit POST derives
