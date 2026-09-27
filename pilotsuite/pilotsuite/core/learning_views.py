@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from .selections import InvalidSelection
 
 ENTITY_ID = re.compile(r"[a-z0-9_]+\.[a-z0-9_]+\Z")
+IMPORT_ID = re.compile(r"[0-9a-f]{32}\Z")
 CONTEXT_TIMINGS = {'at_or_before_event', 'unverified'}
 
 
@@ -68,6 +69,39 @@ def sanitize_context_record(value):
         if parsed is not None and parsed.tzinfo is not None:
             result['captured_at'] = parsed.astimezone(UTC).isoformat()
     return result
+
+
+def sanitize_history_import(value, *, row_id=None, created=None, now=None,
+                            retention=None, limit=5000):
+    """Return one bounded import receipt or ``None`` for unusable legacy data."""
+    if not isinstance(value, dict):
+        return None
+    import_id = value.get('id')
+    if (not isinstance(import_id, str) or not IMPORT_ID.fullmatch(import_id)
+            or row_id is not None and import_id != row_id
+            or created is not None and not _valid_timestamp(created)):
+        return None
+    authorized = value.get('authorized_at')
+    start, end = value.get('start'), value.get('end')
+    sources = _source_ids(value.get('sources'))
+    accepted = value.get('accepted')
+    retained = value.get('retained_from_import', accepted)
+    if (not _valid_timestamp(authorized) or not _valid_timestamp(start)
+            or not _valid_timestamp(end) or not start < end <= authorized
+            or now is not None and (not _valid_timestamp(now)
+                or authorized > now + 5 or created is None
+                or created > now + 5
+                or retention is not None and created < now - retention
+                or abs(created - authorized) > 5)
+            or not sources or type(accepted) is not int or not 0 <= accepted <= limit
+            or type(retained) is not int or not 0 <= retained <= accepted
+            or value.get('basis') != 'current_sources_applied_retrospectively'
+            or value.get('context_imported') is not False):
+        return None
+    return {'id': import_id, 'authorized_at': authorized, 'start': start, 'end': end,
+            'sources': sources, 'accepted': accepted,
+            'basis': 'current_sources_applied_retrospectively',
+            'context_imported': False, 'retained_from_import': retained}
 
 
 def temporal_settings(detector):

@@ -1,4 +1,26 @@
-# Current state — Alpha.45 bounded context export installed, 2026-09-27
+# Current state — Alpha.46 retained-report integrity candidate, 2026-09-27
+
+The complete report review found a reproducible downstream failure after Alpha.45:
+stored history-import receipts were still decoded and exported verbatim. Malformed
+JSON aborted the report; retained `NaN` values broke strict JSON and unknown fields
+escaped. Persisted activation, provenance, coverage and feedback rows likewise needed
+the same read-time contract enforcement.
+
+Alpha.46 validates every retained report family against its type, identity, time and
+relationship contract. Invalid rows cannot count as activity, historical provenance,
+coverage or preference. Unknown origins are normalized to the existing coarse
+`unknown` category. A deterministic integrity summary and bounded UI warning explain
+excluded or normalized rows. Raw storage is not deleted or rewritten.
+
+Repository/API validation, 533 Python and 60 JavaScript tests pass locally, including
+strict storage/HTTP regressions and the safe UI projection. No schema, collection,
+consent, feedback, preference, HA write or execution change is included.
+
+Next: publish the exact Alpha.46 candidate, require complete CI and only then deliver
+through the scoped Alpha.45 backup/Store routine. Authenticated Ingress acceptance
+remains separate.
+
+## Installed baseline — Alpha.45
 
 The follow-up integrity review found that Alpha.44 sanitized derived context windows
 but still returned each retained context record verbatim in the explicit export. A

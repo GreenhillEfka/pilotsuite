@@ -835,6 +835,9 @@ function renderLearning() {
   const sourceName = id => contextData.candidates?.find(i => i.entity_id === id)?.name || id;
   text('learning-sources', `Gespeicherte Präsenzgruppe: ${sourceIds.map(sourceName).join(', ') || 'keine'}. Auswertbare Quellen: ${(contextData.collecting_sources || []).map(sourceName).join(', ') || 'keine'}.`);
   text('learning-status', byId('learning-status').textContent + ` Davon ${contextData.historical_event_count || 0} historische Belege.`);
+  const retainedIntegrity=window.PilotSuiteWorkspaceModel.retainedIntegrity(contextData.retained_integrity);
+  if(retainedIntegrity.degraded) text('learning-status', byId('learning-status').textContent +
+    ` Hinweis: ${retainedIntegrity.affected} gespeicherte Nachweiszeilen wurden begrenzt oder nicht gewertet. Die Rohdaten blieben unverändert.`);
   const progress = contextData.progress;
   const timeBasis = contextData.time_basis || 'UTC';
   const dayLabels = {all:'alle Tage', weekday:'Mo–Fr', weekend:'Sa–So'};

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.0-alpha.46] - 2026-09-27
+
+### Integrität des vollständigen Lernberichts
+- Aktivierungs-, Historien-, Import-, Abdeckungs-, Feedback- und Kontextzeilen werden
+  beim Lesen erneut auf ihren jeweiligen Vertrag und Zeitraum begrenzt. Beschädigte
+  Importbelege können den Bericht weder abbrechen noch `NaN` oder unbekannte Felder
+  in JSON-Ausgaben tragen.
+- Nicht zuordenbare Historienherkunft zählt nicht als historischer Beleg. Unbekannte
+  Herkunft wird konservativ als `unknown` normalisiert; unbrauchbare Zeilen werden
+  nicht als Beobachtung oder Präferenz gewertet.
+- Der Bericht weist ausgeschlossene oder normalisierte Zeilen mit festen Zählern aus.
+  Die Oberfläche erklärt diesen Zustand, ohne gespeicherte Rohdaten still zu löschen
+  oder umzuschreiben.
+
+### Grenzen
+- Keine Schemaänderung, neue Sammlung, Zustimmung, Feedbackänderung, HA-Konfiguration
+  oder Geräteausführung. Allgemeines Apply bleibt gesperrt.
+
 ## [0.1.0-alpha.45] - 2026-09-27
 
 ### Begrenzter Export gespeicherter Kontextbelege

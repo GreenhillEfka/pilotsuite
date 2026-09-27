@@ -1,5 +1,20 @@
 # PilotSuite capability and acceptance ledger
 
+## Alpha.46 candidate — retained-report integrity
+
+| Capability | Verified source scope |
+|---|---|
+| Activation evidence | Entity, timestamp, retention window and coarse origin revalidated |
+| History | Import receipt and provenance must be valid and mutually attributable |
+| Coverage/feedback | Unknown states, pattern IDs, decisions and timestamps are not evidence |
+| Strict export | Malformed JSON, `NaN` and unknown import fields cannot escape or abort |
+| Transparency | Fixed integrity counters and bounded UI warning; raw rows unchanged |
+| Boundary | No schema, collection, consent, feedback, HA write or execution change |
+
+Repository/API validation, 533 Python and 60 JavaScript tests pass locally, including
+storage, strict HTTP JSON and presentation regressions. Next: publish the exact
+candidate and require complete CI before merge or Store delivery.
+
 ## Installed Alpha.45 — bounded retained-context export
 
 | Capability | Verified source scope |

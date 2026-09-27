@@ -190,6 +190,68 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(2, report['context_windows'][0]['activations'])
         json.dumps(report, allow_nan=False)
 
+    async def test_retained_report_quarantines_corrupt_rows_without_rewriting(self):
+        await self.configure(context_learning=True, now=self.now-2000)
+        valid_import = 'a' * 32
+        valid_receipt = {'id': valid_import, 'authorized_at': self.now,
+                         'start': self.now-1200, 'end': self.now-900,
+                         'sources': ['binary_sensor.p'], 'accepted': 1,
+                         'retained_from_import': 1,
+                         'basis': 'current_sources_applied_retrospectively',
+                         'context_imported': False}
+        future_import = 'c' * 32
+        future_receipt = {**valid_receipt, 'id': future_import,
+                          'authorized_at': self.now + 3600}
+        with sqlite3.connect(self.selections.path) as db:
+            db.executemany('INSERT INTO activity_evidence VALUES (?,?,?,?)', [
+                ('a', 'binary_sensor.p', self.now-1000, 'unknown'),
+                ('a', 'binary_sensor.p', self.now-700, 'private-origin'),
+                ('a', 'binary_sensor.p', self.now-400, 'unknown'),
+                ('a', 'INVALID', self.now-300, 'unknown'),
+                ('a', 'binary_sensor.p', 'bad-time', 'unknown'),
+                ('a', 'binary_sensor.p', self.now+3600, 'unknown'),
+            ])
+            db.executemany('INSERT INTO history_imports VALUES (?,?,?,?)', [
+                (valid_import, 'a', self.now, json.dumps(valid_receipt)),
+                ('bad', 'a', self.now, '{"id":"bad","accepted":NaN,"private":"CANARY"}'),
+                ('b' * 32, 'a', self.now, '{broken'),
+                (future_import, 'a', self.now + 3600, json.dumps(future_receipt)),
+            ])
+            db.executemany('INSERT INTO history_provenance VALUES (?,?,?,?)', [
+                ('a', 'binary_sensor.p', self.now-1000, valid_import),
+                ('a', 'binary_sensor.p', self.now-400, 'bad'),
+            ])
+            slot = int(self.now//300)*300
+            db.executemany('INSERT INTO coverage_checks VALUES (?,?,?)', [
+                ('a', slot, 'ready'), ('a', slot, 'invented'),
+            ])
+            db.execute('INSERT INTO pattern_feedback VALUES (?,?,?,?)',
+                       ('a', 'not-a-pattern', 'execute', self.now))
+            db.execute('INSERT INTO activity_context VALUES (?,?,?)',
+                       ('a', 'bad-time', '{"private":"CANARY"}'))
+            db.execute('INSERT INTO activity_context VALUES (?,?,?)',
+                       ('a', self.now + 3600, '{"private":"FUTURE"}'))
+        report = await self.store.report('a', now=self.now)
+        self.assertEqual(3, report['event_count'])
+        self.assertEqual(1, report['historical_event_count'])
+        self.assertEqual([valid_import], [item['id'] for item in report['history_imports']])
+        self.assertEqual(['ready'], [item['state'] for item in report['coverage_samples']])
+        self.assertEqual('unknown', report['evidence'][1]['origin'])
+        self.assertEqual('live', report['evidence'][2]['recording_source'])
+        self.assertEqual('degraded', report['retained_integrity']['status'])
+        self.assertEqual({
+            'activity_evidence': 3, 'history_provenance': 1, 'history_imports': 3,
+            'pattern_feedback': 1, 'coverage_checks': 1, 'activity_context': 2,
+        }, report['retained_integrity']['excluded_rows'])
+        self.assertEqual(1, report['retained_integrity']['normalized_rows']['activity_evidence'])
+        encoded = json.dumps(report, allow_nan=False)
+        self.assertNotIn('CANARY', encoded)
+        with sqlite3.connect(self.selections.path) as db:
+            self.assertEqual(6, db.execute(
+                'SELECT COUNT(*) FROM activity_evidence WHERE zone_id="a"').fetchone()[0])
+            self.assertEqual(4, db.execute(
+                'SELECT COUNT(*) FROM history_imports WHERE zone_id="a"').fetchone()[0])
+
     async def test_bounded_origin_categories_persist_but_identifiers_do_not(self):
         await self.configure()
         origins = ('parented_service_context', 'service_context', 'derived_context', 'invalid-private-id')
