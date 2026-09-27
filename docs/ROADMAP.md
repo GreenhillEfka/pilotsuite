@@ -17,16 +17,17 @@
 - Alpha.40 integrates the next pure daylight/mood preview in the same
   workspace. It explains stable daylight bands, deadband, rate limiting, bounded
   transitions, manual priority, night exit and target capabilities without HA I/O.
-- Alpha.41 candidate closes the first real-zone integrity gap found in that preview:
+- Alpha.41 closes the first real-zone integrity gap found in that preview:
   indoor lux, binary brightness and light targets remain separate; no configured
   signal becomes a confirmed outdoor reference. Missing current brightness holds.
 - The complete 50-route `/api/v1` inventory is now checked against the explicit
   registration source; route/documentation drift fails validation instead of accumulating.
-- Candidate/main CI, scoped Alpha.39 backup, Store association, installation and
-  runtime gates passed. Authenticated Alpha.40 Ingress remains separately open.
-- Next: finish exact Alpha.41 candidate/main CI and runtime delivery, then run the
-  explicit preview in authenticated read-only Ingress for Erdkellerbereich and one
-  unlike existing zone. Read canonical zone IDs; do not infer membership or change HA.
+- Candidate/main CI, scoped Alpha.40 backup, Store association, installation and
+  runtime gates passed. Authenticated Alpha.41 Ingress remains separately open.
+- Next: run the explicit Alpha.41 preview in authenticated read-only Ingress for
+  Erdkellerbereich, confirm that its two indoor lux sources are not shown as outdoor
+  daylight proof, then repeat with one unlike existing zone. Read canonical zone IDs;
+  do not infer membership or change HA.
 - Development may read HA-wide entities/automations under explicit user authority.
   Productive learning still requires its own source/zone consent. No new collection.
 - Existing HA rules can contain errors; review references and desired behavior before

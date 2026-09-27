@@ -1,6 +1,6 @@
 # PilotSuite capability and acceptance ledger
 
-## Alpha.41 candidate — lighting-source integrity
+## Installed Alpha.41 — lighting-source integrity
 
 | Capability | Verified source scope |
 |---|---|
@@ -10,12 +10,22 @@
 | Temporal integrity | Inconsistent and future checkpoints are rejected |
 | Boundary | No HA read/write, persistence, consent or execution added |
 
-Fresh pre-publication backup `bc501582` contains only installed Alpha.40 app/data/options;
-native details report no failed parts, no HA, database or folders. Candidate source
-awaits exact-commit CI and merge before installation.
+Fresh pre-publication backup `bc501582` contains only Alpha.40 app/data/options;
+native details report no failed parts, no HA, database or folders. PR 90 release
+`e0bfc77`; candidate CI 36289439619 and release-main CI 36289511093 passed all four
+jobs. One Store refresh and one update installed Alpha.41; installed/offered/started,
+options and auto_update unchanged. Logs report ready, connected stream, fresh snapshot
+and resolved zone in unchanged presence_adoption_review mode.
 
-Next: complete exact candidate/main CI, then install Alpha.41 once and verify runtime;
-authenticated Ingress remains a separate acceptance gate.
+Read-only HA inspection confirmed actual area `erdkeller` / `Erdkeller Innen`, the
+user semantic label Erdkellerbereich, two indoor illuminance sources and existing
+automation context. No HA configuration, automation, consent, state or device changed.
+The authenticated browser session returned 502 connection closed before HA/PilotSuite
+loaded, including one reload; this is not UI acceptance.
+
+Next: run the Alpha.41 lighting preview in authenticated read-only Ingress for
+Erdkellerbereich, verify that indoor lux is not presented as outdoor daylight proof,
+then repeat with one unlike existing zone.
 
 ## Installed Alpha.40 — daylight and mood preview
 

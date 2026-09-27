@@ -3,15 +3,17 @@
 Canonical GreenhillEfka/pilotsuite / app 0d79c5e8_pilotsuite / architecture v23.
 Read CURRENT_STATE.md, docs/RELEASE_STATE.json and docs/RELEASE_RUNBOOK.md first.
 
-## Resume: Alpha.40 installed; Alpha.41 lighting-source integrity candidate
+## Resume: Alpha.41 lighting-source integrity installed
 
 Alpha.41 continues the same lighting policy owner. It separates configured/currently
 usable light targets, indoor lux and binary brightness in the synthetic preview,
 never certifies those signals as outdoor daylight provenance, holds when current
 brightness is unavailable and rejects incoherent/future checkpoints. Backup
-`bc501582` is the verified Alpha.40 app/data/options rollback point. Finish exact
-candidate/main CI and delivery before marking this installed. Authenticated Ingress
-acceptance remains independent.
+`bc501582` is the verified Alpha.40 app/data/options rollback point. PR 90 release
+`e0bfc778f930accf7b4b4899e38eff8558fade24`; candidate CI 36289439619 and
+release-main CI 36289511093 passed all four jobs. Alpha.41 is installed, offered and
+started with options and auto_update unchanged. Authenticated Ingress acceptance
+remains independent.
 
 The current branch extends the existing pure lighting policy instead of adding a
 controller or second owner. A deterministic preview separates presence state,
@@ -27,15 +29,22 @@ Responses are bound to the current zone/revision/generation; only fixed `on`,
 name, URL or target is accepted from data. Reload performs no preview or mutation.
 
 Local validation: repository/API contracts, 515 Python and 59 JavaScript tests pass.
-PR 88 release f09dd27a2a3e635f8d98e47eb989d76371d75c64; candidate CI 36286331268
-and release-main CI 36286428926 passed Chromium, amd64, test and reproducible-source
-jobs. Fresh backup ee6f2dfa contains only Alpha.39 app/data/options. One Store refresh
-and one update installed Alpha.40 with options and auto_update unchanged. Logs confirm
-v23, ready, connected stream, fresh snapshot and resolved saved zone.
+Local validation passes repository/API contracts, 515 Python and 59 JavaScript tests.
+Exact Alpha.41 source, candidate and release-main CI passed Chromium, amd64, test and
+reproducible-source jobs. Fresh backup bc501582 contains only Alpha.40 app/data/options.
+One Store refresh and one update installed Alpha.41 with options and auto_update
+unchanged. Logs confirm v23, ready, connected stream, fresh snapshot and resolved
+saved zone.
 
-Next: run the explicit synthetic lighting preview in authenticated read-only Ingress
-for Erdkellerbereich, then one unlike existing zone, without changing household
-configuration, consent or devices. CI/runtime health are not Ingress acceptance.
+Read-only HA inspection confirmed area `erdkeller` / `Erdkeller Innen`, the user's
+semantic Erdkellerbereich label, two indoor lux sources and existing automation
+context. These indoor signals are not outdoor daylight proof. No HA state or
+configuration changed.
+
+Next: run the explicit Alpha.41 lighting preview in authenticated read-only Ingress
+for Erdkellerbereich and verify that source distinction, then one unlike existing
+zone, without changing household configuration, consent or devices. CI/runtime health
+are not Ingress acceptance.
 
 ## Previous delivery: Alpha.39 presence kernel
 
