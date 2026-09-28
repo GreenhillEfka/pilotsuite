@@ -53,7 +53,7 @@ Checkpoint-Zeitstempel sind wegen Uhr-Rücksprungschutz nicht einfach entfernbar
 Schreibdeduplizierung und Scheduler-Vereinfachung sind weiterhin offen und benötigen
 eigene Messungen und Regressionen; der kleine Lesepfad behebt keine dieser Aufgaben.
 
-Alpha.59-Kandidat konsolidiert Zeitparser und Snapshot-Frischeprüfung in bestehenden
+Alpha.59, implementiert/getestet/installiert, konsolidiert Zeitparser und Snapshot-Frischeprüfung in bestehenden
 Besitzern. Rote Tests belegen falsche Bereitschaft und Legacy-Belege bei zukünftiger
 Snapshot-Zeit sowie Fehler bei ungültigen Zeitangaben. Gültige Zeitgrenzen und die
 gemessene Datenbankarbeit bleiben gleich; keine Scheduler- oder Datenmigration.

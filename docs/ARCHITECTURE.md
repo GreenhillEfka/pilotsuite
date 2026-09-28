@@ -49,7 +49,7 @@ lesbar, bis eine getestete Überführung Quellen, Fristen und Bedeutungsuntersch
 erhält. Keine automatische Zusammenführung allein nach Feld- oder Anzeigenamen.
 
 `service.py` startet heute getrennte Refresh-, Shadow-, Presence- und History-Tasks.
-Alpha.59-Kandidat löst die konkrete Zeit-/Frischekopplung aus dem Schattenadapter:
+Alpha.59 löst die konkrete Zeit-/Frischekopplung aus dem Schattenadapter:
 Der unveränderte strenge Parser liegt im vorhandenen Präsenzkernel; der Service
 besitzt die gemeinsame Snapshot-Frischeprüfung. Alte Schatten-Importe und die
 private Delegation bleiben kompatibel. Keine neue Service-Architektur. Die getrennten
@@ -73,7 +73,7 @@ Ausfall-/Wiederanlaufgarantien und eine getestete Migration bieten.
 ## Kleine technische Schritte, keine neue Schicht
 
 - Eine primäre Statusprojektion in der UI; vorhandene API-Verträge zunächst erhalten.
-- Alpha.59-Kandidat: Zeit-/Frischefunktionen mit vergleichenden Grenz-, HTTP- und
+- Alpha.59: Zeit-/Frischefunktionen mit vergleichenden Grenz-, HTTP- und
   Ereignistests aus der Shadow-Abhängigkeit gelöst. Kein zusätzliches Datenmodell.
 - Unveränderte Checkpoints und identische Ansichten möglichst nicht neu schreiben
   beziehungsweise rendern. Zuerst Schreib-/Renderhäufigkeit messen; notwendige
