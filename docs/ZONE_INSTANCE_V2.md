@@ -107,6 +107,14 @@ gesperrt. Ein lokaler Konfigurations-Speicherpunkt enthält diese neuen Betriebs
 Ausgangspakete nicht; native App-/Datensicherungen bleiben für die vollständige
 Wiederherstellung erforderlich.
 
+Alpha.57 prüft die laufende Publikationsgrundlage nach wartenden HA-Aufrufen erneut:
+Revision, Generation, aktive Zone, Verbindung und das höchstens 15 Sekunden alte
+Bewertungsergebnis müssen weiterhin passen. Bei einem während des Aufrufs entstandenen
+Konflikt greifen Ungültigsetzung und dauerhafte Ausgabesperre. Ein bereits gestarteter
+HA-Aufruf kann nicht rückwirkend verhindert werden; der begrenzte Gültigkeitsablauf
+bleibt daher erforderlich. Die Fehlermarkierung wird auf den neuesten lokalen
+Zwischenstand gesetzt und überschreibt keine zwischenzeitlich erneuerte Frist.
+
 ## Visualisierung und Konfigurator
 
 Alpha.55 ordnet die vorhandene Karte zuerst unter Zustand/Einrichtung/Verlauf ein;

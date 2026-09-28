@@ -12,6 +12,7 @@ from aiohttp.test_utils import TestClient, TestServer
 from pilotsuite.app import SERVICE_KEY, create_app
 from pilotsuite.core.context import ContextStore
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.zone_presence_store import KEY
 from test_presence_shadow import MOTION, NOW, SOURCE, seed_shadow, state
 
 
@@ -104,6 +105,124 @@ class ZonePresenceRuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.service.client.zone_output_service.assert_awaited_once_with(
             'input_boolean', 'turn_off', entities['entscheidung_gueltig'])
         self.service.client.zone_output_states.assert_not_awaited()
+
+    async def prepare_publisher(self, fault=None):
+        """Bind synthetic outputs to real local storage; every HA call stays mocked."""
+        self.entities = {'anwesenheit_intern': 'input_boolean.synthetic_owner',
+                         'entscheidung_gueltig': 'input_boolean.synthetic_valid',
+                         'gueltig_bis': 'input_datetime.synthetic_until',
+                         'nachlauf': 'timer.synthetic_grace',
+                         'sensor': 'binary_sensor.synthetic_presence'}
+        identities = {role: {'entity_id': eid, 'platform': eid.split('.')[0],
+                             'unique_id': eid} for role, eid in self.entities.items()}
+        config = (await self.service.context.get('room'))[KEY]
+        revision = (await self.service.selection_inventory('room'))['revision']
+        await self.service.context.save_zone_presence('room', revision,
+            {**config, 'mode': 'publish',
+             'package': {'entities': self.entities, 'identities': identities}})
+        self.service._zone_presence_init()
+        self.service._stream_connected = True
+        await self.tick(1, {SOURCE: 'on', MOTION: 'off'})
+        self.output_states = {eid: {'state': 'off'} for eid in self.entities.values()}
+        reads = 0
+
+        async def inject(stage):
+            if fault:
+                await fault(stage)
+
+        async def registry():
+            await inject('registry')
+            return deepcopy(list(identities.values()))
+
+        async def states():
+            nonlocal reads
+            reads += 1
+            await inject('states:' + str(reads))
+            return deepcopy(self.output_states)
+
+        async def output(domain, service, eid, data=None):
+            role = next(role for role, target in self.entities.items() if target == eid)
+            await inject(role + ':' + service)
+            value = ('on' if service == 'turn_on' else 'off' if service == 'turn_off'
+                     else 'active' if service == 'start' else 'idle' if service == 'cancel'
+                     else data['timestamp'])
+            self.output_states[eid] = {'state': value}
+            valid = self.output_states[self.entities['entscheidung_gueltig']]['state'] == 'on'
+            self.output_states[self.entities['sensor']] = {'state':
+                self.output_states[self.entities['anwesenheit_intern']]['state'] if valid else 'unavailable'}
+
+        self.service.client.zone_output_registry = AsyncMock(side_effect=registry)
+        self.service.client.zone_output_states = AsyncMock(side_effect=states)
+        self.service.client.zone_output_service = AsyncMock(side_effect=output)
+
+    async def test_publication_rechecks_age_after_each_awaited_io(self):
+        stages = ('registry', 'states:1', 'entscheidung_gueltig:turn_off',
+                  'anwesenheit_intern:turn_on', 'nachlauf:cancel', 'states:2',
+                  'gueltig_bis:set_datetime', 'entscheidung_gueltig:turn_on', 'states:3')
+        for stage in stages:
+            with self.subTest(stage=stage):
+                fired = False
+
+                async def delay(current):
+                    nonlocal fired
+                    if current == stage and not fired:
+                        fired = True
+                        self.now += 16
+
+                await self.prepare_publisher(delay)
+                await self.service._zone_publish_all()
+                self.assertTrue(fired)
+                self.assertEqual('off', self.output_states[self.entities['entscheidung_gueltig']]['state'])
+                self.assertNotEqual('verified', self.service._zone_views['room'].get('publication'))
+                self.assertTrue((await self.service.context.zone_operational('room'))['output_suspended'])
+                calls = self.service.client.zone_output_service.await_args_list
+                if stage in ('registry', 'states:1', 'entscheidung_gueltig:turn_off'):
+                    self.assertFalse(any(c.args[2] == self.entities['anwesenheit_intern'] for c in calls))
+                count = len(calls)
+                await self.service._zone_publish_all()
+                self.assertEqual(count, self.service.client.zone_output_service.await_count)
+
+    async def test_publication_rechecks_disconnect_before_owner_and_validity(self):
+        for stage in ('registry', 'states:1', 'gueltig_bis:set_datetime'):
+            with self.subTest(stage=stage):
+                async def disconnect(current):
+                    if current == stage:
+                        self.service._stream_connected = False
+
+                await self.prepare_publisher(disconnect)
+                await self.service._zone_publish_all()
+                self.assertEqual('off', self.output_states[self.entities['entscheidung_gueltig']]['state'])
+                self.assertNotEqual('verified', self.service._zone_views['room'].get('publication'))
+                self.assertFalse(any(call.args[:3] == ('input_boolean', 'turn_on',
+                    self.entities['entscheidung_gueltig'])
+                    for call in self.service.client.zone_output_service.await_args_list))
+
+    async def test_publication_conflict_preserves_newer_operational_checkpoint(self):
+        newer = None
+
+        async def advance_during_read(stage):
+            nonlocal newer
+            if stage == 'registry' and newer is None:
+                await self.tick(1, {SOURCE: 'off'})
+                newer = deepcopy((await self.service.context.zone_operational('room'))['checkpoint'])
+
+        await self.prepare_publisher(advance_during_read)
+        await self.service._zone_publish_all()
+        saved = await self.service.context.zone_operational('room')
+        self.assertIsNotNone(newer)
+        self.assertEqual(newer, saved['checkpoint'])
+        self.assertTrue(saved['output_suspended'])
+        self.assertEqual('off', self.output_states[self.entities['entscheidung_gueltig']]['state'])
+
+    async def test_current_publication_and_heartbeat_throttle_still_work(self):
+        await self.prepare_publisher()
+        await self.service._zone_publish_all()
+        self.assertEqual('verified', self.service._zone_views['room']['publication'])
+        self.assertEqual('on', self.output_states[self.entities['sensor']]['state'])
+        calls = self.service.client.zone_output_service.await_count
+        await self.tick(5)
+        await self.service._zone_publish_all()
+        self.assertEqual(calls, self.service.client.zone_output_service.await_count)
 
 
 if __name__ == '__main__':

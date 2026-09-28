@@ -3,6 +3,10 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.57 candidate hardens the existing publisher against delayed reads and stream
+loss, and preserves newer checkpoints when marking an output conflict. Synthetic
+red/green regressions exist; delivery is not yet claimed by this version marker.
+
 Alpha.56 is installed after PR #121 and exact candidate/main CI: complete loss of
 direct optional coverage yields unknown rather than vacant. Regression tests cover
 the pure evaluator, SQLite restart, HTTP projection and invalidation-only publisher

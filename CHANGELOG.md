@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.0-alpha.57] - 2026-09-28
+
+### Präsenzveröffentlichung bleibt an aktuelle Belege gebunden
+- Nach wartenden HA-Aufrufen werden Revision, Generation, Verbindung und Alter
+  der Präsenzentscheidung erneut geprüft. Eine inzwischen veraltete Grundlage
+  darf weder den internen Zustand neu setzen noch die Gültigkeit erneuern.
+- Wird eine Änderung erst während eines laufenden Aufrufs erkennbar, folgt die
+  vorhandene begrenzte Ungültigsetzung und Ausgabesperre; keine blinde Wiederholung.
+  HA und SQLite werden dadurch nicht zu einer atomaren Transaktion.
+- Ein Publikationsfehler setzt seine Sperre jetzt auf den neuesten gespeicherten
+  Zwischenstand, ohne eine inzwischen aktualisierte Präsenzfrist zurückzusetzen.
+- Synthetische Regressionen decken neun Verzögerungsstellen, Verbindungsabbrüche,
+  konkurrierende Quellenereignisse und den unveränderten normalen Ausgabeweg ab.
+  Keine neuen Schreibrechte, Paketanlagen oder Haushaltsschaltungen.
+
 ## [0.1.0-alpha.56] - 2026-09-28
 
 ### Keine Freimeldung bei vollständigem Ausfall optionaler Quellen

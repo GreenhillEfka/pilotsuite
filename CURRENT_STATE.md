@@ -1,5 +1,20 @@
 # Current state — Alpha.56 installed; household acceptance pending
 
+## Active Alpha.57 candidate
+
+The next presence-first package reproduces delayed-I/O publication faults: nine
+delay points and three disconnection points could retain validity after the
+15-second decision-age boundary or loss of the stream. A separate conflict test
+proved the error handler could overwrite a newer checkpoint with its pre-I/O copy.
+Three test methods failed in 13 subcases before the fix. The publisher now rechecks
+the same decision/revision/stream after awaits and merges its failure marker into
+the newest checkpoint under the existing projection lock. HA calls remain outside
+that lock. Existing invalidation, suspension and bounded lease remain unchanged;
+no atomic HA/SQLite guarantee or new write authority is claimed.
+
+Alpha.57 is a candidate, not yet an installed release. RELEASE_STATE.json retains
+the verified Alpha.56 receipt until all new delivery gates have passed.
+
 ## Verified delivery
 
 Fresh HA-MCP reads confirm Alpha.56 installed/offered and started. PR #121 merged
