@@ -1,14 +1,15 @@
-# PilotSuite capability ledger — Alpha.57 installed
+# PilotSuite capability ledger — Alpha.58 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.58 candidate: read-first durable zone bootstrap; five new contention,
+Alpha.58 installed after PR #125 and exact candidate/main CI: read-first durable
+zone bootstrap; five new contention,
 concurrency, rollback and preservation tests pass. Synthetic 60-cycle scenarios
 reduce write reservations 180 to 60 while preserving all 60 checkpoints; no speed
 gain claimed. Test-owned connections now close explicitly. 583 Python/73 JS and
-two local browser suites pass. Publication, exact CI and installation remain gates;
-the receipt below still describes installed Alpha.57.
+two local browser suites pass. Native scoped backup and unchanged options/startup
+are verified in the receipt; authenticated household acceptance remains open.
 
 Alpha.57 is installed after PR #123 and exact candidate/main CI. It hardens the
 existing publisher against delayed reads and stream loss, and preserves newer
@@ -47,10 +48,11 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Required unknown source in a shared presence group | Alpha.54 installed after red/green regression and exact CI; household validation pending |
 | Complete loss of optional direct coverage | Alpha.56 installed after red/green regression, restart/HTTP/publisher tests and exact CI; unknown never silently becomes vacant |
 | Publication freshness across awaited I/O | Alpha.57 installed; 13 failing baseline subcases fixed, current publication still works; HA/SQLite are not atomic |
+| Zone bootstrap read contention | Alpha.58 installed; existing marker needs no write reservation, concurrent first start still rechecks transactionally; checkpoint writes unchanged |
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
-| Live runtime | Alpha.57 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | No zone/schema migration in Alpha.55–57; not independently read back in an authenticated Ingress session after the update |
+| Live runtime | Alpha.58 started, ready, stream connected, snapshot fresh and zone resolved |
+| Four saved PilotSuite zones | No zone/schema migration in Alpha.55–58; not independently read back in an authenticated Ingress session after the update |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded

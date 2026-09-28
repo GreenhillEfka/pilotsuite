@@ -44,7 +44,7 @@ Vorhandene Scheduler schrittweise vereinfachen, History-I/O getrennt halten.
 Vergleichende Replay-/Restart-/Konflikt-/Ausfalltests müssen dasselbe fachliche
 Ergebnis liefern. Bestehende API-Aufrufer und gespeicherte Konfigurationen erhalten.
 
-Erster gemessener Schritt, Alpha.58-Kandidat: vorhandenen Bootstrap-Marker ohne
+Erster gemessener Schritt, Alpha.58 installiert: vorhandenen Bootstrap-Marker ohne
 Schreibreservierung lesen, beim echten Erststart weiterhin unter Transaktion prüfen.
 Je 60 synthetischen Tick-/Ansichtszyklen sinken IMMEDIATE-Transaktionen von 180 auf
 60; alle 60 Checkpoints und 660 Verbindungen bleiben erhalten. Kein Zeitgewinn
