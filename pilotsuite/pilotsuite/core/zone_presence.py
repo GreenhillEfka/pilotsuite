@@ -22,7 +22,7 @@ REASONS = {'not_observed':'Noch keine tragende Beobachtung.',
     'deadline_elapsed_all_clear':'Nachlauf beendet, benötigte Quellen frei.',
     'all_clear_remains_vacant':'Zone bleibt frei.',
     'no_recent_presence_basis':'Kaltstart ohne bestätigten Aufenthalt.',
-    'required_source_unknown':'Erforderliche Raumabdeckung unklar.',
+    'required_source_unknown':'Direkte Raumabdeckung fehlt oder erforderliche Quelle unklar.',
     'support_hold':'Zeitlich begrenzte Stützung durch Nutzungsindiz.',
     'clear_stabilizing':'Freiphase wird stabil bestätigt.'}
 
@@ -167,7 +167,10 @@ def evaluate(spec, previous, states, *, now, fresh, event=None):
     for g in groups.values():
         levels.append('on' if 'on' in g['states'] else
                       'unknown' if g['required_unknown'] else 'off')
-    if not fresh: levels=['unknown']
+    # Optional gaps may be ignored beside valid direct coverage, but an entirely
+    # unobserved zone cannot prove absence merely because every source is optional.
+    direct_observation=any(level in ('on','off') for g in groups.values() for level in g['states'])
+    if not fresh or not direct_observation: levels=['unknown']
     # Strong positive evidence wins over unavailable unrelated coverage. Pulses
     # must also be able to establish occupied before unknown data blocks vacancy.
     if new_pulse is not None and 'on' not in levels and fresh:

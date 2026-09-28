@@ -63,6 +63,11 @@ Lernalgorithmus auf TV-/Nutzungsmerkmale und kein neuer autonomer Komfortlerner.
   erforderliche Abdeckungsgruppe, solange eine andere erforderliche Quelle derselben
   Gruppe `unknown` oder `unavailable` ist. Ein positiver Beleg bleibt gültig;
   optionale unklare Indizien blockieren eine klare erforderliche Abdeckung nicht.
+- Alpha.56 ergänzt die Mindestbeobachtung: Sind sämtliche direkten Quellen unklar,
+  abgelaufen oder nicht verwertbar, ist auch bei ausschließlich optionalen Quellen
+  keine Freimeldung belegt. Ein zuvor freier Zustand verliert dann seine Gültigkeit.
+  Eine gültige direkte Beobachtung und die erforderlichen Abdeckungsgruppen bleiben
+  maßgeblich; Quelleinstellungen und gespeicherte Fristen werden nicht migriert.
 - Meldealter 0 bedeutet ereignisorientierter gehaltener HA-Zustand. Periodische Quellen
   können explizite Altersgrenzen haben. Datenalter ist kein physikalischer Genauigkeitswert.
 - Frist, Generation und Gültigkeit stammen aus dem bestehenden Kernel. Neustarts erneuern

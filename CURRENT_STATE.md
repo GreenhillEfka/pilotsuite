@@ -1,5 +1,20 @@
 # Current state — Alpha.55 installed; household UI acceptance pending
 
+## Active bounded quality iteration: Alpha.56 candidate
+
+Fresh 2026-09-28 reads confirmed main `2860c06d6d598eb9c7544fc8476e5514de498a9e`,
+no open PRs and Alpha.55 installed/offered/started. The isolated branch
+`fix/alpha56-presence-evidence` fixes a reproduced false-vacancy edge case: when
+all direct sources are optional and unavailable, the previous aggregation could
+still declare vacant. Two new regression methods failed in nine subcases before
+the minimal fix. Current required-group behavior, positive evidence, original
+deadlines and all saved configuration remain unchanged.
+
+Additional synthetic tests cover pulse expiry, non-sliding TV support, actual
+SQLite reload/HTTP output and invalid publication without owner.off. Release gates,
+installation and household acceptance are not implied by the candidate version.
+RELEASE_STATE.json still records the installed Alpha.55 until delivery is verified.
+
 ## Verified baseline
 
 Work continues only in GreenhillEfka/pilotsuite. Concept PR #118 merged as
