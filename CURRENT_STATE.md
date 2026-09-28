@@ -25,6 +25,10 @@ source selection, write capability or authentication boundary changes.
 ## Verification and release gate
 
 The navigation regression failed against the six-entry baseline before the change.
+The first candidate CI also exposed an enhancement-order race: status could arrive
+before workspace initialization. A deterministic delayed-script regression reproduced
+missing valid measurements. Workspace now reads the existing app display response
+instead of maintaining a second status reference; no extra polling was introduced.
 Local verification: 568 Python and 73 JavaScript tests, repository/API invariants,
 discovery, frontend syntax and all 11 existing synthetic browser suites passed.
 The extended actual-app fixture uses four zones and covers occupied, empty/unknown,

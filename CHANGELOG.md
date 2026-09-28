@@ -13,6 +13,8 @@
   Entitätsorganisation steht unter Werkzeuge. Keine neue Engine oder Datenhaltung.
 - Ladefehler sperren veraltete Aktionen; eine wieder gültige Grundlage wird sofort
   neu gelesen. Entwürfe, Quellenfilter, Fokus und passive Leseposition bleiben erhalten.
+- Bereits geladener Verbindungsstatus bleibt auch bei später Initialisierung der
+  Oberfläche verfügbar; keine zusätzliche Abfrage oder zweite Statushaltung.
 - Synthetische Browserprüfungen umfassen vier Zonen, Pause, Datenlücken, Direktlinks,
   Tastatur und drei Bildschirmbreiten. Keine Haushaltsschaltungen oder Zonenmigration.
 

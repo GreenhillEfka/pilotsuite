@@ -17,6 +17,11 @@ const path=require('node:path');
   const info=await read();browser=await chromium.launch({headless:true,...(process.env.PILOTSUITE_CHROMIUM?{executablePath:process.env.PILOTSUITE_CHROMIUM}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:1100}});page.setDefaultTimeout(10000);
   const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))requests.push({url:r.url(),method:r.method()});});
+  // Reproduce a cached/late enhancement: canonical data can arrive before workspace.js.
+  await page.route('**/assets/workspace.js',async route=>{
+   await page.waitForFunction(()=>typeof contextData!=='undefined'&&contextData&&!selectionBusy);
+   await route.continue();
+  });
   await page.goto(info.url);
   await page.waitForFunction(()=>document.body.classList.contains('ps-workspace-ready')&&contextData&& !selectionBusy);
   assert.deepEqual(errors,[]);
