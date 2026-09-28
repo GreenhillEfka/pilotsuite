@@ -1,12 +1,12 @@
-# PilotSuite capability ledger — Alpha.55 installed
+# PilotSuite capability ledger — Alpha.56 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.56 is a development candidate: complete loss of direct optional coverage
-now yields unknown rather than vacant. Regression tests cover the pure evaluator,
-SQLite restart, HTTP projection and invalidation-only publisher path. Installed
-version and completed delivery remain owned by RELEASE_STATE.json.
+Alpha.56 is installed after PR #121 and exact candidate/main CI: complete loss of
+direct optional coverage yields unknown rather than vacant. Regression tests cover
+the pure evaluator, SQLite restart, HTTP projection and invalidation-only publisher
+path. Delivery is recorded in RELEASE_STATE.json; household acceptance remains open.
 
 PR #118 consolidated the concept without changing app behavior. PR #119 delivered
 Alpha.55 with three navigation groups and one primary zone-presence view; exact CI
@@ -33,10 +33,11 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Step availability in automation review | Alpha.52 installed; available, disabled and dynamic/unknown nested references are separate and only available matches confirm alignment |
 | Passive reading position | Alpha.53 installed and synthetically tested; authenticated household Ingress acceptance pending |
 | Required unknown source in a shared presence group | Alpha.54 installed after red/green regression and exact CI; household validation pending |
+| Complete loss of optional direct coverage | Alpha.56 installed after red/green regression, restart/HTTP/publisher tests and exact CI; unknown never silently becomes vacant |
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
-| Live runtime | Alpha.55 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | No zone/schema migration in Alpha.55; not independently read back in an authenticated Ingress session after the update |
+| Live runtime | Alpha.56 started, ready, stream connected, snapshot fresh and zone resolved |
+| Four saved PilotSuite zones | No zone/schema migration in Alpha.55/56; not independently read back in an authenticated Ingress session after the update |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded

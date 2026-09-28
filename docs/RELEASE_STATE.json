@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.55",
-    "commit": "dab82d1d7f98ce3cb5c76f7e4a1c7b348229dd98",
-    "tree": "c9af7ae0c4d65a85794580ae4d71f72737d1d43c",
-    "app_tree": "8fc3f6c58feda5a0f6b28bf8e7eedc9221212245",
-    "pull_request": 119,
-    "candidate_commit": "031b2efc6d4730f8d7604a88d51430e4d8143862",
-    "candidate_ci_run_id": 36360742028,
-    "ci_run_id": 36360899388,
+    "version": "0.1.0-alpha.56",
+    "commit": "fde808afa65ec4c52a85ccf05ee8c8cea74152a9",
+    "tree": "18675cc48e36dec67018175cf943f9122e90472f",
+    "app_tree": "8f7a95109cd3aa79ad754e1a1c116a3bd48ee1da",
+    "pull_request": 121,
+    "candidate_commit": "b1c3153f695aa14f49d7427968d2148fbd22fb3f",
+    "candidate_ci_run_id": 36383403520,
+    "ci_run_id": 36383567794,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.55",
-    "commit": "dab82d1d7f98ce3cb5c76f7e4a1c7b348229dd98",
-    "tree": "c9af7ae0c4d65a85794580ae4d71f72737d1d43c",
-    "app_tree": "8fc3f6c58feda5a0f6b28bf8e7eedc9221212245",
-    "pull_request": 119,
-    "candidate_commit": "031b2efc6d4730f8d7604a88d51430e4d8143862",
-    "candidate_ci_run_id": 36360742028,
-    "ci_run_id": 36360899388,
+    "version": "0.1.0-alpha.56",
+    "commit": "fde808afa65ec4c52a85ccf05ee8c8cea74152a9",
+    "tree": "18675cc48e36dec67018175cf943f9122e90472f",
+    "app_tree": "8f7a95109cd3aa79ad754e1a1c116a3bd48ee1da",
+    "pull_request": 121,
+    "candidate_commit": "b1c3153f695aa14f49d7427968d2148fbd22fb3f",
+    "candidate_ci_run_id": 36383403520,
+    "ci_run_id": 36383567794,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "89e5ef42",
-    "name": "PilotSuite alpha.54 before alpha.55",
-    "date": "2026-09-27T23:52:28.188323+00:00",
+    "backup_id": "15da86c3",
+    "name": "PilotSuite alpha.55 before alpha.56",
+    "date": "2026-09-28T05:45:13.533926+00:00",
     "size_bytes": 54446080,
-    "app_version": "0.1.0-alpha.54",
+    "app_version": "0.1.0-alpha.55",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.55",
-    "offered_version": "0.1.0-alpha.55",
-    "previous_version": "0.1.0-alpha.54",
+    "installed_version": "0.1.0-alpha.56",
+    "offered_version": "0.1.0-alpha.56",
+    "previous_version": "0.1.0-alpha.55",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,10 +74,9 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T02:08:53Z",
+    "startup_log_timestamp": "2026-09-28T07:51:38Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T02:08:54Z",
-      "2026-09-28T02:10:25Z"
+      "2026-09-28T07:51:39Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -96,7 +95,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 568,
+    "local_python_passed": 574,
     "local_javascript_passed": 73,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -104,14 +103,14 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Three-entry navigation; four synthetic zones; canonical presence independent of diagnostics; unknown/paused/required unavailable sources; missing output package; GET-only recovery; passive focus/scroll; late workspace initialization; stale publication not confirmed."
+    "regressions": "Complete optional-source outage is unknown, including prior vacancy; stale/malformed/missing inputs; held motion after expiry; non-sliding TV hold; SQLite restart preserves deadline; HTTP unknown projection; invalid publisher never clears owner. Two new methods failed in nine subcases before the fix.",
+    "local_browser_suites": 1
   },
   "ui_review": {
-    "synthetic_browser": "All 11 suites succeeded on exact final candidate and main; local 390/768/1440 light/dark screenshots visually inspected.",
+    "synthetic_browser": "Existing full-app zone Chromium suite passed locally; all 11 suites passed exact candidate and main CI. No frontend structural change.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
-    "ingress_protection_weakened": false,
-    "initial_candidate_ci": "36360374088 exposed late-enhancement status race; reproduced deterministically and fixed before successful final candidate CI."
+    "ingress_protection_weakened": false
   },
   "boundaries": {
     "household_automation_changed": false,
@@ -122,13 +121,13 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "Options are unchanged and the updated app starts ready. Authenticated UI observation of all four saved PilotSuite zones remains pending."
+    "independent_data_preservation": "All four options unchanged; no schema/configuration migration and startup ready. Authenticated UI observation of all four saved zones remains pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "c04cf90770ed4166d692b5dc8f018be2ef57e35f:docs/RELEASE_STATE.json",
-    "integrated_pr": 119,
-    "integrated_commit": "dab82d1d7f98ce3cb5c76f7e4a1c7b348229dd98"
+    "previous_receipt_at": "2860c06d6d598eb9c7544fc8476e5514de498a9e:docs/RELEASE_STATE.json",
+    "integrated_pr": 121,
+    "integrated_commit": "fde808afa65ec4c52a85ccf05ee8c8cea74152a9"
   },
-  "next_step": "Authenticated read-only Ingress acceptance of all four saved zones, Erdkellerbereich and an unlike zone: check new Zonen/Werkzeuge/System navigation, canonical presence/unknown/publication distinction and at least two passive refreshes without household changes. Runtime deduplication remains a separate measured package."
+  "next_step": "Continue bounded presence-first quality iteration: test publication freshness across awaited reads, then measured removal of unnecessary bootstrap write locks. Preserve operational timestamps and deadlines. Authenticated read-only household Ingress acceptance remains pending."
 }
