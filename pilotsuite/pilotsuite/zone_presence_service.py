@@ -22,6 +22,7 @@ from .core.selections import InvalidSelection,SelectionConflict
 from .ha.client import HomeAssistantError
 
 LOG=logging.getLogger(__name__)
+PUBLICATION_HEARTBEAT_SECONDS = 20
 
 class ZonePresenceServiceMixin:
     def _zone_presence_init(self):
@@ -45,13 +46,24 @@ class ZonePresenceServiceMixin:
             current=cached.get('current');now=time.time()
             if not (current and cached.get('revision')==inv['revision'] and self._presence_inputs_fresh(now) and
                     kernel.finite(current.get('observed_at')) and 0<=now-current['observed_at']<=15): current=None
+            publication=cached.get('publication','not_published')
+            if publication=='verified':publication='not_published'
+            receipt=self._zone_last_published.get(zid,{})
+            checked_at=receipt.get('verified_at')
+            confirmed=bool(inv['enabled'] and cached.get('status')=='current' and current and current.get('valid') and
+                config.get('mode')=='publish' and config.get('package') and
+                receipt.get('revision')==inv['revision'] and
+                receipt.get('signature')==(current.get('state'),current.get('deadline'),True) and
+                kernel.finite(checked_at) and 0<=now-checked_at<PUBLICATION_HEARTBEAT_SECONDS and
+                publication not in ('unknown_or_conflict','suspended_after_unknown_outcome'))
+            if confirmed:publication='verified'
             labels=[] # fetched on explicit ontology edit, not on every display poll
             return {'schema':kernel.SCHEMA,'zone_id':zid,'revision':inv['revision'],
                     'analysis_policy':'relevant_means_live_and_available_history','analysis_enabled':bool(inv['enabled']),
                     'spec':spec,'mode':config.get('mode','compare'),'package':config.get('package'),
                     'catalog':[r for r in catalog if r['entity_id'] in relevant],
                     'current':current,'status':cached.get('status','waiting'),
-                    'publication':cached.get('publication','not_published'),
+                    'publication':publication,'publication_checked_at':checked_at if confirmed else None,
                     'trace':list(self._zone_traces.get(zid,[]))[-128:] if current else [],
                     'trace_basis':'session_only_not_recorded_history',
                     'history':self._zone_cache.get(zid,{}).get('summary',{'status':'not_loaded'}),
@@ -353,12 +365,14 @@ class ZonePresenceServiceMixin:
                 if not package or record.get('mode')!='publish':continue
                 stored=await self.context.zone_operational(zid)
                 if stored.get('output_suspended'):
+                    self._zone_last_published.pop(zid,None)
                     self._zone_views.setdefault(zid,{})['publication']='suspended_after_unknown_outcome'
                     continue
                 try:
                     view=self._zone_views.get(zid,{});current=view.get('current')
                     await self._zone_publish(zid,record,view,current)
                 except (HomeAssistantError,SelectionConflict,TimeoutError):
+                    self._zone_last_published.pop(zid,None)
                     # HA I/O releases the projection lock: a newer source event may
                     # already have persisted a deadline. Never restore the old snapshot
                     # merely to add the output-failure marker.
@@ -392,7 +406,7 @@ class ZonePresenceServiceMixin:
         valid=bool(current and current['valid'] and kernel.finite(current.get('observed_at')) and
                    0<=now-current['observed_at']<=15 and self._presence_inputs_fresh(now) and view.get('status')=='current')
         signature=(current.get('state'),current.get('deadline'),valid) if current else (None,None,False)
-        if last.get('signature')==signature and now-last.get('at',0)<20:return
+        if last.get('signature')==signature and now-last.get('at',0)<PUBLICATION_HEARTBEAT_SECONDS:return
         rows={r['entity_id']:r for r in await self.client.zone_output_registry()}
         for role,eid in entities.items():
             if not same_identity(package['identities'][role],rows.get(eid,{})) or rows[eid].get('disabled_by'):
@@ -439,7 +453,9 @@ class ZonePresenceServiceMixin:
             await self._zone_assert_current_publication(zid,view,current)
             if states.get(entities['sensor'],{}).get('state')!=desired:
                 raise HomeAssistantError('Öffentlicher Anwesenheitssensor nicht bestätigt')
-        self._zone_last_published[zid]={'signature':signature,'at':now};view['publication']='verified'
+        self._zone_last_published[zid]={'signature':signature,'at':now,
+            'verified_at':time.time(),'revision':view['revision']}
+        view['publication']='verified'
 
     async def ontology_catalog(self,zid):
         inv,cfg,zone,catalog=await self._organization_basis(zid)

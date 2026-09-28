@@ -9,9 +9,12 @@
    const reason=paused?'Keine aktuelle Auswertung.':current?.explanation||
      (data?.status==='source_basis_changed'?'Quellenbasis geändert; Einrichtung prüfen.':
       !data?.spec?.sources?.length?'Keine bestätigte Präsenzgrundlage; Quellen prüfen.':'Keine aktuelle Entscheidung verfügbar; neu laden.');
+   const confirmed=!!(current?.valid===true&&['occupied','grace','vacant'].includes(current.state)&&
+     data?.package&&data.mode==='publish'&&data.publication==='verified'&&
+     finite(data.publication_checked_at)&&data.publication_checked_at>0);
    const publication=paused?'Pausiert':!data?.package?'Nicht eingerichtet':
-     data.mode==='compare'?'Nur vergleichen':current&&data.mode==='publish'&&data.publication==='verified'?'Bestätigt':'Nicht bestätigt';
-   return {state,reason,publication};
+     data.mode==='compare'?'Nur vergleichen':confirmed?'Zuletzt bestätigt':'Nicht bestätigt';
+   return {state,reason,publication,publicationCheckedAt:confirmed?data.publication_checked_at:null};
  }
  function plot(series,start,end){
    if(!finite(start)||!finite(end)||start>=end)return {segments:[],labels:[],error:'invalid_window'};

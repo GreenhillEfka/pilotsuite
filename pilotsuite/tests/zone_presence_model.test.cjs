@@ -13,10 +13,11 @@ test('canonical current state is the only presence truth; missing never means va
  assert.equal(M.summary({...data,mode:'paused'}).state,'Pausiert');
 });
 test('publication is distinct from calculation and cannot be claimed without a package',()=>{
- const data={analysis_enabled:true,mode:'publish',current:{state:'occupied'},publication:'verified'};
+ const data={analysis_enabled:true,mode:'publish',current:{state:'occupied',valid:true},publication:'verified',publication_checked_at:100};
  assert.equal(M.summary(data).publication,'Nicht eingerichtet');
  const packageData={...data,package:{entities:{sensor:'binary_sensor.demo'}}};
- assert.equal(M.summary(packageData).publication,'Bestätigt');
+ assert.equal(M.summary(packageData).publication,'Zuletzt bestätigt');
+ assert.equal(M.summary(packageData).publicationCheckedAt,100);
  assert.equal(M.summary({...packageData,current:null}).publication,'Nicht bestätigt','an expired current view cannot confirm cached publication');
  for(const publication of ['not_published','unknown_or_conflict','suspended_after_unknown_outcome','unexpected']){
   assert.equal(M.summary({...packageData,publication}).publication,'Nicht bestätigt');
@@ -24,6 +25,18 @@ test('publication is distinct from calculation and cannot be claimed without a p
  assert.equal(M.summary({...packageData,mode:'compare'}).publication,'Nur vergleichen');
  assert.equal(M.summary({...packageData,mode:'paused'}).publication,'Pausiert');
  assert.equal(M.summary({...packageData,analysis_enabled:false}).publication,'Pausiert');
+});
+test('a publication label needs an explicit dated readback and valid presence',()=>{
+ const data={analysis_enabled:true,mode:'publish',package:{entities:{sensor:'binary_sensor.demo'}},
+  current:{state:'occupied',valid:true},publication:'verified',publication_checked_at:100};
+ for(const publication_checked_at of [undefined,null,NaN,Infinity,'100',true,0,-1]){
+  const result=M.summary({...data,publication_checked_at});
+  assert.equal(result.publication,'Nicht bestätigt');assert.equal(result.publicationCheckedAt,null);
+ }
+ for(const current of [null,{state:'unknown',valid:false},{state:'vacant',valid:false},{state:'occupied'}]){
+  const result=M.summary({...data,current});
+  assert.equal(result.publication,'Nicht bestätigt');assert.equal(result.publicationCheckedAt,null);
+ }
 });
 test('numeric unknown values split curves, zero remains a measurement',()=>{
  const p=M.plot({kind:'numeric',points:[[0,0],[1,5],[2,null],[3,0]]},0,4);

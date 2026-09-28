@@ -3,6 +3,11 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.60 candidate: dated publication evidence survives unchanged throttled ticks
+without additional HA calls, and is withheld on stale/changed/unknown/conflicting
+bases. Four added Python tests and one JS test plus an actual-app synthetic browser
+flow pass; 596 Python/74 JS total. Installed receipt still describes Alpha.59.
+
 Alpha.59 installed after PR #127 and exact candidate/main CI: one strict snapshot-age
 predicate shared by readiness, event
 evidence and presence, with no zone dependency on the shadow freshness adapter.
