@@ -1,12 +1,13 @@
-# PilotSuite capability ledger — Alpha.59 installed
+# PilotSuite capability ledger — Alpha.60 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.60 candidate: dated publication evidence survives unchanged throttled ticks
+Alpha.60 installed after PR #129 and exact candidate/main CI: dated publication evidence survives unchanged throttled ticks
 without additional HA calls, and is withheld on stale/changed/unknown/conflicting
 bases. Four added Python tests and one JS test plus an actual-app synthetic browser
-flow pass; 596 Python/74 JS total. Installed receipt still describes Alpha.59.
+flow pass; 596 Python/74 JS total. Scoped backup, installation and unchanged options
+are verified in the receipt; authenticated household acceptance remains open.
 
 Alpha.59 installed after PR #127 and exact candidate/main CI: one strict snapshot-age
 predicate shared by readiness, event
@@ -63,10 +64,11 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Publication freshness across awaited I/O | Alpha.57 installed; 13 failing baseline subcases fixed, current publication still works; HA/SQLite are not atomic |
 | Zone bootstrap read contention | Alpha.58 installed; existing marker needs no write reservation, concurrent first start still rechecks transactionally; checkpoint writes unchanged |
 | Shared strict snapshot freshness | Alpha.59 installed; future/invalid time is not ready or evidence-authorizing, valid age limits preserved, zone time path independent of shadow adapter |
+| Dated publication evidence | Alpha.60 installed; unchanged ticks preserve the last readback date for less than 20 seconds only on a still-matching valid basis; GET never renews it |
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
-| Live runtime | Alpha.59 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | No zone/schema migration in Alpha.55–59; not independently read back in an authenticated Ingress session after the update |
+| Live runtime | Alpha.60 started, ready, stream connected, snapshot fresh and zone resolved |
+| Four saved PilotSuite zones | No zone/schema migration in Alpha.55–60; not independently read back in an authenticated Ingress session after the update |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded
