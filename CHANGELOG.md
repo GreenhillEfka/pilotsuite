@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.0-alpha.62] - 2026-09-28
+
+### Veralteten Bearbeitungshinweis gezielt zurücknehmen
+- Nach Speichern/Nachladen oder Verwerfen im Präsenzeditor verschwindet ein zuvor
+  blockierender Navigationshinweis. Lesende Prüfung und Verlaufsansicht melden
+  ihren Abschluss ebenfalls; kein neuer Poller und kein automatischer Bereichswechsel.
+- Offene Anfragen, andere Entwürfe und fehlgeschlagene Speicherungen bleiben
+  geschützt. Echte Fehler-/Kontextmeldungen werden nicht pauschal gelöscht.
+- Synthetische Browserregressionen prüfen den ursprünglichen Fehler, Wartezustände,
+  Abbruch, Fehler und fremde Entwürfe; keine Änderung an HA-Steuerung oder Freigaben.
+
 ## [0.1.0-alpha.61] - 2026-09-28
 
 ### Bestehende Anwesenheitssteuerung verbinden und vergleichen

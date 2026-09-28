@@ -62,11 +62,73 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('#ps-zone-diagnostics > summary').focus();await page.keyboard.press('Enter');
   assert.equal(await page.locator('#ps-zone-diagnostics').evaluate(e=>e.open),false);
   console.log('ok 0b - required source gaps, failed reads and keyboard/direct-link recovery stay explicit');
+  // Gates are deterministic: no timing delay or real Home Assistant request.
+  async function holdRequest(pattern,method){
+   let resume,arrive;const held=new Promise(resolve=>resume=resolve),received=new Promise(resolve=>arrive=resolve);
+   let intercepted=false;
+   const handler=async route=>{if(route.request().method()!==method||intercepted)return route.continue();
+    intercepted=true;arrive();await held;await route.continue();await page.unroute(pattern,handler);};
+   await page.route(pattern,handler);return {received,resume:()=>resume()};
+  }
   await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
+  const guardedHash=await page.evaluate(()=>location.hash);
   await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();assert.equal(await page.locator('#ps-zone-form').isVisible(),true);
+  assert.match(await page.locator('#ps-notice').innerText(),/Bearbeitung läuft/);
+  const saveGate=await holdRequest('**/api/v1/zones/room/presence','PUT');
+  const reloadGate=await holdRequest('**/api/v1/selections/room','GET');
   await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
+  await saveGate.received;
+  assert.equal(await page.locator('#ps-notice').isVisible(),true,'pending save retains the guard');
+  saveGate.resume();await reloadGate.received;
+  assert.equal(await page.locator('#ps-notice').isVisible(),true,'pending canonical reload retains the guard');
+  reloadGate.resume();
   await page.locator('#ps-zone-form').waitFor({state:'hidden'});await page.locator('#ps-zone-configure:not([disabled])').waitFor();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  assert.equal(await page.locator('#ps-notice').isVisible(),false,'completed save clears only the obsolete navigation guard');
+  assert.equal(await page.evaluate(()=>location.hash),guardedHash,'completion never resumes blocked navigation');
+  if(out)await page.screenshot({path:path.join(out,'zone-edit-complete-desktop.png'),fullPage:true});
   assert.equal((await command({action:'snapshot'})).mode,'compare');console.log('ok 1 - relevance-based presence, typed configuration, no extra grant, dirty guard');
+  const beforeNotices=await command({action:'snapshot'});
+  await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
+  await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
+  const rejectSave=async route=>route.request().method()==='PUT'
+   ?route.fulfill({status:503,json:{message:'Synthetic save failure'}}):route.continue();
+  await page.route('**/api/v1/zones/room/presence',rejectSave);
+  await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
+  await page.getByText('Synthetic save failure',{exact:true}).waitFor();
+  assert.equal(await page.locator('#ps-zone-form').isVisible(),true,'failed save retains the draft');
+  assert.match(await page.locator('#ps-notice').innerText(),/Bearbeitung läuft/);
+  await page.unroute('**/api/v1/zones/room/presence',rejectSave);
+  await page.getByRole('button',{name:'Verwerfen',exact:true}).click();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  assert.equal(await page.locator('#ps-notice').isVisible(),false,'discard clears an obsolete guard');
+  // A second canonical editor can still own the global guard after this one closes.
+  await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
+  await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
+  await page.evaluate(()=>{contextEditing=true;});
+  await page.getByRole('button',{name:'Verwerfen',exact:true}).click();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  assert.equal(await page.locator('#ps-notice').isVisible(),true,'another draft still owns the guard');
+  await page.evaluate(()=>{contextEditing=false;renderSelection();renderLearning();});
+  assert.equal(await page.locator('#ps-notice').isVisible(),false,'last editor settling clears the guard');
+  await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
+  await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
+  await page.evaluate(()=>text('context-message','Synthetic unrelated error: Bearbeitung läuft'));
+  await page.getByRole('button',{name:'Verwerfen',exact:true}).click();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  assert.equal(await page.locator('#ps-notice').innerText(),'Synthetic unrelated error: Bearbeitung läuft','message ownership, not matching words, controls cleanup');
+  await page.evaluate(()=>text('context-message','')); // Remove only the test-injected context error.
+  await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();await page.locator('[data-ps-nav="zone"]').click();
+  await page.locator('#ps-zone-configure:not([disabled])').waitFor();
+  await page.getByRole('button',{name:'Sensordaten & Verläufe',exact:true}).click();
+  await page.getByText(/aufgezeichnete Punkte ausgewertet/).waitFor();
+  await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
+  assert.equal(await page.locator('#ps-notice').isVisible(),true);
+  await page.getByRole('button',{name:'Ansicht schließen',exact:true}).click();
+  assert.equal(await page.locator('#ps-notice').isVisible(),false,'closing a read-only editor settles its guard without polling');
+  const afterNotices=await command({action:'snapshot'});
+  for(const key of ['mode','roles','zones','learning','helper_creates','output_calls','metadata_calls','organization'])assert.deepEqual(afterNotices[key],beforeNotices[key],key+' unchanged by guard cleanup');
+  console.log('ok 1a - save/reload gates, failed save, cancel, other draft, unrelated error and read-only close');
   await page.locator('#ps-existing-connect').click();await page.locator('#org-load').click();
   await page.locator('#org-save').waitFor();
   for(const [role,eid] of [['presence_status','input_boolean.existing_presence'],['presence_timer','timer.existing_presence'],['presence_output','binary_sensor.existing_presence'],['presence_automations','automation.existing_presence']]){
@@ -81,8 +143,13 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(bound.mode,'compare');assert.equal(bound.helper_creates,0);assert.equal(bound.output_calls,0);assert.equal(bound.automation_reads,0);
   await command({action:'tick'});await refreshPresence(); // Explicit synthetic worker cycle after revision change.
   await page.waitForFunction(()=>document.querySelector('#ps-existing-comparison')?.textContent.includes('Übereinstimmung'));
-  await page.locator('#ps-existing-review').click();
+  const reviewGate=await holdRequest('**/api/v1/zones/room/presence-adoption/review','POST');
+  await page.locator('#ps-existing-review').click();await reviewGate.received;
+  await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
+  assert.equal(await page.locator('#ps-notice').isVisible(),true,'pending read-only review retains its guard');
+  reviewGate.resume();
   await page.locator('[data-existing-automation="automation.existing_consumer"]').waitFor();
+  assert.equal(await page.locator('#ps-notice').isVisible(),false,'completed review settles its guard');
   assert.match(await page.locator('[data-existing-automation="automation.existing_consumer"]').innerText(),/Verwendet den Bestandsstatus/);
   assert.match(await page.locator('[data-existing-automation="automation.existing_presence"]').innerText(),/schaltet Raumstatus.*schaltet Nachlauf/s);
   assert.equal((await command({action:'snapshot'})).automation_reads,2);
@@ -99,7 +166,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   console.log('ok 1b - existing chain binding, writer/consumer review, unavailable and mismatch; zero HA writes');
   await page.getByRole('button',{name:'Sensordaten & Verläufe',exact:true}).click();
   try{await page.locator('.ps-zone-chart:visible').first().waitFor();}catch(e){throw Error('Historienansicht blieb leer: '+await page.locator('#ps-zone-presence .ps-notice').first().textContent()+' / '+e.message);}assert.equal(await page.locator('.ps-zone-chart:visible').count()>0,true);
-  assert.equal((await command({action:'snapshot'})).history_reads,1);
+  assert.equal((await command({action:'snapshot'})).history_reads,compared.history_reads+1);
   if(out)await page.screenshot({path:path.join(out,'zone-data-desktop.png'),fullPage:true});
   await page.getByRole('button',{name:'Ansicht schließen',exact:true}).click();
   console.log('ok 2 - real data endpoint, recorded history charts and tables without consent step');

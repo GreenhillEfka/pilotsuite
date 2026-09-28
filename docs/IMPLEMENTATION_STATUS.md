@@ -3,6 +3,12 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.62 candidate: obsolete presence-editor navigation guards clear on completion,
+without clearing unrelated notices or other dirty/busy owners. The original failure
+and extended lifecycle guards pass full-app synthetic regression; 612 Python / 75 JS /
+62 contracts and local zone/workspace/Organization browser suites pass. Not yet installed; no new
+household capability, polling or presence-evaluation change.
+
 Alpha.61 implements existing-control integration: canonical saved Boolean,
 timer and public sensor bindings, observed comparison in the primary zone view,
 explicit writer/consumer structural review. Existing HA automations remain owners;
