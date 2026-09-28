@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.63",
-    "commit": "3779b630985bdedeb0402343dd153acda77974b0",
-    "tree": "2ef439775e2b8bc45c8dd941a4fc740493db4150",
-    "app_tree": "ae8f1051f41ea7e4d7d11d76494fd25b9f055c45",
-    "pull_request": 136,
-    "candidate_commit": "1eccd307966635f330b74c94d91e61d92a811868",
-    "candidate_ci_run_id": 36433388018,
-    "ci_run_id": 36433797302,
+    "version": "0.1.0-alpha.64",
+    "commit": "ee757af548194426d9f115cb29b3932379d5962e",
+    "tree": "592bdbe8a1ddec1fc262e67534245024c66ffba7",
+    "app_tree": "352119664af2716660e0e48535571e2d643c69a8",
+    "pull_request": 138,
+    "candidate_commit": "3a46defbaacdfb6d3816f88bc20c1f05b32cdc67",
+    "candidate_ci_run_id": 36441905253,
+    "ci_run_id": 36442208985,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.63",
-    "commit": "3779b630985bdedeb0402343dd153acda77974b0",
-    "tree": "2ef439775e2b8bc45c8dd941a4fc740493db4150",
-    "app_tree": "ae8f1051f41ea7e4d7d11d76494fd25b9f055c45",
-    "pull_request": 136,
-    "candidate_commit": "1eccd307966635f330b74c94d91e61d92a811868",
-    "candidate_ci_run_id": 36433388018,
-    "ci_run_id": 36433797302,
+    "version": "0.1.0-alpha.64",
+    "commit": "ee757af548194426d9f115cb29b3932379d5962e",
+    "tree": "592bdbe8a1ddec1fc262e67534245024c66ffba7",
+    "app_tree": "352119664af2716660e0e48535571e2d643c69a8",
+    "pull_request": 138,
+    "candidate_commit": "3a46defbaacdfb6d3816f88bc20c1f05b32cdc67",
+    "candidate_ci_run_id": 36441905253,
+    "ci_run_id": 36442208985,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "7e502760",
-    "name": "PilotSuite alpha.62 before alpha.63",
-    "date": "2026-09-28T14:02:19.653887+00:00",
-    "size_bytes": 54466560,
-    "app_version": "0.1.0-alpha.62",
+    "backup_id": "14f1c9da",
+    "name": "PilotSuite alpha.63 before alpha.64",
+    "date": "2026-09-28T15:10:35.540683+00:00",
+    "size_bytes": 54476800,
+    "app_version": "0.1.0-alpha.63",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.63",
-    "offered_version": "0.1.0-alpha.63",
-    "previous_version": "0.1.0-alpha.62",
+    "installed_version": "0.1.0-alpha.64",
+    "offered_version": "0.1.0-alpha.64",
+    "previous_version": "0.1.0-alpha.63",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,10 +74,10 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T16:13:24Z",
+    "startup_log_timestamp": "2026-09-28T17:19:31Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T16:13:25Z",
-      "2026-09-28T16:15:27Z"
+      "2026-09-28T17:19:31Z",
+      "2026-09-28T17:21:03Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -96,7 +96,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 617,
+    "local_python_passed": 625,
     "local_javascript_passed": 75,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -104,12 +104,12 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Two red SQLite/HTTP regressions reproduced lost grace deadline (1790500032 to null) and extra output invalidation (5 to 6 mocked calls) on identical saves. Five added Python methods cover repeated saves, restart/deadline expiry, dated publication proof, stale/disconnected evidence, real changes/suspension recovery and invalid requests. Extended full-app browser verifies unchanged compare/publish form saves.",
+    "regressions": "Two original red storage tests reproduced unnecessary BEGIN IMMEDIATE and database-is-locked on an identical checkpoint beside a reserved writer. Eight added tests cover four-zone DB preservation, contention, stale/boolean/missing revisions, clock durability/restart, concurrent equal writes, revision race, rollback/retry and service-level source-basis suspension. Exact-main remeasurement matched all four baseline decision-trace hashes.",
     "local_browser_suites": 3,
-    "final_resource_warning_audit": "617 tests repeated on exact release-main source with ResourceWarning capture and gc.collect(); zero resource warnings."
+    "final_resource_warning_audit": "625 tests repeated on exact candidate application source with ResourceWarning capture and gc.collect(); zero resource warnings. Release-main application tree is identical."
   },
   "ui_review": {
-    "synthetic_browser": "Unchanged compare/publish form saves preserve revision, grace deadline and dated proof without extra mocked output writes. Existing-control binding/review, four synthetic zones, roles/consents and organization retained. Local zone/workspace/Organization suites passed; desktop and mobile screenshots inspected. All 11 browser suites passed exact candidate/main CI. No UI assets changed; not household acceptance.",
+    "synthetic_browser": "Local zone/workspace/Organization suites passed with the existing four-zone, configuration, existing-control and output-proof flows. Desktop screenshot inspected; all 11 browser suites passed exact candidate/main CI. No frontend assets or browser test logic changed; synthetic tests are not household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false
@@ -123,18 +123,172 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "All four options unchanged; no schema/configuration migration, startup ready. Synthetic unchanged-save segment preserves all four zone definitions, roles, learning consent and organization bindings; no helper/output/metadata calls. Authenticated observation of all four saved zones and household bindings remains pending."
+    "independent_data_preservation": "All four app options unchanged; no schema/configuration migration. Regression compares complete disposable four-zone database before/after repeated identical checkpoints. Existing full-app browser flows preserve zones, roles/consents and organization bindings. Authenticated observation of all four saved household zones and bindings remains pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "1719ee11dd92b2a73ca5149cd458fae7f9e56c29:docs/RELEASE_STATE.json",
-    "integrated_pr": 136,
-    "integrated_commit": "3779b630985bdedeb0402343dd153acda77974b0"
+    "previous_receipt_at": "7a319a571e5d64f31856dd97e9c863af4e060b44:docs/RELEASE_STATE.json",
+    "integrated_pr": 138,
+    "integrated_commit": "ee757af548194426d9f115cb29b3932379d5962e"
   },
   "next_step": "Read-only authenticated household Ingress acceptance of all four saved zones, Erdkellerbereich and one unlike zone. Review existing-control integration, explicitly choose intended Boolean/timer/public-sensor bindings, then observe without test switching. No household mapping was applied. Runtime/checkpoint consolidation remains separate and measurement-led. Both bounded time windows ended; heartbeat remains paused.",
   "runtime_measurement": {
-    "scope": "Identical validated save skips configuration-store write, extra all-zone evaluation and package invalidation; proven by regression call counters and durable state equality. No overall speed/household-load improvement claimed; periodic checkpoint policy and scheduler unchanged.",
-    "previous_evidence": "b3aa7966b9df146bc1bca61c0e844f279e6b7884:docs/RELEASE_STATE.json",
+    "scope": "Synthetic disposable single-zone fixture, 60 tick+view cycles per scenario, identical expanded script before/after; not household load. Frontend render cycles not measured or changed.",
+    "baseline_source": "7a319a571e5d64f31856dd97e9c863af4e060b44",
+    "command": "PYTHONPATH=pilotsuite:pilotsuite/tests python scripts/benchmark_zone_presence.py --cycles 60",
+    "cases": [
+      {
+        "scenario": "occupied",
+        "cycles": 60,
+        "connections_before_after": [
+          660,
+          660
+        ],
+        "checkpoint_writes_before_after": [
+          60,
+          60
+        ],
+        "immediate_transactions_before_after": [
+          60,
+          60
+        ],
+        "select_statements_before_after": [
+          1140,
+          1200
+        ],
+        "median_ms_before_after": [
+          2.542,
+          2.611
+        ],
+        "p95_ms_before_after": [
+          2.72,
+          2.818
+        ],
+        "matching_decision_trace_sha256": "af21ac2c41d92ddbc59c17ca4519127b49c89c6feec4a3ddccd27233a0bbb1e8",
+        "history_requests_before_after": [
+          0,
+          0
+        ],
+        "ha_output_calls_before_after": [
+          0,
+          0
+        ]
+      },
+      {
+        "scenario": "vacant",
+        "cycles": 60,
+        "connections_before_after": [
+          660,
+          660
+        ],
+        "checkpoint_writes_before_after": [
+          60,
+          60
+        ],
+        "immediate_transactions_before_after": [
+          60,
+          60
+        ],
+        "select_statements_before_after": [
+          1140,
+          1200
+        ],
+        "median_ms_before_after": [
+          2.536,
+          2.563
+        ],
+        "p95_ms_before_after": [
+          2.811,
+          2.701
+        ],
+        "matching_decision_trace_sha256": "8e3d46aa576367c13fab87d528b271b6f6caae81718441adbd8a2386c8d7d058",
+        "history_requests_before_after": [
+          0,
+          0
+        ],
+        "ha_output_calls_before_after": [
+          0,
+          0
+        ]
+      },
+      {
+        "scenario": "unknown",
+        "cycles": 60,
+        "connections_before_after": [
+          660,
+          660
+        ],
+        "checkpoint_writes_before_after": [
+          60,
+          60
+        ],
+        "immediate_transactions_before_after": [
+          60,
+          60
+        ],
+        "select_statements_before_after": [
+          1140,
+          1200
+        ],
+        "median_ms_before_after": [
+          2.532,
+          2.558
+        ],
+        "p95_ms_before_after": [
+          2.713,
+          2.666
+        ],
+        "matching_decision_trace_sha256": "bade380723ef35704432a731c35efbfee02700a6dc505416f36405871a53f558",
+        "history_requests_before_after": [
+          0,
+          0
+        ],
+        "ha_output_calls_before_after": [
+          0,
+          0
+        ]
+      },
+      {
+        "scenario": "suspended",
+        "cycles": 60,
+        "connections_before_after": [
+          660,
+          660
+        ],
+        "checkpoint_writes_before_after": [
+          0,
+          0
+        ],
+        "immediate_transactions_before_after": [
+          60,
+          0
+        ],
+        "select_statements_before_after": [
+          1140,
+          900
+        ],
+        "median_ms_before_after": [
+          2.269,
+          2.281
+        ],
+        "p95_ms_before_after": [
+          2.347,
+          2.365
+        ],
+        "matching_decision_trace_sha256": "e92dde8dcc491520024836ae15ef071e4a1501334f077c912904c0a4bd237d0d",
+        "history_requests_before_after": [
+          0,
+          0
+        ],
+        "ha_output_calls_before_after": [
+          0,
+          0
+        ]
+      }
+    ],
+    "tradeoff": "One additional SELECT per changed checkpoint; all clock/checkpoint writes preserved. Exact repeats avoid write reservations. No overall speed gain, delayed durability, scheduler change, or process-local cache.",
+    "exact_release_main_remeasurement": "Decision-trace hashes, write reservations, writes and SELECT counts reconfirmed on ee757af548194426d9f115cb29b3932379d5962e.",
+    "previous_evidence": "7a319a571e5d64f31856dd97e9c863af4e060b44:docs/RELEASE_STATE.json",
     "ha_config_read_policy": "Zone GET projects existing in-memory states only; structural automation configs are fetched only on explicit review. Synthetic binding/review segment has zero HA output/helper/metadata calls."
   },
   "workflow": {
@@ -142,181 +296,5 @@
     "heartbeat": "remains_paused",
     "requested_authority": "existing_automations_remain_controllers",
     "household_binding_changed": false
-  },
-  "candidate": {
-    "version": "0.1.0-alpha.64",
-    "branch": "fix/presence-checkpoint-contention",
-    "status": "local tests passed; exact PR/main CI and installation pending",
-    "local_python_passed": 625,
-    "local_javascript_passed": 75,
-    "api_contracts": 62,
-    "resource_warnings": 0,
-    "local_browser_suites": 3,
-    "prepublication_backup": {
-      "backup_id": "14f1c9da",
-      "date": "2026-09-28T15:10:35.540683+00:00",
-      "size_bytes": 54476800,
-      "app_version": "0.1.0-alpha.63",
-      "exact_app_only": true,
-      "no_homeassistant_database_folders_or_failures": true,
-      "protected": false,
-      "verification": "native snapshot list and backup/details; no extraction or restore drill"
-    },
-    "runtime_measurement": {
-      "scope": "Synthetic disposable single-zone fixture, 60 tick+view cycles per scenario, identical expanded script before/after; not household load. Frontend render cycles not measured or changed.",
-      "baseline_source": "7a319a571e5d64f31856dd97e9c863af4e060b44",
-      "command": "PYTHONPATH=pilotsuite:pilotsuite/tests python scripts/benchmark_zone_presence.py --cycles 60",
-      "cases": [
-        {
-          "scenario": "occupied",
-          "cycles": 60,
-          "connections_before_after": [
-            660,
-            660
-          ],
-          "checkpoint_writes_before_after": [
-            60,
-            60
-          ],
-          "immediate_transactions_before_after": [
-            60,
-            60
-          ],
-          "select_statements_before_after": [
-            1140,
-            1200
-          ],
-          "median_ms_before_after": [
-            2.542,
-            2.611
-          ],
-          "p95_ms_before_after": [
-            2.72,
-            2.818
-          ],
-          "matching_decision_trace_sha256": "af21ac2c41d92ddbc59c17ca4519127b49c89c6feec4a3ddccd27233a0bbb1e8",
-          "history_requests_before_after": [
-            0,
-            0
-          ],
-          "ha_output_calls_before_after": [
-            0,
-            0
-          ]
-        },
-        {
-          "scenario": "vacant",
-          "cycles": 60,
-          "connections_before_after": [
-            660,
-            660
-          ],
-          "checkpoint_writes_before_after": [
-            60,
-            60
-          ],
-          "immediate_transactions_before_after": [
-            60,
-            60
-          ],
-          "select_statements_before_after": [
-            1140,
-            1200
-          ],
-          "median_ms_before_after": [
-            2.536,
-            2.563
-          ],
-          "p95_ms_before_after": [
-            2.811,
-            2.701
-          ],
-          "matching_decision_trace_sha256": "8e3d46aa576367c13fab87d528b271b6f6caae81718441adbd8a2386c8d7d058",
-          "history_requests_before_after": [
-            0,
-            0
-          ],
-          "ha_output_calls_before_after": [
-            0,
-            0
-          ]
-        },
-        {
-          "scenario": "unknown",
-          "cycles": 60,
-          "connections_before_after": [
-            660,
-            660
-          ],
-          "checkpoint_writes_before_after": [
-            60,
-            60
-          ],
-          "immediate_transactions_before_after": [
-            60,
-            60
-          ],
-          "select_statements_before_after": [
-            1140,
-            1200
-          ],
-          "median_ms_before_after": [
-            2.532,
-            2.558
-          ],
-          "p95_ms_before_after": [
-            2.713,
-            2.666
-          ],
-          "matching_decision_trace_sha256": "bade380723ef35704432a731c35efbfee02700a6dc505416f36405871a53f558",
-          "history_requests_before_after": [
-            0,
-            0
-          ],
-          "ha_output_calls_before_after": [
-            0,
-            0
-          ]
-        },
-        {
-          "scenario": "suspended",
-          "cycles": 60,
-          "connections_before_after": [
-            660,
-            660
-          ],
-          "checkpoint_writes_before_after": [
-            0,
-            0
-          ],
-          "immediate_transactions_before_after": [
-            60,
-            0
-          ],
-          "select_statements_before_after": [
-            1140,
-            900
-          ],
-          "median_ms_before_after": [
-            2.269,
-            2.281
-          ],
-          "p95_ms_before_after": [
-            2.347,
-            2.365
-          ],
-          "matching_decision_trace_sha256": "e92dde8dcc491520024836ae15ef071e4a1501334f077c912904c0a4bd237d0d",
-          "history_requests_before_after": [
-            0,
-            0
-          ],
-          "ha_output_calls_before_after": [
-            0,
-            0
-          ]
-        }
-      ],
-      "tradeoff": "One additional SELECT per changed checkpoint; all clock/checkpoint writes preserved. Exact repeats avoid write reservations. No overall speed gain, delayed durability, scheduler change, or process-local cache."
-    }
   }
 }
