@@ -359,13 +359,32 @@ class ZonePresenceServiceMixin:
                     view=self._zone_views.get(zid,{});current=view.get('current')
                     await self._zone_publish(zid,record,view,current)
                 except (HomeAssistantError,SelectionConflict,TimeoutError):
-                    inv=await self.selection_inventory(zid)
-                    await self.context.save_zone_operational(zid,inv['revision'],{**stored,'output_suspended':True})
+                    # HA I/O releases the projection lock: a newer source event may
+                    # already have persisted a deadline. Never restore the old snapshot
+                    # merely to add the output-failure marker.
+                    async with self._projection_lock:
+                        inv=await self.selection_inventory(zid)
+                        stored=await self.context.zone_operational(zid)
+                        await self.context.save_zone_operational(zid,inv['revision'],{**stored,'output_suspended':True})
                     self._zone_views.setdefault(zid,{})['publication']='unknown_or_conflict'
                     # One compensating invalidation, never a replay of the uncertain write.
                     try:await self._zone_invalidate_package(package)
                     except (HomeAssistantError,SelectionConflict,TimeoutError):pass
                     # A failed invalidation still expires through the bounded lease.
+
+    async def _zone_assert_current_publication(self,zid,view,current):
+        """Recheck after awaited I/O, without holding the projection lock over HA."""
+        inv=await self.selection_inventory(zid)
+        latest=self._zone_views.get(zid,{})
+        newest=latest.get('current')
+        now=time.time()
+        if (inv['revision']!=view.get('revision') or not inv['enabled'] or
+            latest.get('revision')!=view.get('revision') or latest.get('status')!='current' or
+            not newest or newest.get('generation')!=current.get('generation') or
+            not self._shadow_fresh(now) or
+            any(not candidate.get('valid') or not kernel.finite(candidate.get('observed_at')) or
+                not 0<=now-candidate['observed_at']<=15 for candidate in (current,newest))):
+            raise SelectionConflict('Präsenzgrundlage während Ausgabe geändert oder veraltet')
 
     async def _zone_publish(self,zid,record,view,current):
         package=record['package'];entities=package['entities'];now=time.time()
@@ -389,11 +408,15 @@ class ZonePresenceServiceMixin:
         if not valid:
             await self.client.zone_output_service('input_boolean','turn_off',entities['entscheidung_gueltig'])
             self._zone_last_published[zid]={'signature':signature,'at':now};return
+        await self._zone_assert_current_publication(zid,view,current)
         before_states=await self.client.zone_output_states()
+        await self._zone_assert_current_publication(zid,view,current)
         desired='on' if current['occupied'] else 'off'
         if before_states.get(entities['anwesenheit_intern'],{}).get('state')!=desired:
             await self.client.zone_output_service('input_boolean','turn_off',entities['entscheidung_gueltig'])
+            await self._zone_assert_current_publication(zid,view,current)
             await self.client.zone_output_service('input_boolean','turn_on' if current['occupied'] else 'turn_off',entities['anwesenheit_intern'])
+            await self._zone_assert_current_publication(zid,view,current)
         deadline=current['deadline']
         if signature!=last.get('signature'):
             if deadline and deadline>now:
@@ -402,17 +425,18 @@ class ZonePresenceServiceMixin:
         states=await self.client.zone_output_states()
         if states.get(entities['anwesenheit_intern'],{}).get('state')!=('on' if current['occupied'] else 'off'):
             raise HomeAssistantError('Boolean-Ausgabe nicht bestätigt')
-        if ((await self.selection_inventory(zid))['revision']!=view['revision'] or
-            self._zone_views.get(zid,{}).get('current',{}).get('generation')!=current['generation']):
-            raise SelectionConflict('Grundlage während Ausgabe geändert')
+        await self._zone_assert_current_publication(zid,view,current)
         await self.client.zone_output_service('input_datetime','set_datetime',entities['gueltig_bis'],{'timestamp':now+90})
+        await self._zone_assert_current_publication(zid,view,current)
         await self.client.zone_output_service('input_boolean','turn_on',entities['entscheidung_gueltig'])
         states=await self.client.zone_output_states()
+        await self._zone_assert_current_publication(zid,view,current)
         if states.get(entities['entscheidung_gueltig'],{}).get('state')!='on':raise HomeAssistantError('Ausgabe-Gültigkeit nicht bestätigt')
         if states.get(entities['sensor'],{}).get('state')!=desired:
             # Allow an asynchronous template update to settle; only read is repeated.
             await asyncio.sleep(.15)
             states=await self.client.zone_output_states()
+            await self._zone_assert_current_publication(zid,view,current)
             if states.get(entities['sensor'],{}).get('state')!=desired:
                 raise HomeAssistantError('Öffentlicher Anwesenheitssensor nicht bestätigt')
         self._zone_last_published[zid]={'signature':signature,'at':now};view['publication']='verified'
