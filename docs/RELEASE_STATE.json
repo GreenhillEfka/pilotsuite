@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.58",
-    "commit": "66d155cb27e2e2a8ebd1e06feec0ed146ba7eacd",
-    "tree": "ea86f8f8c745281e895090a4d12a67834ffab9e2",
-    "app_tree": "12e45a720af830cf66f7d1d12c98163691ccb406",
-    "pull_request": 125,
-    "candidate_commit": "b7968f4b3733b14d96b5268eea504ce93f312545",
-    "candidate_ci_run_id": 36386546543,
-    "ci_run_id": 36386768279,
+    "version": "0.1.0-alpha.59",
+    "commit": "6c1e2e00f5e8027b731a6e68165febe666203a38",
+    "tree": "32474996502a42bc7644c08f02d9ee0201c46ece",
+    "app_tree": "7a642cb76ffdbd361a829c49ee3161d20f0c0ea8",
+    "pull_request": 127,
+    "candidate_commit": "2ec4fc23dba1e1b11fe9edce7dbc3d63889b127b",
+    "candidate_ci_run_id": 36388245111,
+    "ci_run_id": 36388387311,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.58",
-    "commit": "66d155cb27e2e2a8ebd1e06feec0ed146ba7eacd",
-    "tree": "ea86f8f8c745281e895090a4d12a67834ffab9e2",
-    "app_tree": "12e45a720af830cf66f7d1d12c98163691ccb406",
-    "pull_request": 125,
-    "candidate_commit": "b7968f4b3733b14d96b5268eea504ce93f312545",
-    "candidate_ci_run_id": 36386546543,
-    "ci_run_id": 36386768279,
+    "version": "0.1.0-alpha.59",
+    "commit": "6c1e2e00f5e8027b731a6e68165febe666203a38",
+    "tree": "32474996502a42bc7644c08f02d9ee0201c46ece",
+    "app_tree": "7a642cb76ffdbd361a829c49ee3161d20f0c0ea8",
+    "pull_request": 127,
+    "candidate_commit": "2ec4fc23dba1e1b11fe9edce7dbc3d63889b127b",
+    "candidate_ci_run_id": 36388245111,
+    "ci_run_id": 36388387311,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "012bff83",
-    "name": "PilotSuite alpha.57 before alpha.58",
-    "date": "2026-09-28T06:24:16.990327+00:00",
-    "size_bytes": 54456320,
-    "app_version": "0.1.0-alpha.57",
+    "backup_id": "93299b98",
+    "name": "PilotSuite alpha.58 before alpha.59",
+    "date": "2026-09-28T06:43:50.473032+00:00",
+    "size_bytes": 54466560,
+    "app_version": "0.1.0-alpha.58",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.58",
-    "offered_version": "0.1.0-alpha.58",
-    "previous_version": "0.1.0-alpha.57",
+    "installed_version": "0.1.0-alpha.59",
+    "offered_version": "0.1.0-alpha.59",
+    "previous_version": "0.1.0-alpha.58",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,9 +74,9 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T08:32:35Z",
+    "startup_log_timestamp": "2026-09-28T08:51:45Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T08:32:36Z"
+      "2026-09-28T08:51:45Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -95,7 +95,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 583,
+    "local_python_passed": 592,
     "local_javascript_passed": 73,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -103,12 +103,11 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Two baseline failures reproduced an unnecessary bootstrap write reservation and database-locked error beside a reserved writer. Five added tests pass: no-write existing-marker path, competing writer, simultaneous first reads with transaction recheck, rollback/retry and restored durable marker. Existing presence/restart/publication regressions pass.",
-    "local_browser_suites": 2,
-    "resource_warning_check": "All 583 cases plus final GC with ResourceWarning capture passed; zero captured ResourceWarnings. 43 test SQLite contexts and one browser fixture now close after commit/rollback."
+    "regressions": "Four methods failed in 17 baseline subcases: future snapshot readiness/evidence acceptance and invalid/naive timestamp status/HTTP/event failures. Additional red HTTP subcase caught a non-string timestamp in JSON. Nine added tests cover strict degradation, unchanged valid-time boundaries/offsets, transport separation, shared parser aliases and zone evaluation/view/publication independent of the shadow adapter.",
+    "local_browser_suites": 3
   },
   "ui_review": {
-    "synthetic_browser": "Existing full-app zone and review-compass Chromium suites passed locally; all 11 suites passed exact candidate and main CI. No frontend structural change.",
+    "synthetic_browser": "Existing full-app zone, shadow and maintenance Chromium suites passed locally; all 11 suites passed exact candidate and main CI. No frontend structural change.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false
@@ -126,11 +125,11 @@
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "f76aa2a8a0ed0b687f0ecc7ccfcf0bfd635f9b6f:docs/RELEASE_STATE.json",
-    "integrated_pr": 125,
-    "integrated_commit": "66d155cb27e2e2a8ebd1e06feec0ed146ba7eacd"
+    "previous_receipt_at": "b4d5da66c0ad0c487133f9134ffcb9f52e94b6a3:docs/RELEASE_STATE.json",
+    "integrated_pr": 127,
+    "integrated_commit": "6c1e2e00f5e8027b731a6e68165febe666203a38"
   },
-  "next_step": "Reproduce inconsistent future/invalid snapshot-time handling in readiness versus presence with deterministic tests, then consolidate the existing freshness owner without changing valid-time behavior, checkpoints, grants or scheduler timing. Measure before any scheduler/checkpoint consolidation. Authenticated read-only household Ingress acceptance remains pending.",
+  "next_step": "Inspect publication-view consistency across normal heartbeat throttling and synthetic concurrent ticks before changing behavior. Preserve honest last-verification versus current-state distinctions. No speculative scheduler/checkpoint/configuration migration. Authenticated read-only household Ingress acceptance remains pending; bounded run ends 2026-09-28 08:01:44 UTC, no new packages after 07:40 UTC.",
   "runtime_measurement": {
     "scope": "disposable synthetic one-zone fixture; not household latency/load",
     "script": "PYTHONPATH=pilotsuite python scripts/benchmark_zone_presence.py --cycles 60",
@@ -140,19 +139,41 @@
       "unknown"
     ],
     "cycles_per_scenario": 60,
+    "baseline_version": "0.1.0-alpha.58",
+    "candidate_version": "0.1.0-alpha.59",
     "before": {
       "sqlite_connections": 660,
-      "immediate_transactions": 180,
-      "checkpoint_writes": 60
+      "immediate_transactions": 60,
+      "checkpoint_writes": 60,
+      "median_ms": [
+        2.581,
+        2.539,
+        2.538
+      ],
+      "p95_ms": [
+        2.906,
+        2.662,
+        2.629
+      ]
     },
     "after": {
       "sqlite_connections": 660,
       "immediate_transactions": 60,
-      "checkpoint_writes": 60
+      "checkpoint_writes": 60,
+      "median_ms": [
+        2.562,
+        2.529,
+        2.539
+      ],
+      "p95_ms": [
+        2.838,
+        2.641,
+        2.627
+      ]
     },
     "history_requests": 0,
     "ha_output_calls": 0,
-    "timing": "Median approximately 2.5 ms in both measurements; no speed gain claimed. Individual medians/p95 in CURRENT_STATE.md.",
+    "timing": "No speed gain claimed; Alpha.58 write-reservation reduction retained.",
     "preserved": "All evaluated_at timestamps and presence deadlines; no scheduler/schema/configuration changes."
   }
 }
