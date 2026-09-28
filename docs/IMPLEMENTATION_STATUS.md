@@ -3,9 +3,10 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-The 2026-09-28 concept consolidation changes documentation only. Its simplified
-navigation, unified everyday presence view and internal deduplication are planned,
-not installed features. Older activity/context/history-import APIs still retain
+PR #118 consolidated the concept without changing app behavior. The Alpha.55
+candidate implements three navigation groups and one primary zone-presence view;
+installation is not claimed by this candidate document. Internal deduplication
+remains planned. Older activity/context/history-import APIs still retain
 legacy learning flags; the current zone-instance path does not require them.
 
 The pure presence kernel is shared, but Alpha.48 shadow and Alpha.49+ zone-instance
@@ -14,6 +15,7 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 
 | Capability | Actual boundary |
 |---|---|
+| Three-entry navigation and primary presence view | Alpha.55 candidate: implemented in existing frontend, synthetic four-zone/browser tests; delivery receipt and household acceptance separate |
 | Typed zone presence configurator | Implemented, tested and installed since Alpha.49/50; household Ingress acceptance pending |
 | Relevant live analysis | Implemented without a second learning-consent gate or learner; source combinations and bounded TV/usage hints are synthetic-test evidence, not household approval |
 | History visualization | Implemented and tested for bounded recent and requested older windows; available Recorder data is not an exhaustive history import |

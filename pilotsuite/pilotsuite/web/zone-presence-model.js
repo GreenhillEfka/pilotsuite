@@ -2,6 +2,17 @@
 (function(root){
  'use strict';
  const finite=v=>typeof v==='number'&&Number.isFinite(v);
+ function summary(data){
+   const paused=data?.analysis_enabled===false||data?.mode==='paused';
+   const current=data?.analysis_enabled===true&&!paused?data.current:null;
+   const state=paused?'Pausiert':({occupied:'Belegt',grace:'Nachlauf',vacant:'Frei'}[current?.state]||'Unklar');
+   const reason=paused?'Keine aktuelle Auswertung.':current?.explanation||
+     (data?.status==='source_basis_changed'?'Quellenbasis geändert; Einrichtung prüfen.':
+      !data?.spec?.sources?.length?'Keine bestätigte Präsenzgrundlage; Quellen prüfen.':'Keine aktuelle Entscheidung verfügbar; neu laden.');
+   const publication=paused?'Pausiert':!data?.package?'Nicht eingerichtet':
+     data.mode==='compare'?'Nur vergleichen':current&&data.mode==='publish'&&data.publication==='verified'?'Bestätigt':'Nicht bestätigt';
+   return {state,reason,publication};
+ }
  function plot(series,start,end){
    if(!finite(start)||!finite(end)||start>=end)return {segments:[],labels:[],error:'invalid_window'};
    if(series?.unit_conflict)return {segments:[],labels:[],error:'unit_conflict'};
@@ -21,5 +32,5 @@
    if(current.length)segments.push(current);
    return {segments,labels,numeric,error:null};
  }
- const api=Object.freeze({plot});if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.PilotSuiteZonePresenceModel=api;
+ const api=Object.freeze({plot,summary});if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.PilotSuiteZonePresenceModel=api;
 })(typeof window!=='undefined'?window:null);

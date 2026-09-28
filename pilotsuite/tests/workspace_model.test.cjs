@@ -1,6 +1,11 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const M=require('../pilotsuite/web/workspace-model.js');
+test('three navigation groups retain every legacy view preference',()=>{
+ for(const view of ['cockpit','zone','config','history'])assert.equal(M.primaryView(view),'cockpit');
+ for(const view of ['workbench','system','all'])assert.equal(M.primaryView(view),view);
+ for(const view of M.views)assert.equal(M.preferences({view}).view,view);
+});
 test('workspace preferences persist presentation only and reject unknown values',()=>{
   assert.deepEqual(M.preferences({view:'raw',theme:'injected',density:'no',ids:1,token:'NO'}),{view:'cockpit',theme:'auto',density:'comfortable',ids:false});
   assert.deepEqual(Object.keys(M.preferences({household:'NO'})).sort(),['density','ids','theme','view']);

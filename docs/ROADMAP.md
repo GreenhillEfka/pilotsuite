@@ -7,11 +7,11 @@ Release-Chronik: [CHANGELOG](../CHANGELOG.md). Tatsächliche Fähigkeiten:
 
 ## 1. Jetzt: Konzept und Alltagsansicht konsolidieren
 
-Die vorliegende Dokumentationsänderung korrigiert Zuständigkeiten, alte
-Read-only-/Versionsbehauptungen und doppelte ADR-Nummern. Sie verändert die
-installierte App nicht.
+PR #118 hat Zuständigkeiten, alte Read-only-/Versionsbehauptungen und doppelte
+ADR-Nummern korrigiert. Alpha.55 setzt darauf die vereinfachte Navigation um.
+Installation und Haushaltsabnahme bleiben getrennte Nachweise im Release-Receipt.
 
-Nächstes Implementierungspaket: **eine verständliche Präsenzansicht je Zone** in
+Aktuelles Implementierungspaket: **eine verständliche Präsenzansicht je Zone** in
 den vorhandenen Workspace-Dateien. Die Zoneninstanz ist die primäre Live-Aussage;
 Rollen-Zusammenfassung, Schattenvergleich und Replay sind keine Ersatzstatus.
 Quellen, Nachlauf, Gültigkeit und Publikation werden im selben Nutzerweg erklärt.

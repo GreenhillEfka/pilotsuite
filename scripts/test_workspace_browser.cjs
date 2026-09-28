@@ -17,9 +17,16 @@ const path=require('node:path');
   const info=await read();browser=await chromium.launch({headless:true,...(process.env.PILOTSUITE_CHROMIUM?{executablePath:process.env.PILOTSUITE_CHROMIUM}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:1100}});page.setDefaultTimeout(10000);
   const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))requests.push({url:r.url(),method:r.method()});});
+  // Reproduce a cached/late enhancement: canonical data can arrive before workspace.js.
+  await page.route('**/assets/workspace.js',async route=>{
+   await page.waitForFunction(()=>typeof contextData!=='undefined'&&contextData&&!selectionBusy);
+   await route.continue();
+  });
   await page.goto(info.url);
   await page.waitForFunction(()=>document.body.classList.contains('ps-workspace-ready')&&contextData&& !selectionBusy);
   assert.deepEqual(errors,[]);
+  assert.equal(await page.locator('.ps-nav > a').count(),3,'exactly three primary destinations');
+  assert.deepEqual(await page.locator('.ps-nav > a').allTextContents(),['Zonen','Werkzeuge','System']);
   const before=await command({action:'snapshot'});
   assert.equal(await page.locator('#ps-cockpit').isVisible(),true);
   assert.equal(await page.locator('#context-form').isVisible(),false);
@@ -28,8 +35,15 @@ const path=require('node:path');
   await page.locator('#ps-zone-search').fill('Arbeitszimmer');assert.equal(await page.locator('#ps-zone-grid>article').count(),1);
   await page.locator('#ps-zone-search').fill('');
   console.log('ok 1 - default cockpit uses actual zone data and filters without mutations');
-  const nav=view=>page.locator(`.ps-nav [data-ps-nav="${view}"]`);
+  const nav=view=>({
+   async click(){const link=page.locator(`[data-ps-nav="${view}"]`);if(!await link.isVisible())await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();await link.click();},
+   getAttribute:name=>page.locator(`[data-ps-nav="${view}"]`).getAttribute(name)
+  });
   await nav('zone').click();
+  assert.equal(await page.locator('#ps-zone-diagnostics').evaluate(e=>e.open),false);
+  assert.equal(await page.locator('#ps-zone-presence').isVisible(),true);
+  assert.equal(await page.locator('#ps-module-grid').isVisible(),false);
+  await page.locator('#ps-zone-diagnostics > summary').click();
   await page.locator('.ps-module-card').first().waitFor();
   assert.equal(await page.locator('.ps-module-card').count(),4);
   assert.equal(await page.locator('.ps-flow-node').count(),3);
@@ -140,11 +154,13 @@ const path=require('node:path');
   // Fixture changed canonical roles/revision outside this browser session. A partial
   // dashboard refresh must not validate its stale entity-selection basis.
   assert.equal(await page.locator('.ps-module-card').count(),0);
+  await page.locator('#ps-zone-diagnostics > summary').click();
   assert.match(await page.locator('#ps-module-grid').innerText(),/Zonenstand nicht bestätigt/);
   // Explicit browser reload re-reads both inventory and context through the real app.
   await page.reload();
   await page.waitForFunction(()=>contextData&&!selectionBusy&&
     selectionDraft?.inventory?.revision===contextData.revision);
+  await page.locator('#ps-zone-diagnostics > summary').click();
   await page.locator('[data-ps-module="climate"]').click();
   assert.match(await page.locator('#ps-module-detail').innerText(),/Automatisch abgeleitet/);
   assert.match(await page.locator('#ps-temperature-comparison').innerText(),/10 °C/);

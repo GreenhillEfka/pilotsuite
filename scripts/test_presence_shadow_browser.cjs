@@ -12,6 +12,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   const page=await browser.newPage({viewport:{width:1440,height:1100}});page.setDefaultTimeout(12000);const errors=[],posts=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());page.on('request',r=>{if(r.method()==='POST')posts.push(r.url());});
   await page.goto(info.url);await page.waitForFunction(()=>document.body.classList.contains('ps-workspace-ready')&&contextData&&!selectionBusy);
+  await page.locator('#ps-zone-diagnostics > summary').click();
   await page.locator('#ps-shadow-configure:not([disabled])').waitFor();const baseline=await command({action:'snapshot'});
   assert.equal(baseline.view.state,'disabled');assert.equal(posts.length,0);
   await page.locator('#ps-shadow-configure').click();await page.locator('#ps-shadow-grace').fill('30');
@@ -29,13 +30,13 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.waitForFunction(()=>document.getElementById('ps-shadow-result').textContent.includes('15 %'));
   const out=process.env.PILOTSUITE_SCREENSHOTS;if(out)await fs.mkdir(out,{recursive:true});
   for(const width of [390,1440]){await page.setViewportSize({width,height:1100});for(const theme of ['light','dark']){
-   await page.locator('.ps-nav [data-ps-nav="system"]').click();await page.locator('#ps-theme').selectOption(theme);await page.locator('.ps-nav [data-ps-nav="zone"]').click();
+   await page.locator('.ps-nav [data-ps-nav="system"]').click();await page.locator('#ps-theme').selectOption(theme);await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();await page.locator('[data-ps-nav="zone"]').click();
    await page.locator('#ps-shadow-panel').scrollIntoViewIfNeeded();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    if(out)await page.screenshot({path:path.join(out,`presence-shadow-${theme}-${width}.png`),fullPage:true});
   }}
   console.log('ok 2 - real observations produce explicit status disagreement and bounded light proposals in both themes');
   const grace=await command({action:'tick',values:{'binary_sensor.demo_presence':'off'}});const deadline=grace.view.current.computed.deadline;
-  await page.reload();await page.locator('#ps-shadow-configure:not([disabled])').waitFor();
+  await page.reload();await page.locator('#ps-zone-diagnostics > summary').click();await page.locator('#ps-shadow-configure:not([disabled])').waitFor();
   assert.equal((await command({action:'snapshot'})).view.current.computed.deadline,deadline);
   await command({action:'tick',seconds:31});await refresh();
   await page.waitForFunction(()=>document.getElementById('ps-shadow-result').textContent.includes('Gleiche Aussage'));

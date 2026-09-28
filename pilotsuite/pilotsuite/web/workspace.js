@@ -16,10 +16,10 @@
     media:'M9 18V5l12-3v13M9 18a3 3 0 1 1-3-3h3M21 15a3 3 0 1 1-3-3h3',all:'M4 5h16M4 12h16M4 19h16'};
   function icon(name){const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');s.classList.add('ps-icon');const p=document.createElementNS(s.namespaceURI,'path');p.setAttribute('d',iconPaths[name]||iconPaths.zone);s.append(p);return s;}
   let prefs=M.preferences(null);try{prefs=M.preferences(JSON.parse(localStorage.getItem('pilotsuite.workspace.v1')||'null'));}catch{}
-  let activeView=prefs.view, activeModule='presence', status=null, invalid=true, requestBusy=false, generation=0, lastReview=null, lastReplay=null, lastLightingPreview=null, lastLightingDecision=null, presenceScenario='continuous_then_clear', lightingScenario='daylight_transition';
+  let activeView=prefs.view, activeModule='presence', invalid=true, requestBusy=false, generation=0, lastReview=null, lastReplay=null, lastLightingPreview=null, lastLightingDecision=null, presenceScenario='continuous_then_clear', lightingScenario='daylight_transition';
   let cockpitKey='', modulesKey='', roleFilter='all';
-  const titles={cockpit:'Dein Zuhause im Blick',zone:'Zonen & Module',config:'Quellen & Konfiguration',history:'Verläufe & Muster',workbench:'Lernen & Werkbank',system:'Darstellung & System',all:'Alle Bereiche'};
-  const notes={cockpit:'Wichtige Werte, offene Schritte und deine Habitus-Zonen.',zone:'Zusammenhänge sehen. Quellen verstehen. Zuständigkeiten getrennt halten.',config:'Erst auswählen, dann zuordnen. Änderungen bleiben bis zum Speichern ein Entwurf.',history:'Echte Messpunkte statt dekorativer Kurven. Du bestimmst den Zeitraum.',workbench:'Belege prüfen, Routinen entwerfen und Entscheidungen nachvollziehen.',system:'Deine Darstellung ist lokal. Hauskonfiguration und Freigaben bleiben unverändert.',all:'Vollständige Arbeitsansicht ohne Bereichswechsel.'};
+  const titles={cockpit:'Deine Zonen',zone:'Zustand der Zone',config:'Zone einrichten',history:'Verlauf der Zone',workbench:'Werkzeuge',system:'Darstellung & System',all:'Alle Bereiche'};
+  const notes={cockpit:'Zone wählen, Zustand verstehen, bei Bedarf einrichten.',zone:'Eine Präsenzentscheidung mit nachvollziehbaren Gründen. Die Veröffentlichung in Home Assistant bleibt getrennt.',config:'Relevante Quellen und Verhalten festlegen. Änderungen bleiben bis zum Speichern ein Entwurf.',history:'Sitzungsverlauf und historische Messpunkte bleiben getrennt. Du bestimmst den Zeitraum.',workbench:'Bestand ordnen, Belege prüfen und Routinen bearbeiten. Änderungen brauchen eine eigene Bestätigung.',system:'Deine Darstellung ist lokal. Hauskonfiguration und Freigaben bleiben unverändert.',all:'Vollständige Arbeitsansicht ohne Bereichswechsel.'};
   const panels=[];
   const mark=(node,view)=>{if(node){node.dataset.psView=view;panels.push(node);}return node;};
   const fieldStatus=E('p','','ps-notice');fieldStatus.id='ps-notice';fieldStatus.setAttribute('role','status');fieldStatus.hidden=true;
@@ -42,7 +42,7 @@
   const sidebar=E('aside','','ps-sidebar');sidebar.setAttribute('aria-label','PilotSuite Navigation');
   const brand=E('div','','ps-brand');brand.append(icon('zone'),E('strong','PilotSuite'),E('small','WORKSPACE'));sidebar.append(brand);
   const nav=E('nav','','ps-nav');nav.setAttribute('aria-label','Arbeitsbereiche');sidebar.append(nav);
-  for(const [view,label,name] of [['cockpit','Cockpit','home'],['zone','Zonenmodule','zone'],['config','Konfiguration','config'],['history','Verläufe','history'],['workbench','Werkbank','workbench'],['system','System','system']]){
+  for(const [view,label,name] of [['cockpit','Zonen','zone'],['workbench','Werkzeuge','workbench'],['system','System','system']]){
     const a=A(label,'#ps-'+view);a.dataset.psNav=view;a.prepend(icon(name));nav.append(a);
   }
   const foot=E('div','','ps-sidebar-foot');foot.append(A('Alle Bereiche','#ps-all'),A('Wartung & Speicherpunkte','maintenance'),E('small','Lokale Daten. Bewusste Freigaben.'));sidebar.append(foot);
@@ -50,28 +50,39 @@
   const heading=E('div','','ps-page-heading'), h=E('h2',titles[activeView]);h.id='ps-view-title';h.tabIndex=-1;
   const subtitle=E('p',notes[activeView],'ps-muted');subtitle.id='ps-view-note';heading.append(h,subtitle);main.prepend(heading,fieldStatus);
   const zonePanel=$('zone-overview');zonePanel.classList.add('ps-zone-context');
+  mark($('zone-edit'),'config');mark($('zone-toggle'),'config');
+  const contextDetails=E('details');contextDetails.id='ps-zone-context-details';contextDetails.append(E('summary','Bestand & Auswertung'),$('zone-counts'),$('zone-state-message'));zonePanel.append(contextDetails);
+  const zoneNav=mark(E('nav','','ps-zone-nav'),'cockpit zone config history');zoneNav.setAttribute('aria-label','Zonenansichten');zonePanel.after(zoneNav);
+  zoneNav.append(A('Zonenliste','#ps-cockpit'));
+  for(const [view,label] of [['zone','Zustand'],['history','Verlauf'],['config','Einrichtung']]){const a=A(label,'#ps-'+view);a.dataset.psNav=view;zoneNav.append(a);}
   const overview=$('zone-summary');
-  const zoneModule=mark(E('section','','panel ps-modules'),'zone');zoneModule.id='ps-zone';zoneModule.setAttribute('aria-label','Zonenmodule');
+  const zoneModule=mark(E('section','','panel ps-modules'),'zone');zoneModule.id='ps-zone-modules';zoneModule.setAttribute('aria-label','Zonenmodule');
   const moduleCards=E('div','','ps-module-grid');moduleCards.id='ps-module-grid';
   const moduleDetail=E('div','','ps-module-detail');moduleDetail.id='ps-module-detail';
-  zoneModule.append(overview,moduleCards,moduleDetail);zonePanel.after(zoneModule);
+  zoneModule.append(E('h2','Module & technische Diagnose'),E('p','Quellenaggregate und Vergleiche, nicht der aktuelle Anwesenheitszustand.','ps-muted'),overview,moduleCards,moduleDetail);zoneNav.after(zoneModule);
   const shadowPanel=mark(E('section','','panel ps-shadow-panel'),'zone');shadowPanel.id='ps-shadow-panel';zoneModule.after(shadowPanel);
-  const zoneRuntime=mark(E('section','','panel ps-zone-panel'),'zone config history');zoneRuntime.id='ps-zone-presence';shadowPanel.after(zoneRuntime);
-  mark(document.querySelector('[aria-labelledby="guide-title"]'),'cockpit zone');
+  const zoneRuntime=mark(E('section','','panel ps-zone-panel'),'zone config history');zoneRuntime.id='ps-zone-presence';zoneNav.after(zoneRuntime);
+  mark(document.querySelector('[aria-labelledby="guide-title"]'),'config');
   mark(document.querySelector('[aria-labelledby="daily-brief-title"]'),'cockpit');
   mark(document.querySelector('[aria-labelledby="foundation-title"]'),'zone');
   mark($('zone-setup'),'config');mark($('history-section'),'history');mark($('learning-section'),'workbench');
   for(const section of main.querySelectorAll(':scope > section')) {
     if(section===zonePanel||panels.includes(section))continue;mark(section,'zone');
   }
+  const diagnostics=mark(E('details','','panel ps-diagnostics'),'zone');diagnostics.id='ps-zone-diagnostics';
+  diagnostics.append(E('summary','Module & Diagnose — bei Bedarf öffnen'));
+  for(const panel of panels.filter(p=>p!==zoneRuntime&&p.dataset.psView==='zone'))if(panel!==diagnostics)diagnostics.append(panel);
+  zoneRuntime.after(diagnostics);
+  diagnostics.addEventListener('toggle',()=>{if(diagnostics.open)renderModules();});
   const rolePanel=mark(E('section','','panel ps-role-panel'),'config');rolePanel.id='ps-roles';
   const roleSummary=E('div','','ps-role-summary');roleSummary.id='ps-role-summary';
   const editTools=E('div','','selection-tools');editTools.append($('context-edit'));
   rolePanel.append(E('h2','Hauptquellen & Lernfreigaben'),E('p','Eine Rollenpflege für alle Module. Suchfilter verändern keine Auswahl.'),roleSummary,editTools,$('context-form'));
   $('zone-setup').after(rolePanel);
-  const organizationPanel=mark(E('section','','panel'),'config');
-  rolePanel.after(organizationPanel);
+  const organizationPanel=mark(E('section','','panel'),'workbench');
+  $('learning-section').before(organizationPanel);
   window.PilotSuiteOrganization?.mount(organizationPanel,async()=>{await loadSelection(selectionZone);});
+  rolePanel.append(A('Bestand und Entitäten mit Werkzeugen ordnen','#ps-organization'));
   $('learning-section').prepend(A('Sensorrollen und Lernfreigaben konfigurieren','#ps-roles'));
   // Keep outcomes visible in every view, including form conflicts and learning feedback.
   main.insertBefore($('context-message'),heading.nextSibling);
@@ -82,6 +93,8 @@
   for(const [v,t] of [['all','Alle Zonen'],['active','Aktiv'],['paused','Pausiert']]){const o=E('option',t);o.value=v;filter.append(o);}filterLabel.append(filter);filters.append(searchLabel,filterLabel);
   const cards=E('div','','ps-zone-grid');cards.id='ps-zone-grid';const matchCount=E('p','','ps-muted');matchCount.id='ps-zone-matches';matchCount.setAttribute('role','status');
   cockpit.append(metrics,E('h2','Deine Zonen'),filters,matchCount,cards);oldHero.after(cockpit);
+  const cockpitDetails=mark(E('details','','panel ps-diagnostics'),'cockpit');cockpitDetails.append(E('summary','Verbindung, Bestandszahlen & Alltagsbrief'),metrics,document.querySelector('[aria-labelledby="daily-brief-title"]'));cockpit.after(cockpitDetails);
+  oldHero.hidden=true;oldHero.dataset.psView='all';
   for(const input of [search,filter])input.addEventListener('input',()=>renderCockpit(true));
   const appearance=mark(E('section','','panel'),'system');appearance.id='ps-system';appearance.append(E('h2','Darstellung nach deinem Geschmack'),E('p','Nur auf diesem Gerät gespeichert. Kein Einfluss auf Automationen, Auswertung oder Lernfreigaben.'));
   const appearanceTools=E('div','','selection-tools');
@@ -124,31 +137,31 @@
   function nameOf(id){return selectionDraft?.inventory?.items?.find(i=>i.entity_id===id)?.name||id;}
   function renderCockpit(force=false){const q=search.value.trim().toLocaleLowerCase('de'),mode=filter.value;
     const data=zoneDefinitions.filter(z=>(mode==='all'||(mode==='active'&&z.enabled)||(mode==='paused'&&!z.enabled))&&[z.name,...(z.area_ids||[])].join(' ').toLocaleLowerCase('de').includes(q));
-    const key=JSON.stringify([data,zoneResults.map(z=>[z.zone_id,z.counts,z.summary]),selectionZone,status?.ready]);if(!force&&key===cockpitKey)return;cockpitKey=key;
-    metrics.replaceChildren();for(const [title,value,detail] of [['Datenverbindung',status?(status.ready?'Verbunden':'Nicht bereit'):'Wird geprüft','Keine Aussage über Schaltfreigaben'],['Habitus-Zonen',String(zoneDefinitions.length),`${zoneDefinitions.filter(z=>z.enabled).length} für Auswertung aktiv`],['Ausgewertete Quellen',status?.ready?(M.count(status?.habitus?.neuron_count)??'—'):'—','Aktuelle Projektion, keine Personenanzahl'],['Vorschläge',status?.ready?(M.count(status?.habitus?.suggestion_count)??'—'):'—','Hinweise, keine automatischen Aktionen']]){const a=E('article','','ps-kpi');a.append(E('span',title),E('strong',String(value)),E('small',detail));metrics.append(a);}
+    const key=JSON.stringify([data,zoneResults.map(z=>[z.zone_id,z.counts,z.summary]),selectionZone,dashboardStatus?.ready]);if(!force&&key===cockpitKey)return;cockpitKey=key;
+    metrics.replaceChildren();for(const [title,value,detail] of [['Datenverbindung',dashboardStatus?(dashboardStatus.ready?'Verbunden':'Nicht bereit'):'Wird geprüft','Keine Aussage über Schaltfreigaben'],['Habitus-Zonen',String(zoneDefinitions.length),`${zoneDefinitions.filter(z=>z.enabled).length} für Auswertung aktiv`],['Ausgewertete Quellen',dashboardStatus?.ready?(M.count(dashboardStatus?.habitus?.neuron_count)??'—'):'—','Aktuelle Projektion, keine Personenanzahl'],['Vorschläge',dashboardStatus?.ready?(M.count(dashboardStatus?.habitus?.suggestion_count)??'—'):'—','Hinweise, keine automatischen Aktionen']]){const a=E('article','','ps-kpi');a.append(E('span',title),E('strong',String(value)),E('small',detail));metrics.append(a);}
     const focused=document.activeElement?.dataset?.psZone;cards.replaceChildren();matchCount.textContent=`${data.length} von ${zoneDefinitions.length} Zonen`;
     if(!data.length)cards.append(E('p',zoneDefinitions.length?'Keine Zone passt zum Filter.':'Noch keine Zone eingerichtet. Über „+ Neue Zone“ beginnen.','ps-empty'));
     for(const z of data){const r=zoneResults.find(x=>x.zone_id===z.zone_id),card=E('article','','ps-zone-card');const title=E('div','','ps-card-heading');title.append(icon('zone'),E('h3',z.name),E('span',z.enabled?'Auswertung aktiv':'Pausiert','ps-badge'));card.append(title);
-      const values=E('div','','ps-zone-values');for(const [kind,label] of [['temperature','Temperatur'],['humidity','Feuchte'],['illuminance','Helligkeit']]){const d=E('div');d.append(E('strong',status?.ready&&z.enabled?M.metric(r?.summary,kind):'—'),E('small',label));values.append(d);}card.append(values);
+      const values=E('div','','ps-zone-values');for(const [kind,label] of [['temperature','Temperatur'],['humidity','Feuchte'],['illuminance','Helligkeit']]){const d=E('div');d.append(E('strong',dashboardStatus?.ready&&z.enabled?M.metric(r?.summary,kind):'—'),E('small',label));values.append(d);}card.append(values);
       const counts=r?.counts;if(counts){const rel=M.count(counts.relevant),open=M.count(counts.unreviewed),ignored=M.count(counts.ignored);const total=(rel??0)+(open??0)+(ignored??0);
         if(total&&rel!==null){const meter=E('meter');meter.min=0;meter.max=total;meter.value=rel;meter.setAttribute('aria-label',`${rel} von ${total} Entitäten relevant`);card.append(meter);}
         card.append(E('p',`${rel??'—'} relevant · ${open??'—'} ungeprüft · ${ignored??'—'} ignoriert`,'ps-muted'));
       }else card.append(E('p','Bestandszahlen derzeit nicht ausgewertet.','ps-muted'));
-      const open=B('Zone öffnen →',async()=>{if(dirty()){announce('Bitte den offenen Entwurf speichern oder abbrechen.');return;}invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;$('selection-zone').value=z.zone_id;await loadSelection(z.zone_id);navigate('zone');});open.dataset.psZone=z.zone_id;card.append(open);cards.append(card);
+      const open=B('Zone öffnen →',async()=>{if(dirty()){announce('Bitte den offenen Entwurf speichern oder abbrechen.');return;}invalid=true;generation++;activeModule='presence';lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;$('selection-zone').value=z.zone_id;await loadSelection(z.zone_id);navigate('zone',{focus:true});});open.dataset.psZone=z.zone_id;card.append(open);cards.append(card);
     }
     if(focused)[...cards.querySelectorAll('button')].find(b=>b.dataset.psZone===focused)?.focus({preventScroll:true});
   }
   function renderModules(force=false){window.PilotSuiteOrganization?.context(selectionZone,contextData?.revision);const ok=valid();const f=ok?contextData.foundation:null;
     window.PilotSuiteShadow?.context(shadowPanel,selectionZone,contextData?.revision,ok,activeModule,activeView);
     window.PilotSuiteZonePresence?.context(zoneRuntime,selectionZone,contextData?.revision,ok,activeModule,activeView);
-    const key=JSON.stringify([ok,f,activeModule,status?.ready,contextData?.effective_roles,
+    const key=JSON.stringify([ok,f,activeModule,dashboardStatus?.ready,contextData?.effective_roles,
       zoneResults.find(z=>z.zone_id===selectionZone)?.summary]);if(!force&&key===modulesKey)return;modulesKey=key;
     moduleCards.replaceChildren();moduleDetail.replaceChildren();roleSummary.replaceChildren();
     if(!ok){moduleCards.append(E('p','Zonenstand nicht bestätigt oder Bearbeitung offen. Nach erfolgreichem Laden wird die Quellenansicht aktualisiert.','ps-empty'));return;}
     const configured=M.effectiveRoles(contextData),validated=f.validated_roles||{};
     for(const m of M.modules){const card=B('',()=>{if(dirty())return;activeModule=m.id;renderModules(true);moduleCards.querySelector(`[data-ps-module="${m.id}"]`)?.focus({preventScroll:true});});card.className='ps-module-card';card.dataset.psModule=m.id;card.setAttribute('aria-pressed',String(activeModule===m.id));
       const assigned=new Set(m.roles.flatMap(k=>configured[k]||[])).size,accepted=new Set(m.roles.flatMap(k=>validated[k]||[])).size;
-      card.append(icon(m.icon),E('strong',m.title),E('span',`${assigned} zugeordnet · ${status?.ready?accepted:'—'} aktuell nutzbar`),E('small',m.id==='presence'?'Runtime separat prüfen; hier keine Aktivierung.':'Steuerung noch nicht implementiert.'));if(assigned){const meter=E('meter');meter.min=0;meter.max=assigned;meter.value=status?.ready?accepted:0;meter.setAttribute('aria-label',status?.ready?`${accepted} von ${assigned} zugeordneten Quellen nutzbar`:'Nutzbarkeit bei fehlender Verbindung nicht bestätigt');card.append(meter);}moduleCards.append(card);
+      card.append(icon(m.icon),E('strong',m.title),E('span',`${assigned} zugeordnet · ${dashboardStatus?.ready?accepted:'—'} aktuell nutzbar`),E('small',m.id==='presence'?'Runtime separat prüfen; hier keine Aktivierung.':'Steuerung noch nicht implementiert.'));if(assigned){const meter=E('meter');meter.min=0;meter.max=assigned;meter.value=dashboardStatus?.ready?accepted:0;meter.setAttribute('aria-label',dashboardStatus?.ready?`${accepted} von ${assigned} zugeordneten Quellen nutzbar`:'Nutzbarkeit bei fehlender Verbindung nicht bestätigt');card.append(meter);}moduleCards.append(card);
     }
     const m=M.modules.find(x=>x.id===activeModule);moduleDetail.append(E('h3',m.title),E('p',m.description,'ps-muted'));
     const flow=E('div','','ps-flow');flow.setAttribute('aria-label',m.title+': Quellen, Referenz und Umsetzung');
@@ -156,7 +169,7 @@
     for(const role of m.roles){const ids=configured[role]||[];const row=E('div','','ps-source-group');row.append(E('strong',M.roles[role]));
       if(ids.length&&M.roleOrigin(contextData,role)==='derived')row.append(E('small','Automatisch abgeleitet · noch nicht manuell bestätigt','ps-muted'));
       if(!ids.length)row.append(E('span','Nicht zugeordnet','ps-muted'));
-      for(const id of ids){const chip=E('span','','ps-chip');const usable=status?.ready===true&&(validated[role]||[]).includes(id);chip.dataset.psQuality=usable?'ok':'unknown';chip.append(document.createTextNode(nameOf(id)),E('small',usable?'Zugeordnet & aktuell nutzbar':'Nicht nutzbar / ungeklärt'),E('code',id,'ps-technical-id'));row.append(chip);}sources.append(row);}
+      for(const id of ids){const chip=E('span','','ps-chip');const usable=dashboardStatus?.ready===true&&(validated[role]||[]).includes(id);chip.dataset.psQuality=usable?'ok':'unknown';chip.append(document.createTextNode(nameOf(id)),E('small',usable?'Zugeordnet & aktuell nutzbar':'Nicht nutzbar / ungeklärt'),E('code',id,'ps-technical-id'));row.append(chip);}sources.append(row);}
     const reference=E('section','','ps-flow-node');reference.append(E('h4','02 · Zonenreferenz'),E('p',m.id==='presence'?'Mindestens eine gültige Quelle aktiv. Logischen Raumstatus und Rohsensoren nicht doppelt als unabhängige Belege zählen.':m.id==='climate'?'Gültige Temperatur- und Feuchtequellen: Median mit Min/Max. Regler sind keine zusätzlichen Messwerte.':m.id==='lighting'?'Lux, binärer Helligkeitsindikator und Leuchtenzustand sind getrennte Größen.':'Player und ausdrücklicher Atmosphärenwunsch. Keine Emotion wird aus Sensoren behauptet.'));
     const output=E('section','','ps-flow-node');output.append(E('h4','03 · Umsetzung'),E('span',m.id==='presence'?'Runtime-Status hier nicht geprüft':'Noch keine Steuerung','ps-badge'),E('p','Quellenzuordnung ist keine Ausführungsfreigabe. Bestehende HA-Logik bleibt unverändert.'));
     const configure=B('Quellen konfigurieren',()=>{if(dirty())return;navigate('config');setRoleFilter(m.id);$('context-edit').click();});output.append(configure);flow.append(sources,reference,output);moduleDetail.append(flow);
@@ -165,7 +178,7 @@
       box.append(E('h4','Externe Vergleichstemperatur · optional'),E('p',
         'Nur zur Einordnung, z. B. außen oder im Nachbarraum. Kein Sollwert und kein Beitrag zum Zonenmedian.','ps-muted'));
       const ids=configured.reference_temperature||[];
-      const summary=status?.ready?zoneResults.find(z=>z.zone_id===selectionZone)?.summary:null;
+      const summary=dashboardStatus?.ready?zoneResults.find(z=>z.zone_id===selectionZone)?.summary:null;
       if(!ids.length)box.append(E('p','Nicht zugeordnet – für die Zonentemperatur nicht erforderlich.','ps-muted'));
       for(const id of ids) {
         const v=M.temperatureComparison(summary,id),row=E('p');
@@ -248,24 +261,29 @@
     const list=E('ol');for(const step of d.scenario.steps){const item=E('li');item.append(E('strong',`+${step.at_seconds} s · ${labels[step.status]||'Prüfung'}`),document.createTextNode(' — '+step.explanation));const settings=step.proposed_settings||{};const parts=[];if(Object.hasOwn(settings,'on'))parts.push(settings.on?'Ein':'Aus');if(Object.hasOwn(settings,'brightness_pct'))parts.push(`${settings.brightness_pct} %`);if(Object.hasOwn(settings,'color_temp_kelvin'))parts.push(`${settings.color_temp_kelvin} K`);if(parts.length)item.append(E('small','Vorschau: '+parts.join(' · ')+' · nicht ausgeführt','ps-muted'));list.append(item);}root.append(list,E('p','Ergebnis wurde nicht gespeichert. Lux, Helligkeitsprozent, Atmosphäre und Ausführungsrecht bleiben getrennt.','ps-warning'));
   }
   function viewForHash(hash){const id=decodeURIComponent(hash.slice(1));if(id.startsWith('ps-')&&M.views.includes(id.slice(3)))return id.slice(3);const node=$(id),owner=node?.closest('[data-ps-view]')?.dataset.psView.split(' ')[0];return owner?(activeView==='all'?'all':owner):null;}
+  function revealHash(hash){if(hash.startsWith('#ps-')&&M.views.includes(hash.slice(4)))return;let target;try{target=$(decodeURIComponent(hash.slice(1)));}catch{return;}for(let p=target;p&&p!==main;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;}
   function navigate(view,{focus=false,hash=true}={}){if(!M.views.includes(view))return false;
     if(view!==activeView&&dirty()){announce('Bearbeitung läuft. Bitte speichern oder abbrechen, bevor du den Arbeitsbereich wechselst.');return false;}
+    announce('');
     activeView=view;prefs.view=view;savePrefs();for(const panel of panels)panel.hidden=view!=='all'&&!panel.dataset.psView.split(' ').includes(view);
     shadowPanel.hidden=!['zone','all'].includes(view)||!['presence','lighting'].includes(activeModule);
     window.PilotSuiteZonePresence?.context(zoneRuntime,selectionZone,contextData?.revision,valid(),activeModule,view);
-    for(const link of nav.children){if(link.dataset.psNav===view)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
+    for(const link of nav.children){if(link.dataset.psNav===M.primaryView(view))link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
+    for(const link of zoneNav.children){if(link.hash==='#ps-'+view)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
+    if(view==='all'){diagnostics.open=true;cockpitDetails.open=true;contextDetails.open=true;}
+    if(view==='config')contextDetails.open=true;
     $('ps-view-title').textContent=titles[view];$('ps-view-note').textContent=notes[view];if(hash)history.replaceState(null,'','#ps-'+view);if(focus)$('ps-view-title').focus();return true;
   }
   document.addEventListener('click',event=>{const link=event.target.closest('a');if(!link)return;const href=link.getAttribute('href')||'';
     if(href==='maintenance'||link.id==='release-install'){if(dirty()){event.preventDefault();event.stopImmediatePropagation();announce('Offene Änderungen zuerst speichern oder abbrechen.');}return;}
     if(!href.startsWith('#'))return;let view;try{view=viewForHash(href);}catch{return;}if(!view)return;
     if(!navigate(view,{hash:false})){event.preventDefault();event.stopImmediatePropagation();return;}
-    const target=$(href.slice(1));for(let p=target;p&&p!==main;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;
+    revealHash(href);
     if(href.startsWith('#ps-')&&M.views.includes(href.slice(4))){event.preventDefault();history.pushState(null,'',href);$('ps-view-title').focus();}
   },true);
-  window.addEventListener('hashchange',()=>{let view;try{view=viewForHash(location.hash);}catch{return;}if(view&&!navigate(view,{hash:false}))history.replaceState(null,'','#ps-'+activeView);});
+  window.addEventListener('hashchange',()=>{let view;try{view=viewForHash(location.hash);}catch{return;}if(view&&!navigate(view,{hash:false}))history.replaceState(null,'','#ps-'+activeView);else revealHash(location.hash);});
   for(const id of ['zone-new','zone-edit','context-edit'])$(id).addEventListener('click',event=>{if(activeView!=='config'&&activeView!=='all'&&!navigate('config')){event.preventDefault();event.stopImmediatePropagation();}},true);
-  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();window.PilotSuiteShadow?.invalidate();window.PilotSuiteZonePresence?.invalidate();status=null;invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
+  const errors=new MutationObserver(()=>{if(!$('error').hidden){window.PilotSuiteOrganization?.invalidate();window.PilotSuiteShadow?.invalidate();window.PilotSuiteZonePresence?.invalidate();dashboardStatus=null;invalid=true;generation++;lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;renderCockpit(true);renderModules(true);}});errors.observe($('error'),{attributes:true,attributeFilter:['hidden']});
   $('context-cancel').addEventListener('click',()=>{if(!contextEditing&&!selectionBusy)loadContext().catch(()=>announce('Gespeicherte Rollen konnten nicht neu geladen werden. Erneut öffnen.'));});
   const observer=new MutationObserver(()=>{if(!form.hidden){setRoleFilter(roleFilter);renderDiff();}});observer.observe(form,{attributes:true,attributeFilter:['hidden']});
   // Preserve organization drafts across legacy zone controls and background refreshes.
@@ -278,7 +296,7 @@
   window.addEventListener('beforeunload',event=>{if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())){event.preventDefault();event.returnValue='';}});
   const oldWorkspaceLoad=load;load=function(...args){return (window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())?Promise.resolve():oldWorkspaceLoad(...args);};
   // Narrow bridge to the existing renderer: no new polling, data owner or write endpoint.
-  const oldStatus=renderStatus;renderStatus=function(s){oldStatus(s);status=s;renderCockpit();};
+  const oldStatus=renderStatus;renderStatus=function(s){oldStatus(s);renderCockpit();};
   const oldZone=renderZoneView;renderZoneView=function(){oldZone();renderCockpit();renderModules();};
   const oldLearning=renderLearning;renderLearning=function(){oldLearning();invalid=false;renderModules();};
   window.PilotSuiteWorkspaceBusy=()=>requestBusy;
@@ -290,5 +308,5 @@
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyPrefs);
   setRoleFilter('all');applyPrefs();document.body.classList.add('ps-workspace-ready');
   invalid=!M.current(contextData,selectionDraft?.inventory,selectionZone);
-  let hashView=null;try{hashView=viewForHash(location.hash);}catch{}if(hashView)activeView=hashView;navigate(hashView||activeView,{hash:false});renderCockpit(true);renderModules(true);
+  let hashView=null;try{hashView=viewForHash(location.hash);}catch{}if(hashView)activeView=hashView;navigate(hashView||activeView,{hash:false});revealHash(location.hash);renderCockpit(true);renderModules(true);
 })();

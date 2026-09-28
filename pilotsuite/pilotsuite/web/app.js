@@ -25,7 +25,10 @@ const displayNumber = value => typeof value === 'number' ? value.toLocaleString(
 const moodLabels = {humidity_high:'Feuchte erhöht', humidity_low:'Feuchte niedrig', temperature_high:'Temperatur erhöht', temperature_low:'Temperatur niedrig', uncertainty:'Fehlende Klimawerte', alert:'Auffälligkeit', stable:'Stabilität', system_health:'Datenverbindung'};
 function percent(value) { return value == null ? "Nicht bewertbar" : `${Math.round(Number(value) * 100)}%`; }
 
+// Current display response, also available to progressively loaded workspace views.
+let dashboardStatus = null;
 function renderStatus(status) {
+  dashboardStatus = status;
   const ha = status.home_assistant;
   text("ha-state", status.ready ? "Bereit" : "Nicht bereit");
   text("ha-detail", ha.connected ? `Letzter Abgleich ${formatTime(ha.last_refresh_at)}` : (ha.last_error || "Verbindung ausstehend"));

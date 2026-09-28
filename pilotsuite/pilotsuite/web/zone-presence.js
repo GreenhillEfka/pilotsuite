@@ -29,19 +29,26 @@
      const scroller=document.scrollingElement,position=scroller?.scrollTop;
      render();
      if(background&&scroller&&scroller.scrollTop!==position)scroller.scrollTop=position;
-   }catch(e){if(current(z,r,g)){data=null;output.replaceChildren();note(e.message);}}
+   }catch(e){if(current(z,r,g)){data=null;unavailable(e.message);}}
+ }
+ function unavailable(message){
+   if(editing)return;
+   output.replaceChildren(E('h3','Unklar'),E('p',message,'ps-warning'));
+   tools.querySelectorAll('button').forEach(button=>button.disabled=button.id!=='ps-zone-refresh'||!valid);
+   note('Keine bestätigte aktuelle Entscheidung. Unklar bedeutet nicht frei.');
  }
  function mount(host){
    host.replaceChildren();root=host;
-   root.append(E('h2','Zoneninstanz · Präsenz, Daten & Ordnung'),E('p','Relevant = Live- und verfügbare Historienauswertung. Keine weiteren Datenfreigaben. Ein HA-Ausgang wird nur über das geprüfte Helferpaket veröffentlicht.','ps-muted'));
+   root.append(E('h2','Anwesenheit'),E('p','Aktuelle Entscheidung aus den relevanten Quellen dieser Zone.','ps-muted'));
    notice=E('p','','ps-notice');notice.setAttribute('role','status');tools=E('div','','selection-tools');editor=E('div');output=E('div');charts=E('div');
-   root.append(notice,tools,editor,output,charts);
+   root.append(output,notice,tools,editor,charts);
  }
  function render(){
    if(!data||editing)return;
    if(!tools.firstElementChild){
      const configure=B('Präsenz konfigurieren',openEditor);configure.id='ps-zone-configure';
-     tools.append(configure,B('Aktualisieren',()=>read()),B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
+     const refresh=B('Aktualisieren',()=>read());refresh.id='ps-zone-refresh';
+     tools.append(configure,refresh,B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
      const prepare=B('Eigenen Anwesenheitssensor vorbereiten',preparePackage);prepare.id='ps-zone-prepare';tools.append(prepare);
    }
    tools.querySelector('#ps-zone-prepare').hidden=!!data.package;
@@ -51,26 +58,28 @@
    const focusedLive=output.contains(document.activeElement)?document.activeElement.closest('[data-ps-live]')?.dataset.psLive:null;
    output.replaceChildren();
    tools.querySelectorAll('button').forEach(button=>button.disabled=busy);
-   const d=data.current;const cards=E('div','','ps-shadow-cards');
+   const d=data.current,summary=window.PilotSuiteZonePresenceModel.summary(data);const cards=E('div','','ps-presence-summary');
    for(const [title,value,hint] of [
-      ['Präsenz',d?state(d.state):'Nicht aktuell',d?.explanation||data.status],
-      ['Bestandsvergleich',d?.comparison==='same'?'Übereinstimmung':d?.comparison==='different'?'Abweichung':'Nicht beurteilbar',d?state(d.ha_state):'—'],
+      ['Präsenz',summary.state,summary.reason],
       ['Nachlauf',d?.deadline?fmt(d.remaining_seconds)+' s':'—',d?.deadline?date(d.deadline):'Kein laufender Nachlauf'],
-      ['Ausgang',data.mode==='publish'?'Veröffentlichung eingerichtet':'Nur vergleichen',(data.package?.entities?.sensor||'Noch kein eigenes Ausgangspaket')+' · '+(data.publication||'not_published')]]){
-      const c=E('article','','ps-kpi');c.append(E('span',title),E('strong',value),E('small',hint));cards.append(c);
+      ['HA-Veröffentlichung',summary.publication,data.package?.entities?.sensor||'Kein eigenes Ausgangspaket. Die Präsenzberechnung ist davon unabhängig.']]){
+      const c=E('article','','ps-kpi');if(title==='Präsenz')c.id='ps-presence-state';if(title==='HA-Veröffentlichung')c.id='ps-presence-publication';c.append(E('span',title),E('strong',value),E('small',hint));cards.append(c);
    } output.append(cards);
+   const missing=d?.sources?.filter(s=>s.required&&!s.usable)||[];
+   if(missing.length)output.append(E('p',`${missing.length} erforderliche Quelle(n) derzeit nicht nutzbar. Eine Datenlücke ist kein Freibeleg. Die Entscheidung oben berücksichtigt die Quellenkombination.`,'ps-warning'));
    if(d){const table=E('table','','ps-zone-source-table');const header=E('tr');for(const text of ['Quelle','Signaltyp','Zustand','Meldealter','Indirekte Frist'])header.append(E('th',text));table.append(header);
       for(const s of d.sources){const tr=E('tr');for(const text of [s.name||s.entity_id,s.kind,state(s.state),s.age_seconds===null?'Ereignisorientiert / unbekannt':fmt(s.age_seconds)+' s',date(s.support_until)])tr.append(E('td',text));table.append(tr);}
       const sources=E('details');sources.dataset.psLive='sources';sources.open=openSources;
-      sources.append(E('summary',`Aktuelle Quellen (${d.sources.length})`));
+      sources.append(E('summary',`Warum? · Aktuelle Quellen (${d.sources.length})`));
       const wrap=E('div','','ps-zone-scroll');wrap.append(table);sources.append(wrap);output.append(sources);wrap.scrollLeft=horizontal;
+      sources.append(E('p','Bestandsvergleich: '+(d.comparison==='same'?'Übereinstimmung':d.comparison==='different'?'Abweichung':'Nicht beurteilbar')+' · HA-Zustand: '+state(d.ha_state),'ps-muted'));
       const trace=data.trace||[];if(trace.length){
         const history=E('details');history.dataset.psLive='trace';history.open=openTrace;
         history.append(E('summary',`Sitzungsverlauf (${trace.length})`),E('p','Höchstens 128 Zustandswechsel im Arbeitsspeicher, keine historische Recorder-Aufzeichnung.','ps-muted'),chart({name:'Präsenzentscheidung im aktuellen Lauf',record_count:trace.length,changes:Math.max(0,trace.length-1),kind:'state',points:trace.map(r=>[r.observed_at,state(r.state)])},{start:trace[0].observed_at,end:Math.max(d.observed_at,trace[0].observed_at+1)}));output.append(history);
       }
       if(focusedLive)output.querySelector(`[data-ps-live="${focusedLive}"] summary`)?.focus({preventScroll:true});
    }
-   note(data.analysis_enabled?'Auswertung anhand relevanter Quellen. Historische Werte werden nicht als heutige Präsenzereignisse abgespielt.':'Zone pausiert; keine aktuelle Auswertung.');
+   note(summary.state==='Pausiert'?'Zone oder Präsenzbetrieb pausiert; keine aktuelle Auswertung.':'Relevant erlaubt Live- und verfügbare Historienauswertung. Änderungen in Home Assistant brauchen eine eigene Bestätigung.');
  }
  async function reloadBasis(){if(typeof loadSelection==='function'&&zone)await loadSelection(zone);else if(typeof load==='function')await load();}
  function startEditor(title){editing=true;editor.replaceChildren(E('h3',title));tools.querySelectorAll('button').forEach(b=>b.disabled=true);}
@@ -179,12 +188,12 @@
  window.addEventListener('pagehide',()=>window.clearInterval(poll),{once:true});
  window.PilotSuiteZonePresence={
    context(host,z,r,ok,module,view){
-     if(root!==host)mount(host);host.hidden=!['zone','config','history','all'].includes(view)||!['presence','lighting'].includes(module);
+     if(root!==host)mount(host);host.hidden=!['zone','config','history','all'].includes(view);
      if(z!==zone||r!==revision){generation++;zone=z;revision=r;data=null;historyData=null;last=0;if(!editing){output.replaceChildren();charts.replaceChildren();}}
      valid=ok;
-     if(!ok&&!editing){output.replaceChildren();note('Grundlage wird aktualisiert; keine veraltete Aussage.');}
+     if(!ok&&!editing){last=0;unavailable('Grundlage wird aktualisiert; keine veraltete Aussage.');}
      if(eligible()&&!editing&&!busy&&Date.now()-last>5000)read();
    },dirty:()=>editing||busy,
-   invalidate(){valid=false;generation++;data=null;last=0;if(output)output.replaceChildren();if(charts)charts.replaceChildren();if(tools)tools.querySelectorAll('button').forEach(button=>button.disabled=true);note('Quelle oder Verbindung geändert; neu laden.');}
+   invalidate(){valid=false;generation++;data=null;last=0;if(output)unavailable('Quelle oder Verbindung geändert; neu laden.');if(charts&&!editing)charts.replaceChildren();}
  };
 })();

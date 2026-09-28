@@ -1,20 +1,21 @@
 # Workspace — Alltag zuerst, Diagnose bei Bedarf
 
-Überarbeitetes Zielbild vom 28.09.2026. Die installierte Oberfläche besitzt weiterhin
-sechs Arbeitsbereiche: Cockpit, Zonenmodule, Konfiguration, Verläufe, Werkbank und
-System. Die nachstehende Vereinfachung ist noch umzusetzen, kein neuer UI-Nachweis.
+Umsetzungskandidat Alpha.55 vom 28.09.2026: Die drei Hauptzugänge und die zentrale
+Präsenzkarte sind im bestehenden Frontend umgesetzt. Den tatsächlichen Installations-
+und CI-Stand führt RELEASE_STATE.json; die angemeldete Haushaltsabnahme bleibt offen.
 
-## Drei Hauptzugänge statt gleichrangiger Fachwerkzeuge
+## Drei Hauptzugänge
 
-| Zugang im Zielbild | Aufgabe | Bestehende Bausteine |
+| Zugang | Aufgabe | Bestehende Bausteine |
 |---|---|---|
 | Zonen | Zustand verstehen, Quellen einstellen, Verlauf ansehen | Cockpit, Zonenmodule, zonenbezogene Konfiguration und Verläufe |
 | Werkzeuge | Bestand prüfen, Entitäten ordnen, Routinen bearbeiten | Organisationsansicht und vorhandene Werkbank |
 | System | Verbindung, Version, Darstellung, Sicherung und Rettung | Status und bestehende Maintenance-/Rescue-Seite |
 
 Das sind Navigationsgruppen, keine neuen Anwendungen oder Speicher.
-Alte Links, `#ps-all` und gespeicherte Ansichtspräferenzen werden bei der Umsetzung
-kompatibel zugeordnet. Keine Funktion und kein ungespeicherter Entwurf darf verschwinden.
+Alte Links, `#ps-all` und gespeicherte Ansichtspräferenzen werden kompatibel zugeordnet.
+Keine Funktion und kein ungespeicherter Entwurf darf verschwinden. Die technischen
+Ansichtsschlüssel bleiben unverändert; es gibt keinen zweiten Router.
 
 ## Ein alltäglicher Zonenweg
 

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.0-alpha.55] - 2026-09-28
+
+### Präsenz zuerst, drei Arbeitsbereiche
+- Zonen, Werkzeuge und System ersetzen sechs gleichrangige Navigationseinträge.
+  Zustand, Verlauf und Einrichtung bleiben Unteransichten derselben Zone;
+  alte Direktlinks, Darstellungseinstellungen und die Gesamtansicht bleiben nutzbar.
+- Die bestehende Zoneninstanz liefert die zentrale Präsenzkarte, unabhängig vom
+  gewählten Diagnosemodul. Nachlauf, Quellenlücken und HA-Veröffentlichung bleiben
+  getrennt; unbekannte/fehlende Daten werden nicht als frei angezeigt.
+- Module, Schattenvergleich und synthetische Szenarien sind aufklappbare Diagnose.
+  Entitätsorganisation steht unter Werkzeuge. Keine neue Engine oder Datenhaltung.
+- Ladefehler sperren veraltete Aktionen; eine wieder gültige Grundlage wird sofort
+  neu gelesen. Entwürfe, Quellenfilter, Fokus und passive Leseposition bleiben erhalten.
+- Bereits geladener Verbindungsstatus bleibt auch bei später Initialisierung der
+  Oberfläche verfügbar; keine zusätzliche Abfrage oder zweite Statushaltung.
+- Synthetische Browserprüfungen umfassen vier Zonen, Pause, Datenlücken, Direktlinks,
+  Tastatur und drei Bildschirmbreiten. Keine Haushaltsschaltungen oder Zonenmigration.
+
 ## [0.1.0-alpha.54] - 2026-09-28
 
 ### Erforderliche Quellen in gemeinsamer Präsenzgruppe
