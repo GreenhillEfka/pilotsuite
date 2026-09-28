@@ -67,11 +67,33 @@ passed with zero such warnings; no filters hide failures and no production leak 
 inferred. Also passed: 73 JS tests, 62 API contracts, discovery, compilation,
 synthetic zone and review-compass browsers. Exact candidate/main CI passed all five jobs.
 
-Next: reproduce the future/invalid snapshot-time mismatch between readiness and
-presence. Consolidate that existing freshness owner only with comparative tests;
-valid-time behavior, scheduler timing and checkpoints must remain unchanged.
-Measure before scheduler changes; do not remove evaluated_at or merge legacy
-configurations speculatively.
+## Alpha.59 candidate — one snapshot-freshness owner
+
+Implemented and tested locally, not yet published/installed. Four new regression
+methods failed in 17 baseline subcases: future snapshots reported ready and allowed
+legacy evidence recording; invalid/naive timestamps raised status/HTTP/event errors.
+An additional red HTTP subcase caught a non-string timestamp leaking into JSON;
+invalid typed timestamps are now exported as null, never serialized as objects.
+The service now owns one strict age predicate and a separate connected-stream gate.
+Zone evaluation/view/history/publication call that owner directly. The shadow
+compatibility method delegates; the existing strict timestamp parser moved verbatim
+to presence_kernel and remains available through its old import. No new layer.
+
+Nine added tests preserve inclusive age limits at four refresh intervals, explicit
+timezone offsets, raw snapshot-age versus transport status, parser aliases and
+zone operation with the legacy shadow method disabled. 592 Python and 73 JS tests,
+62 routes, discovery/compilation and three synthetic browsers (zone, shadow,
+maintenance) passed. Exact candidate/main CI and scoped delivery remain gates.
+
+Before/after the same three 60-cycle scenarios: 660 connections, 60 IMMEDIATE
+transactions and 60 checkpoints each; zero history/HA output calls. Median ms
+occupied/vacant/unknown 2.581/2.539/2.538 before, 2.562/2.529/2.539 after; p95
+2.906/2.662/2.629 before, 2.838/2.641/2.627 after. No performance gain claimed.
+Scheduler timing, valid-time results, durable timestamps and deadlines are unchanged.
+
+Next after delivery: inspect remaining presence publication/view consistency with
+synthetic fault tests; measure before any scheduler change. Do not remove
+evaluated_at or merge legacy configurations speculatively.
 
 Continue only within the bounded run; no new packages after 07:40 UTC, stop
 development/release work by 08:01:44 UTC on 28.09.2026.

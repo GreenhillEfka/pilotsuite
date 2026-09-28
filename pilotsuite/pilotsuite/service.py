@@ -13,6 +13,7 @@ from pilotsuite import ARCHITECTURE_VERSION, READ_ONLY_RELEASE, VERSION
 from pilotsuite.core.audit import AuditLog
 from pilotsuite.core.plans import PlanStore
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.presence_kernel import timestamp
 from pilotsuite.core.selections import SelectionStore, InvalidSelection, SelectionConflict
 from pilotsuite.core.zones import ZoneStore
 from pilotsuite.core.context import ContextStore
@@ -597,10 +598,16 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin, Zo
                 await self._derive()
                 raise
 
+    def _snapshot_fresh(self, now):
+        stamp = timestamp(self._last_refresh_at)
+        return bool(stamp is not None and type(now) in (int, float) and
+                    0 <= now-stamp <= max(60, self.settings.refresh_interval_seconds * 2))
+
+    def _presence_inputs_fresh(self, now):
+        return bool(self._connected and self._stream_connected and self._snapshot_fresh(now))
+
     async def status(self) -> dict[str, Any]:
-        fresh = self._last_refresh_at is not None and (
-            datetime.now(UTC) - datetime.fromisoformat(self._last_refresh_at)
-        ).total_seconds() <= max(60, self.settings.refresh_interval_seconds * 2)
+        fresh = self._snapshot_fresh(datetime.now(UTC).timestamp())
         missing_kinds = [kind for kind in ('humidity', 'temperature')
                          if not any(n.kind == kind and n.quality == 'good' and n.value is not None for n in self._neurons)]
         ready = bool(self._connected and self._stream_connected and fresh)
@@ -628,7 +635,7 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin, Zo
                 "connected": self._connected,
                 "event_stream_connected": self._stream_connected,
                 "snapshot_fresh": fresh,
-                "last_refresh_at": self._last_refresh_at,
+                "last_refresh_at": self._last_refresh_at if isinstance(self._last_refresh_at, str) else None,
                 "last_error": self._last_error,
             },
             "golden_zone": {
@@ -770,8 +777,7 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin, Zo
                 old.get('state')=='off' and new.get('state')=='on')
             if any(item.entity_id == entity_id for item in self._neurons):
                 await self._derive()
-                fresh = self._last_refresh_at and (datetime.now(UTC)-datetime.fromisoformat(self._last_refresh_at)).total_seconds() <= max(60, self.settings.refresh_interval_seconds*2)
-                if pulse_event and self._connected and self._stream_connected and fresh:
+                if pulse_event and self._presence_inputs_fresh(datetime.now(UTC).timestamp()):
                     try:
                         stamp = datetime.fromisoformat(new['last_changed'])
                         valid_stamp=stamp.tzinfo is not None

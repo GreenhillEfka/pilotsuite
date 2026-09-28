@@ -6,13 +6,12 @@ module. Configuration is a bounded description of already-confirmed source roles
 from __future__ import annotations
 
 from dataclasses import asdict, replace
-from datetime import datetime
 import math
 from copy import deepcopy
 
 from .lighting_policy import ATMOSPHERES, LightingCheckpoint, advance_lighting_preview
 from .organization import binding_view, fingerprint, identity, ENTITY
-from .presence_kernel import PresenceCheckpoint, advance_presence, checkpoint_dict, validate_checkpoint
+from .presence_kernel import PresenceCheckpoint, advance_presence, checkpoint_dict, validate_checkpoint, timestamp
 from .selections import InvalidSelection
 
 SCHEMA = "pilotsuite-presence-shadow-v1"
@@ -34,17 +33,6 @@ REASONS = {
     "no_recent_presence_basis": "Ohne beobachteten Aufenthalt wird keine Abwesenheit behauptet.",
     "manual_cancel_requires_policy": "Abbruch ist keine Abwesenheitsmessung.",
 }
-
-
-def timestamp(value):
-    if not isinstance(value, str):
-        return None
-    try:
-        stamp = datetime.fromisoformat(value)
-        number = stamp.timestamp() if stamp.tzinfo is not None else None
-        return number if number is not None and math.isfinite(number) else None
-    except (ValueError, TypeError, OverflowError, OSError):
-        return None
 
 
 def finite(value, lo=0, hi=1e9):
