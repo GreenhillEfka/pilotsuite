@@ -23,9 +23,13 @@
   const panels=[];
   const mark=(node,view)=>{if(node){node.dataset.psView=view;panels.push(node);}return node;};
   const fieldStatus=E('p','','ps-notice');fieldStatus.id='ps-notice';fieldStatus.setAttribute('role','status');fieldStatus.hidden=true;
-  function announce(message){fieldStatus.textContent=message;fieldStatus.hidden=!message;}
+  let guardNotice=false;
+  function announce(message,{guard=false}={}){guardNotice=guard;fieldStatus.textContent=message;fieldStatus.hidden=!message;}
   function dirty(){return !!(selectionBusy||contextEditing||zoneFormOpen||selectionDraft?.dirty||
     (typeof routineDirty!=='undefined'&&routineDirty)||(typeof reviewNoteDirty!=='undefined'&&reviewNoteDirty)||(typeof historyBusy!=='undefined'&&historyBusy)||requestBusy||(window.PilotSuiteOrganization?.dirty()||(window.PilotSuiteShadow?.dirty()||window.PilotSuiteZonePresence?.dirty())));}
+  // Reconcile only our obsolete edit guard, never a context/error announcement.
+  function reconcileGuardNotice(){if(guardNotice&&!dirty())announce('');}
+  window.PilotSuiteWorkspaceEditingChanged=reconcileGuardNotice;
   function valid(){return !invalid && !contextEditing && !zoneFormOpen && !selectionDraft?.dirty &&
     M.current(contextData,selectionDraft?.inventory,selectionZone) && !invalidFoundationContexts.has(contextData);}
   function savePrefs(){try{localStorage.setItem('pilotsuite.workspace.v1',JSON.stringify(prefs));}catch{announce('Darstellung gilt für diese Sitzung. Browser-Speicherung ist nicht verfügbar.');}}
@@ -147,11 +151,12 @@
         if(total&&rel!==null){const meter=E('meter');meter.min=0;meter.max=total;meter.value=rel;meter.setAttribute('aria-label',`${rel} von ${total} Entitäten relevant`);card.append(meter);}
         card.append(E('p',`${rel??'—'} relevant · ${open??'—'} ungeprüft · ${ignored??'—'} ignoriert`,'ps-muted'));
       }else card.append(E('p','Bestandszahlen derzeit nicht ausgewertet.','ps-muted'));
-      const open=B('Zone öffnen →',async()=>{if(dirty()){announce('Bitte den offenen Entwurf speichern oder abbrechen.');return;}invalid=true;generation++;activeModule='presence';lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;$('selection-zone').value=z.zone_id;await loadSelection(z.zone_id);navigate('zone',{focus:true});});open.dataset.psZone=z.zone_id;card.append(open);cards.append(card);
+      const open=B('Zone öffnen →',async()=>{if(dirty()){announce('Bitte den offenen Entwurf speichern oder abbrechen.',{guard:true});return;}invalid=true;generation++;activeModule='presence';lastReview=null;lastReplay=null;lastLightingPreview=null;lastLightingDecision=null;$('selection-zone').value=z.zone_id;await loadSelection(z.zone_id);navigate('zone',{focus:true});});open.dataset.psZone=z.zone_id;card.append(open);cards.append(card);
     }
     if(focused)[...cards.querySelectorAll('button')].find(b=>b.dataset.psZone===focused)?.focus({preventScroll:true});
   }
   function renderModules(force=false){window.PilotSuiteOrganization?.context(selectionZone,contextData?.revision);const ok=valid();const f=ok?contextData.foundation:null;
+    reconcileGuardNotice();
     window.PilotSuiteShadow?.context(shadowPanel,selectionZone,contextData?.revision,ok,activeModule,activeView);
     window.PilotSuiteZonePresence?.context(zoneRuntime,selectionZone,contextData?.revision,ok,activeModule,activeView);
     const key=JSON.stringify([ok,f,activeModule,dashboardStatus?.ready,contextData?.effective_roles,
@@ -263,7 +268,7 @@
   function viewForHash(hash){const id=decodeURIComponent(hash.slice(1));if(id.startsWith('ps-')&&M.views.includes(id.slice(3)))return id.slice(3);const node=$(id),owner=node?.closest('[data-ps-view]')?.dataset.psView.split(' ')[0];return owner?(activeView==='all'?'all':owner):null;}
   function revealHash(hash){if(hash.startsWith('#ps-')&&M.views.includes(hash.slice(4)))return;let target;try{target=$(decodeURIComponent(hash.slice(1)));}catch{return;}for(let p=target;p&&p!==main;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;}
   function navigate(view,{focus=false,hash=true}={}){if(!M.views.includes(view))return false;
-    if(view!==activeView&&dirty()){announce('Bearbeitung läuft. Bitte speichern oder abbrechen, bevor du den Arbeitsbereich wechselst.');return false;}
+    if(view!==activeView&&dirty()){announce('Bearbeitung läuft. Bitte speichern oder abbrechen, bevor du den Arbeitsbereich wechselst.',{guard:true});return false;}
     announce('');
     activeView=view;prefs.view=view;savePrefs();for(const panel of panels)panel.hidden=view!=='all'&&!panel.dataset.psView.split(' ').includes(view);
     shadowPanel.hidden=!['zone','all'].includes(view)||!['presence','lighting'].includes(activeModule);
@@ -275,7 +280,7 @@
     $('ps-view-title').textContent=titles[view];$('ps-view-note').textContent=notes[view];if(hash)history.replaceState(null,'','#ps-'+view);if(focus)$('ps-view-title').focus();return true;
   }
   document.addEventListener('click',event=>{const link=event.target.closest('a');if(!link)return;const href=link.getAttribute('href')||'';
-    if(href==='maintenance'||link.id==='release-install'){if(dirty()){event.preventDefault();event.stopImmediatePropagation();announce('Offene Änderungen zuerst speichern oder abbrechen.');}return;}
+    if(href==='maintenance'||link.id==='release-install'){if(dirty()){event.preventDefault();event.stopImmediatePropagation();announce('Offene Änderungen zuerst speichern oder abbrechen.',{guard:true});}return;}
     if(!href.startsWith('#'))return;let view;try{view=viewForHash(href);}catch{return;}if(!view)return;
     if(!navigate(view,{hash:false})){event.preventDefault();event.stopImmediatePropagation();return;}
     revealHash(href);
@@ -289,13 +294,14 @@
   // Preserve organization drafts across legacy zone controls and background refreshes.
   document.addEventListener('click',event=>{
     if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty()) && event.target.closest('#zone-overview button, #zone-setup button, #ps-roles button, #refresh, #learning-section button')) {
-      event.preventDefault();event.stopImmediatePropagation();announce('Offenen Konfigurationsentwurf zuerst speichern oder verwerfen.');
+      event.preventDefault();event.stopImmediatePropagation();announce('Offenen Konfigurationsentwurf zuerst speichern oder verwerfen.',{guard:true});
     }
   },true);
-  $('selection-zone').addEventListener('change',event=>{if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())){event.target.value=selectionZone;event.stopImmediatePropagation();announce('Offenen Konfigurationsentwurf zuerst speichern oder verwerfen.');}},true);
+  $('selection-zone').addEventListener('change',event=>{if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())){event.target.value=selectionZone;event.stopImmediatePropagation();announce('Offenen Konfigurationsentwurf zuerst speichern oder verwerfen.',{guard:true});}},true);
   window.addEventListener('beforeunload',event=>{if((window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())){event.preventDefault();event.returnValue='';}});
   const oldWorkspaceLoad=load;load=function(...args){return (window.PilotSuiteOrganization?.dirty()||window.PilotSuiteShadow?.dirty())?Promise.resolve():oldWorkspaceLoad(...args);};
   // Narrow bridge to the existing renderer: no new polling, data owner or write endpoint.
+  const oldSelection=renderSelection;renderSelection=function(){oldSelection();reconcileGuardNotice();};
   const oldStatus=renderStatus;renderStatus=function(s){oldStatus(s);renderCockpit();};
   const oldZone=renderZoneView;renderZoneView=function(){oldZone();renderCockpit();renderModules();};
   const oldLearning=renderLearning;renderLearning=function(){oldLearning();invalid=false;renderModules();};

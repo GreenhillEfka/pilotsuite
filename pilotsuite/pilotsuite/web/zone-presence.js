@@ -14,6 +14,7 @@
  const eligible=()=>root&&!root.hidden&&root.getClientRects().length&&valid;
  const current=(z,r,g)=>zone===z&&revision===r&&generation===g&&valid;
  function note(t){if(notice)notice.textContent=t;}
+ const editingChanged=()=>window.PilotSuiteWorkspaceEditingChanged?.();
  async function api(suffix,method='GET',body){
    const z=zone;const response=await fetch(`api/v1/zones/${encodeURIComponent(z)}/${suffix}`,{
      method,cache:'no-store',headers:{'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
@@ -132,12 +133,12 @@
      if(result.mode!=='existing_control'||result.zone_id!==z||result.revision!==r)throw Error('Bestandsprüfung gehört nicht mehr zum aktuellen Stand.');
      existingReview=result;
    }catch(e){if(current(z,r,g))note('Bestandsprüfung nicht bestätigt: '+e.message);}
-   finally{busy=false;if(current(z,r,g)&&data){const message=notice.textContent;render();note(existingReview?'Bestandsprüfung abgeschlossen. Keine Automation verändert.':message);}}
+   finally{busy=false;if(current(z,r,g)&&data){const message=notice.textContent;render();note(existingReview?'Bestandsprüfung abgeschlossen. Keine Automation verändert.':message);}editingChanged();}
  }
  async function reloadBasis(){if(typeof loadSelection==='function'&&zone)await loadSelection(zone);else if(typeof load==='function')await load();}
  function startEditor(title){editing=true;editor.replaceChildren(E('h3',title));tools.querySelectorAll('button').forEach(b=>b.disabled=true);}
- function cancel(){if(busy)return;editing=false;plan=null;editor.replaceChildren();render();reloadBasis().catch(()=>note('Aktuellen Zonenstand erneut laden.'));}
- async function save(action){if(busy)return;busy=true;try{await action();}catch(e){note(e.message);}finally{busy=false;if(!editing){try{await reloadBasis();}catch{note('Aktuellen Zonenstand erneut laden.');}if(data)render();else if(eligible())await read();}}}
+ function cancel(){if(busy)return;editing=false;plan=null;editor.replaceChildren();render();reloadBasis().catch(()=>note('Aktuellen Zonenstand erneut laden.')).finally(editingChanged);}
+ async function save(action){if(busy)return;busy=true;try{await action();}catch(e){note(e.message);}finally{busy=false;if(!editing){try{await reloadBasis();}catch{note('Aktuellen Zonenstand erneut laden.');}if(data)render();else if(eligible())await read();}editingChanged();}}
  function openEditor(){
    if(!data||busy)return;startEditor('Präsenzverhalten je Zone');
    const form=E('form');form.id='ps-zone-form';const values=data.spec;
@@ -204,7 +205,7 @@
      if(!current(z,r,g))return;historyData=result;charts.replaceChildren(E('h3','Reale Sensorverläufe'),E('p',result.warning,'ps-muted'));
      for(const series of result.sources)charts.append(chart(series));note(`${result.record_count} aufgezeichnete Punkte ausgewertet; keine Datenfreigabe zusätzlich erforderlich.`);
    });
-   editor.append(B('Zeitraum laden',fetchData),B('Ansicht schließen',()=>{editing=false;editor.replaceChildren();render();}));await fetchData();
+   editor.append(B('Zeitraum laden',fetchData),B('Ansicht schließen',()=>{editing=false;editor.replaceChildren();render();editingChanged();}));await fetchData();
  }
  async function preparePackage(){if(!data||busy)return;startEditor('Eigenen Anwesenheitssensor bereitstellen');await save(async()=>{
    plan=await api('presence/package','POST',{revision});renderPlan('presence/package');

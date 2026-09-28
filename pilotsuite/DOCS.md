@@ -1,6 +1,6 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.61. Read
+> Documentation for app version 0.1.0-alpha.62. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
 
@@ -94,6 +94,9 @@ Appearance settings are stored only in this browser (theme, density, ID visibili
 last workspace); no household states, entity IDs or draft content go into this cache.
 Navigating away from an open edit is blocked until it is saved or cancelled. Searches
 and filters do not uncheck hidden sources. Diagrams do not imply control activation.
+Alpha.62 removes the obsolete navigation warning after the presence editor finishes
+saving/reloading or is discarded. Pending requests, failed saves and other drafts
+keep the guard; unrelated notices are not cleared. No automatic navigation follows.
 
 ## First start
 
@@ -103,7 +106,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.61`
+- Release: `0.1.0-alpha.62`
 
 ## Habitus zones and entity selection
 

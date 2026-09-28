@@ -562,7 +562,7 @@ malformed values retain an explicit limitation and reveal no authored text. This
 changes only the read-only evidence projection: no automation, zone, learning state,
 risk, preference or execution authority is changed.
 
-## ADR-042 — Connect existing presence control without taking ownership
+## ADR-043 — Connect existing presence control without taking ownership
 
 Accepted 2026-09-28 in the manual follow-up after the closed bounded quality run.
 The user explicitly chose to keep existing HA automations in control. Bind their

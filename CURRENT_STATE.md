@@ -1,4 +1,21 @@
-# Current state — Alpha.61 installed; household acceptance pending
+# Current state — Alpha.62 candidate; Alpha.61 installed
+
+## Active focused follow-up
+
+Alpha.62 fixes the reproduced stale workspace edit guard after presence save/cancel.
+Guard ownership is explicit; only a guard with no remaining dirty/busy owner is
+cleared. Canonical render hooks and presence completion callbacks are reused; no
+new polling, automatic navigation, presence logic or HA write authority.
+
+Red/green full-app regression and extended save/reload gates, failed save, discard,
+other draft, unrelated error, history close and pending read-only review pass.
+612 Python / 75 JS / 62 contracts and local zone/workspace/Organization browser suites
+pass; repeated Python audit has zero ResourceWarnings. Fresh PilotSuite-only backup
+`6828ab75` was verified through native metadata: Alpha.61, 54,476,800 bytes, no
+HA/database/folders/failures, local/unprotected. Release CI and installation remain
+pending; the receipt below still describes installed Alpha.61. Authenticated household
+Ingress remains unavailable.
+The duplicate existing-control decision is renumbered ADR-043; ADR-042 stays intact.
 
 ## Verified delivery
 
@@ -61,9 +78,8 @@ and observe actual comparisons without test switching. This release did not gues
 or apply household mappings. Existing automations stay in control; a public sensor
 was not automatically generated for the existing chain.
 
-The earlier stale “Bearbeitung läuft” notice after blocked navigation and successful
-save remains reproduced but unfixed. Its focused regression/fix must preserve failed
-drafts and unrelated errors; no blanket notice clearing. Scheduler/checkpoint
+The earlier stale “Bearbeitung läuft” notice is fixed in the active candidate above,
+not yet installed. Scheduler/checkpoint
 consolidation, automation takeover, technical ID migration and adaptive learning
 remain separate work.
 
