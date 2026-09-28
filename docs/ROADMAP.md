@@ -41,11 +41,12 @@ Implementiert, getestet und nach PR #132 sowie exakter Kandidaten-/Main-CI insta
 Haushaltszuordnung und echte Ingress-Abnahme bleiben offen; keine Bestandsautomation
 wurde geändert. Belege im Release-Receipt. Der alte Heartbeat bleibt pausiert.
 
-Alpha.62-Kandidat behebt den am 28.09.2026 rot reproduzierten Bedienfehler: Nach
+Alpha.62 behebt den am 28.09.2026 rot reproduzierten Bedienfehler: Nach
 blockiertem Bereichswechsel und anschließendem Speichern/Verwerfen verschwindet
 genau der veraltete Navigationshinweis. Offene Anfragen, andere Entwürfe und Fehler
-bleiben geschützt. Synthetisch geprüft, noch nicht installiert; keine neue UI-Schicht,
-kein Poller, keine automatische Navigation. Nächster fachlicher Schritt bleibt die
+bleiben geschützt. Nach PR #134 und exakter Kandidaten-/Main-CI installiert;
+Haushaltsabnahme offen. Keine neue UI-Schicht, kein Poller, keine automatische
+Navigation. Nächster fachlicher Schritt bleibt die
 lesende Haushaltsabnahme; Laufzeitkonsolidierung separat mit Ausgangsmessung.
 
 ## 2. Danach: intern entkoppeln und doppelte Arbeit reduzieren
