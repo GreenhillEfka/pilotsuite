@@ -39,17 +39,39 @@ remains unchanged and untracked; Ingress/authentication intact.
 User mandate: administration, configuration and lighting, 2026-09-28
 17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
 Reused heartbeat active for this window only; pause at completion, never extend it.
-Finish the Alpha.66 documentation receipt before starting another package.
+Alpha.66 documentation receipt PR #143 is merged; exact candidate/main CI passed.
+
+## Tested, unreleased handoff: binary observation validity
+
+Branch `fix/binary-observation-validity` corrects malformed binary states being
+normalized to `False`/good. Explicit on/off and existing missing-state semantics
+remain unchanged; partial presence/daylight groups cannot become false merely
+because one member is invalid. Positive evidence is retained as partial.
+The existing lighting brief and preview now share source-validity filtering:
+invalid binary/light states and invalid or unsupported-unit lux are not usable.
+No new engine, configuration owner, write path or household action.
+
+Red baseline: 64 normalization/summary subcase failures, then eight lighting
+assertion failures and two malformed-payload errors. After correction: 637 Python
+tests, 75 JavaScript tests, 62 API contracts, discovery/compilation and existing
+synthetic workspace browser flow passed locally. Own diff review completed.
+Authenticated household Ingress acceptance remains unavailable.
+
+The 18:45:52 UTC publication cutoff passed while tests were being completed.
+No version bump, release backup, merge or installation for this patch. Alpha.66
+remains installed/started; all four app option values were rechecked unchanged.
+Keep this as a draft PR: before a future release, review exact candidate CI,
+bump all release markers/changelogs, obtain a fresh verified PilotSuite-only
+backup and pass every release gate, including exact new candidate/main CI.
 
 Latest user correction permits adoption/reuse. The unanswered question concerns
 the scope of live edits, not permission to develop the feature. Until answered,
 no household automation edit/enable/disable or active control transfer.
 
-Next bounded investigation: inconsistent usable-source counts and guidance in the
-existing lighting/configuration path. Preview accepts raw nonempty state whereas
-the decision brief validates lux. Reproduce invalid lux/binary states and missing/
-derived versus explicit-empty roles first; reuse canonical owners, preserve roles,
-drafts and consent. No household switching. An executable automation change path
+Remaining bounded investigation: missing/derived versus explicit-empty roles in
+the existing lighting/configuration path; this handoff only unifies validity, not
+role derivation. Reuse canonical owners and preserve roles, drafts and consent.
+No household switching. An executable automation change path
 requires its own concrete before/after plan, approved scope and recovery tests.
 
 Authenticated household Ingress and actual four-zone acceptance remain open.

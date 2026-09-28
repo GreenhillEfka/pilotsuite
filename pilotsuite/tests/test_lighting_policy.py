@@ -252,6 +252,23 @@ class LightingDecisionTests(unittest.TestCase):
         self.assertEqual("no_usable_brightness_reference", result["reason"])
         self.assertEqual("configure_sources", result["next_step"]["id"])
 
+    def test_invalid_binary_reference_is_not_a_usable_brightness_source(self):
+        for raw in ("broken", "0", "none", "UNAVAILABLE", {}, [], True):
+            with self.subTest(raw=raw):
+                result = build_lighting_decision(
+                    zone_id="room", revision=3,
+                    roles={"light": ["light.room"], "daylight_binary": ["binary_sensor.day"]},
+                    inventory={"items": [
+                        {"entity_id": "light.room", "decision": "relevant",
+                         "suggested_role": "light", "state": "on"},
+                        {"entity_id": "binary_sensor.day", "decision": "relevant",
+                         "suggested_role": "daylight_binary", "state": raw}]},
+                    summary={"daylight_binary": {"active": None, "status": "unavailable"}},
+                    transport_ready=True, inspections=[])
+                self.assertEqual(0, result["source_groups"]["daylight_binary"]["currently_usable_count"])
+                self.assertEqual("no_usable_brightness_reference", result["reason"])
+                self.assertIsNone(result["current_zone_observation"]["daylight_binary"]["active"])
+
     def test_nonfinite_or_negative_lux_never_becomes_usable_or_json_output(self):
         roles = {"light": ["light.room"], "illuminance": ["sensor.lux"]}
         inventory = {"items": [
@@ -340,6 +357,22 @@ class LightingPreviewApiTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(status, response.status)
         malformed = await self.client.post("/api/v1/zones/room/lighting-preview", data="{broken")
         self.assertEqual(400, malformed.status)
+
+    async def test_preview_counts_only_valid_canonical_measurements(self):
+        for raw, unit in (("NaN", "lx"), ("-1", "lx"), ("30", "%")):
+            with self.subTest(raw=raw, unit=unit):
+                await self.service.world.replace({
+                    "areas": [{"area_id": "room", "name": "Synthetic"}], "devices": [],
+                    "entities": [{"entity_id": "sensor.lux", "area_id": "room"}],
+                    "states": [{"entity_id": "sensor.lux", "state": raw,
+                                "attributes": {"device_class": "illuminance", "unit_of_measurement": unit}}]})
+                await self.service._derive()
+                response = await self.client.post("/api/v1/zones/room/lighting-preview",
+                    json={"revision": 2, "scenario": "daylight_transition"})
+                self.assertEqual(200, response.status)
+                body = await response.json()
+                self.assertEqual({"configured": 1, "currently_usable": 0}, body["zone_inputs"]["illuminance"])
+                self.assertFalse(body["execution"]["allowed"])
 
     async def test_live_decision_is_explicit_transient_and_structurally_reads_automations(self):
         self.service._connected = self.service._stream_connected = True

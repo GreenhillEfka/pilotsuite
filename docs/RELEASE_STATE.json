@@ -131,7 +131,7 @@
     "integrated_pr": 142,
     "integrated_commit": "d0cbb2131d05e5d39520d18ce89b466ff32cb2c2"
   },
-  "next_step": "Within the remaining two-hour window, reproduce inconsistent light-source usability and invalid binary-state handling in existing canonical owners; no new engine. Automation adoption/reuse is permitted as product direction, but live-edit scope and authenticated household Ingress/four-zone acceptance remain pending.",
+  "next_step": "Unreleased branch fix/binary-observation-validity fixes invalid binary observations and shares lighting source-validity checks; 637 Python / 75 JS / 62 contracts and synthetic workspace browser passed locally. No version bump, merge or installation after the publication cutoff. Future release still requires fresh PilotSuite-only backup, version/changelog updates and exact candidate/main CI. Missing/derived role alignment, live-edit scope and household Ingress/four-zone acceptance remain open.",
   "runtime_measurement": {
     "scope": "No performance change claimed for Alpha.66. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"

@@ -6,6 +6,43 @@ from pilotsuite.domain.neurons import build_neurons
 
 
 class NeuronTests(unittest.TestCase):
+    @staticmethod
+    def binary(raw, device_class='occupancy', entity_id='binary_sensor.synthetic'):
+        return {'entity_id': entity_id, 'area_id': 'synthetic', 'registry': {},
+                'state': {'state': raw, 'attributes': {'device_class': device_class}}}
+
+    def test_invalid_binary_states_never_become_false_or_good(self):
+        for kind in ('occupancy', 'motion', 'presence', 'light', 'door'):
+            for raw in ('broken', '0', '1', 'false', 'true', ' off ', False, True, 0, 1, {}, []):
+                with self.subTest(kind=kind, raw=raw):
+                    neuron = build_neurons({'entities': [self.binary(raw, kind)]})[0]
+                    self.assertIsNone(neuron.value)
+                    self.assertEqual('invalid', neuron.quality)
+
+    def test_binary_valid_and_missing_states_keep_their_semantics(self):
+        for raw, value, quality in [('on', True, 'good'), ('off', False, 'good'),
+                ('ON', True, 'good'), ('OFF', False, 'good'), (None, None, 'missing'),
+                ('', None, 'missing'), ('unknown', None, 'unknown'),
+                ('unavailable', None, 'unavailable'), ('none', None, 'none')]:
+            with self.subTest(raw=raw):
+                neuron = build_neurons({'entities': [self.binary(raw)]})[0]
+                self.assertIs(value, neuron.value)
+                self.assertEqual(quality, neuron.quality)
+
+    def test_invalid_member_blocks_false_but_does_not_erase_positive_role_evidence(self):
+        from pilotsuite.domain.context import context_summary
+        for kind, role in [('occupancy', 'presence'), ('light', 'daylight_binary')]:
+            for valid_state, expected in [('off', None), ('on', True)]:
+                with self.subTest(kind=kind, valid_state=valid_state):
+                    neurons = build_neurons({'entities': [self.binary('broken', kind),
+                        self.binary(valid_state, kind, 'binary_sensor.valid')]})
+                    summary, _ = context_summary(neurons,
+                        {role: ['binary_sensor.synthetic', 'binary_sensor.valid']})
+                    self.assertEqual('partial', summary[role]['status'])
+                    self.assertEqual(1, summary[role]['valid'])
+                    self.assertIs(expected, summary[role]['active'])
+                    self.assertIs(expected, summary[role]['reference']['value'])
+
     def test_unavailable_is_not_coerced_to_zero(self) -> None:
         scope = {
             "entities": [
@@ -60,4 +97,3 @@ class NeuronTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
