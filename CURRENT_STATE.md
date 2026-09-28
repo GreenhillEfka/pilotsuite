@@ -34,22 +34,48 @@ import/diff/transform modules and PlanStore remain the future implementation bas
 No household binding/helper/metadata/automation/output/consent changed. AGENTS.md
 remains unchanged and untracked; Ingress/authentication intact.
 
-## Active two-hour run and next task
+## Closed two-hour run; explicitly authorized completion
 
 User mandate: administration, configuration and lighting, 2026-09-28
 17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
-Reused heartbeat active for this window only; pause at completion, never extend it.
-Finish the Alpha.66 documentation receipt before starting another package.
+The reused heartbeat was paused at 18:58 UTC; this window is not extended.
+The subsequent user request "Kein Problem, mach die Arbeit fertig" explicitly
+authorizes finishing existing PR #144 through the release runbook. No unrelated
+feature package or new household write permission is implied.
+Alpha.66 documentation receipt PR #143 is merged; exact candidate/main CI passed.
+
+## Alpha.67 candidate: binary observation validity
+
+Branch `fix/binary-observation-validity` corrects malformed binary states being
+normalized to `False`/good. Explicit on/off and existing missing-state semantics
+remain unchanged; partial presence/daylight groups cannot become false merely
+because one member is invalid. Positive evidence is retained as partial.
+The existing lighting brief and preview now share source-validity filtering:
+invalid binary/light states and invalid or unsupported-unit lux are not usable.
+No new engine, configuration owner, write path or household action.
+
+Red baseline: 64 normalization/summary subcase failures, then eight lighting
+assertion failures and two malformed-payload errors. After correction: 637 Python
+tests, 75 JavaScript tests, 62 API contracts, discovery/compilation and existing
+synthetic workspace browser flow passed locally. Own diff review completed.
+Authenticated household Ingress acceptance remains unavailable.
+
+The original unversioned draft correctly stopped at the release-source CI gate;
+its other four jobs passed. Under the new completion request, version markers and
+changelogs now identify Alpha.67. Fresh PilotSuite-only backup `62b66f9e` completed
+at 19:00:10 UTC: exactly Alpha.66 app/data/options, 54,476,800 bytes, no HA/database,
+folders or failed components; native list/details verified, no restore drill.
+Exact versioned candidate/main CI is required before installation. Alpha.66 remains the last
+verified installed version until a new receipt proves otherwise.
 
 Latest user correction permits adoption/reuse. The unanswered question concerns
 the scope of live edits, not permission to develop the feature. Until answered,
 no household automation edit/enable/disable or active control transfer.
 
-Next bounded investigation: inconsistent usable-source counts and guidance in the
-existing lighting/configuration path. Preview accepts raw nonempty state whereas
-the decision brief validates lux. Reproduce invalid lux/binary states and missing/
-derived versus explicit-empty roles first; reuse canonical owners, preserve roles,
-drafts and consent. No household switching. An executable automation change path
+Remaining bounded investigation: missing/derived versus explicit-empty roles in
+the existing lighting/configuration path; this handoff only unifies validity, not
+role derivation. Reuse canonical owners and preserve roles, drafts and consent.
+No household switching. An executable automation change path
 requires its own concrete before/after plan, approved scope and recovery tests.
 
 Authenticated household Ingress and actual four-zone acceptance remain open.

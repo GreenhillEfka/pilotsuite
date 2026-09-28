@@ -71,6 +71,8 @@ def build_neurons(scope: dict[str, Any]) -> list[Neuron]:
             kind = "daylight_binary"
         quality = _quality(raw_state)
         value = _value(raw_state, str(device_class or ""), domain, quality)
+        if domain == "binary_sensor" and quality == "good" and type(value) is not bool:
+            quality = "invalid"
         unit = _optional_string(attrs.get("unit_of_measurement"))
         if quality == "good" and kind in {"temperature", "humidity", "illuminance"}:
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
@@ -116,6 +118,11 @@ def build_neurons(scope: dict[str, Any]) -> list[Neuron]:
     return sorted(result, key=lambda neuron: neuron.entity_id)
 
 
+def binary_state_value(raw_state: Any) -> bool | None:
+    """Accept explicit HA on/off states, never coerce malformed evidence to off."""
+    return {"on": True, "off": False}.get(raw_state.lower()) if isinstance(raw_state, str) else None
+
+
 def _quality(raw_state: Any) -> str:
     if raw_state is None:
         return "missing"
@@ -131,7 +138,11 @@ def _value(
     if quality != "good":
         return None
     normalized = str(raw_state)
-    if domain == "binary_sensor" or normalized.lower() in {"on", "off"}:
+    if domain == "binary_sensor":
+        # Unknown payloads are not negative evidence. Preserve the distinction
+        # before every downstream role summary, mood and lighting observation.
+        return binary_state_value(raw_state)
+    if normalized.lower() in {"on", "off"}:
         return normalized.lower() == "on"
     if device_class in NUMERIC_DEVICE_CLASSES or domain in {"sensor", "number"}:
         try:

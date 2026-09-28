@@ -37,8 +37,7 @@ in control. Structural alignment never establishes safe/equivalent behavior.
 Until the pending live-change scope is answered, develop/test adoption review but
 do not edit, enable or disable household automations or transfer control. A future
 write needs concrete reviewed changes, fresh preconditions, backup and recovery.
-The three-hour and subsequent one-hour windows are closed. The user's new two-hour
-run on 2026-09-28 covers administration, configuration and lighting, from 17:05:52
-to 19:05:52 UTC. The reused heartbeat is active only for this new window; no new
-packages/publications after 18:45:52 UTC. Pause it at completion, never extend it.
-Earlier windows are not reopened. Household and release boundaries still apply.
+The three-hour, one-hour and two-hour runs are closed; their heartbeat is paused.
+The explicit follow-up "Kein Problem, mach die Arbeit fertig" authorizes finishing
+the existing PR #144 through the release runbook, not reopening the scheduled run
+or starting unrelated feature packages. Household and release boundaries still apply.

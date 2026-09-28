@@ -337,6 +337,7 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin, Zo
     async def lighting_preview(self, zone_id, payload):
         """Preview one allowlisted synthetic light scenario; never read or write HA."""
         from pilotsuite.core.lighting_policy import PREVIEW_SCENARIOS, replay_lighting_scenario
+        from pilotsuite.core.lighting_decision import usable_lighting_sources
         if (not isinstance(payload, dict) or set(payload) != {"revision", "scenario"}
                 or type(payload["revision"]) is not int
                 or not isinstance(payload["scenario"], str)
@@ -349,12 +350,10 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin, Zo
             cfg = await self.context.get(zone_id)
             roles = cfg.get("roles", {})
             by_id = {row.get("entity_id"): row for row in inventory.get("items", [])}
+            zone = next((row for row in self._zone_results if row.get("zone_id") == zone_id), {})
             def source_count(role):
                 configured = roles.get(role, [])
-                usable = [entity_id for entity_id in configured
-                          if by_id.get(entity_id, {}).get("decision") == "relevant"
-                          and by_id[entity_id].get("suggested_role") == role
-                          and by_id[entity_id].get("state") not in (None, "", "unknown", "unavailable")]
+                usable = usable_lighting_sources(role, configured, by_id, zone.get("summary", {}))
                 return {"configured": len(configured), "currently_usable": len(usable)}
             inputs = {role: source_count(role)
                       for role in ("light", "illuminance", "daylight_binary")}

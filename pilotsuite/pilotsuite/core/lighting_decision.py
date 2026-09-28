@@ -6,10 +6,11 @@ import math
 from typing import Any
 
 from .context import ROLE_KINDS
+from pilotsuite.domain.neurons import binary_state_value
 
 
 ROLES = ("light", "illuminance", "daylight_binary", "presence", "atmosphere")
-UNUSABLE_STATES = {None, "", "unknown", "unavailable"}
+UNUSABLE_STATES = {"", "unknown", "unavailable", "none"}
 
 
 def _valid_lux(value: Any) -> bool:
@@ -22,11 +23,23 @@ def _ids(value: Any) -> list[str]:
     return sorted({item for item in value if isinstance(item, str) and item})
 
 
-def _usable(role: str, configured: list[str], items: dict[str, dict[str, Any]]) -> list[str]:
-    return [entity_id for entity_id in configured
+def usable_lighting_sources(role: str, configured: list[str], items: dict[str, dict[str, Any]],
+                            summary: dict[str, Any]) -> list[str]:
+    """Share evidence validity between the read-only brief and synthetic preview."""
+    usable = [entity_id for entity_id in configured
             if items.get(entity_id, {}).get("decision") == "relevant"
             and items[entity_id].get("suggested_role") in ROLE_KINDS.get(role, {role})
-            and items[entity_id].get("state") not in UNUSABLE_STATES]
+            and isinstance(items[entity_id].get("state"), str)
+            and items[entity_id]["state"].lower() not in UNUSABLE_STATES
+            and (entity_id.split(".", 1)[0] not in {"binary_sensor", "light", "switch", "input_boolean"}
+                 or binary_state_value(items[entity_id]["state"]) is not None)]
+    if role == "illuminance":
+        illuminance = summary.get(role) if isinstance(summary.get(role), dict) else {}
+        valid = {row.get("entity_id") for row in illuminance.get("measurements", [])
+                 if isinstance(row, dict) and row.get("quality") == "good"
+                 and _valid_lux(row.get("value"))}
+        usable = [entity_id for entity_id in usable if entity_id in valid]
+    return usable
 
 
 def _automation_rows(inspections: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -62,13 +75,8 @@ def build_lighting_decision(*, zone_id: str, revision: int, roles: dict[str, Any
     items = {row.get("entity_id"): row for row in inventory.get("items", [])
              if isinstance(row, dict) and isinstance(row.get("entity_id"), str)}
     configured = {role: _ids(roles.get(role)) for role in ROLES}
-    usable = {role: _usable(role, configured[role], items) for role in ROLES}
+    usable = {role: usable_lighting_sources(role, configured[role], items, summary) for role in ROLES}
     illuminance = summary.get("illuminance") if isinstance(summary.get("illuminance"), dict) else {}
-    valid_lux = {row.get("entity_id") for row in illuminance.get("measurements", [])
-                 if isinstance(row, dict) and row.get("quality") == "good"
-                 and _valid_lux(row.get("value"))}
-    usable["illuminance"] = [entity_id for entity_id in usable["illuminance"]
-                              if entity_id in valid_lux]
     lux_value = illuminance.get("value")
     if not usable["illuminance"] or not _valid_lux(lux_value):
         lux_value = None
