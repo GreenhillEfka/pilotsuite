@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.0-alpha.66] - 2026-09-28
+
+### Bestehende Automationen zur Weiterverwendung prüfen
+- Die bestehende Präsenz-Bestandsprüfung nennt direkte Bezüge und unterscheidet
+  Steuerung, Verbraucher und gemischte Logik als Ausgangspunkt einer Übernahme.
+  Bestehende Schreiber sind nicht allein deshalb ein zu beseitigender Konflikt.
+- Leere oder ungeklärte Prüfungen melden keine Übernahmebereitschaft mehr;
+  nicht aufgelöste Bezüge bleiben im Gesamtbefund erhalten. Struktur allein
+  begründet weder sichere Steuerungsübergabe noch Verhaltensgleichheit.
+- Eine revisionsgebundene Prüfübersicht zeigt unveränderte Verantwortung und
+  offene Prüfungen für Nachlauf, unbekannte Quellen, manuelle Bedienung,
+  Abhängigkeiten, Schreiber und Rückweg. Noch kein ausführbarer Änderungsplan,
+  keine Automationsänderung, Speicherung, neue Engine oder Haushaltsaktion.
+
 ## [0.1.0-alpha.65] - 2026-09-28
 
 ### Lichtvorschau: Unterbrechungen zählen nicht als stabile Beobachtung

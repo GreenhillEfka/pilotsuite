@@ -16,11 +16,49 @@ class PresenceAdoptionTests(unittest.TestCase):
     def test_templates_block_automatic_takeover(self):
         row=classify_inspection(self.inspection(limitations=["templates_not_evaluated"]),self.runtime)
         self.assertIn("templates_not_evaluated",row["blockers"]);self.assertFalse(row["takeover_ready"])
-    def test_clean_related_reader_can_be_planned_but_plan_never_executes(self):
+    def test_clean_structure_is_reviewable_not_takeover_ready(self):
         plan=adoption_plan("room",7,self.runtime,[self.inspection()])
-        self.assertEqual("ready_for_separate_takeover_approval",plan["recommendation"])
+        self.assertEqual("review_existing_control",plan["recommendation"])
+        self.assertFalse(plan["automations"][0]["takeover_ready"])
         self.assertFalse(plan["execution"]["allowed"]);self.assertEqual([],plan["execution"]["actions"])
         self.assertEqual(64,len(plan["fingerprint"]))
+
+    def test_empty_or_unresolved_review_never_claims_readiness(self):
+        for reports in ([], [self.inspection(limitations=['templates_not_evaluated'])]):
+            with self.subTest(reports=reports):
+                if reports:
+                    reports[0]['sections']['triggers'] = []
+                plan = adoption_plan('room', 7, self.runtime, reports, include_unrelated=True)
+                self.assertEqual('inspect_missing_relationships', plan['recommendation'])
+                if reports:
+                    self.assertIn('templates_not_evaluated', plan['blockers'])
+
+    def test_reuse_review_keeps_controllers_and_consumers_without_executable_changes(self):
+        from copy import deepcopy
+        reports = [self.inspection([{'kind': 'service_call', 'availability': 'available',
+            'service': 'input_boolean.turn_on', 'target_references': [self.runtime['owner']]}])]
+        before = deepcopy(reports)
+        plan = adoption_plan('room', 7, self.runtime, reports)
+        row = plan['automations'][0]
+        self.assertEqual('retain_controller', row['reuse_disposition'])
+        self.assertEqual(['binary_sensor.motion', self.runtime['owner']], row['affected_entities'])
+        review = plan['reuse_review']
+        self.assertEqual('existing_automations', review['controller_before'])
+        self.assertEqual(review['controller_before'], review['controller_after'])
+        self.assertEqual([], review['proposed_changes'])
+        self.assertFalse(review['apply_implemented'])
+        self.assertEqual({'timing', 'unknown_inputs', 'manual_override', 'dependencies',
+            'single_writer', 'backup_recovery'}, {c['id'] for c in review['checks']})
+        self.assertTrue(all(c['state'] == 'open' for c in review['checks']))
+        self.assertEqual(before, reports)
+
+    def test_unresolved_inspection_change_invalidates_review_fingerprint(self):
+        report = self.inspection(limitations=['dynamic_enablement'])
+        report['sections']['triggers'][0]['availability'] = 'unknown'
+        before = adoption_plan('room', 7, self.runtime, [report])
+        report['config_fingerprint'] = 'b' * 64
+        after = adoption_plan('room', 7, self.runtime, [report])
+        self.assertNotEqual(before['fingerprint'], after['fingerprint'])
     def test_disabled_or_dynamic_references_do_not_create_confirmed_overlap(self):
         for state,limitation in (("unavailable","disabled_step"),("unknown","dynamic_enablement")):
             report=self.inspection([{"target_references":["input_boolean.room_presence"],"availability":state}],
@@ -56,6 +94,7 @@ class PresenceAdoptionTests(unittest.TestCase):
                 row = classify_inspection(inspected, runtime)
                 self.assertTrue(row["overlap"], "A downstream consumer belongs in the existing presence chain")
                 self.assertEqual("consumer", row["usage"])
+                self.assertEqual("retain_consumer", row["reuse_disposition"])
                 self.assertEqual([runtime["sensor"]], row["reads_status"])
                 self.assertFalse(row["writes_owner"])
 
@@ -70,6 +109,7 @@ class PresenceAdoptionTests(unittest.TestCase):
             draft, "automation.mixed")
         row = classify_inspection(inspected, self.runtime)
         self.assertEqual("mixed_writer", row.get("usage"))
+        self.assertEqual("review_mixed_controller", row["reuse_disposition"])
         self.assertTrue(row["writes_owner"])
         self.assertFalse(row["takeover_ready"])
 

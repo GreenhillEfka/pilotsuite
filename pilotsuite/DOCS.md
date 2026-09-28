@@ -1,6 +1,6 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.65. Read
+> Documentation for app version 0.1.0-alpha.66. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
 
@@ -28,6 +28,16 @@ muss sich das Helligkeitsband erneut stabilisieren. Die Unterbrechung zählt nic
 als Beobachtungszeit; der Mindestabstand zum letzten Vorschlag bleibt bestehen.
 Die Vorschau liest keine Haushaltswerte, speichert nichts und schaltet keine Leuchte.
 
+## Vorhandene Automationen weiterverwenden (Alpha.66)
+
+Unter **Bestehende Anwesenheitssteuerung → Übernahme vorhandener Automationen prüfen**
+zeigt dieselbe Bestandsprüfung direkte Bezüge, bestehende Steuerung, Verbraucher und
+gemischte Logik. Die anschließende Übersicht nennt unveränderte Verantwortung und
+offene Verhaltens-/Rückwegprüfungen. Bestehende Schreiber sind kein Grund, bewährte
+Automationen neu zu bauen. Eine leere Suche oder passende Struktur belegt aber keine
+Übernahmebereitschaft. Noch keine ausführbare Automationsänderung oder Steuerungsübergabe;
+keine automatische Deaktivierung und kein zusätzlich angelegter Controller.
+
 ## Options
 
 | Option | Default | Meaning |
@@ -51,7 +61,7 @@ Speichern ändert nur die Zuordnung. Bestehende Automationen steuern unveränder
 Zurück in der Zonenansicht stehen deren Zustände, gemeldete Timerfrist und Vergleich
 mit PilotSuites unabhängiger Bewertung. Fehlende Teile bleiben ausdrücklich offen.
 
-**Bestandsautomationen lesend prüfen** unterscheidet Status-/Timer-Schreiber,
+**Übernahme vorhandener Automationen prüfen** unterscheidet Status-/Timer-Schreiber,
 Status-Verbraucher und gemischte Logik. Die datierte Strukturprüfung ist keine
 laufende Überwachung und keine vollständige Verbrauchersuche. Weder ein Timer in
 `idle` noch unbekannte Daten bedeuten frei. PilotSuite schreibt keine bestehenden
@@ -115,7 +125,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.65`
+- Release: `0.1.0-alpha.66`
 
 ## Habitus zones and entity selection
 

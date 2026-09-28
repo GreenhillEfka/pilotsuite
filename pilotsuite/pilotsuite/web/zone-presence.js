@@ -106,11 +106,18 @@
    comparison.id='ps-existing-comparison';section.append(comparison);
    if(existing.chain_consistency==='different'&&existing.fresh)section.append(E('p','Boolean und öffentlicher Bestands-Präsenzsensor widersprechen sich aktuell. Es wird nichts automatisch korrigiert.','ps-warning'));
    if(!existing.sensor)section.append(E('p','Kein öffentlicher Bestands-Präsenzsensor zugeordnet; ein Boolean allein bestätigt diese Stufe noch nicht.','ps-warning'));
-   const review=B('Bestandsautomationen lesend prüfen',reviewExisting);review.id='ps-existing-review';review.disabled=busy||!existing.fresh;section.append(review);
+   const review=B('Übernahme vorhandener Automationen prüfen',reviewExisting);review.id='ps-existing-review';review.disabled=busy||!existing.fresh;section.append(review);
    section.append(E('p',`${existing.automations?.length||0} Automation(en) zugeordnet. Prüfung ergänzt direkt verknüpfte Automationen; keine vollständige Verbraucher- oder Verhaltensgarantie.`,'ps-muted'));
    if(existingReview){
      const report=E('details');report.open=openReview;report.dataset.psLive='existing-review';report.append(E('summary','Letzte Strukturprüfung · '+date(existingReview.checked_at)));
      report.append(E('p','Historische Prüfsicht, keine laufende Überwachung der Automationskonfiguration. Vor Änderungen erneut prüfen. Steuerung unverändert.','ps-muted'));
+     const reuse=E('section');reuse.id='ps-existing-reuse';reuse.append(E('h4','Bestand weiterverwenden – Übernahmeprüfung'));
+     reuse.append(E('p','Ausgangspunkt: Vorhandene Automationen, Boolean, Timer und Präsenzsensor behalten. Eine passende Struktur ist noch kein Nachweis gleichen oder sicheren Verhaltens.'));
+     reuse.append(E('p','Jetzt → nach dieser Prüfung: Bestehende Automationen steuern weiterhin. Keine Konfigurationsänderung vorgeschlagen oder ausgeführt; es gibt daher nichts zurückzunehmen.'));
+     const checks=E('ul');
+     const checkLabels={timing:'Auslöser, Bedingungen und Nachlauf im tatsächlichen Ablauf prüfen.',unknown_inputs:'Unbekannte und unverfügbare Quellen dürfen nicht stillschweigend frei bedeuten.',manual_override:'Manuelle Eingriffe und Sperren mit ihrer tatsächlichen Bedeutung erhalten.',dependencies:'Weitere Verbraucher, Skripte und indirekte Abhängigkeiten prüfen.',single_writer:'Vor einer Steuerungsübergabe konkurrierende Schreiber für jedes Ziel klären.',backup_recovery:'Vor Änderungen konkreten Vorher-/Nachherplan, Freigabe, Sicherung und Rückweg festlegen.'};
+     for(const check of existingReview.reuse_review?.checks||[]){if(checkLabels[check.id])checks.append(E('li','Offen: '+checkLabels[check.id]));}
+     reuse.append(checks,E('p','Automationsänderung und Steuerungsübergabe sind hier noch nicht ausführbar. Die Prüfung bereitet eine kontrollierte Übernahme vor, sie ersetzt keine Freigabe.','ps-warning'));report.append(reuse);
      for(const row of existingReview.automations){
        const entry=E('article','','ps-zone-source-edit');entry.dataset.existingAutomation=row.automation_id;
        const usage={writer:'Steuert den Bestandsstatus / Nachlauf',mixed_writer:'Gemischte Steuerung mit weiteren Aktionen',consumer:'Verwendet den Bestandsstatus',related:'Weitere direkte Verbindung',unrelated:'Keine direkte Verbindung erkannt'}[row.usage]||'Ungeklärt';
@@ -118,6 +125,9 @@
        entry.append(E('strong',usage),identity,E('p','Bei Prüfung: '+(row.observed_enabled===true?'aktiv':row.observed_enabled===false?'ausgeschaltet':'Aktivierung unklar')));
        const effects=[];if(row.writes_owner)effects.push('schaltet Raumstatus');if(row.writes_timer)effects.push('schaltet Nachlauf');if(row.reads_status?.length)effects.push('liest '+row.reads_status.join(', '));if(row.reads_timer)effects.push('liest Timer');
        if(effects.length)entry.append(E('p',effects.join(' · ')));
+       const reuseLabel={retain_controller:'Zur Weiterverwendung als bestehende Steuerung prüfen; nicht allein wegen des Schreibzugriffs ersetzen.',review_mixed_controller:'Gemischte Logik einzeln prüfen. Nicht die ganze Automation deaktivieren: Weitere Aktionen könnten betroffen sein.',retain_consumer:'Bestehenden Verbraucher erhalten; bei einer späteren Änderung seine Eingänge gesondert prüfen.',inspect_relationship:'Zuordnung und tatsächliches Verhalten erst klären; keine Übernahmebereitschaft belegt.'}[row.reuse_disposition];
+       if(reuseLabel)entry.append(E('p',reuseLabel,'ps-muted'));
+       if(row.affected_entities?.length)entry.append(E('p','Direkt erkannte Bezüge: '+row.affected_entities.join(', ')));
        if(row.limitations.length)entry.append(E('p','Nicht vollständig aufgelöst: '+row.limitations.join(', '),'ps-warning'));
        report.append(entry);
      }
@@ -130,7 +140,7 @@
    const z=zone,r=revision,g=generation;busy=true;existingReview=null;render();note('Bestandsautomationen werden ausschließlich gelesen …');
    try{const result=await api('presence-adoption/review','POST',{revision:r});
      if(!current(z,r,g))return;
-     if(result.mode!=='existing_control'||result.zone_id!==z||result.revision!==r)throw Error('Bestandsprüfung gehört nicht mehr zum aktuellen Stand.');
+     if(result.mode!=='existing_control'||result.zone_id!==z||result.revision!==r||result.execution?.allowed!==false||result.reuse_review?.apply_implemented!==false)throw Error('Bestandsprüfung gehört nicht mehr zum aktuellen Stand.');
      existingReview=result;
    }catch(e){if(current(z,r,g))note('Bestandsprüfung nicht bestätigt: '+e.message);}
    finally{busy=false;if(current(z,r,g)&&data){const message=notice.textContent;render();note(existingReview?'Bestandsprüfung abgeschlossen. Keine Automation verändert.':message);}editingChanged();}

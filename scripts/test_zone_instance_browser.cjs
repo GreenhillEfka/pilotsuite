@@ -166,6 +166,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(await page.locator('#ps-notice').isVisible(),false,'completed review settles its guard');
   assert.match(await page.locator('[data-existing-automation="automation.existing_consumer"]').innerText(),/Verwendet den Bestandsstatus/);
   assert.match(await page.locator('[data-existing-automation="automation.existing_presence"]').innerText(),/schaltet Raumstatus.*schaltet Nachlauf/s);
+  assert.match(await page.locator('[data-existing-automation="automation.existing_presence"]').innerText(),/Weiterverwendung als bestehende Steuerung/);
+  assert.match(await page.locator('[data-existing-automation="automation.existing_consumer"]').innerText(),/Bestehenden Verbraucher erhalten/);
+  assert.equal(await page.locator('#ps-existing-reuse li').count(),6);
+  assert.match(await page.locator('#ps-existing-reuse').innerText(),/Keine Konfigurationsänderung vorgeschlagen oder ausgeführt/);
+  assert.match(await page.locator('#ps-existing-reuse').innerText(),/Steuerungsübergabe sind hier noch nicht ausführbar/);
+  assert.equal(await page.locator('#ps-existing-reuse button').count(),0,'review has no hidden apply action');
   assert.equal((await command({action:'snapshot'})).automation_reads,2);
   await refreshPresence();assert.equal((await command({action:'snapshot'})).automation_reads,2,'polling never rereads automation configs');
   await command({action:'tick',values:{'binary_sensor.existing_presence':'unavailable'}});await refreshPresence();
@@ -176,6 +182,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.match(await page.locator('#ps-existing-presence').innerText(),/widersprechen sich aktuell/);
   await command({action:'tick',values:{'binary_sensor.existing_presence':'on'}});await refreshPresence();
   const compared=await command({action:'snapshot'});assert.equal(compared.helper_creates,0);assert.equal(compared.output_calls,0);assert.equal(compared.metadata_calls,0);
+  assert.deepEqual(compared.organization,bound.organization,'review never changes saved bindings');
+  for(const key of ['mode','roles','zones','learning'])assert.deepEqual(compared[key],bound[key],key+' unchanged by reuse review');
   if(out)await page.screenshot({path:path.join(out,'zone-existing-presence-desktop.png'),fullPage:true});
   console.log('ok 1b - existing chain binding, writer/consumer review, unavailable and mismatch; zero HA writes');
   await page.getByRole('button',{name:'Sensordaten & Verläufe',exact:true}).click();

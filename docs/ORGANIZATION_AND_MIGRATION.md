@@ -59,6 +59,28 @@ Zustand vor der Wiederherstellung. Keine direkte Bearbeitung von HA-.storage-Dat
 
 ## Bestandsanalyse und Reparaturplanung
 
+Alpha.66 ergänzt im vorhandenen Präsenz-Bestandsweg eine **Übernahmeprüfung**.
+Die neue Nutzerfreigabe erlaubt Weiterverwendung und kontrollierte Übernahme, nicht
+die Annahme, dass jede passende Struktur korrekt läuft. Pro Automation werden die
+direkt erkannten Quellen-/Status-/Timerbezüge und eine Prüfstrategie angezeigt:
+bestehende Steuerung weiterverwenden, Verbraucher erhalten, gemischte Logik einzeln
+prüfen oder ungeklärten Bezug untersuchen. Schreiber sind nur bei einer zusätzlichen
+Steuerung potenzielle Konflikte; gemischte Logik darf nicht pauschal deaktiviert werden.
+
+Die bestehende revisions-/identitätsgebundene POST-Prüfung liefert eine transiente
+Übersicht ohne neue Route oder Speicherung. `takeover_ready` bleibt als konservatives
+Kompatibilitätsfeld immer false. Auch nicht bestätigte Beziehungen behalten ihre
+Prüfgrenzen im Gesamtbefund und nehmen am Prüffingerabdruck teil. Leere Suche bedeutet
+nicht konfliktfrei oder übernahmebereit.
+Verantwortung vor/nach dieser Prüfung bleibt unverändert; die Liste vorgeschlagener
+Änderungen ist leer. Sechs offene Prüfungen decken Nachlauf/Bedingungen, unbekannte
+Quellen, manuelle Eingriffe, Abhängigkeiten, Schreiber und Sicherung/Rückweg ab.
+Dies ist noch kein ausführbarer, gesicherter Änderungsplan; spätere konkrete Änderungen
+müssen den bestehenden PlanStore und die vorhandenen reinen Import-/Diff-/Transform-
+Bausteine (`automation_import.py`, `automation_diff.py`, `automation_transform.py`)
+nutzen, statt eine zweite Implementierung einzuführen. Kein Schreiben, Deaktivieren, Freigeben oder
+Umschalten einer HA-Automation ist durch diese Übersicht implementiert.
+
 Analyse startet ausdrücklich mit einer bis acht ausgewählten Automationen, auch wenn
 Raumstatus und Timer noch nicht zugeordnet sind. Damit entfällt der Zirkelschluss der
 bisherigen Prüfung. Die Konfiguration wird transient gelesen und nicht vollständig
