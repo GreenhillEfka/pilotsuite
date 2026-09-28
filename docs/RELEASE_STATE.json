@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.60",
-    "commit": "1ae32bcbf2da64c43ddc397bb182cf6043fa59fd",
-    "tree": "8efcf273ecaca0c647322e3fb27eb0778e0b2069",
-    "app_tree": "7a899128917dccf180025f3e4f1113e94f84bd2a",
-    "pull_request": 129,
-    "candidate_commit": "3862f6a0f1f68c9a0245dd82b1327b63bd215dd4",
-    "candidate_ci_run_id": 36390129437,
-    "ci_run_id": 36390521039,
+    "version": "0.1.0-alpha.61",
+    "commit": "14f6cc659ccb5f5ddad7a77453d0038b5b29f8e2",
+    "tree": "d83b723db074bd3b49fb126163a0cdebde62bdcd",
+    "app_tree": "a1217ccb99f08c9bdddacd1d5e701c564e9a9bfa",
+    "pull_request": 132,
+    "candidate_commit": "dc1d2fa65f3e0663c9f343242e71f420c8e9aa75",
+    "candidate_ci_run_id": 36397807655,
+    "ci_run_id": 36398080000,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.60",
-    "commit": "1ae32bcbf2da64c43ddc397bb182cf6043fa59fd",
-    "tree": "8efcf273ecaca0c647322e3fb27eb0778e0b2069",
-    "app_tree": "7a899128917dccf180025f3e4f1113e94f84bd2a",
-    "pull_request": 129,
-    "candidate_commit": "3862f6a0f1f68c9a0245dd82b1327b63bd215dd4",
-    "candidate_ci_run_id": 36390129437,
-    "ci_run_id": 36390521039,
+    "version": "0.1.0-alpha.61",
+    "commit": "14f6cc659ccb5f5ddad7a77453d0038b5b29f8e2",
+    "tree": "d83b723db074bd3b49fb126163a0cdebde62bdcd",
+    "app_tree": "a1217ccb99f08c9bdddacd1d5e701c564e9a9bfa",
+    "pull_request": 132,
+    "candidate_commit": "dc1d2fa65f3e0663c9f343242e71f420c8e9aa75",
+    "candidate_ci_run_id": 36397807655,
+    "ci_run_id": 36398080000,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "d72b1330",
-    "name": "PilotSuite alpha.59 before alpha.60",
-    "date": "2026-09-28T07:05:07.104001+00:00",
+    "backup_id": "16b918fa",
+    "name": "PilotSuite alpha.60 before alpha.61",
+    "date": "2026-09-28T08:26:52.824787+00:00",
     "size_bytes": 54456320,
-    "app_version": "0.1.0-alpha.59",
+    "app_version": "0.1.0-alpha.60",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.60",
-    "offered_version": "0.1.0-alpha.60",
-    "previous_version": "0.1.0-alpha.59",
+    "installed_version": "0.1.0-alpha.61",
+    "offered_version": "0.1.0-alpha.61",
+    "previous_version": "0.1.0-alpha.60",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,9 +74,9 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T09:16:14Z",
+    "startup_log_timestamp": "2026-09-28T10:38:31Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T09:16:15Z"
+      "2026-09-28T10:38:32Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -95,20 +95,20 @@
     ]
   },
   "tests": {
-    "local_python_passed": 596,
-    "local_javascript_passed": 74,
+    "local_python_passed": 612,
+    "local_javascript_passed": 75,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
     "browser_suites": 11,
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Three genuine baseline failures: confirmation lost during unchanged throttled ticks; stale API marker after disconnect or clock rollback. Four new Python methods and one JS test cover exact 20-second expiry, revision/deadline/source changes, failure suspension, final-readback timestamp, restart and passive GET. Three unchanged synthetic ticks add zero HA reads/writes and do not advance the proof date; regular renewal still works.",
-    "local_browser_suites": 1,
-    "final_resource_warning_audit": "596 tests passed again on unchanged application source at 07:32 UTC with ResourceWarning capture plus gc.collect(); zero resource warnings. Full zone Chromium suite also passed again after removing the diagnostic-only failing assertion."
+    "regressions": "Red/green: downstream status trigger/condition consumers omitted; mixed writers not distinguished; bound outputs accepted as later evidence inputs; update_entity mislabeled as Boolean control; changed public-sensor semantics still accepted. Sixteen added Python methods and one JS test; restart, identity, stale/disconnect, comparison, revision/config preservation and zero HA writes.",
+    "local_browser_suites": 2,
+    "final_resource_warning_audit": "612 tests repeated on the exact PR source with ResourceWarning capture and gc.collect(); zero resource warnings."
   },
   "ui_review": {
-    "synthetic_browser": "Expanded existing full-app zone Chromium suite passed locally with publication proof screenshots reviewed at desktop and 390px dark mobile; four synthetic zones, three widths and two themes. All 11 suites passed exact candidate and release main CI. Local fixtures are not household acceptance.",
+    "synthetic_browser": "Expanded full-app zone flow: link to existing Organization editor, bind Boolean/timer/public sensor/automation, save, return, compare, explicit writer/consumer read, unknown and mismatch, four synthetic zones, 390/768/1440 widths and two themes. Desktop/mobile screenshots inspected. Existing Organization suite also passed locally; all 11 suites passed exact candidate/main CI. Not household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false
@@ -122,59 +122,24 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "All four options unchanged; no schema/configuration migration and startup ready. Authenticated UI observation of all four saved zones remains pending."
+    "independent_data_preservation": "All four options unchanged; no automatic schema/configuration migration and startup ready. Binding persistence and unchanged zone behavior/roles/consents/other zones are synthetic tests. Authenticated observation of all four saved zones and household bindings remains pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "fad23107c59078a7022f4be77db25664ce8529bc:docs/RELEASE_STATE.json",
-    "integrated_pr": 129,
-    "integrated_commit": "1ae32bcbf2da64c43ddc397bb182cf6043fa59fd"
+    "previous_receipt_at": "b3aa7966b9df146bc1bca61c0e844f279e6b7884:docs/RELEASE_STATE.json",
+    "integrated_pr": 132,
+    "integrated_commit": "14f6cc659ccb5f5ddad7a77453d0038b5b29f8e2"
   },
-  "next_step": "A local full-app regression now reproduced the stale editing notice after blocked navigation followed by successful save (editor closed and all dirty/busy flags false). Diagnostic assertion failed, was removed, and the unchanged suite passes. Next bounded fix must clear only obsolete guard notices, preserving failed-save drafts and unrelated errors. No further functional release in this run; household Ingress acceptance remains pending.",
+  "next_step": "In an authorized authenticated household Ingress session, read back all four saved zones and review the existing-control path. Existing automations remain controllers; no household Boolean/timer/sensor mapping was changed by this release. Explicitly choose and save the intended bindings, then observe real sensor/Boolean/timer/public-sensor comparison without test switching. The old workspace stale editing-notice regression remains a separate small fix; bounded-run heartbeat stays paused.",
   "runtime_measurement": {
-    "scope": "disposable synthetic one-zone fixture; not household latency/load",
-    "script": "PYTHONPATH=pilotsuite python scripts/benchmark_zone_presence.py --cycles 60",
-    "scenarios": [
-      "occupied",
-      "vacant",
-      "unknown"
-    ],
-    "cycles_per_scenario": 60,
-    "baseline_version": "0.1.0-alpha.59",
-    "candidate_version": "0.1.0-alpha.60",
-    "before": {
-      "sqlite_connections": 660,
-      "immediate_transactions": 60,
-      "checkpoint_writes": 60,
-      "median_ms": [
-        2.562,
-        2.529,
-        2.539
-      ],
-      "p95_ms": [
-        2.838,
-        2.641,
-        2.627
-      ]
-    },
-    "after": {
-      "sqlite_connections": 660,
-      "immediate_transactions": 60,
-      "checkpoint_writes": 60,
-      "median_ms": [
-        2.538,
-        2.51,
-        2.535
-      ],
-      "p95_ms": [
-        4.589,
-        2.583,
-        2.784
-      ]
-    },
-    "history_requests": 0,
-    "ha_output_calls": 0,
-    "timing": "No speed gain claimed; counts unchanged and p95 varied, including a higher occupied tail. Alpha.58 write-reservation reduction retained.",
-    "preserved": "All evaluated_at timestamps and presence deadlines; no scheduler/schema/configuration changes."
+    "scope": "No performance improvement claimed or scheduler/checkpoint change in Alpha.61.",
+    "previous_evidence": "b3aa7966b9df146bc1bca61c0e844f279e6b7884:docs/RELEASE_STATE.json",
+    "ha_config_read_policy": "Zone GET projects existing in-memory states only; structural automation configs are fetched only on explicit review. Synthetic binding/review segment has zero HA output/helper/metadata calls."
+  },
+  "workflow": {
+    "kind": "manual_follow_up_after_closed_three_hour_run",
+    "heartbeat": "remains_paused",
+    "requested_authority": "existing_automations_remain_controllers",
+    "household_binding_changed": false
   }
 }

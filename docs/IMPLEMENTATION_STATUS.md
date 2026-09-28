@@ -1,14 +1,17 @@
-# PilotSuite capability ledger — Alpha.60 installed
+# PilotSuite capability ledger — Alpha.61 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.61 candidate implements existing-control integration: canonical saved Boolean,
+Alpha.61 implements existing-control integration: canonical saved Boolean,
 timer and public sensor bindings, observed comparison in the primary zone view,
 explicit writer/consumer structural review. Existing HA automations remain owners;
 no new controller/store, helper creation or automatic consumer migration. Local
-unit and synthetic full-app tests pass; candidate/main CI and installation remain
-separate gates. The installed receipt below still describes Alpha.60.
+unit and synthetic full-app tests pass: 612 Python / 75 JS / 62 contracts, zero
+ResourceWarnings on the exact source. PR #132 and exact candidate/main CI passed
+all five jobs. Scoped backup, Alpha.61 installation and unchanged options/startup
+are verified in RELEASE_STATE.json. Household mapping and Ingress acceptance remain
+open; existing automations were not changed. Earlier deliveries are history below.
 
 Alpha.60 installed after PR #129 and exact candidate/main CI: dated publication evidence survives unchanged throttled ticks
 without additional HA calls, and is withheld on stale/changed/unknown/conflicting
@@ -63,7 +66,7 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Display name/ontology labels | Preview/apply/readback/restore delivered; physical areas preserved |
 | Technical entity-ID rename | Blocked pending complete consumer migration |
 | Existing automation/helper takeover | Not implemented |
-| Existing Boolean/timer/public sensor read-only integration | Alpha.61 candidate implemented and locally tested; canonical organization profile, no takeover; installation and household acceptance separate |
+| Existing Boolean/timer/public sensor read-only integration | Alpha.61 implemented, tested and installed; canonical organization profile, no takeover; household binding/acceptance pending |
 | Static event-filter references | Alpha.51 installed; literal trigger `event_data.entity_id` is recognized while action payloads remain opaque |
 | Step availability in automation review | Alpha.52 installed; available, disabled and dynamic/unknown nested references are separate and only available matches confirm alignment |
 | Passive reading position | Alpha.53 installed and synthetically tested; authenticated household Ingress acceptance pending |
@@ -75,8 +78,8 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Dated publication evidence | Alpha.60 installed; unchanged ticks preserve the last readback date for less than 20 seconds only on a still-matching valid basis; GET never renews it |
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
-| Live runtime | Alpha.60 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | No zone/schema migration in Alpha.55–60; not independently read back in an authenticated Ingress session after the update |
+| Live runtime | Alpha.61 started, ready, stream connected, snapshot fresh and zone resolved |
+| Four saved PilotSuite zones | No automatic zone/schema migration in Alpha.55–61; not independently read back in an authenticated Ingress session after the update |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded
