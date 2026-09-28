@@ -270,6 +270,10 @@ class PilotSuiteService(OrganizationServiceMixin, PresenceShadowServiceMixin, Zo
         from pilotsuite.domain.automation_inspection import inspect_automation
         if not isinstance(payload,dict) or set(payload)!={"revision"} or type(payload["revision"]) is not int:
             raise InvalidSelection("revision required")
+        _, config, _, _ = await self._organization_basis(zone_id, payload["revision"])
+        if any(config.get("organization", {}).get("assignments", {}).get(role)
+               for role in ("presence_status", "presence_timer", "presence_output", "presence_automations")):
+            return await self._zone_existing_adoption_review(zone_id, payload["revision"])
         if self._automation_review_lock.locked(): raise HomeAssistantError("An automation review is already running")
         async with self._automation_review_lock:
             runtime=await self.presence_runtime(zone_id)

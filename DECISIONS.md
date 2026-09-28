@@ -561,3 +561,21 @@ templates. Action event data stays opaque and cannot become a target. Dynamic or
 malformed values retain an explicit limitation and reveal no authored text. This
 changes only the read-only evidence projection: no automation, zone, learning state,
 risk, preference or execution authority is changed.
+
+## ADR-042 — Connect existing presence control without taking ownership
+
+Accepted 2026-09-28 in the manual follow-up after the closed bounded quality run.
+The user explicitly chose to keep existing HA automations in control. Bind their
+Boolean/logical status, optional timer and public occupancy/presence binary sensor
+through the existing organization profile, not a second runtime/configuration.
+The zone view compares observed outputs against the independent PilotSuite kernel;
+an assigned output cannot also be that kernel's evidence. Unknown, missing identity,
+stale transport and semantic changes never imply off. Timer idle is not vacancy.
+
+The existing bounded structural inspector distinguishes actual status/timer service
+writers, status consumers and mixed logic on explicit request. Selected unmatched
+automations remain visible. Structural coverage is incomplete and dated; templates,
+indirect calls and external consumers are not inferred as proven. No helper is
+created, automation rewritten or runtime enabled by saving these bindings. Changing
+PilotSuite timing never changes the household's existing timer or automation.
+Own managed-output publication remains its separate pre-existing reviewed path.

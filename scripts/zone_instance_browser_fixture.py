@@ -22,6 +22,23 @@ async def main():
  for t in s._tasks:t.cancel()
  await asyncio.gather(*s._tasks,return_exceptions=True);s._tasks=[]
  world=await seed_shadow(s,now)
+ for eid,platform,uid,value,attrs in [
+   ('input_boolean.existing_presence','input_boolean','existing-owner','on',{}),
+   ('timer.existing_presence','timer','existing-timer','active',{'finishes_at':datetime.fromtimestamp(now+120,UTC).isoformat()}),
+   ('binary_sensor.existing_presence','template','existing-public','on',{'device_class':'occupancy'}),
+   ('automation.existing_presence','automation','existing-controller','on',{}),
+   ('automation.existing_consumer','automation','existing-consumer','on',{})]:
+  world['entities'].append({'entity_id':eid,'platform':platform,'unique_id':uid,'name':eid,'area_id':None,'disabled_by':None})
+  world['states'].append(state(eid,value,now,attrs))
+ s.client.related_automations=AsyncMock(return_value={'binary_sensor.existing_presence':['automation.existing_consumer']})
+ async def existing_config(eid):
+  if eid=='automation.existing_presence':
+   return {'triggers':[{'trigger':'state','entity_id':SOURCE,'to':'on'}],
+    'actions':[{'action':'input_boolean.turn_on','target':{'entity_id':'input_boolean.existing_presence'}},
+               {'action':'timer.start','target':{'entity_id':'timer.existing_presence'}}]}
+  return {'triggers':[{'trigger':'state','entity_id':'binary_sensor.existing_presence','to':'on'}],
+   'actions':[{'action':'light.turn_on','target':{'entity_id':'light.synthetic_consumer'}}]}
+ s.client.automation_config=AsyncMock(side_effect=existing_config)
  for zid,title in [('z_empty','Demo ohne Quellen'),('z_paused','Demo pausiert'),('z_other','Demo weiterer Raum')]:
   world['areas'].append({'area_id':zid,'name':title})
   old=next(z for z in await s.zones.list() if z['zone_id']==zid)
@@ -77,6 +94,7 @@ async def main():
    cfg=await s.context.get('room')
    print(json.dumps({'view':await s.zone_presence_view('room'),'zones':[{k:v for k,v in z.items() if k!='revision'} for z in await s.zones.list()],'mode':(cfg.get(KEY)or{}).get('mode'),
     'learning':cfg['learning'],'roles':cfg['roles'],'history_reads':s.client.history.await_count,
+    'automation_reads':s.client.automation_config.await_count,'organization':cfg.get('organization'),
     'helper_creates':s.client.zone_create_storage_helper.await_count+s.client.zone_create_binary_sensor.await_count,
     'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)
  finally:

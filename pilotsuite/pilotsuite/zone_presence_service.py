@@ -18,6 +18,7 @@ from .core.zone_presence_store import KEY
 from .core.zone_ontology import ROLES as ONTOLOGY_ROLES,metadata_operation,metadata_matches,slug
 from .core.zone_data import series_for,validate_window
 from .core.organization import identity,same_identity,fingerprint
+from .core.presence_adoption import validate_existing_inputs
 from .core.selections import InvalidSelection,SelectionConflict
 from .ha.client import HomeAssistantError
 
@@ -57,12 +58,23 @@ class ZonePresenceServiceMixin:
                 kernel.finite(checked_at) and 0<=now-checked_at<PUBLICATION_HEARTBEAT_SECONDS and
                 publication not in ('unknown_or_conflict','suspended_after_unknown_outcome'))
             if confirmed:publication='verified'
+            from .core.presence_adoption import existing_presence_view
+            from .core.organization import binding_view
+            bound = binding_view(cfg, catalog)['assignments']
+            ids = {row['entity_id'] for role in ('presence_status','presence_timer','presence_output')
+                   for row in bound.get(role, []) if row.get('entity_id')}
+            scope = await self.world.scope((), tuple(ids)) if ids else {'entities': []}
+            observations = {row['entity_id']: row['state'] for row in scope['entities']}
+            existing = existing_presence_view(cfg, catalog, observations,
+                current if inv['enabled'] and config.get('mode') != 'paused' else None,
+                fresh=self._presence_inputs_fresh(now), now=now,
+                owned=(config.get('package') or {}).get('entities', {}).values())
             labels=[] # fetched on explicit ontology edit, not on every display poll
             return {'schema':kernel.SCHEMA,'zone_id':zid,'revision':inv['revision'],
                     'analysis_policy':'relevant_means_live_and_available_history','analysis_enabled':bool(inv['enabled']),
                     'spec':spec,'mode':config.get('mode','compare'),'package':config.get('package'),
                     'catalog':[r for r in catalog if r['entity_id'] in relevant],
-                    'current':current,'status':cached.get('status','waiting'),
+                    'current':current,'status':cached.get('status','waiting'),'existing':existing,
                     'publication':publication,'publication_checked_at':checked_at if confirmed else None,
                     'trace':list(self._zone_traces.get(zid,[]))[-128:] if current else [],
                     'trace_basis':'session_only_not_recorded_history',
@@ -78,6 +90,7 @@ class ZonePresenceServiceMixin:
                 inv,cfg,catalog,relevant=await self._zone_basis(zid)
                 if inv['revision']!=payload['revision']:raise SelectionConflict('Zone geändert')
                 spec=kernel.validate_spec(payload['spec'],relevant,catalog)
+                validate_existing_inputs(cfg,catalog,spec)
                 previous=cfg.get(KEY) or {};package=previous.get('package')
                 if payload['mode']=='publish' and not package:
                     raise InvalidSelection('Zuerst ein geprüftes eigenes Ausgangspaket bereitstellen')
@@ -92,6 +105,78 @@ class ZonePresenceServiceMixin:
                 await self._zone_invalidate_package(package)
         return await self.zone_presence_view(zid)
 
+    async def _zone_existing_adoption_review(self, zid, revision):
+        """Explicit structural read of the saved existing chain. No HA/local config writes."""
+        from .core.organization import binding_view
+        from .core.presence_adoption import adoption_targets, adoption_plan, validate_automation_ids
+        from .domain.automation_inspection import inspect_automation
+
+        async def basis():
+            inv, cfg, _, catalog = await self._organization_basis(zid, revision)
+            if not self._presence_inputs_fresh(time.time()):
+                raise SelectionConflict('Bestandsdaten nicht aktuell; erneut laden')
+            assignments = binding_view(cfg, catalog)['assignments']
+            roles = ('presence_status','presence_timer','presence_output','presence_automations','presence_sources')
+            rows = [row for role in roles for row in assignments.get(role, [])]
+            if any(row.get('status') not in ('bound','renamed','exact_id_only') or
+                   not row.get('in_registry') or row.get('disabled') for row in rows):
+                raise SelectionConflict('Bestandszuordnung enthält ungeklärte oder deaktivierte Identitäten')
+            def first(role):
+                return next((row['entity_id'] for row in assignments.get(role, [])), None)
+            config = cfg.get(KEY) or {}
+            sources = sorted({row['entity_id'] for row in config.get('spec', {}).get('sources', [])} |
+                             {row['entity_id'] for row in assignments.get('presence_sources', [])})
+            runtime = {'owner': first('presence_status'), 'timer': first('presence_timer'),
+                       'sensor': first('presence_output'), 'raw_sources': sources}
+            selected = [row['entity_id'] for row in assignments.get('presence_automations', [])]
+            by_id = {row['entity_id']: row for row in catalog}
+            refs = adoption_targets(runtime)
+            if any(eid not in by_id or by_id[eid].get('disabled') or not by_id[eid].get('in_registry') for eid in refs):
+                raise SelectionConflict('Eine zugeordnete Quelle fehlt oder ist deaktiviert')
+            signature = fingerprint({'runtime': runtime, 'selected': selected,
+                'identities': [identity(by_id[eid]) for eid in sorted(set(refs + selected))]})
+            return runtime, selected, by_id, signature
+
+        if self._automation_review_lock.locked():
+            raise HomeAssistantError('Bestandsprüfung läuft bereits')
+        async with self._automation_review_lock:
+            runtime, selected, catalog, signature = await basis()
+            refs = adoption_targets(runtime)
+            if not refs and not selected:
+                raise InvalidSelection('Zuerst vorhandenen Anwesenheitsbestand zuordnen')
+            inspected = []
+            async with asyncio.timeout(90):
+                ids = set(selected)
+                for start in range(0, len(refs), 40):
+                    related = await self.client.related_automations(refs[start:start + 40])
+                    ids.update(eid for values in related.values() for eid in values)
+                ids = validate_automation_ids(sorted(ids))
+                if any(eid not in catalog or catalog[eid].get('disabled') or not catalog[eid].get('in_registry') for eid in ids):
+                    raise SelectionConflict('Gefundene Automation fehlt im aktiven Register')
+                draft = {'current_pattern': {'sources': refs}, 'fields': {'target_ids':
+                    [eid for eid in (runtime['owner'], runtime['timer'], runtime['sensor']) if eid]}}
+                for eid in ids:
+                    raw = await self.client.automation_config(eid)
+                    inspected.append(inspect_automation(raw, draft, eid))
+            _, _, after, after_signature = await basis()
+            if after_signature != signature or any(
+                eid not in after or after[eid].get('disabled') or not after[eid].get('in_registry') or
+                identity(after[eid]) != identity(catalog[eid]) for eid in ids):
+                raise SelectionConflict('Bestandsbasis während der Prüfung geändert')
+            # Keep explicitly selected unmatched automations visible; no silent omission.
+            result = adoption_plan(zid, revision, runtime, inspected, include_unrelated=True)
+            for row in result['automations']:
+                value = after[row['automation_id']].get('state')
+                row['observed_enabled'] = True if value == 'on' else False if value == 'off' else None
+            result.update(mode='existing_control', recommendation='keep_existing_control',
+                coverage='related_lookup_and_selected_not_exhaustive', checked_at=time.time(),
+                control_changed=False, persisted=False)
+            result['summary'].update(
+                writers=sum(row['writes_owner'] or row['writes_timer'] for row in result['automations']),
+                consumers=sum(row['usage'] == 'consumer' for row in result['automations']),
+                mixed=sum(row['usage'] == 'mixed_writer' for row in result['automations']))
+            return result
+
     async def _zone_presence_tick_locked(self,event=None):
         catalog=await self.world.organization_catalog()
         for zone in await self.zones.list():
@@ -103,6 +188,7 @@ class ZonePresenceServiceMixin:
                     self._zone_views[zid]={'revision':inv['revision'],'status':'paused','current':None};continue
                 spec=record.get('spec') or {**deepcopy(kernel.DEFAULTS),'sources':kernel.suggested_sources(catalog,relevant)}
                 spec=kernel.validate_spec(spec,relevant,catalog)
+                validate_existing_inputs(cfg,catalog,spec)
                 basis=kernel.source_basis(spec,catalog);state=await self.context.zone_operational(zid)
                 if record and record.get('basis')!=basis or state.get('suspended'):
                     await self.context.save_zone_operational(zid,inv['revision'],{**state,'suspended':'source_basis_changed'})

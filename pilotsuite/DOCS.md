@@ -1,6 +1,6 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.60. Read
+> Documentation for app version 0.1.0-alpha.61. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
 
@@ -33,9 +33,24 @@ bounded helper/presence APIs are separate from this UX release; a structural dia
 or ready source card is not execution approval or proof of correct runtime behavior.
 The workspace does not activate presence control or take over an automation.
 
-## Bestand & Ordnung (Alpha.32)
+## Vorhandene Anwesenheitssteuerung verbinden (Alpha.61)
 
-Unter **Konfiguration → Bestand & Ordnung → Bestand & Zuordnungen laden** wird der
+In der Zonenansicht **Vorhandenen Bestand verbinden** öffnen, dann **Bestand &
+Zuordnungen laden**. Raumstatus/Boolean, Nachlauftimer und öffentlichen Binärsensor
+(`occupancy`/`presence`) auswählen; bestehende Automationen bei Bedarf ergänzen.
+Speichern ändert nur die Zuordnung. Bestehende Automationen steuern unverändert weiter.
+Zurück in der Zonenansicht stehen deren Zustände, gemeldete Timerfrist und Vergleich
+mit PilotSuites unabhängiger Bewertung. Fehlende Teile bleiben ausdrücklich offen.
+
+**Bestandsautomationen lesend prüfen** unterscheidet Status-/Timer-Schreiber,
+Status-Verbraucher und gemischte Logik. Die datierte Strukturprüfung ist keine
+laufende Überwachung und keine vollständige Verbrauchersuche. Weder ein Timer in
+`idle` noch unbekannte Daten bedeuten frei. PilotSuite schreibt keine bestehenden
+Helfer/Automationen; die Zeiten im Präsenzkonfigurator ändern keinen Bestandsnachlauf.
+
+## Bestand & Ordnung (seit Alpha.32)
+
+Unter **Werkzeuge → Bestand & Ordnung → Bestand & Zuordnungen laden** wird der
 aktuelle globale Register-/Zustandsbestand angezeigt, auch Helfer ohne HA-Bereich.
 Vorhandene Automationen auswählen und analysieren: direkte Referenzen, Timer-Events,
 statische Template-Referenzen und for-Nachläufe werden mit Fundstellen gezeigt.
@@ -88,7 +103,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.60`
+- Release: `0.1.0-alpha.61`
 
 ## Habitus zones and entity selection
 

@@ -1,5 +1,26 @@
 # Current state — Alpha.60 installed; household acceptance pending
 
+## Active manual follow-up — Alpha.61 candidate
+
+User chose existing-control integration, not takeover: existing HA automations keep
+writing their Boolean/timer/public sensor. Branch `feat/zone-existing-presence`
+extends the canonical organization profile with the public sensor, exposes the
+observed chain/comparison in the zone view and reuses the structural automation
+review for writers, consumers, mixed and unmatched selected logic. No household
+mapping, automation, helper, metadata or publication change has been applied.
+
+Red/green tests reproduced omitted status consumers, undifferentiated mixed writers,
+self-evidence through later source configuration, refresh calls mislabeled as
+Boolean control and changed public sensor semantics still appearing valid.
+Local full suite: 612 Python / 75 JS, 62 contracts; expanded full-app zone and
+organization browsers pass. Exact candidate/main CI remain publication gates.
+Fresh scoped backup `16b918fa`, completed 08:26:52 UTC, was verified through native
+list/details: exactly Alpha.60 PilotSuite app/data/options, 54,456,320 bytes,
+no HA/database/folders/failures, local and unprotected. No restore drill performed.
+Installed Alpha.60 was freshly confirmed at the start and before release preparation.
+The prior three-hour run is closed and its heartbeat remains paused; this is a new
+explicit manual implementation request, not an extension of that time window.
+
 ## Verified delivery
 
 HA-MCP confirms Alpha.60 installed/offered/started. PR #129 merged as
@@ -85,8 +106,8 @@ weaken the guard or blanket-clear announcements. No household write occurred.
 No further functional release is planned in this run. Scheduler/checkpoint
 consolidation and the authenticated household observation remain separate work.
 
-No new packages/publications after 07:40 UTC; stop development/release work by
-08:01:44 UTC on 28.09.2026, report the secured state and pause the heartbeat.
+The prior run ended with its heartbeat paused before 08:01:44 UTC on 28.09.2026.
+Its 07:40 publication cutoff and end time remain historical, not a resumed job.
 
 ## Household acceptance remains separate
 

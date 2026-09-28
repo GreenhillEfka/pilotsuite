@@ -45,6 +45,11 @@ Der öffentliche Anwesenheits-Binärsensor berücksichtigt deshalb zusätzlich
 Gültigkeit und deren Ablauf. Vorhandene gleichnamige Sensoren werden weder übernommen
 noch durch einen `_2`-Doppelgänger umgangen. Details: [ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md).
 
+Der erste Bestandsweg lässt vorhandene Automationen bewusst zuständig: deren
+Boolean, Nachlauf und öffentlicher Sensor werden zugeordnet, gelesen und mit der
+unabhängigen PilotSuite-Bewertung verglichen. „Verbinden“ bedeutet keine Übergabe
+der Steuerung. Verbraucher werden sichtbar gemacht, nicht automatisch umgestellt.
+
 ## Bedienung und Analyse
 
 Im Alltag zuerst Zone, Zustand, Grund, verbleibender Nachlauf und Datenlücke.

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.0-alpha.61] - 2026-09-28
+
+### Bestehende Anwesenheitssteuerung verbinden und vergleichen
+- Vorhandenen Boolean, Timer und öffentlichen Präsenzsensor über die bestehende
+  Funktionszuordnung verbinden. Die Automationen bleiben zuständig; keine neue
+  Steuerung, Helferanlage oder doppelte Konfiguration.
+- Zonenansicht zeigt tatsächliche Bestandszustände, gemeldete Timerfrist und
+  unabhängigen Vergleich. Unklar bleibt unklar; Boolean/Sensor-Widersprüche und
+  fehlende Teile sind sichtbar. Keine Rückkopplung des Ausgangs als eigene Quelle.
+- Explizite lesende Prüfung unterscheidet Status-/Timer-Schreiber, Verbraucher
+  und gemischte Logik. Dynamische/unlesbare Bezüge bleiben offen; normale Refreshes
+  lesen keine Automationskonfiguration. Prüfzeit ist kein Laufzeitbeweis.
+- Regressionen, SQLite-/HTTP-Tests und der vollständige synthetische Nutzerweg
+  prüfen Erhalt der Konfiguration, Identitäten, Frische und ausbleibende HA-Writes.
+  Bestehende Geräte-/Automationssteuerung und allgemeines Apply bleiben unverändert.
+
 ## [0.1.0-alpha.60] - 2026-09-28
 
 ### Datierten Publikationsnachweis ehrlich erhalten

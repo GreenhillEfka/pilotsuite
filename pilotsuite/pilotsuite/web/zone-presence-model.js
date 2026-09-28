@@ -2,6 +2,13 @@
 (function(root){
  'use strict';
  const finite=v=>typeof v==='number'&&Number.isFinite(v);
+ function existing(data){
+   const result={comparison:data?.fresh===true?({same:'Übereinstimmung',different:'Abweichung'}[data.comparison]||'Nicht beurteilbar'):'Nicht beurteilbar'};
+   for(const key of ['owner','timer','sensor']){
+     const row=data?.[key];result[key]=!row?'Nicht zugeordnet':data?.fresh!==true||row.available!==true?'Unklar':
+       ({on:'An',off:'Aus',active:'Aktiv',paused:'Pausiert',idle:'Inaktiv'}[row.state]||'Unklar');
+   }return result;
+ }
  function summary(data){
    const paused=data?.analysis_enabled===false||data?.mode==='paused';
    const current=data?.analysis_enabled===true&&!paused?data.current:null;
@@ -35,5 +42,5 @@
    if(current.length)segments.push(current);
    return {segments,labels,numeric,error:null};
  }
- const api=Object.freeze({plot,summary});if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.PilotSuiteZonePresenceModel=api;
+ const api=Object.freeze({plot,summary,existing});if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.PilotSuiteZonePresenceModel=api;
 })(typeof window!=='undefined'?window:null);

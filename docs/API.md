@@ -60,7 +60,7 @@ it appears in this inventory.
 | `POST` | `/api/v1/zones/{zone_id}/presence-runtime/replay` | Replay one allowlisted synthetic presence scenario without reading or changing HA, consent or stored runtime state. |
 | `POST` | `/api/v1/zones/{zone_id}/lighting-preview` | Preview one allowlisted synthetic daylight/mood scenario without reading or changing HA, consent or stored state. `zone_inputs` separates configured/currently usable lights, indoor illuminance and binary brightness; `daylight_basis` states that scenario lux is synthetic and no configured signal is thereby confirmed as an outdoor daylight reference. The legacy aggregate `configured_reference_count` is only a configured-signal count, not provenance evidence. |
 | `POST` | `/api/v1/zones/{zone_id}/lighting-decision` | Explicit transient check of the current canonical zone roles, cached observations and freshly read related automation structures. Returns exactly one next step, never treats indoor lux as confirmed outdoor daylight, never infers physical measurement freshness from transport freshness, persists nothing and cannot execute. |
-| `POST` | `/api/v1/zones/{zone_id}/presence-adoption/review` | Perform an explicit read-only adoption review of existing presence automations. |
+| `POST` | `/api/v1/zones/{zone_id}/presence-adoption/review` | Explicit read-only structural review. Saved organization bindings select existing-control mode; otherwise the legacy review remains compatible. No execution. |
 
 ## Routine drafts, comparisons and review notes
 
@@ -78,6 +78,20 @@ it appears in this inventory.
 | `DELETE` | `/api/v1/zones/{zone_id}/drafts/{draft_id}/review-notes` | Delete the note with note, draft and zone revision checks. |
 
 ## Existing-inventory organization
+
+Alpha.61 adds optional `presence_output` (one occupancy/presence binary sensor) to
+the existing organization assignments. `GET .../presence` projects these canonical
+bindings under `existing`: owner/timer/sensor observations, identity/availability,
+actual timer deadline, comparison and Boolean/sensor consistency. GET performs no
+HA I/O and unavailable never becomes off. PATCH saves mapping only, preserving the
+zone behavior, mode, other zones, legacy roles and consents. Outputs cannot be inputs.
+With saved status/timer/output/automation bindings, `presence-adoption/review` reads
+related and selected automations, bounded to 50, without legacy runtime setup.
+`mode=existing_control`, `control_changed=false`, `persisted=false`, `checked_at`
+and per-row `usage`/`observed_enabled` describe the dated read. Configuration-read
+failure or changed basis invalidates the result; coverage is explicitly incomplete.
+The historical endpoint name and `conflict` classification do not grant takeover;
+`usage` distinguishes expected existing writers from consumers/mixed logic.
 
 | Method | Path | Purpose |
 |---|---|---|

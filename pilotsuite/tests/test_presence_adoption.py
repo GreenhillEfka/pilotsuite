@@ -41,4 +41,46 @@ class PresenceAdoptionTests(unittest.TestCase):
         self.assertEqual(["automation.a"],validate_automation_ids(["automation.a","automation.a"]))
         with self.assertRaises(HomeAssistantError): validate_automation_ids(["script.a"])
 
+    def test_existing_status_consumer_is_not_discarded_as_unrelated(self):
+        from pilotsuite.domain.automation_inspection import inspect_automation
+        runtime = {**self.runtime, "sensor": "binary_sensor.room_presence"}
+        draft = {"current_pattern": {"sources": runtime["raw_sources"] + [
+            runtime["owner"], runtime["sensor"], runtime["timer"]]},
+            "fields": {"target_ids": [runtime["owner"], runtime["timer"], runtime["sensor"]]}}
+        for section in ("triggers", "conditions"):
+            with self.subTest(section=section):
+                config = {section: [{"trigger" if section == "triggers" else "condition":
+                    "state", "entity_id": runtime["sensor"], "state": "on", "to": "on"}],
+                    "actions": [{"action": "light.turn_on", "target": {"entity_id": "light.room"}}]}
+                inspected = inspect_automation(config, draft, "automation.light")
+                row = classify_inspection(inspected, runtime)
+                self.assertTrue(row["overlap"], "A downstream consumer belongs in the existing presence chain")
+                self.assertEqual("consumer", row["usage"])
+                self.assertEqual([runtime["sensor"]], row["reads_status"])
+                self.assertFalse(row["writes_owner"])
+
+    def test_writer_with_other_actions_is_not_described_as_only_presence_control(self):
+        from pilotsuite.domain.automation_inspection import inspect_automation
+        draft = {"current_pattern": {"sources": self.runtime["raw_sources"]},
+                 "fields": {"target_ids": [self.runtime["owner"], self.runtime["timer"]]}}
+        inspected = inspect_automation({"triggers": [{"trigger": "state",
+            "entity_id": "binary_sensor.motion", "to": "on"}], "actions": [
+            {"action": "input_boolean.turn_on", "target": {"entity_id": self.runtime["owner"]}},
+            {"action": "light.turn_on", "target": {"entity_id": "light.room"}}]},
+            draft, "automation.mixed")
+        row = classify_inspection(inspected, self.runtime)
+        self.assertEqual("mixed_writer", row.get("usage"))
+        self.assertTrue(row["writes_owner"])
+        self.assertFalse(row["takeover_ready"])
+
+    def test_update_entity_is_not_mislabeled_as_boolean_control(self):
+        from pilotsuite.domain.automation_inspection import inspect_automation
+        draft = {"current_pattern": {"sources": self.runtime["raw_sources"]},
+                 "fields": {"target_ids": [self.runtime["owner"]]}}
+        inspected = inspect_automation({"triggers": [], "actions": [
+            {"action": "homeassistant.update_entity", "target": {"entity_id": self.runtime["owner"]}}]},
+            draft, "automation.refresh")
+        row = classify_inspection(inspected, self.runtime)
+        self.assertFalse(row["writes_owner"])
+
 if __name__=="__main__": unittest.main()

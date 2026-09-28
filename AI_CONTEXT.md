@@ -28,3 +28,9 @@ before removing their settings or endpoints. AGENTS.md, when present, is preserv
 
 Use CURRENT_STATE.md for the next task. Use the release receipt plus a fresh HA
 metadata read for installation, never an old narrative version claim.
+
+The manual follow-up after the closed three-hour run prioritizes existing presence
+integration: existing HA automations remain the controllers. Bind their Boolean,
+timer and public presence sensor through the existing organization profile and
+compare PilotSuite's independent assessment. No takeover or activation is implied.
+The bounded-run heartbeat remains paused; this request does not extend its window.
