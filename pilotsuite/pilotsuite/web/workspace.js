@@ -83,6 +83,21 @@
   const editTools=E('div','','selection-tools');editTools.append($('context-edit'));
   rolePanel.append(E('h2','Hauptquellen & Lernfreigaben'),E('p','Eine Rollenpflege für alle Module. Suchfilter verändern keine Auswahl.'),roleSummary,editTools,$('context-form'));
   $('zone-setup').after(rolePanel);
+  // Shortcuts delegate to existing editors; opening neither saves nor grants authority.
+  const setup=mark(E('section','','panel ps-setup-shortcuts'),'config');setup.id='ps-setup-shortcuts';
+  const setupTitle=E('h2','Was möchtest du einrichten?');setupTitle.id='ps-setup-title';setup.setAttribute('aria-labelledby',setupTitle.id);
+  setup.append(setupTitle,E('p','Für die ausgewählte Zone. Öffnen verändert nichts; erst ausdrücklich speichern.','ps-muted'));
+  const setupActions=E('div','','ps-setup-actions');
+  function setupAction(action){if(dirty()){announce('Offenen Entwurf zuerst speichern oder abbrechen.',{guard:true});return;}action();}
+  function openRoles(module){setupAction(()=>{if(!navigate('config'))return;setRoleFilter(module);const button=$('context-edit');if(button.disabled){announce('Quellen noch nicht bereit. Bitte den Zonenstand laden lassen.');return;}button.click();});}
+  for(const [id,title,detail,action] of [
+    ['presence','Anwesenheit & Nachlauf','Sensoren kombinieren und Zeiten der PilotSuite-Bewertung festlegen.',()=>{const button=$('ps-zone-configure');if(!button||button.disabled){announce('Präsenzkonfiguration noch nicht bereit. Den Zonenstand unten prüfen und aktualisieren.');return;}button.click();}],
+    ['lighting','Lichtquellen','Lux, Helligkeitsindikatoren und Leuchten zuordnen. Keine Lichtschaltung.',()=>openRoles('lighting')],
+    ['entities','Entitäten auswählen','Relevante Quellen der Zone prüfen und bestätigen.',()=>{revealHash('#entity-details');$('selection-search').focus();}],
+    ['zone','Name & Bereiche','Die bestehende Zone bearbeiten; keine neue Zone anlegen.',()=>{const button=$('zone-edit');if(button.disabled){announce('Zoneneinstellungen noch nicht bereit. Bitte den Zonenstand laden lassen.');return;}button.click();}]
+  ]){const button=B('',()=>setupAction(action));button.id='ps-setup-'+id;button.append(E('strong',title),E('span',detail));setupActions.append(button);}
+  setup.append(setupActions);zoneNav.after(setup);
+  $('zone-setup').querySelector('a[href="#learning-section"]').href='#ps-roles';
   const organizationPanel=mark(E('section','','panel'),'workbench');
   $('learning-section').before(organizationPanel);
   window.PilotSuiteOrganization?.mount(organizationPanel,async()=>{await loadSelection(selectionZone);});
@@ -177,7 +192,7 @@
       for(const id of ids){const chip=E('span','','ps-chip');const usable=dashboardStatus?.ready===true&&(validated[role]||[]).includes(id);chip.dataset.psQuality=usable?'ok':'unknown';chip.append(document.createTextNode(nameOf(id)),E('small',usable?'Zugeordnet & aktuell nutzbar':'Nicht nutzbar / ungeklärt'),E('code',id,'ps-technical-id'));row.append(chip);}sources.append(row);}
     const reference=E('section','','ps-flow-node');reference.append(E('h4','02 · Zonenreferenz'),E('p',m.id==='presence'?'Mindestens eine gültige Quelle aktiv. Logischen Raumstatus und Rohsensoren nicht doppelt als unabhängige Belege zählen.':m.id==='climate'?'Gültige Temperatur- und Feuchtequellen: Median mit Min/Max. Regler sind keine zusätzlichen Messwerte.':m.id==='lighting'?'Lux, binärer Helligkeitsindikator und Leuchtenzustand sind getrennte Größen.':'Player und ausdrücklicher Atmosphärenwunsch. Keine Emotion wird aus Sensoren behauptet.'));
     const output=E('section','','ps-flow-node');output.append(E('h4','03 · Umsetzung'),E('span',m.id==='presence'?'Runtime-Status hier nicht geprüft':'Noch keine Steuerung','ps-badge'),E('p','Quellenzuordnung ist keine Ausführungsfreigabe. Bestehende HA-Logik bleibt unverändert.'));
-    const configure=B('Quellen konfigurieren',()=>{if(dirty())return;navigate('config');setRoleFilter(m.id);$('context-edit').click();});output.append(configure);flow.append(sources,reference,output);moduleDetail.append(flow);
+    const configure=B('Quellen konfigurieren',()=>openRoles(m.id));output.append(configure);flow.append(sources,reference,output);moduleDetail.append(flow);
     if(m.id==='climate') {
       const box=E('section','','ps-temperature-comparison');box.id='ps-temperature-comparison';
       box.append(E('h4','Externe Vergleichstemperatur · optional'),E('p',
@@ -248,7 +263,7 @@
     const lux=o.illuminance?.value,unit=o.illuminance?.unit||'';root.append(E('p',lux===null||lux===undefined?'Innen-Helligkeit derzeit nicht auswertbar.':`Innen-Helligkeit: ${M.number(lux)} ${unit} · ${o.illuminance?.aggregation||'ohne bestätigte Aggregation'}`),E('p',`Leuchtenzustand: ${o.light?.active===true?'mindestens eine an':o.light?.active===false?'aus':'unklar'} · ${a.items.length} passende Automationsstrukturen gelesen.`,'ps-muted'),E('p','Außenhelligkeit nicht bestätigt. Ein aktueller Transport-Snapshot beweist keine aktuelle physische Messung.','ps-warning'));
     for(const row of a.items.slice(0,20)){const p=E('p');p.append(E('strong',row.automation_id||'Unbekannte Automation'),document.createTextNode(row.state==='direct_path'?' · direkter Quellen-/Lichtbezug':' · Bezug vorhanden, Wirkung nicht vollständig aufgelöst'));root.append(p);}
     root.append(E('p','Vorhandene Automation bedeutet weder Duplikat noch sichere Lösung. Keine Sicherheitsquote und keine Ausführungsfreigabe.','ps-warning'));
-    const next=d.next_step;if(next?.id==='configure_sources'){const button=B(next.label,()=>{if(dirty())return;navigate('config');setRoleFilter('lighting');$('context-edit').click();});root.append(button);}else if(next?.id==='reload_zone'){root.append(B(next.label,()=>$('refresh').click()));}else if(next?.id==='run_synthetic_preview'){root.append(B(next.label,()=>{$('ps-lighting-scenario')?.focus();$('ps-lighting-preview')?.scrollIntoView({block:'nearest'});}));}
+    const next=d.next_step;if(next?.id==='configure_sources'){const button=B(next.label,()=>openRoles('lighting'));root.append(button);}else if(next?.id==='reload_zone'){root.append(B(next.label,()=>$('refresh').click()));}else if(next?.id==='run_synthetic_preview'){root.append(B(next.label,()=>{$('ps-lighting-scenario')?.focus();$('ps-lighting-preview')?.scrollIntoView({block:'nearest'});}));}
     root.append(E('p','Prüfergebnis wurde nicht gespeichert.','ps-muted'));
   }
   async function runLightingPreview(){if(!valid()||requestBusy)return;const zone=selectionZone,revision=contextData.revision,scenario=lightingScenario,g=++generation;requestBusy=true;lastLightingPreview=null;renderModules(true);

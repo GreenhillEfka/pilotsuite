@@ -1,5 +1,22 @@
 # Current state — Alpha.67 installed; household acceptance pending
 
+## Active UI package — Alpha.68 candidate, not installed
+
+New one-hour user request: 28 September, 19:33:18–20:33:18 UTC; no new package
+or publication after 20:13:18 UTC. Work stays on `fix/alpha68-setup-navigation`.
+Four setup shortcuts reuse existing presence, source, entity and zone editors.
+Hidden-role focus failure was reproduced first in the existing workspace browser;
+the editor now focuses a visible field, and presence editing focuses the grace time.
+The main-source link no longer leads to the learning workbench. Dirty drafts remain
+protected; no household configuration, execution authority or persisted zone changed.
+
+Local checks passed: 637 Python, 75 JS, 62 API contracts, discovery, repeated
+zero-ResourceWarning audit, workspace and zone-instance browser suites. Synthetic
+390/768/1440-pixel light/dark checks cover focus, navigation and no HA writes;
+screenshots are not real Ingress acceptance. Exact candidate CI and release-main
+CI remain separate gates. No merge/update is implied by this candidate marker.
+Alpha.67 delivery evidence below remains the installed/published baseline.
+
 ## Verified delivery
 
 PR #144 merged as `5ac673fa5d728b73a5a6ac612b43c6c8df65be05`.

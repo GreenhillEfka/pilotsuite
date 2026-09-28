@@ -182,7 +182,7 @@
       if(mode.value==='publish'&&!window.confirm('Nur das verifizierte eigene Ausgangspaket dieser Zone veröffentlichen? Bestehende Automationen werden nicht übernommen.'))return;
       const next=await api('presence','PUT',{revision,spec,mode:mode.value});
       editing=false;data=next;revision=next.revision;editor.replaceChildren();render();
-   });});editor.append(form);
+   });});editor.append(form);grace.focus();grace.scrollIntoView({block:'center'});
  }
  function chart(series,period=historyData){
    const article=E('article','','ps-zone-chart');article.append(E('h4',series.name),E('p',`${series.record_count} Mess-/Zustandspunkte · ${series.changes} bekannte Wechsel${series.decimated?' · Anzeige verdichtet':''}`,'ps-muted'));

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-alpha.68] - 2026-09-28
+
+### Direkte Wege durch die Einrichtung
+- Vier Direkteinstiege öffnen vorhandene Editoren für Anwesenheit/Nachlauf,
+  Lichtquellen, Entitäten und Name/Bereiche. Offene Entwürfe bleiben geschützt.
+- Gefilterte Quelleneditoren fokussieren das erste sichtbare Feld statt einer
+  ausgeblendeten Rolle. Die Präsenzkonfiguration führt direkt zum Nachlauf.
+- Der Hauptsensor-Link führt zur Konfiguration statt zur Lernwerkbank.
+- Keine neue Steuerung, Konfiguration, Freigabe oder Haushaltsaktion.
+
 ## [0.1.0-alpha.67] - 2026-09-28
 
 ### Ungültige Sensorwerte ehrlich behandeln

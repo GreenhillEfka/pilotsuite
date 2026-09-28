@@ -138,12 +138,24 @@
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
-    "kind": "explicit_completion_of_existing_pr_after_closed_bounded_run",
-    "heartbeat": "paused_at_2026-09-28T18:58Z",
-    "start_utc": "2026-09-28T17:05:52Z",
-    "no_new_packages_after_utc": "2026-09-28T18:45:52Z",
-    "end_utc": "2026-09-28T19:05:52Z",
-    "requested_authority": "User requested 'Kein Problem, mach die Arbeit fertig' after the bounded run stopped. Existing PR #144 completed through the release runbook. Heartbeat remains paused; no extension, unrelated package, household automation edit or control transfer.",
+    "kind": "one_hour_ui_usability_run",
+    "heartbeat": "active_until_2026-09-28T20:33:18Z",
+    "start_utc": "2026-09-28T19:33:18Z",
+    "no_new_packages_after_utc": "2026-09-28T20:13:18Z",
+    "end_utc": "2026-09-28T20:33:18Z",
+    "requested_authority": "Eine Stunde Bedienung und Oberfläche intuitiver gestalten. Existing editors and protections only; no household edits or expanded execution authority. Earlier runs remain closed.",
     "household_binding_changed": false
+  },
+  "pending_candidate": {
+    "version": "0.1.0-alpha.68",
+    "branch": "fix/alpha68-setup-navigation",
+    "status": "locally_tested_not_published_or_installed",
+    "scope": "Existing setup editor shortcuts, visible-field focus and correct configuration link; no household writes.",
+    "local_checks": "637 Python, 75 JS, 62 API contracts, discovery, zero ResourceWarnings, workspace and zone-instance browser suites",
+    "backup_id": "cd419ede",
+    "backup_date": "2026-09-28T19:45:10.598868+00:00",
+    "backup_size_bytes": 54497280,
+    "backup_scope": "Native list/details: exactly PilotSuite alpha.67 app/data/options; no HA, database, folders or failures; local, unprotected. Not extracted or restored. Recheck freshness before any later publication.",
+    "remaining": "Exact candidate CI and reviewed PR; no release-main CI or installation yet. Authenticated Ingress acceptance unavailable."
   }
 }
