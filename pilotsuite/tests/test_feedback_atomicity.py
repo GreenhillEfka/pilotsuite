@@ -1,4 +1,5 @@
 """Deterministic queued feedback races using synthetic evidence only."""
+from contextlib import closing
 import sqlite3
 import tempfile
 import unittest
@@ -42,7 +43,7 @@ class FeedbackAtomicityTests(unittest.IsolatedAsyncioTestCase):
         with patch.object(self.store, '_feedback', side_effect=queued):
             with self.assertRaisesRegex(InvalidSelection, 'expired or unknown'):
                 await self.store.feedback('synthetic', self.pattern, 'accepted')
-        with sqlite3.connect(self.store.path) as db:
+        with closing(sqlite3.connect(self.store.path)) as db, db:
             self.assertEqual([], db.execute('SELECT * FROM pattern_feedback').fetchall())
 
     def configure_sync(self, *, roles=None, reset=False, detector=None):
@@ -82,7 +83,7 @@ class FeedbackAtomicityTests(unittest.IsolatedAsyncioTestCase):
         def projected(db, zone, now):
             report = project(db, zone, now)
             # Deterministic second SQLite writer at the former race boundary.
-            with sqlite3.connect(self.store.path, timeout=0) as competing:
+            with closing(sqlite3.connect(self.store.path, timeout=0)) as competing, competing:
                 with self.assertRaisesRegex(sqlite3.OperationalError, 'locked'):
                     competing.execute('DELETE FROM activity_evidence WHERE zone_id=?', (zone,))
             checked.append(True)

@@ -18,7 +18,11 @@ class ZoneStore:
 
     def _bootstrap(self, area_ids):
         with closing(sqlite3.connect(self.selections.path)) as db, db:
+            # Existing zones need no write lock; keep the durable marker as truth.
+            if db.execute("SELECT 1 FROM zone_meta WHERE key='bootstrapped'").fetchone():
+                return
             db.execute('BEGIN IMMEDIATE')
+            # Another first reader may have initialized while we acquired the lock.
             if db.execute("SELECT 1 FROM zone_meta WHERE key='bootstrapped'").fetchone():
                 return
             for area_id in area_ids:

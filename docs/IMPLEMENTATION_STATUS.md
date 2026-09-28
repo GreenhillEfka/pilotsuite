@@ -3,6 +3,13 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.58 candidate: read-first durable zone bootstrap; five new contention,
+concurrency, rollback and preservation tests pass. Synthetic 60-cycle scenarios
+reduce write reservations 180 to 60 while preserving all 60 checkpoints; no speed
+gain claimed. Test-owned connections now close explicitly. 583 Python/73 JS and
+two local browser suites pass. Publication, exact CI and installation remain gates;
+the receipt below still describes installed Alpha.57.
+
 Alpha.57 is installed after PR #123 and exact candidate/main CI. It hardens the
 existing publisher against delayed reads and stream loss, and preserves newer
 checkpoints when marking an output conflict. Synthetic red/green regressions,

@@ -1,3 +1,4 @@
+from contextlib import closing
 import json
 import tempfile
 import unittest
@@ -116,7 +117,7 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         zone = await self.create()
         for revision, decision in [(1, 'relevant'), (2, 'ignored'), (3, 'relevant')]:
             await self.service.selections.patch(zone['zone_id'], revision, {'sensor.hot': decision})
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             self.assertEqual(2, db.execute('SELECT count(*) FROM selection_journal').fetchone()[0])
         response = await self.client.get('/api/v1/zones/export')
         self.assertEqual(200, response.status)
@@ -128,7 +129,7 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
     async def test_schema_two_migration_preserves_selection_mode(self):
         import sqlite3
         await self.service.selections.patch('a', 0, {'sensor.hot': 'relevant'}, True)
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             db.execute('DROP TABLE habitus_zones')
             db.execute('DROP TABLE zone_meta')
             db.execute('DROP TABLE zone_context')
@@ -178,7 +179,7 @@ class ZoneTests(unittest.IsolatedAsyncioTestCase):
         import sqlite3
         import time
         now = time.time()
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
                        ('a', 'binary_sensor.p', now, 'unknown'))
             db.execute('INSERT INTO activity_context VALUES (?,?,?)', (

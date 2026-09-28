@@ -1,4 +1,5 @@
 """Integrated existing routes and owners. No live HA or repeated fixture tests."""
+from contextlib import closing
 import json
 import sqlite3
 import unittest
@@ -28,7 +29,7 @@ class ReviewCompassAPITests(unittest.IsolatedAsyncioTestCase):
         draft=await self.create()
         self.service.client.related_automations=AsyncMock();self.service.client.automation_config=AsyncMock()
         before=await self.service.context.report('a')
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             tables=set(db.execute("SELECT name FROM sqlite_master WHERE type='table'"))
             saved=db.execute('SELECT * FROM routine_drafts').fetchall()
         for method in ('get','head'):
@@ -38,7 +39,7 @@ class ReviewCompassAPITests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('unknown',result['review_compass']['checks'][3]['state'])
         self.service.client.related_automations.assert_not_awaited();self.service.client.automation_config.assert_not_awaited()
         self.assertEqual(before,await self.service.context.report('a'))
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             self.assertEqual(tables,set(db.execute("SELECT name FROM sqlite_master WHERE type='table'")))
             self.assertEqual(saved,db.execute('SELECT * FROM routine_drafts').fetchall())
         self.assertEqual(409,(await self.client.post('/api/v1/transactions/'+draft['id']+'/apply')).status)
@@ -47,7 +48,7 @@ class ReviewCompassAPITests(unittest.IsolatedAsyncioTestCase):
         draft=await self.create()
         response=await self.client.patch(self.url+'/'+draft['id'],json=self.edit(draft,goal='Synthetic comfort'))
         result=await response.json();self.assertEqual(2,result['review_compass']['basis']['draft_revision'])
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             fields=db.execute('SELECT fields FROM routine_drafts').fetchone()[0]
             self.assertNotIn('review_compass',fields);self.assertNotIn('statistics',fields)
 

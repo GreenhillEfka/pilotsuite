@@ -1,4 +1,5 @@
 """Synthetic routine editing; no live HA, consent changes or actuator calls."""
+from contextlib import closing
 import asyncio
 import copy
 import json
@@ -213,7 +214,7 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
         restored = PlanStore(self.path,self.service.audit,self.service.context)
         inventory = await self.service.selection_inventory('a')
         self.assertEqual(draft['id'],(await restored.drafts('a',inventory))[0]['id'])
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             saved = db.execute('SELECT fields FROM routine_drafts').fetchone()[0]
         self.assertNotIn('statistics',saved); self.assertNotIn('activation_count',saved)
         after = await self.service.context.report('a')
@@ -266,7 +267,7 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('pattern_missing',current['source_status']); self.assertIsNone(current['current_pattern'])
         payload = self.edit(current); payload.update(zone_revision=3,refresh_source=True)
         self.assertEqual(400,(await self.client.patch(self.url+'/'+draft['id'],json=payload)).status)
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             self.assertEqual(0,db.execute('SELECT COUNT(*) FROM activity_evidence').fetchone()[0])
 
     async def test_expired_pattern_cannot_create_or_refresh_draft(self):
@@ -316,16 +317,16 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
         await self.store.create({'description':'synthetic old dry-run','actions':[]})
         legacy = (self.path/'plans.jsonl').read_bytes()
         before = await self.service.context.report('a')
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             db.execute('DROP TABLE routine_drafts'); db.execute('PRAGMA user_version=6')
         await self.service.selections.initialize()
         backup = list(self.path.glob('selections.v6.*.bak')); self.assertEqual(1,len(backup))
-        with sqlite3.connect(backup[0]) as db:
+        with closing(sqlite3.connect(backup[0])) as db, db:
             self.assertEqual(6,db.execute('PRAGMA user_version').fetchone()[0])
             self.assertEqual(6,db.execute('SELECT COUNT(*) FROM activity_evidence').fetchone()[0])
             self.assertIsNone(db.execute("SELECT name FROM sqlite_master WHERE name='routine_drafts'").fetchone())
         await self.service.selections.initialize(); self.assertEqual(1,len(list(self.path.glob('selections.v6.*.bak'))))
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             self.assertEqual(8,db.execute('PRAGMA user_version').fetchone()[0])
         self.assertEqual(legacy,(self.path/'plans.jsonl').read_bytes())
         self.assertEqual(before['evidence'],(await self.service.context.report('a'))['evidence'])
@@ -334,7 +335,7 @@ class RoutineDraftTests(unittest.IsolatedAsyncioTestCase):
         draft = await self.create()
         with patch('pilotsuite.core.plans.MAX_DRAFTS',1):
             self.assertEqual(draft['id'],(await self.create())['id'])
-            with sqlite3.connect(self.service.selections.path) as db:
+            with closing(sqlite3.connect(self.service.selections.path)) as db, db:
                 db.execute("UPDATE routine_drafts SET pattern_id='old_synthetic'")
             self.assertEqual(400,(await self.client.post(self.url,json={'pattern_id':self.pattern,'zone_revision':2})).status)
         self.assertEqual(1,len((await (await self.client.get(self.url)).json())['items']))

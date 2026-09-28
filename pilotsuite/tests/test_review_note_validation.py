@@ -1,4 +1,5 @@
 """Pure synthetic contract checks; no HA access or household data."""
+from contextlib import closing
 import copy
 import json
 import sqlite3
@@ -53,7 +54,7 @@ class ReviewNoteValidationTests(unittest.TestCase):
         self.assertNotEqual(scope_fingerprint(self.draft), scope_fingerprint(other))
 
     def test_stored_hash_never_claims_current_config_and_stale_notes_survive(self):
-        with sqlite3.connect(':memory:') as db:
+        with closing(sqlite3.connect(':memory:')) as db, db:
             db.execute('CREATE TABLE routine_review_notes (draft_id TEXT, revision INTEGER, records TEXT)')
             note = {'automation_id':'automation.synthetic', 'draft_revision':2, 'zone_revision':3,
                     'scope_fingerprint':scope_fingerprint(self.draft), 'config_fingerprint':'a'*64,

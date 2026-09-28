@@ -1,3 +1,4 @@
+from contextlib import closing
 import asyncio
 from copy import deepcopy
 from dataclasses import replace
@@ -343,7 +344,7 @@ class OrganizationIntegrationTests(unittest.IsolatedAsyncioTestCase):
     async def test_no_schema_migration_and_cross_zone_plan_not_readable(self):
         p=await self.names()
         with self.assertRaises(InvalidSelection):await self.s.plans.organization_plan_get('other',p['id'])
-        with sqlite3.connect(self.s.context.path) as db:self.assertEqual(8,db.execute('PRAGMA user_version').fetchone()[0])
+        with closing(sqlite3.connect(self.s.context.path)) as db, db:self.assertEqual(8,db.execute('PRAGMA user_version').fetchone()[0])
     async def test_ingress_policy_and_asset_remain_guarded(self):
         self.assertEqual(200,(await self.client.get('/assets/organization.js')).status)
         self.s.settings=replace(self.s.settings,ingress_allowed_peers=('172.30.32.2',))
