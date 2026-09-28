@@ -39,7 +39,7 @@ Relevanz braucht keine zweite Live-/Historienfreigabe. Vorhandene Legacy-Lernsch
 bleiben während der Migration als solche erkennbar; nicht einfach verstecken und
 dadurch weiterhin erforderliche Backend-Bedingungen unerklärlich machen.
 
-## Diagnose ohne konkurrierende Wahrheiten
+## Direkte Einrichtung
 
 Die Einrichtung bietet vier direkte Aufgaben: Anwesenheit/Nachlauf, Lichtquellen,
 Entitäten sowie Name/Bereiche. Sie öffnen die vorhandenen Editoren derselben Zone,
@@ -49,6 +49,8 @@ Das gewünschte sichtbare Feld erhält Fokus. Ein Quellenfilter darf den Fokus n
 auf eine ausgeblendete andere Rolle lenken. Automatische Aktualisierung öffnet
 keinen Editor und verschiebt keinen Fokus. Der Hauptsensor-Link führt in die
 Konfiguration, nicht in die Lernwerkbank.
+
+## Diagnose ohne konkurrierende Wahrheiten
 
 Synthetisches Replay, alter expliziter Schattenvergleich, Strukturprüfung und
 technische IDs gehören unter benannte Details/Werkzeuge. Sie bleiben erreichbar,

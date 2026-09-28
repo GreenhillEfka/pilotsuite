@@ -41,4 +41,6 @@ Earlier timed runs and the explicit completion of PR #144 are closed. The new
 user request "Eine Stunde Bedienung und Oberfläche intuitiver gestalten" authorizes
 one focused UI run on 28 September, 19:33:18–20:33:18 UTC. No new package or release
 starts after 20:13:18 UTC. Reused heartbeat only; do not extend the window.
-Household and release boundaries remain unchanged.
+The package is secured as draft PR #146; Alpha.67 remains installed. The heartbeat
+is paused for handoff; later work must resume that branch/PR, not start another
+package or assume Alpha.68 was delivered. Household and release boundaries remain.

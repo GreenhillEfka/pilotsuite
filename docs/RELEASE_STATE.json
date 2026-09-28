@@ -132,14 +132,14 @@
     "integrated_pr": 144,
     "integrated_commit": "5ac673fa5d728b73a5a6ac612b43c6c8df65be05"
   },
-  "next_step": "Alpha.67 delivery is complete; no further feature work authorized by the finish request. Next separate bounded investigation: align missing/derived versus explicit-empty lighting roles in existing owners. Authenticated household Ingress/four-zone acceptance and live automation-edit scope remain open; do not guess bindings or transfer control.",
+  "next_step": "Resume draft PR #146 / fix/alpha68-setup-navigation when a new work window is authorized. Verify its exact final CI, current main and fresh scoped backup before any merge/release. Alpha.67 remains installed; no Alpha.68 main CI or installation exists. Authenticated Ingress/four-zone acceptance and live automation-edit scope remain open. Derived versus explicit-empty lighting roles remain a separate investigation.",
   "runtime_measurement": {
     "scope": "No performance change claimed for Alpha.67. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
     "kind": "one_hour_ui_usability_run",
-    "heartbeat": "active_until_2026-09-28T20:33:18Z",
+    "heartbeat": "paused_for_safe_handoff_before_2026-09-28T20:33:18Z",
     "start_utc": "2026-09-28T19:33:18Z",
     "no_new_packages_after_utc": "2026-09-28T20:13:18Z",
     "end_utc": "2026-09-28T20:33:18Z",
@@ -149,13 +149,19 @@
   "pending_candidate": {
     "version": "0.1.0-alpha.68",
     "branch": "fix/alpha68-setup-navigation",
-    "status": "locally_tested_not_published_or_installed",
+    "pull_request": 146,
+    "status": "draft_pr_tested_not_published_or_installed",
+    "initial_candidate": "9b4dc353f0046825d19532d2dc638085183ab297",
+    "initial_candidate_ci": 36477800406,
+    "initial_candidate_ci_conclusion": "success_all_five_jobs",
+    "final_ci_evidence": "Exact handoff head/run recorded on PR #146; do not substitute the initial green run for later commits.",
+    "app_tree": "16c2f6814b4ee6e8a809c920c25ba69ee4da43d1",
     "scope": "Existing setup editor shortcuts, visible-field focus and correct configuration link; no household writes.",
     "local_checks": "637 Python, 75 JS, 62 API contracts, discovery, zero ResourceWarnings, workspace and zone-instance browser suites",
     "backup_id": "cd419ede",
     "backup_date": "2026-09-28T19:45:10.598868+00:00",
     "backup_size_bytes": 54497280,
     "backup_scope": "Native list/details: exactly PilotSuite alpha.67 app/data/options; no HA, database, folders or failures; local, unprotected. Not extracted or restored. Recheck freshness before any later publication.",
-    "remaining": "Exact candidate CI and reviewed PR; no release-main CI or installation yet. Authenticated Ingress acceptance unavailable."
+    "remaining": "Recheck exact final PR-head CI, current main and backup freshness in a new authorized window; release-main CI and installation not performed. Authenticated Ingress acceptance unavailable."
   }
 }
