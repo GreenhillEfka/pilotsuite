@@ -91,10 +91,32 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.getByRole('button',{name:'Schließen',exact:true}).last().click();
   await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
   console.log('ok 4 - name/ontology preview, exact apply and explicit rollback');
+  await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
+  await page.getByLabel('Betriebsmodus',{exact:true}).selectOption('publish');
+  await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
+  await page.locator('#ps-zone-form').waitFor({state:'hidden'});await page.locator('#ps-zone-configure:not([disabled])').waitFor();
+  await command({action:'tick',seconds:1,values:{'binary_sensor.demo_presence':'on'}});
+  const published=await command({action:'publish'});assert.equal(published.view.publication,'verified');
+  const checkedAt=published.view.publication_checked_at;assert.equal(typeof checkedAt,'number');
+  await refreshPresence();await page.getByText('Zuletzt bestätigt',{exact:true}).waitFor();
+  const proofHint=await page.locator('#ps-presence-publication small').textContent();assert.match(proofHint,/Rückleseprüfung:/);
+  for(let i=0;i<3;i++){
+   await command({action:'tick',seconds:5});const unchanged=await command({action:'publish'});
+   assert.equal(unchanged.output_calls,published.output_calls,'unchanged ticks cause no extra output write');
+   assert.equal(unchanged.view.publication_checked_at,checkedAt,'passive checks never re-date evidence');
+   await refreshPresence();assert.equal(await page.locator('#ps-presence-publication strong').textContent(),'Zuletzt bestätigt');
+   assert.equal(await page.locator('#ps-presence-publication small').textContent(),proofHint);
+  }
+  if(out)await page.screenshot({path:path.join(out,'zone-publication-proof-desktop.png'),fullPage:true});
+  console.log('ok 4b - dated publication proof survives unchanged ticks without extra mocked HA writes');
   for(const width of [390,768,1440]){await page.setViewportSize({width,height:1100});for(const theme of ['dark','light']){
    await page.locator('.ps-nav [data-ps-nav="system"]').click();await page.locator('#ps-theme').selectOption(theme);await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();await page.locator('[data-ps-nav="zone"]').click();
    await page.locator('#ps-zone-configure:not([disabled])').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'overflow '+width);
-   if(out)await page.screenshot({path:path.join(out,`zone-instance-${theme}-${width}.png`),fullPage:true});
+   if(out){
+    await page.screenshot({path:path.join(out,`zone-instance-${theme}-${width}.png`),fullPage:true});
+    if(width===390){await page.locator('#ps-presence-publication').evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));
+     await page.locator('#ps-presence-publication').screenshot({path:path.join(out,`zone-publication-proof-mobile-${theme}.png`)});}
+   }
   }}
   const final=await command({action:'snapshot'});assert.equal(final.learning,false);assert.deepEqual(final.roles,baseline.roles);assert.deepEqual(final.zones,baseline.zones);assert.deepEqual(errors,[]);
   assert.equal(network.some(r=>/presence-runtime|transactions\/.+\/apply|history\/import/.test(r.url)),false);

@@ -59,10 +59,12 @@
    output.replaceChildren();
    tools.querySelectorAll('button').forEach(button=>button.disabled=busy);
    const d=data.current,summary=window.PilotSuiteZonePresenceModel.summary(data);const cards=E('div','','ps-presence-summary');
+   const publicationHint=(data.package?.entities?.sensor||'Kein eigenes Ausgangspaket. Die Präsenzberechnung ist davon unabhängig.')+
+      (summary.publicationCheckedAt!==null?' · Rückleseprüfung: '+date(summary.publicationCheckedAt):'');
    for(const [title,value,hint] of [
       ['Präsenz',summary.state,summary.reason],
       ['Nachlauf',d?.deadline?fmt(d.remaining_seconds)+' s':'—',d?.deadline?date(d.deadline):'Kein laufender Nachlauf'],
-      ['HA-Veröffentlichung',summary.publication,data.package?.entities?.sensor||'Kein eigenes Ausgangspaket. Die Präsenzberechnung ist davon unabhängig.']]){
+      ['HA-Veröffentlichung',summary.publication,publicationHint]]){
       const c=E('article','','ps-kpi');if(title==='Präsenz')c.id='ps-presence-state';if(title==='HA-Veröffentlichung')c.id='ps-presence-publication';c.append(E('span',title),E('strong',value),E('small',hint));cards.append(c);
    } output.append(cards);
    const missing=d?.sources?.filter(s=>s.required&&!s.usable)||[];

@@ -96,6 +96,15 @@ Konfiguration aus. Ein separater Gültigkeitsablauf (90 Sekunden) verhindert unb
 veraltete Aussagen bei Appausfall; HA-Template-Neuauswertung mit `now()` kann bis zum
 nächsten Minutenwechsel dauern. Daher keine sekundengenaue 90-Sekunden-Abschaltzusage.
 
+Alpha.60-Kandidat trennt zusätzlich den letzten Rücklesenachweis von der aktuellen
+Berechnung: `publication_checked_at` wird erst nach erfolgreicher Prüfung gesetzt.
+Die bestehende Publikationsdrosselung bleibt 20 Sekunden; ein gleichbleibender Tick
+verliert den Nachweis nicht. GET verlängert ihn nicht und ruft HA nicht auf. Nur bei
+passender Revision/Entscheidung und frischer, gültiger Grundlage wird er für weniger
+als 20 Sekunden als `verified` ausgegeben; die UI nennt ihn „Zuletzt bestätigt“ mit
+Datum/Uhrzeit. Bei Ausfall, Konflikt oder Neustart keine Wiederverwendung. Das ist
+keine zusätzliche Gültigkeitsgarantie des HA-Sensors und verändert seine Lease nicht.
+
 Das ist keine atomare HA-/SQLite-Transaktion. Bei unklarer Helferanlage wird der Plan
 mit Einzelschritt und Identitätsbeleg behalten; es gibt weder blinde Wiederholung noch
 automatisches Löschen fremder Objekte. Alpha.50 bewahrt Erstellungs- und Registry-Beleg

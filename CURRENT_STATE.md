@@ -50,11 +50,29 @@ Median around 2.5 ms both times; no speed gain claimed. Exact medians/p95 are in
 the receipt. Scheduler timing, valid-time results, evaluated_at and deadlines
 remain unchanged. Do not remove durable timestamps to manufacture deduplication.
 
+## Alpha.60 candidate — dated publication evidence
+
+Implemented/tested locally, not installed: reuse the existing in-memory publication
+receipt for less than the unchanged 20-second heartbeat interval, only while current
+decision, revision, mode, transport and validity still match. GET never advances its
+timestamp or performs HA I/O. Failures clear the receipt; restart does not restore it.
+The UI says "Zuletzt bestätigt" and shows the separate readback-check time.
+
+Three genuine baseline failures reproduced lost confirmation after an unchanged tick
+and a stale API marker after disconnect/clock rollback. Four new Python methods and
+one JS test cover expiry at exactly 20 seconds, changed deadline/revision, unknown
+sources, failure suspension, final-readback timing, restart and passive reads.
+596 Python/74 JS tests and the expanded full-app zone Chromium suite pass. Three
+unchanged synthetic publish ticks add zero HA reads/writes and preserve the proof date.
+The 60-cycle compare workload still has 660 connections/60 transactions/60 checkpoints
+per scenario and zero history/output calls; no speed claim. Desktop/mobile screenshots
+were checked locally; this is not household acceptance. Exact CI/delivery remain gates.
+
 ## One next task and deadline
 
-Inspect publication-view consistency across normal throttling and concurrent
-synthetic ticks; reproduce first. Distinguish last verification from current
-presence. No speculative scheduler rewrite or legacy-configuration migration.
+After delivery, reproduce the old global "Bearbeitung läuft" notice that remained
+after a successfully closed zone editor in the synthetic desktop capture. Change
+nothing without a failing UI test. No speculative scheduler/configuration rewrite.
 
 No new packages/publications after 07:40 UTC; stop development/release work by
 08:01:44 UTC on 28.09.2026, report the secured state and pause the heartbeat.

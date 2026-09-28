@@ -72,6 +72,7 @@ async def main():
   while line:=await asyncio.to_thread(sys.stdin.readline):
    cmd=json.loads(line)
    if cmd['action']=='tick':await tick(cmd.get('seconds',1),cmd.get('values',{}))
+   elif cmd['action']=='publish':await s._zone_publish_all() # Only the mocked client above.
    elif cmd['action']!='snapshot':raise ValueError('Invalid fixture command')
    cfg=await s.context.get('room')
    print(json.dumps({'view':await s.zone_presence_view('room'),'zones':[{k:v for k,v in z.items() if k!='revision'} for z in await s.zones.list()],'mode':(cfg.get(KEY)or{}).get('mode'),

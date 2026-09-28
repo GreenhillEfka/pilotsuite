@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.0-alpha.60] - 2026-09-28
+
+### Datierten Publikationsnachweis ehrlich erhalten
+- Unveränderte Auswertungen verlieren die letzte erfolgreiche HA-Rückleseprüfung
+  nicht mehr während der bestehenden 20-Sekunden-Publikationsdrosselung.
+  Der Nachweis bleibt an Revision, Entscheidung und Gültigkeit gebunden.
+- Die API gibt den Prüfzeitpunkt separat aus. Oberfläche: „Zuletzt bestätigt“
+  mit Datum/Uhrzeit statt einer undatierten Bestätigung.
+- Verbindungsverlust, Zeitrücksprung, geänderte Grundlage, Ablauf, Fehler und
+  Neustart liefern keinen wiederverwendeten Bestätigungsnachweis.
+  Ein Leseaufruf verlängert ihn niemals und führt keine HA-Aufrufe aus.
+- Vier neue Python-Tests, eine zusätzliche JS-Prüfung und der erweiterte
+  synthetische Browserablauf prüfen den Nachweis ohne zusätzliche Ausgabeaufrufe.
+  Keine Publikationsaktivierung, Konfigurationsmigration oder neue Speicherstruktur.
+
 ## [0.1.0-alpha.59] - 2026-09-28
 
 ### Einheitliche Frische statt widersprüchlicher Bereitschaft

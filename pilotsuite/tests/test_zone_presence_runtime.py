@@ -13,6 +13,7 @@ from pilotsuite.app import SERVICE_KEY, create_app
 from pilotsuite.core.context import ContextStore
 from pilotsuite.core.settings import Settings
 from pilotsuite.core.zone_presence_store import KEY
+from pilotsuite.ha.client import HomeAssistantError
 from test_presence_shadow import MOTION, NOW, SOURCE, seed_shadow, state
 
 
@@ -223,6 +224,84 @@ class ZonePresenceRuntimeTests(unittest.IsolatedAsyncioTestCase):
         await self.tick(5)
         await self.service._zone_publish_all()
         self.assertEqual(calls, self.service.client.zone_output_service.await_count)
+
+    async def test_unchanged_ticks_keep_dated_publication_evidence_without_more_io(self):
+        await self.prepare_publisher()
+        await self.service._zone_publish_all()
+        verified_at = self.now
+        calls = self.service.client.zone_output_service.await_count
+        reads = self.service.client.zone_output_states.await_count
+        registries = self.service.client.zone_output_registry.await_count
+        for _ in range(3):
+            await self.tick(5)
+            await self.service._zone_publish_all()
+            result = await self.service.zone_presence_view('room')
+            self.assertEqual('verified', result['publication'])
+            self.assertEqual(verified_at, result['publication_checked_at'])
+            self.assertEqual(calls, self.service.client.zone_output_service.await_count)
+            self.assertEqual(reads, self.service.client.zone_output_states.await_count)
+            self.assertEqual(registries, self.service.client.zone_output_registry.await_count)
+            self.assertEqual('on', self.output_states[self.entities['sensor']]['state'])
+        await self.tick(5)
+        await self.service._zone_publish_all()
+        renewed = await self.service.zone_presence_view('room')
+        self.assertEqual(self.now, renewed['publication_checked_at'])
+        self.assertGreater(self.service.client.zone_output_states.await_count, reads)
+
+    async def test_expired_or_changed_decision_does_not_reuse_publication_receipt(self):
+        for case in ('expired', 'unknown', 'deadline', 'revision', 'disconnected', 'clock_rollback'):
+            with self.subTest(case=case):
+                await self.prepare_publisher()
+                await self.service._zone_publish_all()
+                if case == 'expired':
+                    await self.tick(20)
+                elif case == 'unknown':
+                    await self.tick(1, {SOURCE: 'unavailable', MOTION: 'unavailable'})
+                elif case == 'deadline':
+                    await self.tick(1, {SOURCE: 'off'})
+                elif case == 'revision':
+                    revision = (await self.service.selection_inventory('room'))['revision']
+                    await self.service.selections.patch('room', revision, {'sensor.synthetic_extra': 'ignored'})
+                    await self.tick(1)
+                elif case == 'disconnected':
+                    self.service._stream_connected = False
+                else:
+                    self.now -= 1
+                calls = self.service.client.zone_output_service.await_count
+                before = deepcopy(await self.service.context.zone_operational('room'))
+                result = await self.service.zone_presence_view('room')
+                self.assertNotEqual('verified', result['publication'])
+                self.assertIsNone(result.get('publication_checked_at'))
+                self.assertEqual(before, await self.service.context.zone_operational('room'))
+                self.assertEqual(calls, self.service.client.zone_output_service.await_count)
+
+    async def test_failed_publication_cannot_revive_a_previous_receipt(self):
+        await self.prepare_publisher()
+        await self.service._zone_publish_all()
+        await self.tick(1, {SOURCE: 'off'})
+        self.service.client.zone_output_registry.side_effect = HomeAssistantError('synthetic registry failure')
+        await self.service._zone_publish_all()
+        self.assertTrue((await self.service.context.zone_operational('room'))['output_suspended'])
+        await self.tick(1, {SOURCE: 'on'})  # Same signature as the old successful publication.
+        result = await self.service.zone_presence_view('room')
+        self.assertNotEqual('verified', result['publication'])
+        self.assertIsNone(result['publication_checked_at'])
+        self.assertNotIn('room', self.service._zone_last_published)
+
+    async def test_receipt_is_dated_after_readback_and_not_retained_across_restart(self):
+        async def delay(stage):
+            if stage == 'registry':
+                self.now += 5
+        await self.prepare_publisher(delay)
+        started = self.now
+        await self.service._zone_publish_all()
+        result = await self.service.zone_presence_view('room')
+        self.assertEqual(started + 5, result['publication_checked_at'])
+        self.service._zone_presence_init()
+        await self.tick(1)
+        result = await self.service.zone_presence_view('room')
+        self.assertNotEqual('verified', result['publication'])
+        self.assertIsNone(result['publication_checked_at'])
 
 
 if __name__ == '__main__':
