@@ -22,7 +22,7 @@ docs/ARCHITECTURE.md maps actual owners; docs/ZONE_INSTANCE_V2.md defines presen
 
 PR #118 replaced stale entry documentation with a zone-first consolidation plan.
 Alpha.55 implements its navigation/primary presence view in the existing frontend.
-Use the receipt for delivery, not the candidate version marker. Existing legacy
+Use the receipt for delivery, never a version marker alone. Existing legacy
 analysis and shadow contracts remain readable; a tested migration is required
 before removing their settings or endpoints. AGENTS.md, when present, is preserved.
 
