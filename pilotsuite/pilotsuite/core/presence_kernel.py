@@ -1,11 +1,12 @@
 """Deterministic, deadline-owned presence kernel and synthetic scenario replay.
 
-The kernel owns explanation state only.  It proposes bounded actions but never calls
-Home Assistant.  Productive execution stays behind the separately closed runtime gate.
+The kernel owns explanation state only. It proposes bounded actions but never calls
+Home Assistant. Execution authority belongs to existing callers, never to the kernel.
 """
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from datetime import datetime
 import math
 from typing import Any
 
@@ -20,6 +21,18 @@ SCENARIOS = {
     "unknown_source": "Unklare Quelle verhindert falsche Abwesenheit",
     "dependency_unknown": "Unklare Gruppenabhängigkeit bleibt unbekannt",
 }
+
+
+def timestamp(value):
+    """Parse only explicit, finite timezone-aware observation instants."""
+    if not isinstance(value, str):
+        return None
+    try:
+        stamp = datetime.fromisoformat(value)
+        number = stamp.timestamp() if stamp.tzinfo is not None else None
+        return number if number is not None and math.isfinite(number) else None
+    except (ValueError, TypeError, OverflowError, OSError):
+        return None
 
 
 @dataclass(frozen=True)

@@ -21,12 +21,8 @@ class PresenceShadowServiceMixin:
         self._shadow_seen = set()
 
     def _shadow_fresh(self, now):
-        try:
-            stamp = datetime.fromisoformat(self._last_refresh_at).timestamp()
-            return bool(self._connected and self._stream_connected and
-                        0 <= now-stamp <= max(60, self.settings.refresh_interval_seconds*2))
-        except (ValueError, TypeError, OverflowError):
-            return False
+        # Compatibility for legacy shadow callers; no separate time policy.
+        return self._presence_inputs_fresh(now)
 
     async def _shadow_basis_locked(self, zone_id, catalog=None):
         inventory = await self.selection_inventory(zone_id)

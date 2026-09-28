@@ -43,7 +43,7 @@ class ZonePresenceServiceMixin:
             spec=config.get('spec') or {**deepcopy(kernel.DEFAULTS),'sources':kernel.suggested_sources(catalog,relevant)}
             cached=self._zone_views.get(zid,{})
             current=cached.get('current');now=time.time()
-            if not (current and cached.get('revision')==inv['revision'] and self._shadow_fresh(now) and
+            if not (current and cached.get('revision')==inv['revision'] and self._presence_inputs_fresh(now) and
                     kernel.finite(current.get('observed_at')) and 0<=now-current['observed_at']<=15): current=None
             labels=[] # fetched on explicit ontology edit, not on every display poll
             return {'schema':kernel.SCHEMA,'zone_id':zid,'revision':inv['revision'],
@@ -100,7 +100,7 @@ class ZonePresenceServiceMixin:
                 scope=await self.world.scope((),tuple(relevant))
                 observations={r['entity_id']:r['state'] for r in scope['entities']}
                 now=time.time(); checkpoint,view=kernel.evaluate(spec,state.get('checkpoint'),observations,
-                    now=now,fresh=self._shadow_fresh(now),event=event)
+                    now=now,fresh=self._presence_inputs_fresh(now),event=event)
                 by_id={r['entity_id']:r for r in catalog}
                 for row in view['sources']:row['name']=by_id.get(row['entity_id'],{}).get('name',row['entity_id'])
                 old=self._zone_views.get(zid,{}).get('current')
@@ -181,7 +181,7 @@ class ZonePresenceServiceMixin:
             except Exception:LOG.warning('Relevant history unavailable; live processing continues')
 
     async def _zone_auto_history(self):
-        if not self._shadow_fresh(time.time()) or self._history_lock.locked():return
+        if not self._presence_inputs_fresh(time.time()) or self._history_lock.locked():return
         for zone in await self.zones.list():
             zid=zone['zone_id'];now=time.time()
             if self._zone_backoff.get(zid,0)>now:continue
@@ -381,7 +381,7 @@ class ZonePresenceServiceMixin:
         if (inv['revision']!=view.get('revision') or not inv['enabled'] or
             latest.get('revision')!=view.get('revision') or latest.get('status')!='current' or
             not newest or newest.get('generation')!=current.get('generation') or
-            not self._shadow_fresh(now) or
+            not self._presence_inputs_fresh(now) or
             any(not candidate.get('valid') or not kernel.finite(candidate.get('observed_at')) or
                 not 0<=now-candidate['observed_at']<=15 for candidate in (current,newest))):
             raise SelectionConflict('Präsenzgrundlage während Ausgabe geändert oder veraltet')
@@ -390,7 +390,7 @@ class ZonePresenceServiceMixin:
         package=record['package'];entities=package['entities'];now=time.time()
         last=self._zone_last_published.get(zid,{})
         valid=bool(current and current['valid'] and kernel.finite(current.get('observed_at')) and
-                   0<=now-current['observed_at']<=15 and self._shadow_fresh(now) and view.get('status')=='current')
+                   0<=now-current['observed_at']<=15 and self._presence_inputs_fresh(now) and view.get('status')=='current')
         signature=(current.get('state'),current.get('deadline'),valid) if current else (None,None,False)
         if last.get('signature')==signature and now-last.get('at',0)<20:return
         rows={r['entity_id']:r for r in await self.client.zone_output_registry()}

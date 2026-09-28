@@ -6,8 +6,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import replace
 from math import isfinite
-from .presence_kernel import advance_presence, checkpoint_dict, validate_checkpoint
-from .presence_shadow import timestamp
+from .presence_kernel import advance_presence, checkpoint_dict, validate_checkpoint, timestamp
 from .organization import ENTITY, fingerprint, identity
 from .selections import InvalidSelection
 

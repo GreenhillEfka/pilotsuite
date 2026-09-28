@@ -3,6 +3,12 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.59 candidate: one strict snapshot-age predicate shared by readiness, event
+evidence and presence, with no zone dependency on the shadow freshness adapter.
+Four methods reproduced 17 failing baseline subcases; nine added tests and all
+592 Python/73 JS cases pass. Three local browser suites pass; exact CI/delivery
+remain gates. Installed baseline in the receipt remains Alpha.58.
+
 Alpha.58 installed after PR #125 and exact candidate/main CI: read-first durable
 zone bootstrap; five new contention,
 concurrency, rollback and preservation tests pass. Synthetic 60-cycle scenarios

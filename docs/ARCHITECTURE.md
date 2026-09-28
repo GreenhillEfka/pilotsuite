@@ -49,9 +49,11 @@ lesbar, bis eine getestete Überführung Quellen, Fristen und Bedeutungsuntersch
 erhält. Keine automatische Zusammenführung allein nach Feld- oder Anzeigenamen.
 
 `service.py` startet heute getrennte Refresh-, Shadow-, Presence- und History-Tasks.
-`zone_presence.py` importiert einen Zeitparser aus dem Schattenmodul, und der
-Zonenservice verwendet dessen Frischeprüfung. Das sind konkrete Kopplungen für einen
-späteren kleinen Refactor, kein Grund für eine neue Service-Architektur.
+Alpha.59-Kandidat löst die konkrete Zeit-/Frischekopplung aus dem Schattenadapter:
+Der unveränderte strenge Parser liegt im vorhandenen Präsenzkernel; der Service
+besitzt die gemeinsame Snapshot-Frischeprüfung. Alte Schatten-Importe und die
+private Delegation bleiben kompatibel. Keine neue Service-Architektur. Die getrennten
+Scheduler und gespeicherten Konfigurationen sind dadurch noch nicht konsolidiert.
 
 ## Umsetzungsentscheidung und Alternativen
 
@@ -71,8 +73,8 @@ Ausfall-/Wiederanlaufgarantien und eine getestete Migration bieten.
 ## Kleine technische Schritte, keine neue Schicht
 
 - Eine primäre Statusprojektion in der UI; vorhandene API-Verträge zunächst erhalten.
-- Gemeinsame Zeit-/Frischefunktionen erst mit vergleichenden Tests aus der
-  Shadow-Abhängigkeit lösen. Kein zusätzliches Repository oder Datenmodell.
+- Alpha.59-Kandidat: Zeit-/Frischefunktionen mit vergleichenden Grenz-, HTTP- und
+  Ereignistests aus der Shadow-Abhängigkeit gelöst. Kein zusätzliches Datenmodell.
 - Unveränderte Checkpoints und identische Ansichten möglichst nicht neu schreiben
   beziehungsweise rendern. Zuerst Schreib-/Renderhäufigkeit messen; notwendige
   Gültigkeitsaktualisierung nicht wegoptimieren.

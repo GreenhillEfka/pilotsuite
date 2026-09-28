@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.0-alpha.59] - 2026-09-28
+
+### Einheitliche Frische statt widersprüchlicher Bereitschaft
+- Status, Ereignisbelege, Zonenpräsenz und Schattenvergleich verwenden dieselbe
+  Snapshot-Zeitprüfung. Zukunft, fehlende Zeitzone und ungültige Werte gelten als
+  nicht frisch; Bereitschaft meldet degradiert statt bereit oder HTTP 500.
+- Der Legacy-Ereignispfad nimmt unter diesen Bedingungen keine Lernbelege an,
+  verarbeitet Zustandsereignisse aber weiter. Keine neue Lern- oder Schreibfreigabe.
+- Der unveränderte strenge Zeitparser gehört nun zum vorhandenen Präsenzkernel.
+  Alte Importpfade bleiben kompatibel; die Zoneninstanz hängt für Zeit/Frische
+  nicht mehr vom Schattenadapter ab. Keine neue Engine oder weitere Schicht.
+- Vier rote Regressionen mit 17 fehlschlagenden Teilfällen wurden behoben;
+  zusätzliche Prüfungen erhalten Zeitgrenzen, Zeitzonen und Transporttrennung.
+  Scheduler, Checkpoints und gemessene Datenbankarbeit bleiben unverändert.
+
 ## [0.1.0-alpha.58] - 2026-09-28
 
 ### Zonen lesen ohne unnötige Schreibsperren
