@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.56",
-    "commit": "fde808afa65ec4c52a85ccf05ee8c8cea74152a9",
-    "tree": "18675cc48e36dec67018175cf943f9122e90472f",
-    "app_tree": "8f7a95109cd3aa79ad754e1a1c116a3bd48ee1da",
-    "pull_request": 121,
-    "candidate_commit": "b1c3153f695aa14f49d7427968d2148fbd22fb3f",
-    "candidate_ci_run_id": 36383403520,
-    "ci_run_id": 36383567794,
+    "version": "0.1.0-alpha.57",
+    "commit": "87c62e1cd1eb4ee2b39aba869fe760aedb3b99e9",
+    "tree": "2ab7c2e9584b5b6c9ef0e0cf86c8d90801d25691",
+    "app_tree": "f05884ee3c8b7b72da316d31f0edbdb0522fcc58",
+    "pull_request": 123,
+    "candidate_commit": "ff580218d53acd151f8c34a533b2b1da07f795cd",
+    "candidate_ci_run_id": 36384548685,
+    "ci_run_id": 36384713053,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.56",
-    "commit": "fde808afa65ec4c52a85ccf05ee8c8cea74152a9",
-    "tree": "18675cc48e36dec67018175cf943f9122e90472f",
-    "app_tree": "8f7a95109cd3aa79ad754e1a1c116a3bd48ee1da",
-    "pull_request": 121,
-    "candidate_commit": "b1c3153f695aa14f49d7427968d2148fbd22fb3f",
-    "candidate_ci_run_id": 36383403520,
-    "ci_run_id": 36383567794,
+    "version": "0.1.0-alpha.57",
+    "commit": "87c62e1cd1eb4ee2b39aba869fe760aedb3b99e9",
+    "tree": "2ab7c2e9584b5b6c9ef0e0cf86c8d90801d25691",
+    "app_tree": "f05884ee3c8b7b72da316d31f0edbdb0522fcc58",
+    "pull_request": 123,
+    "candidate_commit": "ff580218d53acd151f8c34a533b2b1da07f795cd",
+    "candidate_ci_run_id": 36384548685,
+    "ci_run_id": 36384713053,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "15da86c3",
-    "name": "PilotSuite alpha.55 before alpha.56",
-    "date": "2026-09-28T05:45:13.533926+00:00",
-    "size_bytes": 54446080,
-    "app_version": "0.1.0-alpha.55",
+    "backup_id": "d6ab3997",
+    "name": "PilotSuite alpha.56 before alpha.57",
+    "date": "2026-09-28T06:01:15.656059+00:00",
+    "size_bytes": 54456320,
+    "app_version": "0.1.0-alpha.56",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.56",
-    "offered_version": "0.1.0-alpha.56",
-    "previous_version": "0.1.0-alpha.55",
+    "installed_version": "0.1.0-alpha.57",
+    "offered_version": "0.1.0-alpha.57",
+    "previous_version": "0.1.0-alpha.56",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,9 +74,9 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T07:51:38Z",
+    "startup_log_timestamp": "2026-09-28T08:06:51Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T07:51:39Z"
+      "2026-09-28T08:06:52Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -95,7 +95,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 574,
+    "local_python_passed": 578,
     "local_javascript_passed": 73,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -103,7 +103,7 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Complete optional-source outage is unknown, including prior vacancy; stale/malformed/missing inputs; held motion after expiry; non-sliding TV hold; SQLite restart preserves deadline; HTTP unknown projection; invalid publisher never clears owner. Two new methods failed in nine subcases before the fix.",
+    "regressions": "Three new methods failed in 13 baseline subcases: nine awaited-I/O delay points, three disconnect points, and newer-checkpoint preservation on publication conflict. Current publication, throttled renewal, unknown invalidation and previous source/deadline tests pass.",
     "local_browser_suites": 1
   },
   "ui_review": {
@@ -125,9 +125,9 @@
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "2860c06d6d598eb9c7544fc8476e5514de498a9e:docs/RELEASE_STATE.json",
-    "integrated_pr": 121,
-    "integrated_commit": "fde808afa65ec4c52a85ccf05ee8c8cea74152a9"
+    "previous_receipt_at": "f4729a9400567a16e7f5e7497bccaf8f9a200831:docs/RELEASE_STATE.json",
+    "integrated_pr": 123,
+    "integrated_commit": "87c62e1cd1eb4ee2b39aba869fe760aedb3b99e9"
   },
-  "next_step": "Continue bounded presence-first quality iteration: test publication freshness across awaited reads, then measured removal of unnecessary bootstrap write locks. Preserve operational timestamps and deadlines. Authenticated read-only household Ingress acceptance remains pending."
+  "next_step": "Measured SQLite quality package: avoid repeated bootstrap write reservations with a durable read-first/rechecked transaction, preserve all presence checkpoints/timestamps and test concurrent first start/restart. Close proven test-fixture connection leaks without filtering warnings. Authenticated read-only household Ingress acceptance remains pending."
 }
