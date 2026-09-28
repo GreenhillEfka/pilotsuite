@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-alpha.67] - 2026-09-28
+
+### Ungültige Sensorwerte ehrlich behandeln
+- Ungültige Binärsensorwerte werden nicht mehr zu „aus“ und guter Datenqualität.
+  Nur ausdrückliches on/off ist gültig. Unvollständige Präsenz-/Helligkeitsgruppen
+  bleiben unklar; ein gültiger positiver Beleg bleibt als Teilbefund erhalten.
+- Lichtprüfung und synthetische Vorschau teilen dieselbe Nutzbarkeitsprüfung:
+  ungültige Binär-/Leuchtenzustände sowie ungültige Luxwerte oder unpassende
+  Einheiten zählen nicht als nutzbare Quellen. Fehlgeformte Werte lösen dort
+  keinen Typfehler mehr aus.
+- Keine neue Steuerung, Rolle, Datenmigration, Freigabe oder Haushaltsaktion.
+
 ## [0.1.0-alpha.66] - 2026-09-28
 
 ### Bestehende Automationen zur Weiterverwendung prüfen

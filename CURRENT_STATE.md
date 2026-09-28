@@ -34,14 +34,17 @@ import/diff/transform modules and PlanStore remain the future implementation bas
 No household binding/helper/metadata/automation/output/consent changed. AGENTS.md
 remains unchanged and untracked; Ingress/authentication intact.
 
-## Active two-hour run and next task
+## Closed two-hour run; explicitly authorized completion
 
 User mandate: administration, configuration and lighting, 2026-09-28
 17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
-Reused heartbeat active for this window only; pause at completion, never extend it.
+The reused heartbeat was paused at 18:58 UTC; this window is not extended.
+The subsequent user request "Kein Problem, mach die Arbeit fertig" explicitly
+authorizes finishing existing PR #144 through the release runbook. No unrelated
+feature package or new household write permission is implied.
 Alpha.66 documentation receipt PR #143 is merged; exact candidate/main CI passed.
 
-## Tested, unreleased handoff: binary observation validity
+## Alpha.67 candidate: binary observation validity
 
 Branch `fix/binary-observation-validity` corrects malformed binary states being
 normalized to `False`/good. Explicit on/off and existing missing-state semantics
@@ -57,12 +60,13 @@ tests, 75 JavaScript tests, 62 API contracts, discovery/compilation and existing
 synthetic workspace browser flow passed locally. Own diff review completed.
 Authenticated household Ingress acceptance remains unavailable.
 
-The 18:45:52 UTC publication cutoff passed while tests were being completed.
-No version bump, release backup, merge or installation for this patch. Alpha.66
-remains installed/started; all four app option values were rechecked unchanged.
-Keep this as a draft PR: before a future release, review exact candidate CI,
-bump all release markers/changelogs, obtain a fresh verified PilotSuite-only
-backup and pass every release gate, including exact new candidate/main CI.
+The original unversioned draft correctly stopped at the release-source CI gate;
+its other four jobs passed. Under the new completion request, version markers and
+changelogs now identify Alpha.67. Fresh PilotSuite-only backup `62b66f9e` completed
+at 19:00:10 UTC: exactly Alpha.66 app/data/options, 54,476,800 bytes, no HA/database,
+folders or failed components; native list/details verified, no restore drill.
+Exact versioned candidate/main CI is required before installation. Alpha.66 remains the last
+verified installed version until a new receipt proves otherwise.
 
 Latest user correction permits adoption/reuse. The unanswered question concerns
 the scope of live edits, not permission to develop the feature. Until answered,

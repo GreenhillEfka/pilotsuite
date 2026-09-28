@@ -20,6 +20,14 @@ Ausfälle werden nicht zu Nullwerten. Ohne aktive Meldung ergibt eine fehlende o
 ungültige Hauptquelle unbekannt statt Abwesenheit. Bewusst leere Gruppen bleiben
 leer; keine Ersatzquellen. Keine unbemerkte Erweiterung um neue Sensoren.
 
+Seit Alpha.67 akzeptiert die gemeinsame Binärsensor-Aufbereitung nur ausdrückliches
+`on`/`off` (Groß-/Kleinschreibung bleibt kompatibel). Fremde Werte wie `0`, `false`
+oder fehlgeformte Daten sind ungültig, nicht `off`. Eine teilweise ungültige Gruppe
+bleibt bei sonst nur negativen Meldungen unklar; eine gültige positive Meldung
+bleibt ein positiver Teilbefund. Lichtvorschau und Bestandsprüfung teilen die
+Nutzbarkeitsprüfung; Lux benötigt zusätzlich die gültige normalisierte Messung.
+Das ändert weder gespeicherte Rollen noch die separate Zonen-Präsenzkern-Konfiguration.
+
 Externe Vergleichssensoren sind fachlich etwas anderes: etwa Außentemperatur für
 Innen/Außen-Vergleiche. Die bisherige gespeicherte Referenztemperatur bleibt als
 **externe Vergleichstemperatur** erhalten und fließt nicht in den Zonenwert ein.

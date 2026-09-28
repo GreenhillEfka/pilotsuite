@@ -131,18 +131,18 @@
     "integrated_pr": 142,
     "integrated_commit": "d0cbb2131d05e5d39520d18ce89b466ff32cb2c2"
   },
-  "next_step": "Unreleased branch fix/binary-observation-validity fixes invalid binary observations and shares lighting source-validity checks; 637 Python / 75 JS / 62 contracts and synthetic workspace browser passed locally. No version bump, merge or installation after the publication cutoff. Future release still requires fresh PilotSuite-only backup, version/changelog updates and exact candidate/main CI. Missing/derived role alignment, live-edit scope and household Ingress/four-zone acceptance remain open.",
+  "next_step": "User explicitly requested completion after the bounded run stopped. Finish existing PR #144 as Alpha.67 with fresh verified PilotSuite-only backup and exact versioned candidate/main CI. Alpha.66 remains the verified installation until a new receipt. No additional feature package or household-write authority. Missing/derived role alignment and household Ingress/four-zone acceptance remain open.",
   "runtime_measurement": {
     "scope": "No performance change claimed for Alpha.66. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
     "kind": "two_hour_administration_configuration_lighting_run",
-    "heartbeat": "active_for_new_window_only",
+    "heartbeat": "paused_at_2026-09-28T18:58Z",
     "start_utc": "2026-09-28T17:05:52Z",
     "no_new_packages_after_utc": "2026-09-28T18:45:52Z",
     "end_utc": "2026-09-28T19:05:52Z",
-    "requested_authority": "User now permits existing-automation adoption/reuse. Live-edit scope is pending clarification; Alpha.66 adds only a non-executable reuse review and makes no household automation edits or control transfer.",
+    "requested_authority": "Bounded run closed. Subsequent explicit user request authorizes completing existing PR #144 and its safe release; no scheduler extension or additional feature scope. Automation live-edit scope remains pending; no control transfer is authorized by this completion request.",
     "household_binding_changed": false
   }
 }
