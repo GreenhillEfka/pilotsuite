@@ -13,12 +13,19 @@ manuelle Funktionszuordnung bis zu bestätigter Anzeigenamen-Bereinigung. Repara
 und technische Ziel-IDs sind prüfbar, ihre Ausführung bleibt ausdrücklich getrennt.
 Ein funktionierender for-Nachlauf oder vorhandener Timer ist kein Grund für Duplikate.
 
+Alpha.61 verbindet diesen vorhandenen Editor mit der primären Zonenansicht. Der
+gewählte Bestandsweg behält die bestehenden Automationen als Schreiber und vergleicht
+Boolean, Timer und öffentlichen Präsenzsensor mit der unabhängigen PilotSuite-Bewertung.
+Das ist lesende Bestandsintegration, keine Steuerungsübernahme. Details und Grenzen:
+[ZONE_INSTANCE_V2.md](ZONE_INSTANCE_V2.md). Haushaltszuordnung/Abnahme bleiben getrennt.
+
 ## Ontologie und Konfiguration
 
 | Funktion | Bestandstypen | Bedeutung |
 |---|---|---|
 | Präsenzquellen | binary_sensor, input_boolean | Beobachtungsquellen; logische/abgeleitete Quellen sind gekennzeichnet |
 | Raumstatus | input_boolean, binary_sensor | Bestehender bestätigter Status, nicht zwingend beschreibbarer Ausgang |
+| Öffentlicher Zonen-Präsenzsensor | binary_sensor mit occupancy/presence | Separater Bestandsstatus für Verbraucher; unbekannt bleibt unklar, kein automatischer Boolean-Fallback |
 | Nachlauftimer | timer | Vorhandene Zeitkomponente |
 | Nachlauf-Dauer | input_number, number | Parameterquelle, Einheit ausdrücklich beachten |
 | Manuelle Bedienung | input_boolean, binary_sensor | Bestehender Override, keine automatische Umdeutung |

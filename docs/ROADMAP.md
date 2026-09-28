@@ -34,11 +34,12 @@ Abnahme dieses Pakets:
   Fehlender Browser blockiert nicht synthetische Entwicklung und wird nicht umgangen.
 
 Manueller Folgeauftrag nach dem abgeschlossenen Dreistundenlauf: zuerst bestehende
-Anwesenheitssteuerung durchgängig verbinden und vergleichen. Alpha.61-Kandidat nutzt
+Anwesenheitssteuerung durchgängig verbinden und vergleichen. Alpha.61 nutzt
 den vorhandenen Organization-Editor/-Speicher für Boolean, Timer, öffentlichen
 Präsenzsensor und Automationen. HA bleibt zuständig; kein Takeover, keine Aktivierung.
-Lokale Tests und synthetischer Nutzerweg sind belegt; Installation/Haushaltsabnahme
-bleiben eigene Gates im Release-Receipt. Der alte Heartbeat bleibt pausiert.
+Implementiert, getestet und nach PR #132 sowie exakter Kandidaten-/Main-CI installiert.
+Haushaltszuordnung und echte Ingress-Abnahme bleiben offen; keine Bestandsautomation
+wurde geändert. Belege im Release-Receipt. Der alte Heartbeat bleibt pausiert.
 
 Offener kleiner Bedienfehler, am 28.09.2026 synthetisch reproduziert: Nach blockiertem
 Bereichswechsel und anschließend erfolgreichem Speichern bleibt der globale Hinweis
