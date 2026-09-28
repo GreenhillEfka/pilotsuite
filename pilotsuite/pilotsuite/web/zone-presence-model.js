@@ -10,7 +10,7 @@
      (data?.status==='source_basis_changed'?'Quellenbasis geändert; Einrichtung prüfen.':
       !data?.spec?.sources?.length?'Keine bestätigte Präsenzgrundlage; Quellen prüfen.':'Keine aktuelle Entscheidung verfügbar; neu laden.');
    const publication=paused?'Pausiert':!data?.package?'Nicht eingerichtet':
-     data.mode==='compare'?'Nur vergleichen':data.mode==='publish'&&data.publication==='verified'?'Bestätigt':'Nicht bestätigt';
+     data.mode==='compare'?'Nur vergleichen':current&&data.mode==='publish'&&data.publication==='verified'?'Bestätigt':'Nicht bestätigt';
    return {state,reason,publication};
  }
  function plot(series,start,end){

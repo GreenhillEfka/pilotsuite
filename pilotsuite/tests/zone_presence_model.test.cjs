@@ -17,6 +17,7 @@ test('publication is distinct from calculation and cannot be claimed without a p
  assert.equal(M.summary(data).publication,'Nicht eingerichtet');
  const packageData={...data,package:{entities:{sensor:'binary_sensor.demo'}}};
  assert.equal(M.summary(packageData).publication,'Bestätigt');
+ assert.equal(M.summary({...packageData,current:null}).publication,'Nicht bestätigt','an expired current view cannot confirm cached publication');
  for(const publication of ['not_published','unknown_or_conflict','suspended_after_unknown_outcome','unexpected']){
   assert.equal(M.summary({...packageData,publication}).publication,'Nicht bestätigt');
  }
