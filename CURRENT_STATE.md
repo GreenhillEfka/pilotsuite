@@ -1,5 +1,37 @@
 # Current state — Alpha.67 installed; household acceptance pending
 
+## Safe UI handoff — PR #146 / Alpha.68 candidate, not installed
+
+New one-hour user request: 28 September, 19:33:18–20:33:18 UTC; no new package
+or publication after 20:13:18 UTC. Work stays on `fix/alpha68-setup-navigation`.
+Four setup shortcuts reuse existing presence, source, entity and zone editors.
+Hidden-role focus failure was reproduced first in the existing workspace browser;
+the editor now focuses a visible field, and presence editing focuses the grace time.
+The main-source link no longer leads to the learning workbench. Dirty drafts remain
+protected; no household configuration, execution authority or persisted zone changed.
+
+Local checks passed: 637 Python, 75 JS, 62 API contracts, discovery, repeated
+zero-ResourceWarning audit, workspace and zone-instance browser suites. Synthetic
+390/768/1440-pixel light/dark checks cover focus, navigation and no HA writes;
+screenshots are not real Ingress acceptance.
+Candidate `9b4dc353f0046825d19532d2dc638085183ab297` passed all five CI jobs in
+run `36477800406`, including all 11 browser suites, container and HA protocol.
+Final handoff adds two browser guard checks and receipt notes; its exact CI is
+recorded on PR #146, not inferred from this earlier green run. Release-main CI
+remains pending because no merge/update is performed in this bounded run.
+Alpha.67 delivery evidence below remains the installed/published baseline.
+
+PilotSuite-only backup `cd419ede` at 19:45:10 UTC: exactly Alpha.67 app/data/options,
+54,497,280 bytes, no HA/database/folders/failures; native list/details verified,
+local and unprotected, not extracted or restored. Fresh live read at 20:15 UTC
+confirmed Alpha.67 installed/offered/started, all four options unchanged and
+ready/connected/fresh/resolved logs. No Store refresh, update or explicit restart.
+At the publication cutoff the tested package was secured as draft PR #146 rather
+than starting a release under time pressure. Resume this branch/PR; first recheck
+main, exact-head CI and fresh backup requirements, then the complete runbook.
+No actual Ingress acceptance is available. The timeboxed heartbeat is paused at
+handoff; the one-hour window is not extended.
+
 ## Verified delivery
 
 PR #144 merged as `5ac673fa5d728b73a5a6ac612b43c6c8df65be05`.

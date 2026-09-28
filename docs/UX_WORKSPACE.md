@@ -1,9 +1,8 @@
 # Workspace — Alltag zuerst, Diagnose bei Bedarf
 
-Alpha.55 vom 28.09.2026 (PR #119): Die drei Hauptzugänge und die zentrale
-Präsenzkarte sind im bestehenden Frontend umgesetzt. Den tatsächlichen Installations-
-und CI-Stand führt RELEASE_STATE.json; Alpha.55 ist installiert, die angemeldete
-Haushaltsabnahme bleibt offen.
+Seit Alpha.55 (PR #119) sind die drei Hauptzugänge und die zentrale Präsenzkarte
+im bestehenden Frontend umgesetzt. Den aktuellen Installations- und CI-Stand führt
+RELEASE_STATE.json; die angemeldete Haushaltsabnahme bleibt separat offen.
 
 ## Drei Hauptzugänge
 
@@ -39,6 +38,17 @@ Signaltypen, nachvollziehbarer Nachlauf, optional eigenes Ausgangspaket.
 Relevanz braucht keine zweite Live-/Historienfreigabe. Vorhandene Legacy-Lernschalter
 bleiben während der Migration als solche erkennbar; nicht einfach verstecken und
 dadurch weiterhin erforderliche Backend-Bedingungen unerklärlich machen.
+
+## Direkte Einrichtung
+
+Die Einrichtung bietet vier direkte Aufgaben: Anwesenheit/Nachlauf, Lichtquellen,
+Entitäten sowie Name/Bereiche. Sie öffnen die vorhandenen Editoren derselben Zone,
+keine zweite Konfiguration. Lichtquellen sind Zuordnungen, keine Schaltknöpfe.
+Offene Entwürfe blockieren auch diese Einstiege; fehlende Bereitschaft wird erklärt.
+Das gewünschte sichtbare Feld erhält Fokus. Ein Quellenfilter darf den Fokus nicht
+auf eine ausgeblendete andere Rolle lenken. Automatische Aktualisierung öffnet
+keinen Editor und verschiebt keinen Fokus. Der Hauptsensor-Link führt in die
+Konfiguration, nicht in die Lernwerkbank.
 
 ## Diagnose ohne konkurrierende Wahrheiten
 

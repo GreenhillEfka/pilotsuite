@@ -1026,7 +1026,10 @@ byId('context-edit').addEventListener('click', async () => {
     byId('context-learning-consent').disabled=!contextData.config.learning;
     byId('context-form').hidden=false;
     byId('context-form').scrollIntoView({block:'start'});
-    byId('context-form').querySelector('input:not(:disabled)')?.focus({preventScroll:true});
+    // Module filters can hide the first role. Never focus a hidden input.
+    const firstVisible=[...byId('context-form').querySelectorAll('input:not(:disabled)')].find(input=>input.getClientRects().length);
+    firstVisible?.focus({preventScroll:true});
+    firstVisible?.scrollIntoView({block:'center'});
   } catch(error) { contextEditing=false; text('context-message',error.message); renderSelection(); }
 });
 byId('learning-consent').addEventListener('change', () => {
