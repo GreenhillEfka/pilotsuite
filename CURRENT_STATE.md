@@ -1,16 +1,16 @@
-# Current state — Alpha.57 installed; household acceptance pending
+# Current state — Alpha.58 installed; household acceptance pending
 
 ## Verified delivery
 
-HA-MCP confirms Alpha.57 installed/offered/started. PR #123 merged as
-`87c62e1cd1eb4ee2b39aba869fe760aedb3b99e9`; exact candidate CI `36384548685`
-and main CI `36384713053` passed all five jobs. See
+HA-MCP confirms Alpha.58 installed/offered/started. PR #125 merged as
+`66d155cb27e2e2a8ebd1e06feec0ed146ba7eacd`; exact candidate CI `36386546543`
+and main CI `36386768279` passed all five jobs. See
 [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json) for separate source, backup and
-runtime evidence. Alpha.56/PR #121 remains the optional-coverage correction.
+runtime evidence. Alpha.56/PR #121 and Alpha.57/PR #123 remain integrated.
 
-PilotSuite-only backup `d6ab3997` was completed and verified before publication:
-exactly Alpha.56 app/data/options, 54,456,320 bytes, no HA/database/folders or failures.
-One Store refresh and one targeted update installed Alpha.57. All four options
+PilotSuite-only backup `012bff83` was completed and verified before publication:
+exactly Alpha.57 app/data/options, 54,456,320 bytes, no HA/database/folders or failures.
+One Store refresh and one targeted update installed Alpha.58. All four options
 match the pre-update read. Mode remains `presence_adoption_review`; startup is ready,
 connected, snapshot-fresh and zone-resolved. App log times are copied as emitted,
 not independently clock-attested. No explicit restart/rebuild, other-app update,
@@ -31,14 +31,14 @@ under the projection lock. HA calls remain outside that lock. Existing invalidat
 durable suspension and lease expiry remain; no atomic HA/SQLite guarantee or
 additional execution authority is claimed.
 
-Locally: 578 Python tests, 73 JavaScript tests, 62 API contracts, discovery,
-compilation and the existing synthetic full-app zone Chromium suite passed.
+Locally: 583 Python tests, 73 JavaScript tests, 62 API contracts, discovery,
+compilation and the existing synthetic full-app zone/review-compass browsers passed.
 All 11 browser suites, amd64 container, reproducible checkout and disposable HA
 protocol passed exact CI. Four-zone UI/configuration semantics remain unchanged.
 
-## Alpha.58 candidate — measured SQLite quality package
+## Alpha.58 — measured SQLite quality package
 
-Implemented locally, not yet published or installed: a durable read-first marker
+Implemented, tested and installed, not household-accepted: a durable read-first marker
 check avoids reserving a write lock for already initialized zones. First bootstrap
 still rechecks under its transaction. Before the fix, two regressions reproduced
 an unnecessary IMMEDIATE transaction and a database-locked error beside a reserved
@@ -50,7 +50,7 @@ Repeat with installed test dependencies:
 Same disposable one-zone fixture,
 60 tick-plus-view cycles in each stable occupied/vacant/unknown scenario:
 
-| Metric per scenario | Alpha.57 baseline | Candidate |
+| Metric per scenario | Alpha.57 baseline | Alpha.58 |
 |---|---:|---:|
 | SQLite connections | 660 | 660 |
 | IMMEDIATE transactions | 180 | 60 |
@@ -65,10 +65,13 @@ The 43 bare SQLite test contexts and one browser fixture now explicitly close af
 commit/rollback. The full 583-test run with ResourceWarning capture and final GC
 passed with zero such warnings; no filters hide failures and no production leak is
 inferred. Also passed: 73 JS tests, 62 API contracts, discovery, compilation,
-synthetic zone and review-compass browsers. Exact candidate/main CI remains a gate.
+synthetic zone and review-compass browsers. Exact candidate/main CI passed all five jobs.
 
-Next after delivery: measure the existing scheduler/freshness coupling before
-changing it; do not remove evaluated_at or merge legacy configurations speculatively.
+Next: reproduce the future/invalid snapshot-time mismatch between readiness and
+presence. Consolidate that existing freshness owner only with comparative tests;
+valid-time behavior, scheduler timing and checkpoints must remain unchanged.
+Measure before scheduler changes; do not remove evaluated_at or merge legacy
+configurations speculatively.
 
 Continue only within the bounded run; no new packages after 07:40 UTC, stop
 development/release work by 08:01:44 UTC on 28.09.2026.
