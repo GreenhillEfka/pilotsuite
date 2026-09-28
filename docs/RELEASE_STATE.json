@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.64",
-    "commit": "ee757af548194426d9f115cb29b3932379d5962e",
-    "tree": "592bdbe8a1ddec1fc262e67534245024c66ffba7",
-    "app_tree": "352119664af2716660e0e48535571e2d643c69a8",
-    "pull_request": 138,
-    "candidate_commit": "3a46defbaacdfb6d3816f88bc20c1f05b32cdc67",
-    "candidate_ci_run_id": 36441905253,
-    "ci_run_id": 36442208985,
+    "version": "0.1.0-alpha.65",
+    "commit": "91553c840a826b552181bfe8f9132022b79d9823",
+    "tree": "d390232bd32391fd9e8ac8eed7e5b6b2db720970",
+    "app_tree": "e8f470a74bdfb87d63a4b401b4647785e62fb383",
+    "pull_request": 140,
+    "candidate_commit": "995d754d3e9fa4b7812c296d5c1bb8ae63437dab",
+    "candidate_ci_run_id": 36457661481,
+    "ci_run_id": 36458315513,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.64",
-    "commit": "ee757af548194426d9f115cb29b3932379d5962e",
-    "tree": "592bdbe8a1ddec1fc262e67534245024c66ffba7",
-    "app_tree": "352119664af2716660e0e48535571e2d643c69a8",
-    "pull_request": 138,
-    "candidate_commit": "3a46defbaacdfb6d3816f88bc20c1f05b32cdc67",
-    "candidate_ci_run_id": 36441905253,
-    "ci_run_id": 36442208985,
+    "version": "0.1.0-alpha.65",
+    "commit": "91553c840a826b552181bfe8f9132022b79d9823",
+    "tree": "d390232bd32391fd9e8ac8eed7e5b6b2db720970",
+    "app_tree": "e8f470a74bdfb87d63a4b401b4647785e62fb383",
+    "pull_request": 140,
+    "candidate_commit": "995d754d3e9fa4b7812c296d5c1bb8ae63437dab",
+    "candidate_ci_run_id": 36457661481,
+    "ci_run_id": 36458315513,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "14f1c9da",
-    "name": "PilotSuite alpha.63 before alpha.64",
-    "date": "2026-09-28T15:10:35.540683+00:00",
-    "size_bytes": 54476800,
-    "app_version": "0.1.0-alpha.63",
+    "backup_id": "44da1956",
+    "name": "PilotSuite alpha.64 before alpha.65",
+    "date": "2026-09-28T17:19:26.952194+00:00",
+    "size_bytes": 54487040,
+    "app_version": "0.1.0-alpha.64",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.64",
-    "offered_version": "0.1.0-alpha.64",
-    "previous_version": "0.1.0-alpha.63",
+    "installed_version": "0.1.0-alpha.65",
+    "offered_version": "0.1.0-alpha.65",
+    "previous_version": "0.1.0-alpha.64",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,10 +74,10 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T17:19:31Z",
+    "startup_log_timestamp": "2026-09-28T19:30:33Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T17:19:31Z",
-      "2026-09-28T17:21:03Z"
+      "2026-09-28T19:30:34Z",
+      "2026-09-28T19:32:05Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -96,7 +96,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 625,
+    "local_python_passed": 628,
     "local_javascript_passed": 75,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -104,12 +104,12 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Two original red storage tests reproduced unnecessary BEGIN IMMEDIATE and database-is-locked on an identical checkpoint beside a reserved writer. Eight added tests cover four-zone DB preservation, contention, stale/boolean/missing revisions, clock durability/restart, concurrent equal writes, revision race, rollback/retry and service-level source-basis suspension. Exact-main remeasurement matched all four baseline decision-trace hashes.",
-    "local_browser_suites": 3,
-    "final_resource_warning_audit": "625 tests repeated on exact candidate application source with ResourceWarning capture and gc.collect(); zero resource warnings. Release-main application tree is identical."
+    "regressions": "Two red methods reproduced six interrupted stability windows and retained confirmed band (seven failures). Three new tests verify reacquisition, preserved proposal cooldown, immutable input and fixed five-step recovery scenario. Full-app Chromium asserts recovery timeline, same roles/drafts/notes and zero HA output/helper writes.",
+    "local_browser_suites": 2,
+    "final_resource_warning_audit": "628 Python tests repeated on exact candidate application tree; zero ResourceWarnings after gc.collect(). Release-main tree matches."
   },
   "ui_review": {
-    "synthetic_browser": "Local zone/workspace/Organization suites passed with the existing four-zone, configuration, existing-control and output-proof flows. Desktop screenshot inspected; all 11 browser suites passed exact candidate/main CI. No frontend assets or browser test logic changed; synthetic tests are not household acceptance.",
+    "synthetic_browser": "Workspace and Organization suites passed locally. New lighting recovery screenshot inspected; all 11 browser suites passed exact candidate/main CI. No authenticated household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false
@@ -123,173 +123,18 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "All four app options unchanged; no schema/configuration migration. Regression compares complete disposable four-zone database before/after repeated identical checkpoints. Existing full-app browser flows preserve zones, roles/consents and organization bindings. Authenticated observation of all four saved household zones and bindings remains pending."
+    "independent_data_preservation": "All four app options unchanged. No schema/configuration migration or persistent lighting checkpoint; synthetic browser snapshots preserve roles/drafts/notes. Real four-zone household Ingress observation pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "7a319a571e5d64f31856dd97e9c863af4e060b44:docs/RELEASE_STATE.json",
-    "integrated_pr": 138,
-    "integrated_commit": "ee757af548194426d9f115cb29b3932379d5962e"
+    "previous_receipt_at": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json",
+    "integrated_pr": 140,
+    "integrated_commit": "91553c840a826b552181bfe8f9132022b79d9823"
   },
-  "next_step": "Finish the active Alpha.65 lighting-preview package and release gates, then inspect configuration guidance and usable-source consistency within the new two-hour window. Read-only authenticated household Ingress acceptance of all four zones remains pending. No household mapping or light action is authorized by this development run. Earlier bounded windows remain closed.",
+  "next_step": "Within the new two-hour window, reproduce and correct inconsistent usable-source counts and guidance in the existing lighting/configuration path; do not rebuild features. Separately, authenticated household Ingress/four-zone acceptance remains pending. No household mapping or light switching.",
   "runtime_measurement": {
-    "scope": "Synthetic disposable single-zone fixture, 60 tick+view cycles per scenario, identical expanded script before/after; not household load. Frontend render cycles not measured or changed.",
-    "baseline_source": "7a319a571e5d64f31856dd97e9c863af4e060b44",
-    "command": "PYTHONPATH=pilotsuite:pilotsuite/tests python scripts/benchmark_zone_presence.py --cycles 60",
-    "cases": [
-      {
-        "scenario": "occupied",
-        "cycles": 60,
-        "connections_before_after": [
-          660,
-          660
-        ],
-        "checkpoint_writes_before_after": [
-          60,
-          60
-        ],
-        "immediate_transactions_before_after": [
-          60,
-          60
-        ],
-        "select_statements_before_after": [
-          1140,
-          1200
-        ],
-        "median_ms_before_after": [
-          2.542,
-          2.611
-        ],
-        "p95_ms_before_after": [
-          2.72,
-          2.818
-        ],
-        "matching_decision_trace_sha256": "af21ac2c41d92ddbc59c17ca4519127b49c89c6feec4a3ddccd27233a0bbb1e8",
-        "history_requests_before_after": [
-          0,
-          0
-        ],
-        "ha_output_calls_before_after": [
-          0,
-          0
-        ]
-      },
-      {
-        "scenario": "vacant",
-        "cycles": 60,
-        "connections_before_after": [
-          660,
-          660
-        ],
-        "checkpoint_writes_before_after": [
-          60,
-          60
-        ],
-        "immediate_transactions_before_after": [
-          60,
-          60
-        ],
-        "select_statements_before_after": [
-          1140,
-          1200
-        ],
-        "median_ms_before_after": [
-          2.536,
-          2.563
-        ],
-        "p95_ms_before_after": [
-          2.811,
-          2.701
-        ],
-        "matching_decision_trace_sha256": "8e3d46aa576367c13fab87d528b271b6f6caae81718441adbd8a2386c8d7d058",
-        "history_requests_before_after": [
-          0,
-          0
-        ],
-        "ha_output_calls_before_after": [
-          0,
-          0
-        ]
-      },
-      {
-        "scenario": "unknown",
-        "cycles": 60,
-        "connections_before_after": [
-          660,
-          660
-        ],
-        "checkpoint_writes_before_after": [
-          60,
-          60
-        ],
-        "immediate_transactions_before_after": [
-          60,
-          60
-        ],
-        "select_statements_before_after": [
-          1140,
-          1200
-        ],
-        "median_ms_before_after": [
-          2.532,
-          2.558
-        ],
-        "p95_ms_before_after": [
-          2.713,
-          2.666
-        ],
-        "matching_decision_trace_sha256": "bade380723ef35704432a731c35efbfee02700a6dc505416f36405871a53f558",
-        "history_requests_before_after": [
-          0,
-          0
-        ],
-        "ha_output_calls_before_after": [
-          0,
-          0
-        ]
-      },
-      {
-        "scenario": "suspended",
-        "cycles": 60,
-        "connections_before_after": [
-          660,
-          660
-        ],
-        "checkpoint_writes_before_after": [
-          0,
-          0
-        ],
-        "immediate_transactions_before_after": [
-          60,
-          0
-        ],
-        "select_statements_before_after": [
-          1140,
-          900
-        ],
-        "median_ms_before_after": [
-          2.269,
-          2.281
-        ],
-        "p95_ms_before_after": [
-          2.347,
-          2.365
-        ],
-        "matching_decision_trace_sha256": "e92dde8dcc491520024836ae15ef071e4a1501334f077c912904c0a4bd237d0d",
-        "history_requests_before_after": [
-          0,
-          0
-        ],
-        "ha_output_calls_before_after": [
-          0,
-          0
-        ]
-      }
-    ],
-    "tradeoff": "One additional SELECT per changed checkpoint; all clock/checkpoint writes preserved. Exact repeats avoid write reservations. No overall speed gain, delayed durability, scheduler change, or process-local cache.",
-    "exact_release_main_remeasurement": "Decision-trace hashes, write reservations, writes and SELECT counts reconfirmed on ee757af548194426d9f115cb29b3932379d5962e.",
-    "previous_evidence": "7a319a571e5d64f31856dd97e9c863af4e060b44:docs/RELEASE_STATE.json",
-    "ha_config_read_policy": "Zone GET projects existing in-memory states only; structural automation configs are fetched only on explicit review. Synthetic binding/review segment has zero HA output/helper/metadata calls."
+    "scope": "No performance change claimed for Alpha.65. Alpha.64 checkpoint counts and tradeoff are preserved in the previous receipt.",
+    "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
     "kind": "two_hour_administration_configuration_lighting_run",
@@ -299,29 +144,5 @@
     "end_utc": "2026-09-28T19:05:52Z",
     "requested_authority": "existing_automations_remain_controllers",
     "household_binding_changed": false
-  },
-  "candidate": {
-    "version": "0.1.0-alpha.65",
-    "branch": "fix/lighting-preview-continuity",
-    "status": "local_tests_passed_not_published_or_installed",
-    "scope": "Pure lighting preview stability after interrupted observations; existing UI recovery scenario. No household configuration or execution.",
-    "python_tests": 628,
-    "javascript_tests": 75,
-    "local_browser": "workspace passed",
-    "prepublication_backup": {
-      "backup_id": "44da1956",
-      "date": "2026-09-28T17:19:26.952194+00:00",
-      "size_bytes": 54487040,
-      "app_version": "0.1.0-alpha.64",
-      "app_slugs": ["0d79c5e8_pilotsuite"],
-      "homeassistant_included": false,
-      "database_included": false,
-      "folders": [],
-      "failed_components": [],
-      "agent_errors": {},
-      "protected": false,
-      "verification": "native list and backup/details; no extraction/restore drill"
-    },
-    "remaining_gates": "Exact candidate/main CI, source association, installation/runtime and separate household acceptance."
   }
 }
