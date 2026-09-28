@@ -7,14 +7,15 @@ Release-Chronik: [CHANGELOG](../CHANGELOG.md). Tatsächliche Fähigkeiten:
 
 ## 1. Jetzt: Konzept und Alltagsansicht konsolidieren
 
-Neuer UI-Auftrag am 28.09., 19:33:18–20:33:18 UTC: vorhandene Einrichtung direkt
-erreichbar machen. Alpha.68-Kandidat: vier Aufgaben-Einstiege, sichtbarer Feldfokus
-und korrigierter Hauptsensor-Link, keine zusätzliche Oberfläche oder Konfiguration.
-Lokal rot/grün geprüft; initiale Kandidaten-CI mit allen fünf Jobs grün. Als Draft
-PR #146 gesichert, kein Merge/Update in diesem Lauf; Alpha.67 bleibt installiert.
-Abschlusskopf-CI wird im PR belegt. Installation und Haushaltsabnahme bleiben offen.
-Ab 20:13:18 UTC keine neue Veröffentlichung beginnen; einen geprüften PR hinterlassen,
-wenn die verbleibende Zeit nicht für die vollständigen Release-Gates reicht.
+Der UI-Stundenlauf am 28.09., 19:33:18–20:33:18 UTC endete mit Draft PR #146.
+Nach ausdrücklicher Zustimmung zum anschließenden Abschluss ist Alpha.68 installiert:
+vier Aufgaben-Einstiege, sichtbarer Feldfokus und korrigierter Hauptsensor-Link,
+keine zusätzliche Oberfläche oder Konfiguration. Rot/grün-Regressionsnachweis,
+alle fünf exakten Kandidaten-/Main-CI-Jobs und frische PilotSuite-only-Sicherung
+sind im Release-Receipt belegt. Der Heartbeat bleibt pausiert; kein neuer Zeitlauf.
+Angemeldete Ingress-/Vier-Zonen-Abnahme bleibt offen. Lesende Erdkeller-Zustände
+und drei Stunden Historie zeigen keinen Übergang und beweisen daher weder Nachlauf
+noch sicheres Übernahmeverhalten; keine Testschaltung oder Haushaltsänderung.
 
 PR #118 hat Zuständigkeiten, alte Read-only-/Versionsbehauptungen und doppelte
 ADR-Nummern korrigiert. Alpha.55 setzt darauf die vereinfachte Navigation um.

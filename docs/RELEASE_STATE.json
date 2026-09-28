@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.67",
-    "commit": "5ac673fa5d728b73a5a6ac612b43c6c8df65be05",
-    "tree": "953a208c1f14cd09f41743faa4ebfc1386f7bc2c",
-    "app_tree": "9f26f2eb11a4c1be43788a1c5b3c3e0758a20be4",
-    "pull_request": 144,
-    "candidate_commit": "d4ceb2fc5a686122887320fcf3dc89ccfe82cf5d",
-    "candidate_ci_run_id": 36469540355,
-    "ci_run_id": 36471554267,
+    "version": "0.1.0-alpha.68",
+    "commit": "3a3347c6b4c23a20e9a466aaf1211d8d05f1a3b0",
+    "tree": "8077768888873f6482e755ab7c0f270d5b76f52d",
+    "app_tree": "16c2f6814b4ee6e8a809c920c25ba69ee4da43d1",
+    "pull_request": 146,
+    "candidate_commit": "6438fafca1b092d3f568fd0dc36ac9fcff8bf91f",
+    "candidate_ci_run_id": 36478670271,
+    "ci_run_id": 36482802805,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.67",
-    "commit": "5ac673fa5d728b73a5a6ac612b43c6c8df65be05",
-    "tree": "953a208c1f14cd09f41743faa4ebfc1386f7bc2c",
-    "app_tree": "9f26f2eb11a4c1be43788a1c5b3c3e0758a20be4",
-    "pull_request": 144,
-    "candidate_commit": "d4ceb2fc5a686122887320fcf3dc89ccfe82cf5d",
-    "candidate_ci_run_id": 36469540355,
-    "ci_run_id": 36471554267,
+    "version": "0.1.0-alpha.68",
+    "commit": "3a3347c6b4c23a20e9a466aaf1211d8d05f1a3b0",
+    "tree": "8077768888873f6482e755ab7c0f270d5b76f52d",
+    "app_tree": "16c2f6814b4ee6e8a809c920c25ba69ee4da43d1",
+    "pull_request": 146,
+    "candidate_commit": "6438fafca1b092d3f568fd0dc36ac9fcff8bf91f",
+    "candidate_ci_run_id": 36478670271,
+    "ci_run_id": 36482802805,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "62b66f9e",
-    "name": "PilotSuite alpha.66 before alpha.67",
-    "date": "2026-09-28T19:00:10.041817+00:00",
-    "size_bytes": 54476800,
-    "app_version": "0.1.0-alpha.66",
+    "backup_id": "ca4c7d47",
+    "name": "PilotSuite alpha.67 before alpha.68 release",
+    "date": "2026-09-28T20:56:16.116628+00:00",
+    "size_bytes": 54497280,
+    "app_version": "0.1.0-alpha.67",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.67",
-    "offered_version": "0.1.0-alpha.67",
-    "previous_version": "0.1.0-alpha.66",
+    "installed_version": "0.1.0-alpha.68",
+    "offered_version": "0.1.0-alpha.68",
+    "previous_version": "0.1.0-alpha.67",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,11 +74,12 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T21:22:59Z",
+    "startup_log_timestamp": "2026-09-28T22:59:51Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T21:23:00Z",
-      "2026-09-28T21:24:01Z",
-      "2026-09-28T21:24:31Z"
+      "2026-09-28T22:59:52Z",
+      "2026-09-28T23:13:06Z",
+      "2026-09-28T23:13:36Z",
+      "2026-09-28T23:14:07Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -105,15 +106,26 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "64 red normalization/summary subcase failures, then 8 lighting assertion failures and 2 malformed-payload errors reproduced before the fixes. Explicit on/off and missing states remain compatible; positive partial evidence is preserved, invalid evidence cannot imply off. Existing preview and decision share validity checks without a new engine.",
-    "local_browser_suites": 1,
-    "final_resource_warning_audit": "637 Python tests repeated on the exact versioned candidate application tree; zero ResourceWarnings after gc.collect(). Release-main tree matches."
+    "regressions": "Hidden-role keyboard-focus failure reproduced before the fix in the existing workspace browser. Four shortcuts reuse existing editors; dirty role/presence drafts, unavailable editor, corrected main-source link and visible keyboard focus pass 390/768/1440 light/dark checks without HA writes.",
+    "local_browser_suites": 2,
+    "final_resource_warning_audit": "637 Python tests repeated on exact release-main outside the loopback-restricted sandbox; zero ResourceWarnings after gc.collect(). An initial restricted run failed to start local test servers; it is not counted as a passing run."
   },
   "ui_review": {
-    "synthetic_browser": "Existing workspace browser passed locally for the exact versioned candidate; all 11 browser suites passed exact candidate and main CI. No frontend redesign and no authenticated household acceptance.",
+    "synthetic_browser": "Existing workspace and zone-instance suites passed locally on the candidate app tree; all 11 browser suites passed exact candidate/main CI. Mobile light and desktop dark screenshots inspected. No authenticated household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
-    "ingress_protection_weakened": false
+    "ingress_protection_weakened": false,
+    "read_only_household_observation": {
+      "reference": "Existing Habituszonen storage dashboard read without modification.",
+      "scope": "One existing zone: motion/contact inputs and existing Boolean, timer and public occupancy sensor read through HA-MCP; no binding change.",
+      "observation": "Boolean and public sensor reported off; timer idle with configured three-minute duration. Motion/contact inputs reported off. These values are not a proof of physical absence.",
+      "history_window_utc": {
+        "start": "2026-09-28T18:00:00Z",
+        "end": "2026-09-28T21:00:00Z"
+      },
+      "history_result": "Six queried entities returned only initial held states and no transitions, without pagination. Entry, quiet occupancy, departure, expiry and unknown handling are not household-validated.",
+      "limitation": "Not authenticated Ingress observation, not proof of PilotSuite saved bindings, automation wiring or safe takeover. No household identifiers/configuration copied into this receipt."
+    }
   },
   "boundaries": {
     "household_automation_changed": false,
@@ -124,44 +136,28 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "All four app options unchanged. No schema/configuration migration or new persistent data. Existing synthetic browser suites passed on exact candidate/main, including four-zone and configuration preservation. Real four-zone household Ingress observation pending."
+    "independent_data_preservation": "All four app options unchanged; no schema/configuration migration or new persistent data. Existing exact candidate/main synthetic browser suites include four-zone/configuration preservation. Real four-zone PilotSuite Ingress readback remains pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "2cbb3fe1a8496a01e7554874f62308d3bc37766b:docs/RELEASE_STATE.json",
-    "integrated_pr": 144,
-    "integrated_commit": "5ac673fa5d728b73a5a6ac612b43c6c8df65be05"
+    "previous_receipt_at": "1375aec60c78f90b9d0e2c15b4eda8e5a6132141:docs/RELEASE_STATE.json",
+    "integrated_pr": 146,
+    "integrated_commit": "3a3347c6b4c23a20e9a466aaf1211d8d05f1a3b0"
   },
-  "next_step": "Resume draft PR #146 / fix/alpha68-setup-navigation when a new work window is authorized. Verify its exact final CI, current main and fresh scoped backup before any merge/release. Alpha.67 remains installed; no Alpha.68 main CI or installation exists. Authenticated Ingress/four-zone acceptance and live automation-edit scope remain open. Derived versus explicit-empty lighting roles remain a separate investigation.",
+  "next_step": "Authenticated read-only Ingress acceptance of Erdkellerbereich and one unlike existing zone, preserving all four saved zones and drafts. Observe actual presence transitions without test switching; prepare a concrete reuse plan only from checked bindings and behavior. Live automation-edit scope remains unanswered. Derived versus explicit-empty lighting roles remain a separate investigation.",
   "runtime_measurement": {
-    "scope": "No performance change claimed for Alpha.67. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
+    "scope": "No performance change claimed for Alpha.68. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
-    "kind": "one_hour_ui_usability_run",
-    "heartbeat": "paused_for_safe_handoff_before_2026-09-28T20:33:18Z",
-    "start_utc": "2026-09-28T19:33:18Z",
-    "no_new_packages_after_utc": "2026-09-28T20:13:18Z",
-    "end_utc": "2026-09-28T20:33:18Z",
-    "requested_authority": "Eine Stunde Bedienung und Oberfläche intuitiver gestalten. Existing editors and protections only; no household edits or expanded execution authority. Earlier runs remain closed.",
+    "kind": "explicit_completion_of_existing_alpha68_ui_package",
+    "heartbeat": "paused; expired one-hour UI run not restarted or extended",
+    "preceding_run": {
+      "start_utc": "2026-09-28T19:33:18Z",
+      "no_new_packages_after_utc": "2026-09-28T20:13:18Z",
+      "end_utc": "2026-09-28T20:33:18Z"
+    },
+    "requested_authority": "After safe draft handoff and skill installation, user approved the recommended completion of PR #146 with Ok. Runbook release and read-only acceptance only, no new feature package or household control transfer.",
     "household_binding_changed": false
-  },
-  "pending_candidate": {
-    "version": "0.1.0-alpha.68",
-    "branch": "fix/alpha68-setup-navigation",
-    "pull_request": 146,
-    "status": "draft_pr_tested_not_published_or_installed",
-    "initial_candidate": "9b4dc353f0046825d19532d2dc638085183ab297",
-    "initial_candidate_ci": 36477800406,
-    "initial_candidate_ci_conclusion": "success_all_five_jobs",
-    "final_ci_evidence": "Exact handoff head/run recorded on PR #146; do not substitute the initial green run for later commits.",
-    "app_tree": "16c2f6814b4ee6e8a809c920c25ba69ee4da43d1",
-    "scope": "Existing setup editor shortcuts, visible-field focus and correct configuration link; no household writes.",
-    "local_checks": "637 Python, 75 JS, 62 API contracts, discovery, zero ResourceWarnings, workspace and zone-instance browser suites",
-    "backup_id": "cd419ede",
-    "backup_date": "2026-09-28T19:45:10.598868+00:00",
-    "backup_size_bytes": 54497280,
-    "backup_scope": "Native list/details: exactly PilotSuite alpha.67 app/data/options; no HA, database, folders or failures; local, unprotected. Not extracted or restored. Recheck freshness before any later publication.",
-    "remaining": "Recheck exact final PR-head CI, current main and backup freshness in a new authorized window; release-main CI and installation not performed. Authenticated Ingress acceptance unavailable."
   }
 }
