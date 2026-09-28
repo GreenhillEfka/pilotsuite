@@ -131,7 +131,7 @@
     "integrated_pr": 138,
     "integrated_commit": "ee757af548194426d9f115cb29b3932379d5962e"
   },
-  "next_step": "Read-only authenticated household Ingress acceptance of all four saved zones, Erdkellerbereich and one unlike zone. Review existing-control integration, explicitly choose intended Boolean/timer/public-sensor bindings, then observe without test switching. No household mapping was applied. Runtime/checkpoint consolidation remains separate and measurement-led. Both bounded time windows ended; heartbeat remains paused.",
+  "next_step": "Finish the active Alpha.65 lighting-preview package and release gates, then inspect configuration guidance and usable-source consistency within the new two-hour window. Read-only authenticated household Ingress acceptance of all four zones remains pending. No household mapping or light action is authorized by this development run. Earlier bounded windows remain closed.",
   "runtime_measurement": {
     "scope": "Synthetic disposable single-zone fixture, 60 tick+view cycles per scenario, identical expanded script before/after; not household load. Frontend render cycles not measured or changed.",
     "baseline_source": "7a319a571e5d64f31856dd97e9c863af4e060b44",
@@ -292,9 +292,36 @@
     "ha_config_read_policy": "Zone GET projects existing in-memory states only; structural automation configs are fetched only on explicit review. Synthetic binding/review segment has zero HA output/helper/metadata calls."
   },
   "workflow": {
-    "kind": "manual_continuation_after_closed_one_hour_run",
-    "heartbeat": "remains_paused",
+    "kind": "two_hour_administration_configuration_lighting_run",
+    "heartbeat": "active_for_new_window_only",
+    "start_utc": "2026-09-28T17:05:52Z",
+    "no_new_packages_after_utc": "2026-09-28T18:45:52Z",
+    "end_utc": "2026-09-28T19:05:52Z",
     "requested_authority": "existing_automations_remain_controllers",
     "household_binding_changed": false
+  },
+  "candidate": {
+    "version": "0.1.0-alpha.65",
+    "branch": "fix/lighting-preview-continuity",
+    "status": "local_tests_passed_not_published_or_installed",
+    "scope": "Pure lighting preview stability after interrupted observations; existing UI recovery scenario. No household configuration or execution.",
+    "python_tests": 628,
+    "javascript_tests": 75,
+    "local_browser": "workspace passed",
+    "prepublication_backup": {
+      "backup_id": "44da1956",
+      "date": "2026-09-28T17:19:26.952194+00:00",
+      "size_bytes": 54487040,
+      "app_version": "0.1.0-alpha.64",
+      "app_slugs": ["0d79c5e8_pilotsuite"],
+      "homeassistant_included": false,
+      "database_included": false,
+      "folders": [],
+      "failed_components": [],
+      "agent_errors": {},
+      "protected": false,
+      "verification": "native list and backup/details; no extraction/restore drill"
+    },
+    "remaining_gates": "Exact candidate/main CI, source association, installation/runtime and separate household acceptance."
   }
 }

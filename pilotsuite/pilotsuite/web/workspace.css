@@ -85,6 +85,7 @@
 @media(max-width:800px){.org-role-grid{grid-template-columns:1fr;}.org-finding select{width:100%;}}
 
 /* Live shadow comparison: shares workspace tokens and keyboard layout. */
+.ps-lighting-preview li small{display:block;}
 .ps-shadow-panel{overflow-wrap:anywhere;}
 .ps-shadow-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ps-gap);margin:16px 0;}
 .ps-shadow-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0;padding:var(--ps-pad);border:1px solid var(--ps-line);border-radius:14px;background:var(--ps-soft);}

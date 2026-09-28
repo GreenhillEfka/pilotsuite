@@ -3,6 +3,12 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.65 candidate (not delivered): the pure lighting preview discards interrupted
+stability evidence, preserves the proposal cooldown and explains recovery through
+one additional fixed scenario. 628 Python / 75 JS tests and the extended local
+workspace browser flow pass; release/installation gates remain pending. No live
+lighting controller, persistence or household writes are introduced.
+
 Alpha.64 installed after PR #138 and exact candidate/main CI: identical operational checkpoints use a revision-bound read
 without a write reservation; changed data still rechecks under the existing write
 transaction. Two original contention tests fail on the baseline and pass with the

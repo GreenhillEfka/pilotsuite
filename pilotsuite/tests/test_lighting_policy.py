@@ -83,6 +83,51 @@ class LightingPolicyTests(unittest.TestCase):
         self.assertEqual("input_unavailable", missing.status)
         self.assertEqual({}, missing.proposed_settings)
 
+    def test_interrupted_band_must_stabilize_again_after_recovery(self):
+        interruptions = [
+            {"manual_override": True},
+            {"presence_state": "unknown"},
+            {"presence_state": "vacant"},
+            {"daylight_available": False},
+            {"daylight_lux": None},
+            {"current_brightness": None},
+        ]
+        base = {"presence_state": "occupied", "daylight_lux": 50,
+                "current_brightness": 50}
+        for interruption in interruptions:
+            with self.subTest(interruption=interruption):
+                first = advance_lighting_preview(None, now=0, **base)
+                paused = advance_lighting_preview(first.checkpoint, now=10,
+                                                   **(base | interruption))
+                self.assertEqual({}, paused.proposed_settings)
+                recovered = advance_lighting_preview(paused.checkpoint, now=40, **base)
+                self.assertEqual("stabilizing", recovered.status)
+                self.assertEqual(40, recovered.checkpoint.candidate_since)
+                too_soon = advance_lighting_preview(recovered.checkpoint, now=69, **base)
+                self.assertEqual("stabilizing", too_soon.status)
+                stable = advance_lighting_preview(too_soon.checkpoint, now=70, **base)
+                self.assertEqual("suggest", stable.status)
+                self.assertEqual({"on": True, "brightness_pct": 65}, stable.proposed_settings)
+
+    def test_interruption_forgets_confirmed_band_but_preserves_proposal_cooldown(self):
+        previous = LightingCheckpoint("dark", None, None, 0, 85)
+        paused = advance_lighting_preview(previous, now=10, presence_state="unknown",
+                                           daylight_lux=50)
+        self.assertEqual("unknown", paused.checkpoint.band)
+        self.assertEqual(0, paused.checkpoint.last_proposal_at)
+        self.assertEqual(85, paused.checkpoint.last_target)
+        resumed = advance_lighting_preview(paused.checkpoint, now=15,
+                                            presence_state="occupied", daylight_lux=50)
+        self.assertEqual("stabilizing", resumed.status)
+        stable = advance_lighting_preview(resumed.checkpoint, now=45,
+                                           presence_state="occupied", daylight_lux=50)
+        self.assertEqual("rate_limited", stable.status)
+        self.assertEqual({}, stable.proposed_settings)
+        allowed = advance_lighting_preview(stable.checkpoint, now=60,
+                                            presence_state="occupied", daylight_lux=50)
+        self.assertEqual("suggest", allowed.status)
+        self.assertEqual(LightingCheckpoint("dark", None, None, 0, 85), previous)
+
     def test_night_vacancy_and_capabilities_remain_settings_only(self):
         vacant = advance_lighting_preview(None, now=0, presence_state="vacant",
                                           daylight_lux=0, night=True, current_on=True)
@@ -118,7 +163,7 @@ class LightingPolicyTests(unittest.TestCase):
                                      presence_state="occupied", daylight_lux=10)
 
     def test_all_scenarios_are_bounded_non_executable_data(self):
-        self.assertEqual(7, len(PREVIEW_SCENARIOS))
+        self.assertEqual(8, len(PREVIEW_SCENARIOS))
         for name in PREVIEW_SCENARIOS:
             with self.subTest(name=name):
                 report = replay_lighting_scenario(name)
@@ -127,6 +172,14 @@ class LightingPolicyTests(unittest.TestCase):
                 self.assertTrue(all(set(row["proposed_settings"]) <= {
                     "on", "brightness_pct", "color_temp_kelvin"} for row in report["steps"]))
                 self.assertTrue(any("nicht ausgeführt" in text for text in report["limitations"]))
+
+    def test_recovery_scenario_explains_a_complete_new_stable_window(self):
+        steps = replay_lighting_scenario("daylight_recovery")["steps"]
+        self.assertEqual(["stabilizing", "hold", "stabilizing", "stabilizing", "suggest"],
+                         [step["status"] for step in steps])
+        self.assertTrue(all(not step["proposed_settings"] for step in steps[:-1]))
+        self.assertEqual(40, steps[2]["candidate_since"])
+        self.assertEqual(70, steps[-1]["last_proposal_at"])
 
 
 class LightingDecisionTests(unittest.TestCase):

@@ -123,6 +123,13 @@ Entity-ID-Migration bleiben gesondert offen.
 
 ## 4. Erst bei Nutzen: Licht, Medien und Lernen
 
+Neuer ausdrücklich beauftragter Zweistundenlauf am 28.09.2026, 17:05:52–19:05:52 UTC:
+Verwaltung, Konfiguration und Licht im bestehenden System verbessern. Ab 18:45:52 UTC
+keine neuen Pakete/Veröffentlichungen. Frühere Zeitfenster bleiben abgeschlossen.
+Erster Alpha.65-Kandidat korrigiert die reine Lichtvorschau: Unterbrechungen beenden
+eine Stabilitätsbeobachtung, ohne den Mindestabstand zu löschen. Lokale Regressionen
+und Browserablauf bestehen; Lieferung getrennt im Release-Receipt.
+
 Lichtvorschau und Bestandsprüfung existieren; nicht noch einmal bauen.
 Ein späterer Pilot verwendet vorhandene passende HA-Logik oder genau einen
 freigegebenen Ausführungspfad. Manuelle Bedienung hat Vorrang, Ziele/Parameter

@@ -23,6 +23,7 @@ PREVIEW_SCENARIOS = {
     "night_vacancy": "Nächtliches Verlassen nach bestätigter Präsenz",
     "capability_limits": "Leuchte ohne Helligkeitssteuerung",
     "brightness_unavailable": "Aktuelle Leuchtenhelligkeit ist unbekannt",
+    "daylight_recovery": "Helligkeitsquelle fällt aus und kehrt zurück",
 }
 BANDS = ("dark", "dim", "daylight", "bright", "very_bright")
 
@@ -141,27 +142,31 @@ def advance_lighting_preview(previous, *, now, presence_state, daylight_lux,
     if ((point.candidate_since is not None and point.candidate_since > now)
             or (point.last_proposal_at is not None and point.last_proposal_at > now)):
         raise InvalidSelection("Lichtvorschau-Zeitbezug liegt in der Zukunft")
+    # Unobserved/blocked time cannot establish a stable band. Keep the last
+    # proposal's rate limit even when the brightness basis must be reacquired.
+    interrupted = LightingCheckpoint(last_proposal_at=point.last_proposal_at,
+                                     last_target=point.last_target)
     if manual_override:
-        return LightingTransition(point, "hold", None, {},
+        return LightingTransition(interrupted, "hold", None, {},
                                   "Manuelle Bedienung hat Vorrang; die Vorschau hält an.")
     if presence_state == "unknown":
-        return LightingTransition(point, "hold", None, {},
+        return LightingTransition(interrupted, "hold", None, {},
                                   "Unklare Präsenz erlaubt keinen neuen Lichtvorschlag.")
     if presence_state == "vacant":
         if (night or off_when_vacant) and current_on:
             if point.last_proposal_at is not None and now - point.last_proposal_at < minimum_interval:
-                return LightingTransition(point, "rate_limited", None, {},
+                return LightingTransition(interrupted, "rate_limited", None, {},
                                           "Der Mindestabstand verhindert einen wiederholten Nachtvorschlag.")
-            updated = LightingCheckpoint(point.band, None, None, now, None)
+            updated = LightingCheckpoint(last_proposal_at=now)
             return LightingTransition(updated, "suggest", None, {"on": False},
                                       "Nach bestätigter Abwesenheit zeigt das freigegebene Abschaltziel einen Vorschlag, keine Ausführung.")
-        return LightingTransition(point, "hold", None, {},
+        return LightingTransition(interrupted, "hold", None, {},
                                   "Ohne bestätigte Präsenz wird keine Beleuchtung angehoben.")
     if not daylight_available or not _number(daylight_lux, minimum=0):
-        return LightingTransition(point, "hold", None, {},
-                                  "Fehlendes Tageslicht ist kein Dunkelheitsbeleg; der Zustand bleibt unverändert.")
+        return LightingTransition(interrupted, "hold", None, {},
+                                  "Fehlendes Tageslicht ist kein Dunkelheitsbeleg; nach Rückkehr beginnt die Stabilitätsprüfung neu.")
     if supports_brightness and current_brightness is None:
-        return LightingTransition(point, "input_unavailable", None, {},
+        return LightingTransition(interrupted, "input_unavailable", None, {},
                                   "Ohne aktuelle Leuchtenhelligkeit ist keine begrenzte Änderung belegbar.")
 
     raw_band = _band(float(daylight_lux))
@@ -224,6 +229,10 @@ def replay_lighting_scenario(name: str) -> dict[str, Any]:
             supports_brightness=False, supports_color_temp=True))],
         "brightness_unavailable": [(0, dict(common, daylight_lux=80,
             current_brightness=None))],
+        "daylight_recovery": [(0, dict(common, daylight_lux=80)),
+            (10, dict(common, daylight_lux=None, daylight_available=False)),
+            (40, dict(common, daylight_lux=80)), (69, dict(common, daylight_lux=80)),
+            (70, dict(common, daylight_lux=80))],
     }
     point = LightingCheckpoint()
     steps = []
