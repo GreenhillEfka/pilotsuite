@@ -64,11 +64,26 @@ The 60-cycle compare workload still has 660 connections/60 transactions/60 check
 per scenario and zero history/output calls; no speed claim. Desktop/mobile screenshots
 were checked locally; this is not household acceptance. Exact CI/delivery are recorded above.
 
-## One next task and deadline
+## Final bounded-run audit and next task
 
-Reproduce the old global "Bearbeitung läuft" notice that remained
-after a successfully closed zone editor in the synthetic desktop capture. Change
-nothing without a failing UI test. No speculative scheduler/configuration rewrite.
+PRs #121/#123/#125/#127/#129 delivered the five packages above; their separate
+receipts are #122/#124/#126/#128/#130. At 07:32 UTC the unchanged installed-source
+suite passed again: 596 Python tests, with explicit ResourceWarning capture and
+garbage collection reporting zero resource warnings, plus the full zone browser.
+
+One low-severity UI defect is now reproduced, not fixed: open the presence editor,
+attempt to navigate to Zonen (correctly blocked), then save successfully. Wait until
+`selectionBusy` is false and `PilotSuiteZonePresence.dirty()` is false. The editor
+has closed but `#ps-notice` still shows "Bearbeitung läuft". An isolated assertion
+expecting it hidden failed with `true !== false` in the existing full-app browser
+suite. The diagnostic assertion was then removed; the unchanged suite passes.
+The workspace owns this announcement but editor completion does not clear it.
+Next: retain this regression and clear only obsolete dirty-guard messages once all
+drafts/requests finish; test save, cancel, failed save and unrelated errors. Do not
+weaken the guard or blanket-clear announcements. No household write occurred.
+
+No further functional release is planned in this run. Scheduler/checkpoint
+consolidation and the authenticated household observation remain separate work.
 
 No new packages/publications after 07:40 UTC; stop development/release work by
 08:01:44 UTC on 28.09.2026, report the secured state and pause the heartbeat.

@@ -104,7 +104,8 @@
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
     "regressions": "Three genuine baseline failures: confirmation lost during unchanged throttled ticks; stale API marker after disconnect or clock rollback. Four new Python methods and one JS test cover exact 20-second expiry, revision/deadline/source changes, failure suspension, final-readback timestamp, restart and passive GET. Three unchanged synthetic ticks add zero HA reads/writes and do not advance the proof date; regular renewal still works.",
-    "local_browser_suites": 1
+    "local_browser_suites": 1,
+    "final_resource_warning_audit": "596 tests passed again on unchanged application source at 07:32 UTC with ResourceWarning capture plus gc.collect(); zero resource warnings. Full zone Chromium suite also passed again after removing the diagnostic-only failing assertion."
   },
   "ui_review": {
     "synthetic_browser": "Expanded existing full-app zone Chromium suite passed locally with publication proof screenshots reviewed at desktop and 390px dark mobile; four synthetic zones, three widths and two themes. All 11 suites passed exact candidate and release main CI. Local fixtures are not household acceptance.",
@@ -129,7 +130,7 @@
     "integrated_pr": 129,
     "integrated_commit": "1ae32bcbf2da64c43ddc397bb182cf6043fa59fd"
   },
-  "next_step": "Reproduce the stale global editing notice observed after the synthetic zone editor closes, using a failing browser regression before any change. Authenticated read-only household Ingress acceptance remains pending; bounded run ends 2026-09-28 08:01:44 UTC, no new packages/publications after 07:40 UTC.",
+  "next_step": "A local full-app regression now reproduced the stale editing notice after blocked navigation followed by successful save (editor closed and all dirty/busy flags false). Diagnostic assertion failed, was removed, and the unchanged suite passes. Next bounded fix must clear only obsolete guard notices, preserving failed-save drafts and unrelated errors. No further functional release in this run; household Ingress acceptance remains pending.",
   "runtime_measurement": {
     "scope": "disposable synthetic one-zone fixture; not household latency/load",
     "script": "PYTHONPATH=pilotsuite python scripts/benchmark_zone_presence.py --cycles 60",
