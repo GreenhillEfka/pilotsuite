@@ -142,5 +142,181 @@
     "heartbeat": "remains_paused",
     "requested_authority": "existing_automations_remain_controllers",
     "household_binding_changed": false
+  },
+  "candidate": {
+    "version": "0.1.0-alpha.64",
+    "branch": "fix/presence-checkpoint-contention",
+    "status": "local tests passed; exact PR/main CI and installation pending",
+    "local_python_passed": 625,
+    "local_javascript_passed": 75,
+    "api_contracts": 62,
+    "resource_warnings": 0,
+    "local_browser_suites": 3,
+    "prepublication_backup": {
+      "backup_id": "14f1c9da",
+      "date": "2026-09-28T15:10:35.540683+00:00",
+      "size_bytes": 54476800,
+      "app_version": "0.1.0-alpha.63",
+      "exact_app_only": true,
+      "no_homeassistant_database_folders_or_failures": true,
+      "protected": false,
+      "verification": "native snapshot list and backup/details; no extraction or restore drill"
+    },
+    "runtime_measurement": {
+      "scope": "Synthetic disposable single-zone fixture, 60 tick+view cycles per scenario, identical expanded script before/after; not household load. Frontend render cycles not measured or changed.",
+      "baseline_source": "7a319a571e5d64f31856dd97e9c863af4e060b44",
+      "command": "PYTHONPATH=pilotsuite:pilotsuite/tests python scripts/benchmark_zone_presence.py --cycles 60",
+      "cases": [
+        {
+          "scenario": "occupied",
+          "cycles": 60,
+          "connections_before_after": [
+            660,
+            660
+          ],
+          "checkpoint_writes_before_after": [
+            60,
+            60
+          ],
+          "immediate_transactions_before_after": [
+            60,
+            60
+          ],
+          "select_statements_before_after": [
+            1140,
+            1200
+          ],
+          "median_ms_before_after": [
+            2.542,
+            2.611
+          ],
+          "p95_ms_before_after": [
+            2.72,
+            2.818
+          ],
+          "matching_decision_trace_sha256": "af21ac2c41d92ddbc59c17ca4519127b49c89c6feec4a3ddccd27233a0bbb1e8",
+          "history_requests_before_after": [
+            0,
+            0
+          ],
+          "ha_output_calls_before_after": [
+            0,
+            0
+          ]
+        },
+        {
+          "scenario": "vacant",
+          "cycles": 60,
+          "connections_before_after": [
+            660,
+            660
+          ],
+          "checkpoint_writes_before_after": [
+            60,
+            60
+          ],
+          "immediate_transactions_before_after": [
+            60,
+            60
+          ],
+          "select_statements_before_after": [
+            1140,
+            1200
+          ],
+          "median_ms_before_after": [
+            2.536,
+            2.563
+          ],
+          "p95_ms_before_after": [
+            2.811,
+            2.701
+          ],
+          "matching_decision_trace_sha256": "8e3d46aa576367c13fab87d528b271b6f6caae81718441adbd8a2386c8d7d058",
+          "history_requests_before_after": [
+            0,
+            0
+          ],
+          "ha_output_calls_before_after": [
+            0,
+            0
+          ]
+        },
+        {
+          "scenario": "unknown",
+          "cycles": 60,
+          "connections_before_after": [
+            660,
+            660
+          ],
+          "checkpoint_writes_before_after": [
+            60,
+            60
+          ],
+          "immediate_transactions_before_after": [
+            60,
+            60
+          ],
+          "select_statements_before_after": [
+            1140,
+            1200
+          ],
+          "median_ms_before_after": [
+            2.532,
+            2.558
+          ],
+          "p95_ms_before_after": [
+            2.713,
+            2.666
+          ],
+          "matching_decision_trace_sha256": "bade380723ef35704432a731c35efbfee02700a6dc505416f36405871a53f558",
+          "history_requests_before_after": [
+            0,
+            0
+          ],
+          "ha_output_calls_before_after": [
+            0,
+            0
+          ]
+        },
+        {
+          "scenario": "suspended",
+          "cycles": 60,
+          "connections_before_after": [
+            660,
+            660
+          ],
+          "checkpoint_writes_before_after": [
+            0,
+            0
+          ],
+          "immediate_transactions_before_after": [
+            60,
+            0
+          ],
+          "select_statements_before_after": [
+            1140,
+            900
+          ],
+          "median_ms_before_after": [
+            2.269,
+            2.281
+          ],
+          "p95_ms_before_after": [
+            2.347,
+            2.365
+          ],
+          "matching_decision_trace_sha256": "e92dde8dcc491520024836ae15ef071e4a1501334f077c912904c0a4bd237d0d",
+          "history_requests_before_after": [
+            0,
+            0
+          ],
+          "ha_output_calls_before_after": [
+            0,
+            0
+          ]
+        }
+      ],
+      "tradeoff": "One additional SELECT per changed checkpoint; all clock/checkpoint writes preserved. Exact repeats avoid write reservations. No overall speed gain, delayed durability, scheduler change, or process-local cache."
+    }
   }
 }

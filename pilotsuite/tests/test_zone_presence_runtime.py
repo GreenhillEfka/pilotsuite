@@ -1,8 +1,10 @@
 """Actual SQLite/service checks with synthetic sources; never contact household HA."""
 import asyncio
+from contextlib import closing
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
+import sqlite3
 import tempfile
 import unittest
 from unittest.mock import AsyncMock, patch
@@ -204,6 +206,26 @@ class ZonePresenceRuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone((await response.json())['current']['occupied'])
         result = await self.tick(1, {SOURCE: 'off'})
         self.assertEqual('vacant', result['current']['state'])
+        self.service.client.zone_output_service.assert_not_awaited()
+
+    async def test_suspended_basis_remains_explainable_beside_a_reserved_writer(self):
+        await self.tick(1, {SOURCE: 'on'})
+        next(row for row in self.world['entities'] if row['entity_id'] == SOURCE)['unique_id'] += '_replacement'
+        before = await self.tick(1)
+        self.assertEqual('source_basis_changed', before['status'])
+        checkpoint = await self.service.context.zone_operational('room')
+        connect = sqlite3.connect
+
+        def short_timeout(*args, **kwargs):
+            return connect(*args, **dict(kwargs, timeout=0.01))
+
+        with closing(connect(self.service.context.path)) as writer, writer:
+            writer.execute('BEGIN IMMEDIATE')
+            with patch('sqlite3.connect', side_effect=short_timeout):
+                after = await self.tick(1)
+        self.assertEqual('source_basis_changed', after['status'])
+        self.assertIsNone(after['current'])
+        self.assertEqual(checkpoint, await self.service.context.zone_operational('room'))
         self.service.client.zone_output_service.assert_not_awaited()
 
     async def test_optional_outage_invalidates_publication_without_clearing_owner(self):

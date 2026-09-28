@@ -42,6 +42,15 @@ class ZonePresenceContextMixin:
         text=json.dumps(value,allow_nan=False)
         if len(text)>200000: raise InvalidSelection('Betriebszwischenstand zu groß')
         with closing(sqlite3.connect(self.path,timeout=10)) as db,db:
+            # Read zone existence, revision and value in one SQLite snapshot. An
+            # identical checkpoint needs no writer reservation or process cache.
+            row=db.execute('SELECT COALESCE(z.revision,0), m.value FROM habitus_zones AS h '
+                'LEFT JOIN zones AS z ON z.zone_id=h.zone_id '
+                'LEFT JOIN zone_meta AS m ON m.key=? WHERE h.zone_id=?',
+                ('zone_presence_state:'+zid,zid)).fetchone()
+            if type(revision) is int and revision>=0 and row and row[0]==revision and row[1]==text:return
+            # The read may have raced with another writer. Recheck both revision
+            # and value after acquiring the existing transactional write boundary.
             db.execute('BEGIN IMMEDIATE');self._shadow_revision(db,zid,revision)
             row=db.execute('SELECT value FROM zone_meta WHERE key=?',('zone_presence_state:'+zid,)).fetchone()
             if row and row[0]==text:return
