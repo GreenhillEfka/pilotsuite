@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.65",
-    "commit": "91553c840a826b552181bfe8f9132022b79d9823",
-    "tree": "d390232bd32391fd9e8ac8eed7e5b6b2db720970",
-    "app_tree": "e8f470a74bdfb87d63a4b401b4647785e62fb383",
-    "pull_request": 140,
-    "candidate_commit": "995d754d3e9fa4b7812c296d5c1bb8ae63437dab",
-    "candidate_ci_run_id": 36457661481,
-    "ci_run_id": 36458315513,
+    "version": "0.1.0-alpha.66",
+    "commit": "d0cbb2131d05e5d39520d18ce89b466ff32cb2c2",
+    "tree": "c1beb00f6b133a9923d95eb13a29261378e44b36",
+    "app_tree": "7a60131d68254efa9f8bbcec97ae60f67752a3a9",
+    "pull_request": 142,
+    "candidate_commit": "9b99927034bfb375be500c50ebc3fce6c352ff69",
+    "candidate_ci_run_id": 36461713597,
+    "ci_run_id": 36461940133,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.65",
-    "commit": "91553c840a826b552181bfe8f9132022b79d9823",
-    "tree": "d390232bd32391fd9e8ac8eed7e5b6b2db720970",
-    "app_tree": "e8f470a74bdfb87d63a4b401b4647785e62fb383",
-    "pull_request": 140,
-    "candidate_commit": "995d754d3e9fa4b7812c296d5c1bb8ae63437dab",
-    "candidate_ci_run_id": 36457661481,
-    "ci_run_id": 36458315513,
+    "version": "0.1.0-alpha.66",
+    "commit": "d0cbb2131d05e5d39520d18ce89b466ff32cb2c2",
+    "tree": "c1beb00f6b133a9923d95eb13a29261378e44b36",
+    "app_tree": "7a60131d68254efa9f8bbcec97ae60f67752a3a9",
+    "pull_request": 142,
+    "candidate_commit": "9b99927034bfb375be500c50ebc3fce6c352ff69",
+    "candidate_ci_run_id": 36461713597,
+    "ci_run_id": 36461940133,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "44da1956",
-    "name": "PilotSuite alpha.64 before alpha.65",
-    "date": "2026-09-28T17:19:26.952194+00:00",
-    "size_bytes": 54487040,
-    "app_version": "0.1.0-alpha.64",
+    "backup_id": "0eee33cb",
+    "name": "PilotSuite alpha.65 before alpha.66",
+    "date": "2026-09-28T17:51:58.035873+00:00",
+    "size_bytes": 54476800,
+    "app_version": "0.1.0-alpha.65",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.65",
-    "offered_version": "0.1.0-alpha.65",
-    "previous_version": "0.1.0-alpha.64",
+    "installed_version": "0.1.0-alpha.66",
+    "offered_version": "0.1.0-alpha.66",
+    "previous_version": "0.1.0-alpha.65",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,10 +74,10 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T19:30:33Z",
+    "startup_log_timestamp": "2026-09-28T20:01:41Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T19:30:34Z",
-      "2026-09-28T19:32:05Z"
+      "2026-09-28T20:01:42Z",
+      "2026-09-28T20:02:42Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -96,7 +96,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 628,
+    "local_python_passed": 632,
     "local_javascript_passed": 75,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -104,12 +104,12 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Two red methods reproduced six interrupted stability windows and retained confirmed band (seven failures). Three new tests verify reacquisition, preserved proposal cooldown, immutable input and fixed five-step recovery scenario. Full-app Chromium asserts recovery timeline, same roles/drafts/notes and zero HA output/helper writes.",
+    "regressions": "Three red methods reproduced four false-readiness/fingerprint cases. Reuse projection and API tests verify retained controllers/consumers/mixed logic, direct affected references, six open checks, empty proposed changes and execution denied. Chromium verifies same saved bindings, four zones, roles/learning/mode, no repeat config reads on refresh and zero HA writes in the existing-chain review.",
     "local_browser_suites": 2,
-    "final_resource_warning_audit": "628 Python tests repeated on exact candidate application tree; zero ResourceWarnings after gc.collect(). Release-main tree matches."
+    "final_resource_warning_audit": "632 Python tests repeated on exact candidate application tree; zero ResourceWarnings after gc.collect(). Release-main tree matches."
   },
   "ui_review": {
-    "synthetic_browser": "Workspace and Organization suites passed locally. New lighting recovery screenshot inspected; all 11 browser suites passed exact candidate/main CI. No authenticated household acceptance.",
+    "synthetic_browser": "Zone-instance and workspace suites passed locally; reuse-review screenshot inspected. All 11 browser suites passed exact candidate/main CI. No authenticated household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false
@@ -123,17 +123,17 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "All four app options unchanged. No schema/configuration migration or persistent lighting checkpoint; synthetic browser snapshots preserve roles/drafts/notes. Real four-zone household Ingress observation pending."
+    "independent_data_preservation": "All four app options unchanged. No schema/configuration migration or persistent reuse review; synthetic browser snapshots preserve organization bindings, four zones, roles, learning and mode. Real four-zone household Ingress observation pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json",
-    "integrated_pr": 140,
-    "integrated_commit": "91553c840a826b552181bfe8f9132022b79d9823"
+    "previous_receipt_at": "cdd238e9e2cc720544b3d7227b7607e0c642b68a:docs/RELEASE_STATE.json",
+    "integrated_pr": 142,
+    "integrated_commit": "d0cbb2131d05e5d39520d18ce89b466ff32cb2c2"
   },
-  "next_step": "Complete the focused Alpha.66 existing-automation reuse review with exact candidate/main CI and scoped backup gates; installation remains Alpha.65 until verified. Then resume lighting-source usability investigation. Authenticated household Ingress/four-zone acceptance remains pending; no live automation edits while their scope is unresolved.",
+  "next_step": "Within the remaining two-hour window, reproduce inconsistent light-source usability and invalid binary-state handling in existing canonical owners; no new engine. Automation adoption/reuse is permitted as product direction, but live-edit scope and authenticated household Ingress/four-zone acceptance remain pending.",
   "runtime_measurement": {
-    "scope": "No performance change claimed for Alpha.65. Alpha.64 checkpoint counts and tradeoff are preserved in the previous receipt.",
+    "scope": "No performance change claimed for Alpha.66. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
@@ -142,7 +142,7 @@
     "start_utc": "2026-09-28T17:05:52Z",
     "no_new_packages_after_utc": "2026-09-28T18:45:52Z",
     "end_utc": "2026-09-28T19:05:52Z",
-    "requested_authority": "User now permits existing-automation adoption/reuse. Live-edit scope is pending clarification; no household automation edits or control transfer in this candidate.",
+    "requested_authority": "User now permits existing-automation adoption/reuse. Live-edit scope is pending clarification; Alpha.66 adds only a non-executable reuse review and makes no household automation edits or control transfer.",
     "household_binding_changed": false
   }
 }

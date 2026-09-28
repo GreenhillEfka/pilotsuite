@@ -1,15 +1,17 @@
-# PilotSuite capability ledger — Alpha.65 installed
+# PilotSuite capability ledger — Alpha.66 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.66 candidate: transient reuse review in the existing presence inspector/UI;
+Alpha.66 installed after PR #142 and exact candidate/main CI: transient reuse review in the existing presence inspector/UI;
 no structural or empty result can claim takeover readiness. Direct affected references,
 controller/consumer/mixed reuse strategy and six open checks are visible. Locally
-632 Python / 75 JS / 62 contracts and extended zone browser pass. No new persistence,
-automation writer or ownership transfer; installed remains Alpha.65 until separate
-source/CI/backup/install verification. Latest user permission permits adoption as a
-product direction; live-change scope is still being clarified.
+632 Python / 75 JS / 62 contracts and zone/workspace browsers pass, repeated resource
+audit clean. All five CI jobs passed, including 11 browser suites. Scoped backup,
+installation/readiness and unchanged options verified in RELEASE_STATE.json. No new
+persistence, automation writer or ownership transfer. Latest user permission permits
+adoption as a product direction; live-change scope is still being clarified.
+Authenticated household Ingress/four-zone acceptance remains pending.
 
 Alpha.65 installed after PR #140 and exact candidate/main CI: the pure lighting preview discards interrupted
 stability evidence, preserves the proposal cooldown and explains recovery through
