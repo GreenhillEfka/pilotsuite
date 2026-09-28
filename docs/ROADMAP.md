@@ -133,7 +133,8 @@ Alpha.65 korrigiert die reine Lichtvorschau: Unterbrechungen beenden
 eine Stabilitätsbeobachtung, ohne den Mindestabstand zu löschen. Lokale Regressionen
 und Browserablauf bestehen; PR #140 und alle exakten Kandidaten-/Main-CI-Jobs bestanden,
 installiert nach geprüfter PilotSuite-only-Sicherung. Haushaltsabnahme bleibt offen.
-Alpha.67-Kandidat korrigiert ungültige Binärbeobachtungen und vereinheitlicht die
+Alpha.67 ist nach PR #144, exakter Kandidaten-/Main-CI und geprüfter Sicherung
+installiert. Es korrigiert ungültige Binärbeobachtungen und vereinheitlicht die
 Quellen-Gültigkeitsprüfung im bestehenden Lichtweg. Fehlende/abgeleitete gegenüber
 bewusst leeren Rollen bleiben ein gesonderter nächster Prüfpunkt, keine neue Steuerung.
 

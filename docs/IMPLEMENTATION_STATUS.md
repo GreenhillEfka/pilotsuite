@@ -1,13 +1,15 @@
-# PilotSuite capability ledger — Alpha.66 installed
+# PilotSuite capability ledger — Alpha.67 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.67 candidate in existing PR #144: malformed binary observations remain invalid,
+Alpha.67 installed after PR #144 and exact candidate/main CI: malformed binary observations remain invalid,
 not false/good; lighting preview/brief share source validity and canonical lux
 measurement quality. No new engine, configuration store or household writer.
 Local 637 Python / 75 JS / 62 contracts and synthetic workspace browser pass.
-Versioned candidate/main CI and installation are pending; see the release receipt.
+All five candidate/main CI jobs pass, including 11 browser suites. Fresh scoped
+backup, installation/readiness and unchanged options are verified in the receipt;
+repeated resource audit is clean. Authenticated household acceptance remains open.
 
 Alpha.66 installed after PR #142 and exact candidate/main CI: transient reuse review in the existing presence inspector/UI;
 no structural or empty result can claim takeover readiness. Direct affected references,
