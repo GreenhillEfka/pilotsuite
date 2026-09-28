@@ -10,7 +10,7 @@
  const date=t=>typeof t==='number'?new Date(t*1000).toLocaleString('de-DE'):'—';
  const state=s=>({occupied:'Belegt',grace:'Nachlauf',vacant:'Frei',unknown:'Unklar',on:'An',off:'Aus',unavailable:'Nicht verfügbar'}[s]||s||'Unklar');
  let root,zone,revision,valid=false,generation=0,editing=false,busy=false,data=null,last=0,historyData=null,ontology=null,plan=null;
- let output,notice,tools,editor,charts;
+ let output,notice,tools,editor,charts,existingReview=null;
  const eligible=()=>root&&!root.hidden&&root.getClientRects().length&&valid;
  const current=(z,r,g)=>zone===z&&revision===r&&generation===g&&valid;
  function note(t){if(notice)notice.textContent=t;}
@@ -55,6 +55,7 @@
    const horizontal=output.querySelector('.ps-zone-scroll')?.scrollLeft||0;
    const openSources=output.querySelector('[data-ps-live=sources]')?.open||false;
    const openTrace=output.querySelector('[data-ps-live=trace]')?.open||false;
+   const openReview=output.querySelector('[data-ps-live=existing-review]')?.open??true;
    const focusedLive=output.contains(document.activeElement)?document.activeElement.closest('[data-ps-live]')?.dataset.psLive:null;
    output.replaceChildren();
    tools.querySelectorAll('button').forEach(button=>button.disabled=busy);
@@ -67,6 +68,7 @@
       ['HA-Veröffentlichung',summary.publication,publicationHint]]){
       const c=E('article','','ps-kpi');if(title==='Präsenz')c.id='ps-presence-state';if(title==='HA-Veröffentlichung')c.id='ps-presence-publication';c.append(E('span',title),E('strong',value),E('small',hint));cards.append(c);
    } output.append(cards);
+   renderExisting(openReview);
    const missing=d?.sources?.filter(s=>s.required&&!s.usable)||[];
    if(missing.length)output.append(E('p',`${missing.length} erforderliche Quelle(n) derzeit nicht nutzbar. Eine Datenlücke ist kein Freibeleg. Die Entscheidung oben berücksichtigt die Quellenkombination.`,'ps-warning'));
    if(d){const table=E('table','','ps-zone-source-table');const header=E('tr');for(const text of ['Quelle','Signaltyp','Zustand','Meldealter','Indirekte Frist'])header.append(E('th',text));table.append(header);
@@ -83,6 +85,55 @@
    }
    note(summary.state==='Pausiert'?'Zone oder Präsenzbetrieb pausiert; keine aktuelle Auswertung.':'Relevant erlaubt Live- und verfügbare Historienauswertung. Änderungen in Home Assistant brauchen eine eigene Bestätigung.');
  }
+ function renderExisting(openReview){
+   const existing=data.existing,labels=window.PilotSuiteZonePresenceModel.existing(existing);
+   const section=E('section');section.id='ps-existing-presence';section.append(E('h3','Bestehende Anwesenheitssteuerung'));
+   section.append(E('p','Bestehende Automationen bleiben zuständig. PilotSuite liest und vergleicht; diese Zuordnung schaltet nichts.','ps-muted'));
+   const connect=E('a',existing?.configured?'Bestandszuordnung bearbeiten':'Vorhandenen Bestand verbinden');connect.href='#ps-organization';connect.id='ps-existing-connect';section.append(connect);
+   if(!existing?.configured){section.append(E('p','Vorhandenen Boolean, Timer und öffentlichen Präsenzsensor zuordnen. Auch Helfer ohne HA-Bereich sind auswählbar.','ps-muted'));output.append(section);return;}
+   const chain=E('div','','ps-presence-summary');
+   for(const [key,title] of [['owner','Raumstatus / Boolean'],['timer','Nachlauftimer'],['sensor','Öffentlicher Präsenzsensor']]){
+     const item=existing[key],card=E('article','','ps-kpi');card.dataset.existingRole=key;
+     card.append(E('span',title),E('strong',labels[key]),E('small',item?(item.name+' · '+(item.entity_id||item.saved_entity_id)):'Keine Zuordnung; nichts wird automatisch erzeugt.'));
+     if(item?.binding_status==='identity_unresolved')card.append(E('small','Identität ungeklärt; keine Ersatzentität übernommen.','ps-warning'));
+     if(item?.own_output)card.append(E('small','PilotSuite-eigener Ausgang: kein unabhängiger Bestandsvergleich.','ps-warning'));
+     if(key==='timer'&&item?.available&&existing.fresh){
+       card.append(E('small',item.remaining_seconds!==null?`Gemeldete Frist: ${date(item.finishes_at)} · ${fmt(item.remaining_seconds)} s`:'Keine bestätigte laufende Frist.'));
+     }chain.append(card);
+   }section.append(chain);
+   const comparison=E('p',`PilotSuite ↔ ${existing.comparison_reference==='sensor'?'Bestands-Präsenzsensor':'Bestands-Raumstatus'}: ${labels.comparison}`);
+   comparison.id='ps-existing-comparison';section.append(comparison);
+   if(existing.chain_consistency==='different'&&existing.fresh)section.append(E('p','Boolean und öffentlicher Bestands-Präsenzsensor widersprechen sich aktuell. Es wird nichts automatisch korrigiert.','ps-warning'));
+   if(!existing.sensor)section.append(E('p','Kein öffentlicher Bestands-Präsenzsensor zugeordnet; ein Boolean allein bestätigt diese Stufe noch nicht.','ps-warning'));
+   const review=B('Bestandsautomationen lesend prüfen',reviewExisting);review.id='ps-existing-review';review.disabled=busy||!existing.fresh;section.append(review);
+   section.append(E('p',`${existing.automations?.length||0} Automation(en) zugeordnet. Prüfung ergänzt direkt verknüpfte Automationen; keine vollständige Verbraucher- oder Verhaltensgarantie.`,'ps-muted'));
+   if(existingReview){
+     const report=E('details');report.open=openReview;report.dataset.psLive='existing-review';report.append(E('summary','Letzte Strukturprüfung · '+date(existingReview.checked_at)));
+     report.append(E('p','Historische Prüfsicht, keine laufende Überwachung der Automationskonfiguration. Vor Änderungen erneut prüfen. Steuerung unverändert.','ps-muted'));
+     for(const row of existingReview.automations){
+       const entry=E('article','','ps-zone-source-edit');entry.dataset.existingAutomation=row.automation_id;
+       const usage={writer:'Steuert den Bestandsstatus / Nachlauf',mixed_writer:'Gemischte Steuerung mit weiteren Aktionen',consumer:'Verwendet den Bestandsstatus',related:'Weitere direkte Verbindung',unrelated:'Keine direkte Verbindung erkannt'}[row.usage]||'Ungeklärt';
+       const identity=E('p');identity.append(E('code',row.automation_id));
+       entry.append(E('strong',usage),identity,E('p','Bei Prüfung: '+(row.observed_enabled===true?'aktiv':row.observed_enabled===false?'ausgeschaltet':'Aktivierung unklar')));
+       const effects=[];if(row.writes_owner)effects.push('schaltet Raumstatus');if(row.writes_timer)effects.push('schaltet Nachlauf');if(row.reads_status?.length)effects.push('liest '+row.reads_status.join(', '));if(row.reads_timer)effects.push('liest Timer');
+       if(effects.length)entry.append(E('p',effects.join(' · ')));
+       if(row.limitations.length)entry.append(E('p','Nicht vollständig aufgelöst: '+row.limitations.join(', '),'ps-warning'));
+       report.append(entry);
+     }
+     if(!existingReview.automations.length)report.append(E('p','Keine Automationen in dieser begrenzten Suche gefunden. Das beweist nicht, dass keine Verbraucher existieren.','ps-warning'));
+     section.append(report);
+   }output.append(section);
+ }
+ async function reviewExisting(){
+   if(!data?.existing?.configured||busy||editing)return;
+   const z=zone,r=revision,g=generation;busy=true;existingReview=null;render();note('Bestandsautomationen werden ausschließlich gelesen …');
+   try{const result=await api('presence-adoption/review','POST',{revision:r});
+     if(!current(z,r,g))return;
+     if(result.mode!=='existing_control'||result.zone_id!==z||result.revision!==r)throw Error('Bestandsprüfung gehört nicht mehr zum aktuellen Stand.');
+     existingReview=result;
+   }catch(e){if(current(z,r,g))note('Bestandsprüfung nicht bestätigt: '+e.message);}
+   finally{busy=false;if(current(z,r,g)&&data){const message=notice.textContent;render();note(existingReview?'Bestandsprüfung abgeschlossen. Keine Automation verändert.':message);}}
+ }
  async function reloadBasis(){if(typeof loadSelection==='function'&&zone)await loadSelection(zone);else if(typeof load==='function')await load();}
  function startEditor(title){editing=true;editor.replaceChildren(E('h3',title));tools.querySelectorAll('button').forEach(b=>b.disabled=true);}
  function cancel(){if(busy)return;editing=false;plan=null;editor.replaceChildren();render();reloadBasis().catch(()=>note('Aktuellen Zonenstand erneut laden.'));}
@@ -94,7 +145,8 @@
    const grace=number(values.grace_seconds,1,86400),clear=number(values.clear_seconds,0,300),support=number(values.support_limit_seconds,0,14400);
    const mode=select([['compare','Vergleichen'],['publish','Eigenen HA-Anwesenheitssensor veröffentlichen'],['paused','Präsenzinstanz pausieren']],data.mode);
    const comparison=select([['','Kein Vergleich'],...data.catalog.filter(e=>e.entity_id.startsWith('input_boolean.')||e.entity_id.startsWith('binary_sensor.')).map(e=>[e.entity_id,e.name])],values.comparison_entity||'');
-   controls.append(labelled('Nachlauf (s)',grace),labelled('Stabile Freiphase (s)',clear),labelled('Maximale Nutzungsstützung (s)',support),labelled('Betriebsmodus',mode),labelled('Bestehender HA-Anwesenheitsstatus',comparison));form.append(controls);
+   controls.append(labelled('Nachlauf (s)',grace),labelled('Stabile Freiphase (s)',clear),labelled('Maximale Nutzungsstützung (s)',support),labelled('Betriebsmodus',mode),labelled('Zusätzlicher Vergleichsstatus (nur lesen)',comparison));form.append(controls);
+   form.append(E('p','Die Zeiten hier gelten nur für die eigene PilotSuite-Bewertung. Bestehende Automationen und deren Timer werden dadurch nicht verändert. Für Boolean, Timer und öffentlichen Sensor „Vorhandenen Bestand verbinden“ nutzen.','ps-muted'));
    form.append(E('p','Ein ausgeschalteter Ereignissensor ist nicht allein wegen fehlender Zustandswechsel veraltet. Meldealter 0 nutzt seinen gültigen HA-Zustand; periodische Quellen können eine Altersgrenze erhalten.','ps-muted'));
    const selected=new Map(values.sources.map(s=>[s.entity_id,s]));const candidates=data.catalog.filter(e=>selected.has(e.entity_id)||e.entity_id.startsWith('binary_sensor.')||e.entity_id.startsWith('media_player.'));
    const inputs=[];const filter=E('input');filter.type='search';filter.placeholder='Quellen suchen';filter.setAttribute('aria-label','Präsenzquellen suchen');form.append(filter);
@@ -191,11 +243,11 @@
  window.PilotSuiteZonePresence={
    context(host,z,r,ok,module,view){
      if(root!==host)mount(host);host.hidden=!['zone','config','history','all'].includes(view);
-     if(z!==zone||r!==revision){generation++;zone=z;revision=r;data=null;historyData=null;last=0;if(!editing){output.replaceChildren();charts.replaceChildren();}}
+     if(z!==zone||r!==revision){generation++;zone=z;revision=r;data=null;historyData=null;existingReview=null;last=0;if(!editing){output.replaceChildren();charts.replaceChildren();}}
      valid=ok;
      if(!ok&&!editing){last=0;unavailable('Grundlage wird aktualisiert; keine veraltete Aussage.');}
      if(eligible()&&!editing&&!busy&&Date.now()-last>5000)read();
    },dirty:()=>editing||busy,
-   invalidate(){valid=false;generation++;data=null;last=0;if(output)unavailable('Quelle oder Verbindung geändert; neu laden.');if(charts&&!editing)charts.replaceChildren();}
+   invalidate(){valid=false;generation++;data=null;existingReview=null;last=0;if(output)unavailable('Quelle oder Verbindung geändert; neu laden.');if(charts&&!editing)charts.replaceChildren();}
  };
 })();

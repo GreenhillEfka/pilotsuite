@@ -3,7 +3,8 @@
   'use strict';
   const E=(tag,text='',cls='')=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e;};
   const B=(label,action)=>{const b=E('button',label);b.type='button';b.addEventListener('click',action);return b;};
-  const labels={presence_sources:'Präsenzquellen',presence_status:'Raumstatus',presence_timer:'Nachlauftimer',
+  const labels={presence_sources:'Präsenzquellen',presence_status:'Raumstatus / interner Boolean',presence_timer:'Nachlauftimer',
+    presence_output:'Öffentlicher Zonen-Präsenzsensor',
     presence_duration:'Nachlauf-Dauer',manual_override:'Manuelle Bedienung',automation_blocker:'Automatiksperre',
     presence_automations:'Zuständige Automationen'};
   const timingLabels={observe:'Nur beobachten / noch nicht zugeordnet',existing_for:'Bestehender for:-Nachlauf',timer:'Vorhandener Timer',external:'Andere Bestandslogik'};
@@ -52,7 +53,7 @@
   }
   function drawChoices(role){const node=selections[role];node.replaceChildren();const picked=E('div','','org-picked');
     for(const eid of draft[role]){const chip=B(chosen(role,eid)+' ×',()=>choose(role,eid));chip.className='org-chip';chip.setAttribute('aria-label',labels[role]+': '+eid+' entfernen');picked.append(chip);}node.append(picked);
-    const q=searches[role].value.trim().toLocaleLowerCase('de');const candidates=data.catalog.filter(r=>data.roles[role].domains.includes(r.entity_id.split('.')[0])&&!r.disabled&&r.in_registry&&[r.name,r.entity_id,r.area_id||'',r.platform||''].join(' ').toLocaleLowerCase('de').includes(q));
+    const q=searches[role].value.trim().toLocaleLowerCase('de');const candidates=data.catalog.filter(r=>data.roles[role].domains.includes(r.entity_id.split('.')[0])&&(role!=='presence_output'||['occupancy','presence'].includes(r.device_class))&&!r.disabled&&r.in_registry&&[r.name,r.entity_id,r.area_id||'',r.platform||''].join(' ').toLocaleLowerCase('de').includes(q));
     node.append(E('p',`${draft[role].size} gewählt · ${candidates.length} passend · bis zu 30 Treffer angezeigt`,'ps-muted'));
     const list=E('div','','org-candidates');
     for(const row of candidates.slice(0,30)){const b=B('',()=>choose(role,row.entity_id));b.dataset.orgCandidate=row.entity_id;b.dataset.orgRole=role;b.setAttribute('aria-pressed',String(draft[role].has(row.entity_id)));
@@ -62,7 +63,7 @@
     draft=Object.fromEntries(Object.keys(labels).map(k=>[k,new Set((data.bindings.assignments[k]||[]).map(r=>r.entity_id||r.saved_entity_id))]));
     const timingLabel=E('label','Nachlaufverfahren');const select=E('select');select.id='org-timing';for(const [v,t] of Object.entries(timingLabels)){const o=E('option',t);o.value=v;select.append(o);}select.value=data.bindings.timing;select.addEventListener('change',updateButtons);timingLabel.append(select);form.append(timingLabel);
     const groups=E('div','','org-role-grid');
-    for(const role of Object.keys(labels)){const group=E('details');group.dataset.orgGroup=role;group.open=view.get(role)?.open??['presence_status','presence_timer','presence_automations'].includes(role);
+    for(const role of Object.keys(labels)){const group=E('details');group.dataset.orgGroup=role;group.open=view.get(role)?.open??['presence_status','presence_timer','presence_output','presence_automations'].includes(role);
       const summary=E('summary',labels[role]);group.append(summary);const label=E('label','Bestand durchsuchen');const search=E('input');search.type='search';search.value=view.get(role)?.query||'';search.setAttribute('aria-label',labels[role]+' im gesamten Bestand suchen');search.placeholder='Name, ID, Bereich oder Plattform …';label.append(search);searches[role]=search;
       const choices=E('div');selections[role]=choices;search.addEventListener('input',()=>drawChoices(role));group.append(label,choices);groups.append(group);drawChoices(role);
     }form.append(groups);
@@ -180,6 +181,8 @@
   }
   window.PilotSuiteOrganization={
     mount(node,onSaved){root=node;afterSave=onSaved;root.id='ps-organization';root.append(E('h2','Bestand & Ordnung'),E('p','Vorhandene Logik verstehen, Funktionen verbindlich zuordnen und Helfernamen vereinheitlichen. Keine automatische Übernahme der Steuerung.'));
+      root.append(E('p','Bestehende Automationen steuern weiterhin: Raumstatus/Boolean, vorhandenen Nachlauf und öffentlichen Präsenzsensor zuordnen. Fehlende Teile dürfen leer bleiben; es werden keine Ersatzhelfer erzeugt. Die unabhängige PilotSuite-Bewertung und der Bestandsvergleich stehen in der Zonenansicht.'));
+      const back=E('a','Zur Zonenansicht und zum Bestandsvergleich');back.href='#ps-zone';back.id='org-back-zone';root.append(back);
       message=E('p','','edit-status');message.id='org-message';message.setAttribute('role','status');form=E('div');form.id='org-form';reports=E('div');reports.id='org-reports';planPanel=E('section');planPanel.id='org-plan';planPanel.setAttribute('aria-label','Geprüfter Ordnungsplan');history=E('div');history.id='org-history';
       const loadButton=B('Bestand & Zuordnungen laden',load);loadButton.id='org-load';root.append(loadButton,message,form,reports,planPanel,E('h3','Gespeicherte Pläne'),history);},
     context(zone,revision){if(!zone||!Number.isSafeInteger(revision))return;

@@ -17,6 +17,7 @@ ENTITY = re.compile(r'[a-z_]+\.[a-z0-9_]+')
 ROLES = {
     'presence_sources': ('Präsenzquellen', ('binary_sensor', 'input_boolean'), 20),
     'presence_status': ('Raumstatus', ('input_boolean', 'binary_sensor'), 1),
+    'presence_output': ('Öffentlicher Zonen-Präsenzsensor', ('binary_sensor',), 1),
     'presence_timer': ('Nachlauftimer', ('timer',), 1),
     'presence_duration': ('Nachlauf-Dauer', ('input_number', 'number'), 1),
     'manual_override': ('Manuelle Bedienung', ('input_boolean', 'binary_sensor'), 1),
@@ -123,9 +124,13 @@ def bind_request(payload, catalog, previous):
                 raise InvalidSelection('Neue Zuordnung ist nicht im aktiven Register vorhanden: ' + eid)
             rows.append(identity(item))
         assignments[role] = rows
-    used = {v['entity_id'] for v in assignments.get('presence_status', [])}
+    used = {v['entity_id'] for role in ('presence_status','presence_output') for v in assignments.get(role, [])}
     if used & {v['entity_id'] for v in assignments.get('presence_sources', [])}:
         raise InvalidSelection('Raumstatus darf nicht zugleich seine eigene unabhängige Präsenzquelle sein')
+    for row in assignments.get('presence_output', []):
+        item = by_id.get(row['entity_id'])
+        if item and item.get('device_class') not in ('occupancy', 'presence'):
+            raise InvalidSelection('Zonen-Präsenzsensor benötigt die Fachklasse occupancy oder presence')
     if payload['timing'] == 'timer' and not assignments.get('presence_timer'):
         raise InvalidSelection('Nachlaufart Timer erfordert einen ausgewählten vorhandenen Timer')
     if payload['timing'] == 'existing_for' and not assignments.get('presence_automations'):

@@ -73,7 +73,37 @@ Lernalgorithmus auf TV-/Nutzungsmerkmale und kein neuer autonomer Komfortlerner.
 - Frist, Generation und Gültigkeit stammen aus dem bestehenden Kernel. Neustarts erneuern
   Fristen nicht. Unklar wird nicht zu frei; die stabile Freiphase hat einen festen Beginn.
 
-## HA-Ausgang: implementiert, vor Freigabe noch real zu validieren
+## Bestehende Anwesenheitssteuerung: lesend verbinden
+
+Alpha.61 ergänzt den ausdrücklich gewählten Bestandsweg: HA-Automationen bleiben
+alleinige Schreiber ihrer vorhandenen Helfer. Die Zonenansicht verweist auf den
+bestehenden Editor „Bestand & Ordnung“; kein zweiter Konfigurationsspeicher.
+`organization.assignments` ordnet `presence_status` (Boolean/logischer Status),
+`presence_timer`, `presence_output` (Binärsensor, Klasse occupancy/presence) und
+`presence_automations` zu. Fehlende Teile und for-/externe Nachläufe sind erlaubt;
+es entsteht weder ein Ersatzsensor noch eine neue Schreibberechtigung.
+
+Die Ansicht liest den vorhandenen HA-Zustandsstrom. Stabile Identität wird aufgelöst,
+Ersetzung, Deaktivierung, veraltete Daten und unknown/unavailable bleiben unklar.
+Timer active/paused/idle und eine tatsächlich gemeldete `finishes_at`-Frist werden
+getrennt angezeigt; idle ist kein Freibeleg. Der öffentliche Bestandsstatus hat beim
+Vergleich Vorrang. Ist er unklar, wird nicht still auf einen gültigen Boolean
+zurückgefallen. Widerspruch zwischen Boolean und öffentlichem Sensor bleibt sichtbar.
+Eigene Ausgaben zählen nicht als unabhängiger Bestandsvergleich. Ein zugeordneter
+Ausgang darf nicht zugleich Eingang der eigenen Bewertung sein; beide Speicherrichtungen
+und die laufende Auswertung prüfen das. PilotSuites Zeiten ändern keinen HA-Nachlauf.
+
+Explizite Strukturprüfung verwendet den bestehenden begrenzten Inspector und
+Related-Lookup plus ausgewählte Automationen (höchstens 50, keine rekursive Suche).
+Status-/Timer-Schreiber, Verbraucher in Triggern/Bedingungen, gemischte und nicht
+direkt zuordenbare Logik bleiben sichtbar. Dynamik/Blueprints/indirekte Ziele bleiben
+Prüfgrenzen; ein Entity-Refresh ist kein bestätigter Boolean-Schaltaufruf.
+Unlesbare Konfigurationen oder geänderte Revision/Identität/Verbindung liefern
+keinen bestätigten Teilbefund. Keine Konfiguration wird gespeichert oder ausgeführt.
+Prüfzeit und damalige Aktivierung sind historische Strukturbelege, keine dauerhafte
+Laufzeitgarantie. Bestehende downstream-Automationen werden nicht umverdrahtet.
+
+## Eigener HA-Ausgang: implementiert, vor Freigabe noch real zu validieren
 
 Nur ein neu angelegtes, durch diesen Plan identifiziertes Paket darf publiziert werden:
 interner input_boolean, Gültigkeits-Boolean, input_datetime für den Ablauf der Gültigkeit,

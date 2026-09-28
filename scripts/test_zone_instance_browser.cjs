@@ -67,6 +67,36 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
   await page.locator('#ps-zone-form').waitFor({state:'hidden'});await page.locator('#ps-zone-configure:not([disabled])').waitFor();
   assert.equal((await command({action:'snapshot'})).mode,'compare');console.log('ok 1 - relevance-based presence, typed configuration, no extra grant, dirty guard');
+  await page.locator('#ps-existing-connect').click();await page.locator('#org-load').click();
+  await page.locator('#org-save').waitFor();
+  for(const [role,eid] of [['presence_status','input_boolean.existing_presence'],['presence_timer','timer.existing_presence'],['presence_output','binary_sensor.existing_presence'],['presence_automations','automation.existing_presence']]){
+   await page.locator(`[data-org-role="${role}"][data-org-candidate="${eid}"]`).click();
+  }
+  await page.locator('#org-timing').selectOption('timer');
+  await page.locator('#org-save').click();await page.getByText('Funktionszuordnung gespeichert und erneut geladen. Keine Haussteuerung aktiviert.',{exact:true}).waitFor();
+  await page.locator('#org-back-zone').click();
+  await page.locator('#ps-existing-review:not([disabled])').waitFor();
+  const bound=await command({action:'snapshot'});
+  assert.equal(bound.organization.assignments.presence_output[0].entity_id,'binary_sensor.existing_presence');
+  assert.equal(bound.mode,'compare');assert.equal(bound.helper_creates,0);assert.equal(bound.output_calls,0);assert.equal(bound.automation_reads,0);
+  await command({action:'tick'});await refreshPresence(); // Explicit synthetic worker cycle after revision change.
+  await page.waitForFunction(()=>document.querySelector('#ps-existing-comparison')?.textContent.includes('Übereinstimmung'));
+  await page.locator('#ps-existing-review').click();
+  await page.locator('[data-existing-automation="automation.existing_consumer"]').waitFor();
+  assert.match(await page.locator('[data-existing-automation="automation.existing_consumer"]').innerText(),/Verwendet den Bestandsstatus/);
+  assert.match(await page.locator('[data-existing-automation="automation.existing_presence"]').innerText(),/schaltet Raumstatus.*schaltet Nachlauf/s);
+  assert.equal((await command({action:'snapshot'})).automation_reads,2);
+  await refreshPresence();assert.equal((await command({action:'snapshot'})).automation_reads,2,'polling never rereads automation configs');
+  await command({action:'tick',values:{'binary_sensor.existing_presence':'unavailable'}});await refreshPresence();
+  await page.waitForFunction(()=>document.querySelector('[data-existing-role="sensor"] strong')?.textContent==='Unklar');
+  assert.match(await page.locator('#ps-existing-comparison').innerText(),/Nicht beurteilbar/);
+  await command({action:'tick',values:{'binary_sensor.existing_presence':'off'}});await refreshPresence();
+  await page.waitForFunction(()=>document.querySelector('#ps-existing-comparison')?.textContent.includes('Abweichung'));
+  assert.match(await page.locator('#ps-existing-presence').innerText(),/widersprechen sich aktuell/);
+  await command({action:'tick',values:{'binary_sensor.existing_presence':'on'}});await refreshPresence();
+  const compared=await command({action:'snapshot'});assert.equal(compared.helper_creates,0);assert.equal(compared.output_calls,0);assert.equal(compared.metadata_calls,0);
+  if(out)await page.screenshot({path:path.join(out,'zone-existing-presence-desktop.png'),fullPage:true});
+  console.log('ok 1b - existing chain binding, writer/consumer review, unavailable and mismatch; zero HA writes');
   await page.getByRole('button',{name:'Sensordaten & Verläufe',exact:true}).click();
   try{await page.locator('.ps-zone-chart:visible').first().waitFor();}catch(e){throw Error('Historienansicht blieb leer: '+await page.locator('#ps-zone-presence .ps-notice').first().textContent()+' / '+e.message);}assert.equal(await page.locator('.ps-zone-chart:visible').count()>0,true);
   assert.equal((await command({action:'snapshot'})).history_reads,1);

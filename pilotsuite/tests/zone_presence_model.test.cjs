@@ -1,5 +1,18 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const M=require('../pilotsuite/web/zone-presence-model.js');
+test('existing chain presentation keeps missing, stale and mismatching data explicit',()=>{
+ const existing={fresh:true,configured:true,comparison:'same',chain_consistency:'different',
+  owner:{available:true,state:'on'},timer:{available:true,state:'idle'},sensor:{available:true,state:'off'}};
+ const result=M.existing(existing);
+ assert.equal(result.owner,'An');assert.equal(result.sensor,'Aus');assert.equal(result.timer,'Inaktiv');
+ assert.equal(result.comparison,'Übereinstimmung');
+ for(const fresh of [false,undefined]){
+  const stale=M.existing({...existing,fresh});assert.equal(stale.sensor,'Unklar');assert.equal(stale.comparison,'Nicht beurteilbar');
+ }
+ assert.equal(M.existing({...existing,sensor:{available:false,state:'off'}}).sensor,'Unklar');
+ assert.equal(M.existing(null).sensor,'Nicht zugeordnet');
+ assert.equal(M.existing({...existing,timer:{available:true,state:'paused'}}).timer,'Pausiert');
+});
 test('canonical current state is the only presence truth; missing never means vacant',()=>{
  const data={analysis_enabled:true,mode:'compare',current:{state:'occupied',explanation:'Signal aktiv'}};
  assert.equal(M.summary(data).state,'Belegt');

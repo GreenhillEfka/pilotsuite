@@ -83,6 +83,12 @@ class OrganizationServiceMixin:
                 catalog=await self.world.organization_catalog()
                 cfg=await self.context.get(zone_id)
                 profile=bind_request(payload,catalog,cfg)
+                from .core.zone_presence_store import KEY
+                sources = {row['entity_id'] for row in (cfg.get(KEY) or {}).get('spec', {}).get('sources', [])}
+                outputs = {row.get('entity_id') for role in ('presence_status','presence_output')
+                           for row in binding_view({'organization':profile},catalog)['assignments'].get(role, [])}
+                if sources & outputs:
+                    raise InvalidSelection('Zonen-Ausgang darf nicht zugleich Eingang seiner unabhängigen Präsenzbewertung sein')
                 result=await self.context.save_organization(zone_id,payload['revision'],profile)
                 await self._derive()
         return {**result,'zone_id':zone_id,'saved':True,'learning_changed':False,'control_enabled':False}

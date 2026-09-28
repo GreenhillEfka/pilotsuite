@@ -33,6 +33,13 @@ Abnahme dieses Pakets:
   bestehenden Zone separat durchführen, sobald ein autorisierter Browser bereitsteht.
   Fehlender Browser blockiert nicht synthetische Entwicklung und wird nicht umgangen.
 
+Manueller Folgeauftrag nach dem abgeschlossenen Dreistundenlauf: zuerst bestehende
+Anwesenheitssteuerung durchgängig verbinden und vergleichen. Alpha.61-Kandidat nutzt
+den vorhandenen Organization-Editor/-Speicher für Boolean, Timer, öffentlichen
+Präsenzsensor und Automationen. HA bleibt zuständig; kein Takeover, keine Aktivierung.
+Lokale Tests und synthetischer Nutzerweg sind belegt; Installation/Haushaltsabnahme
+bleiben eigene Gates im Release-Receipt. Der alte Heartbeat bleibt pausiert.
+
 Offener kleiner Bedienfehler, am 28.09.2026 synthetisch reproduziert: Nach blockiertem
 Bereichswechsel und anschließend erfolgreichem Speichern bleibt der globale Hinweis
 „Bearbeitung läuft“ stehen, obwohl der Zonen-Editor geschlossen und nicht mehr dirty
