@@ -18,19 +18,37 @@ const fs=require('node:fs/promises');
   const page=await browser.newPage({viewport:{width:1440,height:1000}});page.setDefaultTimeout(10000);
   const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))requests.push(r.url());});
   await page.goto(info.url);await page.waitForFunction(()=>contextData&&!selectionBusy&&document.body.classList.contains('ps-workspace-ready'));
-  await page.locator('.ps-nav [data-ps-nav=workbench]').click();await page.locator('#org-load').click();
-  await page.locator('#org-timing').waitFor();
+  assert.equal(await page.locator('.ps-zone-nav [data-ps-nav=automations]').count(),1,'zone has its own Automationen destination');
+  await page.locator('.ps-zone-nav [data-ps-nav=automations]').click();
+  assert.equal(await page.locator('.ps-nav [data-ps-nav=cockpit]').getAttribute('aria-current'),'page');
+  assert.equal(await page.locator('#learning-section').isVisible(),false,'learning workbench is not zone automation setup');
+  await page.locator('#org-load').click();
+  await page.locator('#org-timing').waitFor({state:'attached'});
   let snapshot=await command({action:'snapshot'});assert.equal(snapshot.automation_reads,0);assert.equal(snapshot.name_writes,0);
   const before=structuredClone(snapshot.config);
-  const choose=async(role,eid)=>{const details=page.locator(`[data-org-group="${role}"]`);if(!await details.evaluate(e=>e.open))await details.locator('summary').click();await details.locator(`[data-org-role="${role}"][data-org-candidate="${eid}"]`).click();};
+  const openHelpers=async()=>{if(!await page.locator('#org-helpers').evaluate(e=>e.open))await page.locator('#org-helpers>summary').click();};
+  const choose=async(role,eid)=>{if(!role.endsWith('_automations'))await openHelpers();const details=page.locator(`[data-org-group="${role}"]`);if(!await details.evaluate(e=>e.open))await details.locator('summary').click();await details.locator(`[data-org-role="${role}"][data-org-candidate="${eid}"]`).click();};
+  assert.deepEqual(await page.locator('[data-org-topic] > h3').allTextContents(),['Anwesenheit','Licht','Weitere Automationen']);
+  await choose('lighting_automations','automation.audit_01');
+  assert.equal(await page.locator('[data-org-role=lighting_automations][data-org-candidate="automation.audit_01"]').evaluate(e=>e===document.activeElement),true,'selecting an automation retains keyboard focus in its group');
+  await choose('other_automations','automation.audit_02');
+  assert.match(await page.locator('[data-org-topic=lighting]').innerText(),/Noch nicht gespeichert/);
+  // The same object may serve two topics; explicit assignment must not duplicate a rule.
+  await choose('lighting_automations','automation.legacy_presence');
+  const lightingSearch=page.locator('[data-org-group=lighting_automations] input[type=search]');
+  await lightingSearch.fill('audit');await page.evaluate(async()=>{await load();await load();});
+  assert.equal(await lightingSearch.inputValue(),'audit','two passive refreshes retain unsaved topic selection and search');
+  assert.equal(await lightingSearch.evaluate(e=>e===document.activeElement),true);
+  await lightingSearch.fill('');
   await choose('presence_automations','automation.legacy_presence');
   await page.locator('#org-analyze').click();
   await page.waitForFunction(()=>document.querySelector('#org-reports [data-org-finding="input_number.room_timeout_old"]'));
   assert.match(await page.locator('#org-reports').innerText(),/Bestehender for:/);
   assert.match(await page.locator('#org-reports').innerText(),/Referenz fehlt/);
   assert.doesNotMatch(await page.locator('#org-reports').innerText(),/PRIVATE_ALIAS/);
-  await page.locator('[data-org-replacement="input_number.room_timeout_old"]').selectOption('input_number.room_timeout_new');
-  await page.getByRole('button',{name:'Gewählte Reparaturstellen prüfen',exact:true}).click();
+  assert.equal((await command({action:'snapshot'})).automation_reads,3,'topic overlap reads one automation only once');
+  await page.locator('[data-org-replacement="input_number.room_timeout_old"]').first().selectOption('input_number.room_timeout_new');
+  await page.getByRole('button',{name:'Gewählte Reparaturstellen prüfen',exact:true}).first().click();
   await page.waitForFunction(()=>document.getElementById('org-plan').textContent.includes('Reparaturvorschau gespeichert'));
   assert.equal(await page.locator('#org-apply-names').count(),0);
   assert.equal((await command({action:'snapshot'})).name_writes,0);
@@ -52,8 +70,11 @@ const fs=require('node:fs/promises');
   await page.waitForFunction(()=>document.getElementById('org-message').textContent.includes('Funktionszuordnung gespeichert')&&!window.PilotSuiteOrganization.dirty()).catch(async error=>{console.error('save diagnostic',await page.locator('#org-message').innerText(),errors);throw error;});
   await page.locator('#org-timing').waitFor();snapshot=await command({action:'snapshot'});
   assert.equal(snapshot.config.organization.timing,'timer');assert.deepEqual(snapshot.config.roles,before.roles);assert.equal(snapshot.config.learning,before.learning);
+  assert.deepEqual(snapshot.config.organization.assignments.lighting_automations.map(r=>r.entity_id),['automation.audit_01','automation.legacy_presence']);
+  assert.deepEqual(snapshot.config.organization.assignments.other_automations.map(r=>r.entity_id),['automation.audit_02']);
   assert.equal(snapshot.name_writes,0);assert.equal(snapshot.helper_calls,0);
   const readsBeforeGlobal=snapshot.automation_reads;
+  await page.locator('#org-global-scan>summary').click();
   await page.locator('#org-scan').click();
   await page.waitForFunction(()=>document.getElementById('org-message').textContent.includes('8 von 10 katalogisierten Automationen')&&!window.PilotSuiteOrganization.dirty());
   assert.equal(await page.locator('[data-org-report]').count(),8);
@@ -93,13 +114,31 @@ const fs=require('node:fs/promises');
   snapshot=await command({action:'snapshot'});assert.equal(snapshot.names['timer.legacy_wait'],'Legacy wait');assert.equal(snapshot.name_writes,4);
   console.log('ok 4 - status reload does not replay writes; rollback is a separately confirmed new plan');
   await page.reload();await page.waitForFunction(()=>contextData&&!selectionBusy&&document.body.classList.contains('ps-workspace-ready'));
-  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor();assert.equal(await page.locator('#org-timing').inputValue(),'timer');
+  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor({state:'attached'});await openHelpers();assert.equal(await page.locator('#org-timing').inputValue(),'timer');
   assert.match(await page.locator('[data-org-group=presence_status]').innerText(),/input_boolean.legacy_presence/);
+  const organizationRoute='**/api/v1/zones/room/organization';
+  await page.route(organizationRoute,async route=>{
+   const response=await route.fetch(),body=await response.json();body.fresh=false;
+   await route.fulfill({response,json:body});
+  },{times:1});
+  await page.locator('#org-load').click();
+  await page.waitForFunction(()=>document.querySelector('[data-org-topic=presence] .org-topic-summary')?.textContent.includes('Datenstand nicht bestätigt'));
+  assert.doesNotMatch(await page.locator('.org-topic-summary').allTextContents().then(t=>t.join(' ')),/Aktiviert in HA|Deaktiviert in HA/);
+  await page.route(organizationRoute,async route=>{
+   const response=await route.fetch(),body=await response.json();
+   body.bindings.assignments.lighting_automations[0].state='unavailable';
+   await route.fulfill({response,json:body});
+  },{times:1});
+  await page.locator('#org-load').click();
+  await page.waitForFunction(()=>document.querySelector('[data-org-topic=lighting] .org-topic-summary')?.textContent.includes('Aktivierung unbekannt'));
+  assert.doesNotMatch(await page.locator('[data-org-topic=lighting] .org-topic-summary').innerText(),/Deaktiviert in HA/);
+  await page.locator('#org-load').click();await page.waitForFunction(()=>!window.PilotSuiteOrganization.dirty());
   const prefs=await page.evaluate(()=>JSON.stringify(localStorage));assert.doesNotMatch(prefs,/legacy_presence|presence-stable/);
-  for(const width of [390,768,1440]){
+  for(const theme of ['light','dark'])for(const width of [390,768,1440]){
    await page.setViewportSize({width,height:1000});
+   await page.evaluate(theme=>{document.documentElement.dataset.psTheme=theme;},theme);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`organization overflow ${width}`);
-   if(process.env.PILOTSUITE_SCREENSHOTS){await fs.mkdir(process.env.PILOTSUITE_SCREENSHOTS,{recursive:true});await page.screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS,`organization-${width}.png`),fullPage:true});}
+   if(process.env.PILOTSUITE_SCREENSHOTS){await fs.mkdir(process.env.PILOTSUITE_SCREENSHOTS,{recursive:true});await page.screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS,`organization-${theme}-${width}.png`),fullPage:true});await page.locator('.org-topic-grid').screenshot({path:path.join(process.env.PILOTSUITE_SCREENSHOTS,`automation-topics-${theme}-${width}.png`)});}
   }
   await choose('manual_override','input_boolean.room_override');
   await command({action:'touch_revision'});
@@ -113,7 +152,7 @@ const fs=require('node:fs/promises');
   // Reject a delayed plan even when the zone revision itself did not change.
   await page.getByRole('button',{name:'Entwurf verwerfen',exact:true}).click();
   await page.evaluate(()=>loadSelection(selectionZone));
-  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor();
+  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor({state:'attached'});
   const openNames=async()=>{
    if(!await page.locator('#org-naming').evaluate(e=>e.open))await page.locator('#org-naming>summary').click();
    await page.locator('[data-org-name-role=presence_status]').check();
@@ -145,7 +184,7 @@ const fs=require('node:fs/promises');
   assert.equal(await page.locator('#org-plan').innerText(),'');
   await page.unroute(historyRoute);
   await page.evaluate(()=>window.PilotSuiteOrganization.context(selectionZone,contextData.revision));
-  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor();
+  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor({state:'attached'});await openHelpers();
   console.log('ok 7 - late history responses cannot cross zones');
 
   // Successful PATCH followed by failed GET must keep local choices and lock replay.
@@ -205,14 +244,15 @@ const fs=require('node:fs/promises');
   console.log('ok 11 - foreign response identities are rejected without mutation');
 
   // New analysis remains explicit, preserves unsaved choices and leaks no authored IDs.
-  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor();
+  await page.locator('#org-load').click();await page.locator('#org-timing').waitFor({state:'attached'});await openHelpers();
   await command({action:'trigger_integrity_case'});
   await choose('automation_blocker','input_boolean.room_blocker');
   const auditBefore=await command({action:'snapshot'});
   await page.locator('#org-analyze').click();
-  await page.locator('#org-reports .trigger-integrity summary').click();
-  assert.match(await page.locator('[data-trigger-state=partial_match]').innerText(),/Ein Teil der Kennungen fehlt/);
-  assert.match(await page.locator('[data-trigger-state=missing]').innerText(),/Keine passende Auslöserkennung/);
+  await page.locator('#org-reports .trigger-integrity summary').first().waitFor();
+  for(const summary of await page.locator('#org-reports .trigger-integrity summary').all())await summary.click();
+  assert.match(await page.locator('[data-trigger-state=partial_match]').first().innerText(),/Ein Teil der Kennungen fehlt/);
+  assert.match(await page.locator('[data-trigger-state=missing]').first().innerText(),/Keine passende Auslöserkennung/);
   assert.doesNotMatch(await page.locator('#org-reports').innerText(),/PRIVATE_TRIGGER_ID|onerror|missing-id/);
   assert.equal(await page.locator('#org-reports img').count(),0);
   assert.equal(await page.evaluate(()=>window.PilotSuiteOrganization.dirty()),true);
@@ -234,15 +274,31 @@ const fs=require('node:fs/promises');
   const lifecycleBefore=await command({action:'snapshot'});
   await page.locator('#org-analyze').click();
   await page.waitForFunction(()=>document.querySelector('#org-reports .org-lifecycle'));
-  const lifecycleText=await page.locator('#org-reports .org-lifecycle').innerText();
+  const lifecycleText=await page.locator('#org-reports .org-lifecycle').first().innerText();
   assert.match(lifecycleText,/Türschluss belegt nicht/);assert.match(lifecycleText,/ohne Zustandswechsel aktiv/);
   assert.doesNotMatch(await page.locator('#org-reports').innerText(),/private-door-close|private-motion-start|private-timeout/);
   await page.locator('#org-report-filter').selectOption('lifecycle');
-  assert.equal(await page.locator('[data-org-report]').count(),1);
+  assert.equal(await page.locator('[data-org-report]').count(),3);
   const lifecycleAfter=await command({action:'snapshot'});
   assert.deepEqual(lifecycleAfter.config,lifecycleBefore.config);assert.equal(lifecycleAfter.name_writes,lifecycleBefore.name_writes);
   assert.equal(lifecycleAfter.control_calls,0);assert.equal(lifecycleAfter.helper_calls,0);
   assert.equal(lifecycleAfter.plan_count,lifecycleBefore.plan_count);assert.deepEqual(errors,[]);
   console.log('ok 13 - presence lifecycle risks are explicit, private-ID-free and read-only');
+  // More than eight selected rules remain bounded and unread items stay visible.
+  await command({action:'inventory_case'});
+  for(let n=3;n<=9;n++)await choose('lighting_automations','automation.audit_'+String(n).padStart(2,'0'));
+  const batchBefore=await command({action:'snapshot'});
+  await page.locator('#org-analyze').click();
+  await page.waitForFunction(()=>document.getElementById('org-report-summary')?.textContent.includes('8 von 10 angefragt'));
+  assert.equal((await command({action:'snapshot'})).automation_reads,batchBefore.automation_reads+8);
+  await page.locator('#org-analyze').click();
+  await page.waitForFunction(()=>document.getElementById('org-report-summary')?.textContent.includes('10 von 10 angefragt'));
+  const batchAfter=await command({action:'snapshot'});
+  assert.equal(batchAfter.automation_reads,batchBefore.automation_reads+10);
+  assert.equal(await page.locator('[data-org-report]').count(),9);
+  assert.equal(await page.locator('[data-org-unread="automation.audit_09"]').isVisible(),true,'all includes unread, never a false complete review');
+  assert.deepEqual(batchAfter.config,batchBefore.config);
+  assert.equal(batchAfter.control_calls,0);assert.equal(batchAfter.helper_calls,0);
+  console.log('ok 14 - thematic union deduplicates shared rules and explicit batches retain unread findings');
  }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
 })().catch(error=>{console.error(error);process.exitCode=1;});

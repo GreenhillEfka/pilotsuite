@@ -118,6 +118,44 @@ class OrganizationIntegrationTests(unittest.IsolatedAsyncioTestCase):
         await self.bind();before=(await self.s.context.get('room'))['organization']
         await self.s.context.configure('room',await self.revision(),{},False)
         self.assertEqual(before,(await self.s.context.get('room'))['organization'])
+    async def test_automation_topics_share_existing_store_identity_and_never_enable_control(self):
+        p=payload(0)
+        p['assignments']['lighting_automations']=['automation.legacy_presence']
+        p['assignments']['other_automations']=['automation.audit_01']
+        response=await self.client.patch(self.base,json=p)
+        self.assertEqual(200,response.status)
+        saved=await response.json()
+        self.assertFalse(saved['control_enabled'])
+        cfg=await self.s.context.get('room')
+        self.assertEqual(cfg['organization']['assignments']['presence_automations'],
+                         cfg['organization']['assignments']['lighting_automations'])
+        self.assertEqual('synthetic-presence',cfg['organization']['assignments']['lighting_automations'][0]['unique_id'])
+        await self.s.context.configure('room',await self.revision(),{},False)
+        view=await (await self.client.get(self.base)).json()
+        self.assertEqual(['automation'],view['roles']['lighting_automations']['domains'])
+        self.assertEqual('automation.audit_01',view['bindings']['assignments']['other_automations'][0]['entity_id'])
+        self.s.client.call_bounded_service.assert_not_awaited()
+        self.s.client.automation_config.assert_not_awaited()
+
+    async def test_automation_topic_rejects_foreign_domain_and_excessive_assignments(self):
+        for ids in (['timer.legacy_wait'],['automation.audit_01']*21):
+            p=payload(0);p['assignments']['lighting_automations']=ids
+            response=await self.client.patch(self.base,json=p)
+            self.assertEqual(400,response.status)
+        self.assertEqual(0,await self.revision())
+
+    async def test_shared_automation_topics_are_visible_without_duplicate_or_ownership_claim(self):
+        p=payload(0);p['assignments']['lighting_automations']=['automation.legacy_presence']
+        await self.s.organization_save('room',p)
+        other_revision=(await self.s.selection_inventory('other'))['revision']
+        await self.s.organization_save('other',{'revision':other_revision,'timing':'observe',
+            'assignments':{'other_automations':['automation.legacy_presence']},'confirm':True})
+        view=await self.s.organization_overview('room')
+        for role in ('presence_automations','lighting_automations'):
+            row=view['bindings']['assignments'][role][0]
+            self.assertEqual(['other'],row['shared_zone_ids'])
+        self.assertEqual('mapping_only',view['bindings']['authority'])
+        self.s.client.automation_config.assert_not_awaited()
     async def test_stale_or_unconfirmed_mapping_has_no_effect(self):
         await self.bind();before=await self.s.context.get('room')
         with self.assertRaises(SelectionConflict):await self.s.organization_save('room',payload(0))

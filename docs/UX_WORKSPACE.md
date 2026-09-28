@@ -1,31 +1,55 @@
 # Workspace — Alltag zuerst, Diagnose bei Bedarf
 
-Seit Alpha.55 (PR #119) sind die drei Hauptzugänge und die zentrale Präsenzkarte
-im bestehenden Frontend umgesetzt. Den aktuellen Installations- und CI-Stand führt
-RELEASE_STATE.json; die angemeldete Haushaltsabnahme bleibt separat offen.
+Überarbeitet am 29.09.2026 nach Nutzerfeedback; Zielkonzept gemäß ADR-043.
+Alpha.68 besitzt drei Hauptzugänge, Zonenpräsenz, Konfiguration und vier direkte
+Einrichtungseinstiege. Ein eigener Automationsbereich und der vollständige Helfer-
+Einrichtungsweg sind zu Beginn dieser Iteration noch nicht umgesetzt.
+IMPLEMENTATION_STATUS.md beschreibt Fähigkeiten, RELEASE_STATE.json die Installation.
+Die angemeldete Haushaltsabnahme bleibt ein eigener Nachweis.
+
+Erstes Umsetzungspaket, Alpha.69-Kandidat: eigener Automationsbereich, ausdrückliche
+Themenzuordnung im bestehenden Profil, geteilte Verwendung und geladene Aktivierung,
+begrenzte deduplizierte Auswahlprüfung, Fokus-/Entwurfsschutz. Helferzuordnung bleibt
+derselbe Editor; seine Neuanlage-/Parameter-/Status-Zielwege unten sind noch offen.
 
 ## Drei Hauptzugänge
 
 | Zugang | Aufgabe | Bestehende Bausteine |
 |---|---|---|
-| Zonen | Zustand verstehen, Quellen einstellen, Verlauf ansehen | Cockpit, Zonenmodule, zonenbezogene Konfiguration und Verläufe |
-| Werkzeuge | Bestand prüfen, Entitäten ordnen, Routinen bearbeiten | Organisationsansicht und vorhandene Werkbank |
+| Zonen | Eine Habituszone vollständig einrichten und verstehen | Übersicht, Einrichtung, Automationen, Verlauf/Diagnose |
+| Werkzeuge | Zonenübergreifende Sonderfälle und Altbestand bearbeiten | Globaler Bestandscheck, Bereinigung, vorhandene Lern-/Routinewerkbank |
 | System | Verbindung, Version, Darstellung, Sicherung und Rettung | Status und bestehende Maintenance-/Rescue-Seite |
 
 Das sind Navigationsgruppen, keine neuen Anwendungen oder Speicher.
 Alte Links, `#ps-all` und gespeicherte Ansichtspräferenzen werden kompatibel zugeordnet.
-Keine Funktion und kein ungespeicherter Entwurf darf verschwinden. Die technischen
-Ansichtsschlüssel bleiben unverändert; es gibt keinen zweiten Router.
+Keine Funktion und kein ungespeicherter Entwurf darf verschwinden. Vorhandene
+Ansichtsschlüssel bleiben gültig; neue Zonenansichten nutzen denselben Router.
+
+## Ontologie: vier verschiedene Fragen nicht vermischen
+
+1. **Wo physisch?** HA-Bereich und Etage, unverändert aus Home Assistant.
+2. **Zu welcher Habituszone?** Explizite logische Mitgliedschaft, gegebenenfalls geteilt.
+3. **Welche Funktion?** Rohquelle, Boolean, Nachlauf, öffentlicher Sensor, Schreiber
+   oder Verbraucher; nicht aus einem hübschen Namen ableiten.
+4. **Wo anzeigen?** Vorhandene Habitusrollen Übersicht, Bedienung, Status,
+   Konfiguration und Diagnose sowie der Zonenanker „Habitus Zone“.
+
+Habituszonen trennt Alltag, Konfiguration und Diagnose bereits sinnvoll. Diese
+Ordnung übernehmen, nicht jede historische Karte oder Steuerungsannahme kopieren.
+Themencluster sind keine neuen HA-Labels und ändern keine HA-Topologie.
 
 ## Ein alltäglicher Zonenweg
 
-Zonenliste → aktuelle Zone → **Zustand**, **Verlauf** oder **Einrichtung**.
+Zonenliste → aktuelle Zone → **Übersicht**, **Einrichtung**, **Automationen** oder
+**Verlauf & Diagnose**. Wenige konsistente Ansichten statt weiterer Startseiten.
 
-Die erste Ansicht zeigt Anwesenheitszustand, kurzen Grund, Nachlauf beziehungsweise
-Ungewissheit und getrennten HA-Publikationsstatus. Klima, Licht und Medien sind
-sekundärer Kontext. Die Quelle dieses Präsenzstatus ist die bestehende Zoneninstanz,
-nicht der ältere Rollen-Aggregatwert. Bei fehlender gültiger Instanz wird
-„Unklar / nicht eingerichtet“ gezeigt, kein Ersatzwert als Wahrheit ausgegeben.
+Die erste Ansicht zeigt Anwesenheit, Herkunft, kurzen Grund, Nachlauf und Datenlücke.
+Bei ausdrücklich verbundener Bestandskette ist der öffentliche HA-Sensor der sichtbare
+Bestandsstatus; die unabhängige PilotSuite-Bewertung wird als Vergleich ausgewiesen.
+Ohne solche Verbindung steht die eigene Berechnung mit „nicht veröffentlicht“ da.
+Ein unklarer öffentlicher Sensor wird niemals durch einen gültigen Boolean oder eine
+abweichende Berechnung kaschiert. Das ist die neue Zielordnung; Alpha.68 zeigt noch
+die eigene Zoneninstanz zuerst. Kein impliziter Wechsel der Steuerungsverantwortung.
 
 „Warum?“ öffnet Quellen und Entscheidungsverlauf. Erforderliche Datenlücken bleiben
 bereits in der Zusammenfassung sichtbar. Sitzungstrace und Recorder-Verlauf werden
@@ -33,15 +57,59 @@ klar benannt. Ein nicht angelegter Ausgang ist kein Fehler der Präsenzberechnun
 Interner Boolean und öffentlicher Binärsensor sind verschiedene Darstellungen,
 keine zwei frei konfigurierbaren Anwesenheitsmodelle.
 
-Einrichtung führt durch vorhandene Auswahl und Verhalten: relevante Quellen,
-Signaltypen, nachvollziehbarer Nachlauf, optional eigenes Ausgangspaket.
-Relevanz braucht keine zweite Live-/Historienfreigabe. Vorhandene Legacy-Lernschalter
-bleiben während der Migration als solche erkennbar; nicht einfach verstecken und
-dadurch weiterhin erforderliche Backend-Bedingungen unerklärlich machen.
+Einrichtung zeigt eine kurze Zusammenfassung mit gezieltem „Ändern“ pro Baustein:
+Zone/Bereiche, Quellen, bestehende Anwesenheitskette und tatsächlich wirksame Zeiten.
+Zustände heißen beispielsweise „nicht zugeordnet“, „verbunden“, „nicht verfügbar“
+oder „Prüfung offen“, nie unbelegte Fertigstellungsprozente. Nicht jede Zone braucht
+jeden optionalen Helfer. Erst notwendige Lücken bearbeiten, keine Pflicht-Lernfreigabe.
+
+## Automationen gehören zur Zone
+
+Eigener Bereich mit **Anwesenheit**, **Licht** und **Weitere**. Zunächst ausdrücklich
+zuordnen; nachvollziehbare Inspector-Bezüge können später Vorschläge begründen.
+Keine Zuordnung allein aus Namen, Bereichen oder einer bloßen Namensähnlichkeit.
+Eine Automation kann mehreren Themen oder Zonen dienen und bleibt dasselbe Objekt.
+Geteilte Verwendung muss vor Änderung sichtbar sein; keine Kopien pro Zone.
+
+Jeder Eintrag unterscheidet:
+
+- **Zuordnung:** gespeichert oder noch Entwurf; Thema und betroffene Zone.
+- **Aktivierung:** HA-Meldung mit Datenstand, getrennt von Register-Deaktivierung.
+- **Aufgabe:** Schreiber, Verbraucher, gemischt oder ungeklärt, mit konkretem Bezug.
+- **Prüfung:** nicht geprüft, strukturelle Hinweise oder offene Verhaltensprüfung.
+
+Statische Analyse bestätigt keine korrekte Laufzeit. Quellen, Bedingungen, Fristen,
+manuelle Eingriffe, Neustart, unbekannte Eingänge und konkurrierende Schreiber gehören
+in die Prüfung. Globale Konfigurationsabfragen bleiben ausdrücklich ausgelöst und
+begrenzt; normales Navigieren startet weder Scans noch Schreibaktionen.
+
+## Helfer: erst wiederverwenden, nur Fehlendes ergänzen
+
+Der Nutzer sieht die zusammenhängende Kette:
+**Sensoren → Anwesenheitsautomation mit Nachlauf → Boolean → öffentlicher Sensor → Verbraucher.**
+Timer und Nachlauf-Dauer sind Parameter beziehungsweise Zustand dieser Logik, keine
+zweite Anwesenheitsentscheidung. Eine vorhandene for:-Regel erzwingt keinen neuen Timer.
+
+Pro notwendiger Funktion: vorhandenen Helfer wählen, fehlenden Helfer planen oder
+„noch ungeklärt“ belassen. Vorhandene Bindungen und Identitätsprüfung weiterverwenden.
+Namensbereinigung ist optional und vom Verbinden getrennt. Anzeigenamen zuerst;
+technische Entity-ID nur mit belegter Verbrauchermigration, niemals still umbenennen.
+Ein bestehender kanonischer Sensor darf keine neue _2-Ausgabe auslösen.
+
+Jeder Änderungsplan zeigt Vorher/Nachher, betroffene Objekte und Verbraucher,
+Steuerungsverantwortung, Prüfgrenzen und konkreten Rückweg. Bestätigte Teilstände
+bleiben sichtbar; verlorene Antworten rechtfertigen kein blindes Wiederholen.
+Die fünf Sicherheitsbausteine eigener Ausgaben bleiben erhalten. Ein vorhandener
+Teilbestand ist kein Anlass, ein ganzes Parallelpaket anzulegen.
+
+Ein Nachlauffeld nennt ausdrücklich seinen Besitzer: **HA-Bestandsautomation** oder
+**PilotSuite-Vergleich**. Nur ausgelesene, eindeutig unterstützte HA-Parameter dürfen
+als direkt editierbar erscheinen. Unbekannte Templates/Blueprints bleiben begründete
+Prüfgrenzen; keine scheinbar wirksame Spiegelkonfiguration.
 
 ## Direkte Einrichtung
 
-Die Einrichtung bietet vier direkte Aufgaben: Anwesenheit/Nachlauf, Lichtquellen,
+Alpha.68 bietet vier direkte Aufgaben: Anwesenheit/Nachlauf, Lichtquellen,
 Entitäten sowie Name/Bereiche. Sie öffnen die vorhandenen Editoren derselben Zone,
 keine zweite Konfiguration. Lichtquellen sind Zuordnungen, keine Schaltknöpfe.
 Offene Entwürfe blockieren auch diese Einstiege; fehlende Bereitschaft wird erklärt.
@@ -52,14 +120,50 @@ Konfiguration, nicht in die Lernwerkbank.
 
 ## Diagnose ohne konkurrierende Wahrheiten
 
-Synthetisches Replay, alter expliziter Schattenvergleich, Strukturprüfung und
-technische IDs gehören unter benannte Details/Werkzeuge. Sie bleiben erreichbar,
+Synthetisches Replay, alter expliziter Schattenvergleich und technische IDs gehören
+unter benannte Diagnose-Details. Strukturprüfung gehört zur betreffenden Automation,
+globale Bereinigung zu Werkzeugen. Alle bestehenden Funktionen bleiben erreichbar,
 starten nicht durch Navigation und überschreiben keinen Live-Status.
 Lichtvorschau ist als Vorschau gekennzeichnet. Der Prüfkompass bleibt Bestandteil
 der Routinewerkbank, keine weitere Startseite.
 
 Habituszonen liefert die Trennung von Übersicht, Bedienung, Status, Konfiguration
 und Diagnose. Seine pauschale Gleichsetzung „nicht on = Ruhe“ wird nicht übernommen.
+Alte Lernhinweise aus der Basis-Einrichtung entfernen, ohne gespeicherte Lernzustände
+zu verändern. Die ausdrücklich benannte Legacy-Werkbank erklärt ihre eigenen noch
+notwendigen Schalter. Kein Lernangebot als vermeintlich notwendiger Einrichtungsschritt.
+
+## Primärquellen und konkrete Entscheidungen
+
+Gezielte Recherche vom 29.09.2026; keine Behauptung eines universell optimalen UI.
+Die folgenden Übertragungen auf PilotSuite sind eigene Designentscheidungen:
+
+- [GOV.UK Aufgabenlisten](https://design-system.service.gov.uk/components/task-list/):
+  erst vereinfachen, dann Aufgaben strukturieren. Daher kurze Einrichtung mit klaren
+  Zuständen; kein langer Pflichtassistent und kein Gesamt-Fortschrittsprozentsatz.
+- [GOV.UK Zusammenfassung vor Bestätigung](https://design-system.service.gov.uk/patterns/check-answers/):
+  Änderungen gezielt korrigieren und vorhandene Eingaben erhalten. Auf unsere
+  revisionsgebundenen Vorher-/Nachherpläne übertragen, nicht als zweiter Speicher.
+- [W3C redundante Eingaben](https://www.w3.org/WAI/WCAG22/Understanding/redundant-entry.html):
+  schon bekannte Angaben wieder anbieten. Vorhandene Zuordnungen bleiben ausgewählt,
+  auch nach Filtern, Validierungsfehlern und Rückkehr zur Bearbeitung.
+- [WAI-ARIA Tabs](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/):
+  Tabs benötigen eigene Tastatur-/Fokussemantik. Unsere Seitenwechsel bleiben normale
+  benannte Navigationslinks mit aria-current; nicht bloß role=tab ergänzen.
+- [HA Entity Registry](https://developers.home-assistant.io/docs/entity_registry_index/):
+  stabile Identität und sichtbarer Name sind verschieden. Bestehende Registry-Schlüssel
+  weiterverwenden, Namen nicht zu Identitäts- oder Eigentumsbeweisen machen.
+- [HA Labels](https://www.home-assistant.io/docs/organizing/labels/):
+  unabhängig vom Ort gruppierbar, aber auch Ausführungsziele. Daher Metadatenänderungen
+  konkret prüfen; UI-Themencluster benötigen keine neuen Labels.
+- [HA Automations-Traces](https://www.home-assistant.io/docs/automation/troubleshooting/):
+  tatsächlicher Pfad ist etwas anderes als „Aktionen ausführen“, das Auslöser und
+  Bedingungen überspringt. Keine Haushalt-Testschaltung als Abnahmekürzel.
+- [HA Timer](https://www.home-assistant.io/integrations/timer/) und
+  [for:-Auslöser](https://www.home-assistant.io/docs/automation/trigger/):
+  idle ist kein Ablaufnachweis; verpasste Timer-Endereignisse werden nicht nachgeholt,
+  for:-Wartezeiten überstehen Neustart/Automationsneuladen nicht. Im Bestandsreview
+  sichtbar machen, nicht durch einen neuen UI-Zeitwert vermeintlich reparieren.
 
 ## Umsetzung im vorhandenen Frontend
 

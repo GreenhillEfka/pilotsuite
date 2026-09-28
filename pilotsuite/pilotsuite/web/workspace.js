@@ -18,8 +18,8 @@
   let prefs=M.preferences(null);try{prefs=M.preferences(JSON.parse(localStorage.getItem('pilotsuite.workspace.v1')||'null'));}catch{}
   let activeView=prefs.view, activeModule='presence', invalid=true, requestBusy=false, generation=0, lastReview=null, lastReplay=null, lastLightingPreview=null, lastLightingDecision=null, presenceScenario='continuous_then_clear', lightingScenario='daylight_transition';
   let cockpitKey='', modulesKey='', roleFilter='all';
-  const titles={cockpit:'Deine Zonen',zone:'Zustand der Zone',config:'Zone einrichten',history:'Verlauf der Zone',workbench:'Werkzeuge',system:'Darstellung & System',all:'Alle Bereiche'};
-  const notes={cockpit:'Zone wählen, Zustand verstehen, bei Bedarf einrichten.',zone:'Eine Präsenzentscheidung mit nachvollziehbaren Gründen. Die Veröffentlichung in Home Assistant bleibt getrennt.',config:'Relevante Quellen und Verhalten festlegen. Änderungen bleiben bis zum Speichern ein Entwurf.',history:'Sitzungsverlauf und historische Messpunkte bleiben getrennt. Du bestimmst den Zeitraum.',workbench:'Bestand ordnen, Belege prüfen und Routinen bearbeiten. Änderungen brauchen eine eigene Bestätigung.',system:'Deine Darstellung ist lokal. Hauskonfiguration und Freigaben bleiben unverändert.',all:'Vollständige Arbeitsansicht ohne Bereichswechsel.'};
+  const titles={cockpit:'Deine Zonen',zone:'Zustand der Zone',config:'Zone einrichten',automations:'Automationen der Zone',history:'Verlauf der Zone',workbench:'Werkzeuge',system:'Darstellung & System',all:'Alle Bereiche'};
+  const notes={cockpit:'Zone wählen, Zustand verstehen, bei Bedarf einrichten.',zone:'Eine Präsenzentscheidung mit nachvollziehbaren Gründen. Die Veröffentlichung in Home Assistant bleibt getrennt.',config:'Relevante Quellen und Verhalten festlegen. Änderungen bleiben bis zum Speichern ein Entwurf.',automations:'Vorhandene Automationen nach Aufgaben zuordnen und prüfen. Die Steuerung bleibt in Home Assistant.',history:'Sitzungsverlauf und historische Messpunkte bleiben getrennt. Du bestimmst den Zeitraum.',workbench:'Übergreifende Prüfungen und vorhandene Lernwerkbank. Zonenautomationen findest du direkt bei der Zone.',system:'Deine Darstellung ist lokal. Hauskonfiguration und Freigaben bleiben unverändert.',all:'Vollständige Arbeitsansicht ohne Bereichswechsel.'};
   const panels=[];
   const mark=(node,view)=>{if(node){node.dataset.psView=view;panels.push(node);}return node;};
   const fieldStatus=E('p','','ps-notice');fieldStatus.id='ps-notice';fieldStatus.setAttribute('role','status');fieldStatus.hidden=true;
@@ -35,7 +35,7 @@
   function savePrefs(){try{localStorage.setItem('pilotsuite.workspace.v1',JSON.stringify(prefs));}catch{announce('Darstellung gilt für diese Sitzung. Browser-Speicherung ist nicht verfügbar.');}}
   function applyPrefs(){const auto=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.psTheme=prefs.theme==='auto'?auto:prefs.theme;document.documentElement.dataset.psDensity=prefs.density;document.documentElement.dataset.psIds=String(prefs.ids);}
   const oldHero=document.querySelector('.hero');
-  document.querySelector('footer').textContent='PilotSuite · Quellen, Beobachtung und Ausführungsrechte bleiben getrennt. Dieses Redesign erweitert keine Freigaben.';
+  document.querySelector('footer').textContent='PilotSuite · Dein Zuhause, nachvollziehbar eingerichtet.';
   $('refresh').classList.add('ps-refresh');document.querySelector('.topbar').append($('refresh'));
   oldHero.querySelector('h2').textContent='Weniger suchen. Mehr verstehen.';
   oldHero.querySelector('.lede').textContent='Deine Habitus-Zonen, nachvollziehbare Quellen und konkrete nächste Schritte. Alles bleibt bei dir.';
@@ -56,9 +56,9 @@
   const zonePanel=$('zone-overview');zonePanel.classList.add('ps-zone-context');
   mark($('zone-edit'),'config');mark($('zone-toggle'),'config');
   const contextDetails=E('details');contextDetails.id='ps-zone-context-details';contextDetails.append(E('summary','Bestand & Auswertung'),$('zone-counts'),$('zone-state-message'));zonePanel.append(contextDetails);
-  const zoneNav=mark(E('nav','','ps-zone-nav'),'cockpit zone config history');zoneNav.setAttribute('aria-label','Zonenansichten');zonePanel.after(zoneNav);
+  const zoneNav=mark(E('nav','','ps-zone-nav'),'cockpit zone config automations history');zoneNav.setAttribute('aria-label','Zonenansichten');zonePanel.after(zoneNav);
   zoneNav.append(A('Zonenliste','#ps-cockpit'));
-  for(const [view,label] of [['zone','Zustand'],['history','Verlauf'],['config','Einrichtung']]){const a=A(label,'#ps-'+view);a.dataset.psNav=view;zoneNav.append(a);}
+  for(const [view,label] of [['zone','Zustand'],['config','Einrichtung'],['automations','Automationen'],['history','Verlauf']]){const a=A(label,'#ps-'+view);a.dataset.psNav=view;zoneNav.append(a);}
   const overview=$('zone-summary');
   const zoneModule=mark(E('section','','panel ps-modules'),'zone');zoneModule.id='ps-zone-modules';zoneModule.setAttribute('aria-label','Zonenmodule');
   const moduleCards=E('div','','ps-module-grid');moduleCards.id='ps-module-grid';
@@ -66,7 +66,7 @@
   zoneModule.append(E('h2','Module & technische Diagnose'),E('p','Quellenaggregate und Vergleiche, nicht der aktuelle Anwesenheitszustand.','ps-muted'),overview,moduleCards,moduleDetail);zoneNav.after(zoneModule);
   const shadowPanel=mark(E('section','','panel ps-shadow-panel'),'zone');shadowPanel.id='ps-shadow-panel';zoneModule.after(shadowPanel);
   const zoneRuntime=mark(E('section','','panel ps-zone-panel'),'zone config history');zoneRuntime.id='ps-zone-presence';zoneNav.after(zoneRuntime);
-  mark(document.querySelector('[aria-labelledby="guide-title"]'),'config');
+  mark(document.querySelector('[aria-labelledby="guide-title"]'),'workbench');
   mark(document.querySelector('[aria-labelledby="daily-brief-title"]'),'cockpit');
   mark(document.querySelector('[aria-labelledby="foundation-title"]'),'zone');
   mark($('zone-setup'),'config');mark($('history-section'),'history');mark($('learning-section'),'workbench');
@@ -81,7 +81,7 @@
   const rolePanel=mark(E('section','','panel ps-role-panel'),'config');rolePanel.id='ps-roles';
   const roleSummary=E('div','','ps-role-summary');roleSummary.id='ps-role-summary';
   const editTools=E('div','','selection-tools');editTools.append($('context-edit'));
-  rolePanel.append(E('h2','Hauptquellen & Lernfreigaben'),E('p','Eine Rollenpflege für alle Module. Suchfilter verändern keine Auswahl.'),roleSummary,editTools,$('context-form'));
+  rolePanel.append(E('h2','Quellen & ergänzende Einstellungen'),E('p','Vorhandene Sensorrollen bearbeiten. Suchfilter verändern keine Auswahl.'),roleSummary,editTools,$('context-form'));
   $('zone-setup').after(rolePanel);
   // Shortcuts delegate to existing editors; opening neither saves nor grants authority.
   const setup=mark(E('section','','panel ps-setup-shortcuts'),'config');setup.id='ps-setup-shortcuts';
@@ -98,10 +98,13 @@
   ]){const button=B('',()=>setupAction(action));button.id='ps-setup-'+id;button.append(E('strong',title),E('span',detail));setupActions.append(button);}
   setup.append(setupActions);zoneNav.after(setup);
   $('zone-setup').querySelector('a[href="#learning-section"]').href='#ps-roles';
-  const organizationPanel=mark(E('section','','panel'),'workbench');
+  const organizationPanel=mark(E('section','','panel'),'automations');
   $('learning-section').before(organizationPanel);
   window.PilotSuiteOrganization?.mount(organizationPanel,async()=>{await loadSelection(selectionZone);});
-  rolePanel.append(A('Bestand und Entitäten mit Werkzeugen ordnen','#ps-organization'));
+  rolePanel.append(A('Bestehende Helfer und Automationen verbinden','#ps-organization'));
+  const automationEntry=mark(E('section','','panel ps-automation-entry'),'workbench');
+  automationEntry.append(E('h2','Automationen & Helfer'),A('Automationen der ausgewählten Zone öffnen','#ps-organization'));
+  $('learning-section').before(automationEntry);
   $('learning-section').prepend(A('Sensorrollen und Lernfreigaben konfigurieren','#ps-roles'));
   // Keep outcomes visible in every view, including form conflicts and learning feedback.
   main.insertBefore($('context-message'),heading.nextSibling);

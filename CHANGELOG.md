@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-alpha.69] - 2026-09-29
+
+- Give each zone its own Automationen destination, grouping explicitly associated
+  presence, lighting and other rules in the existing organization store.
+- Show saved versus draft associations, loaded HA enablement and shared-zone/topic
+  use without copying automations or claiming behavioral review/control ownership.
+- Inspect the selected union in explicit batches of up to eight, deduplicate shared
+  rules and keep unread results visible. Preserve drafts, helpers and legacy links.
+- Move the legacy learning guide out of basic setup; group helper mapping and global
+  inspection under named disclosures. No HA control or learning grant is added.
+- Document the zone-first setup concept and primary-source design rationale in ADR-043.
+
 ## [0.1.0-alpha.68] - 2026-09-28
 
 ### Direkte Wege durch die Einrichtung
