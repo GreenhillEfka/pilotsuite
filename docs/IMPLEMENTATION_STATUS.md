@@ -3,6 +3,13 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.64 candidate: identical operational checkpoints use a revision-bound read
+without a write reservation; changed data still rechecks under the existing write
+transaction. Two original contention tests fail on the baseline and pass with the
+fix. Eight added tests, 625 Python / 75 JS tests and three local browser suites pass.
+Measurement and extra-read tradeoff are recorded in ROADMAP.md. Exact CI and
+installation pending; no household or scheduler change.
+
 Alpha.63 installed after PR #136 and exact candidate/main CI: identical presence-configuration
 saves preserve the durable grace deadline, session/revision and dated output proof,
 without extra configuration writes, evaluation or invalidation calls. All validation,

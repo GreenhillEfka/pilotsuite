@@ -66,8 +66,31 @@ Je 60 synthetischen Tick-/Ansichtszyklen sinken IMMEDIATE-Transaktionen von 180 
 60; alle 60 Checkpoints und 660 Verbindungen bleiben erhalten. Kein Zeitgewinn
 belegt. Messbefehl: `PYTHONPATH=pilotsuite python scripts/benchmark_zone_presence.py`.
 Checkpoint-Zeitstempel sind wegen Uhr-Rücksprungschutz nicht einfach entfernbar.
-Schreibdeduplizierung und Scheduler-Vereinfachung sind weiterhin offen und benötigen
-eigene Messungen und Regressionen; der kleine Lesepfad behebt keine dieser Aufgaben.
+Der Bootstrap-Lesepfad allein behebt weder Checkpoint-Sperren noch Scheduler-Dopplung.
+
+Alpha.64 ergänzt einen gemessenen, engen Checkpoint-Lesepfad: exakt identischer
+Inhalt und passende Zone/Revision benötigen keine Schreibreservierung. Bei Änderungen
+werden Revision und Wert nach Sperrerwerb erneut geprüft. Kein Prozess-Cache, keine
+entfernten Zeitstempel oder verzögerten Pflichtschreibvorgänge. Lieferung und
+Haushaltsabnahme separat im Release-Receipt.
+
+Vergleich desselben erweiterten Messskripts vor/nach dem Fix, je 60 Ein-Zonen-Zyklen:
+
+| Szenario | IMMEDIATE vorher → nachher | Checkpoint-Writes | SELECT vorher → nachher |
+|---|---:|---:|---:|
+| Belegt | 60 → 60 | 60 → 60 | 1140 → 1200 |
+| Frei | 60 → 60 | 60 → 60 | 1140 → 1200 |
+| Unklar | 60 → 60 | 60 → 60 | 1140 → 1200 |
+| Quellenbasis dauerhaft ausgesetzt | 60 → 0 | 0 → 0 | 1140 → 900 |
+
+Alle vier Entscheidungsverlauf-Hashes stimmen überein; je Szenario weiterhin 660
+Verbindungen, keine Historien-/HA-Ausgabeaufrufe. Instrumentierte Medianzeiten liegen
+vorher bei 2,269–2,542 ms und nachher bei 2,281–2,611 ms: kein belegter Zeitgewinn.
+Die zusätzliche Abfrage im normalen Schreibfall ist ein ausdrücklicher Tradeoff
+für den sperrfreien identischen Fall. Keine Aussage über Haushaltslast oder
+Renderzyklen; Frontend, Historienplaner und Scheduler bleiben unverändert.
+Weitergehende Schreibbündelung und Scheduler-Vereinfachung bleiben offen und
+benötigen eigene Messungen und Regressionen.
 
 Alpha.59, implementiert/getestet/installiert, konsolidiert Zeitparser und Snapshot-Frischeprüfung in bestehenden
 Besitzern. Rote Tests belegen falsche Bereitschaft und Legacy-Belege bei zukünftiger

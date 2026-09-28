@@ -1,5 +1,17 @@
 # Current state — Alpha.63 installed; household acceptance pending
 
+## Alpha.64 candidate — checkpoint contention
+
+Branch `fix/presence-checkpoint-contention` fixes a reproduced SQLite lock error
+for identical operational checkpoints. A single read joins zone/revision/value;
+changed writes still recheck transactionally. Eight added tests and the full
+625 Python / 75 JS suites pass; three local synthetic browser suites pass.
+The extended existing benchmark preserves all four decision-trace hashes: suspended
+repeats use 0 instead of 60 write reservations per 60 cycles; actual writes stay 0.
+Occupied/vacant/unknown retain 60 writes/reservations and add 60 SELECTs. No overall
+speed gain, timestamp removal or scheduler change. Exact CI/delivery pending;
+installed Alpha.63 remains the separate receipt below.
+
 ## Verified delivery
 
 PR #136 merged as `3779b630985bdedeb0402343dd153acda77974b0`.

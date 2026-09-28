@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.0-alpha.64] - 2026-09-28
+
+### Identische Betriebszwischenstände ohne unnötige Schreibsperre
+- Der vorhandene SQLite-Speicher prüft Zone, Revision und identischen Inhalt in
+  einem konsistenten Lesezugriff. Wiederholungen benötigen keine Schreibreservierung;
+  echte Änderungen prüfen nach Sperrerwerb erneut und bleiben vollständig dauerhaft.
+- Reproduzierter Sperrfehler bei identischen Zwischenständen behoben. Acht neue
+  Tests prüfen Konkurrenz, alte Revisionen, Wiederanlauf, Rollback, vier erhaltene
+  Zonen und nachvollziehbare Aussetzung bei geänderter Quellenidentität.
+- Synthetisch: 60 unveränderte ausgesetzte Zyklen benötigen 0 statt 60
+  Schreibreservierungen bei unverändert 0 Checkpoint-Schreibvorgängen. Normale
+  Zeitfortschritte behalten alle Schreibvorgänge und benötigen eine zusätzliche
+  Leseprüfung. Gleiche Entscheidungsverläufe; kein allgemeiner Geschwindigkeitsgewinn.
+- Keine Zeitstempel entfernt, Fristen verlängert, Sperren aufgehoben, Scheduler
+  ersetzt oder Haushaltsfreigaben erweitert.
+
 ## [0.1.0-alpha.63] - 2026-09-28
 
 ### Unverändertes Speichern erhält laufende Präsenz
