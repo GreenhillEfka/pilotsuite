@@ -1,5 +1,20 @@
 # Current state — Alpha.62 installed; household acceptance pending
 
+## Alpha.63 candidate — manual continuation
+
+Branch `fix/presence-config-noop` fixes two reproduced failures: identical saves
+lost the durable grace deadline and added an owned-output invalidation call.
+Five added Python tests cover no-op retries/restart, output proof preservation,
+stale/disconnected evidence, genuine changes/recovery and validation. Synthetic
+full-app browser checks cover unchanged compare/publish forms and four preserved
+zones. Installation is still Alpha.62; candidate/main CI and delivery are pending.
+Local verification: 617 Python tests (repeat audit: zero ResourceWarnings), 75 JS
+tests, 62 API contracts, discovery and compilation pass. Fresh scoped backup
+`7e502760` at 14:02:19 UTC verified exactly Alpha.62 app/data/options, 54,466,560 bytes,
+no HA/database/folders/failures, local and unprotected, before publication.
+The later one-hour run also ended with its heartbeat paused; this is a subsequent
+explicit manual continuation, not a reopened time window.
+
 ## Verified delivery
 
 PR #134 merged as `3059b0ab1516cb8671897f4db79ec41a309e786b`.

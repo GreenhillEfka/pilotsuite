@@ -3,6 +3,26 @@
   "verified_date": "2026-09-28",
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
+  "candidate": {
+    "version": "0.1.0-alpha.63",
+    "branch": "fix/presence-config-noop",
+    "status": "local regressions passed; exact PR/main CI and installation pending",
+    "change": "Identical validated presence saves preserve session/revision/deadline and dated publication proof; real changes and suspension recovery still reconfigure.",
+    "local_python_passed": 617,
+    "local_javascript_passed": 75,
+    "api_contracts": 62,
+    "resource_warnings": 0,
+    "prepublication_backup": {
+      "backup_id": "7e502760",
+      "date": "2026-09-28T14:02:19.653887+00:00",
+      "size_bytes": 54466560,
+      "app_version": "0.1.0-alpha.62",
+      "exact_app_only": true,
+      "no_homeassistant_database_folders_or_failures": true,
+      "protected": false,
+      "verification": "native snapshot list and backup/details; no extraction or restore drill"
+    }
+  },
   "release": {
     "version": "0.1.0-alpha.62",
     "commit": "3059b0ab1516cb8671897f4db79ec41a309e786b",

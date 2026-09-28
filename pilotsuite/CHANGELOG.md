@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.0-alpha.63] - 2026-09-28
+
+### Unverändertes Speichern erhält laufende Präsenz
+- Identische bestätigte Konfiguration erhält Sitzung, Revision und Nachlauffrist;
+  kein erneuter Konfigurationsschreibvorgang oder zusätzlicher Auswertungslauf.
+- Eigene Ausgänge werden dabei nicht unnötig ungültig gesetzt. Der bestehende
+  Rücklesenachweis behält sein Datum; veraltete oder getrennte Daten bleiben unklar.
+- Echte Modus-/Zeit-/Quellenänderungen und bewusste Wiederaufnahme nach einer
+  Auswertungssperre behalten die vollständige Prüfung und neue Sitzung.
+- Fünf zusätzliche Python-Regressionen mit SQLite/HTTP/Wiederanlauf und erweiterte
+  synthetische Browserabläufe prüfen beide Betriebsarten. Keine HA-Konfiguration,
+  neue Schaltfreigabe, Migration oder behauptete Laufzeitbeschleunigung.
+
 ## [0.1.0-alpha.62] - 2026-09-28
 
 ### Veralteten Bearbeitungshinweis gezielt zurücknehmen
