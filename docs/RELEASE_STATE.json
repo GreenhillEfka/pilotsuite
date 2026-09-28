@@ -3,54 +3,34 @@
   "verified_date": "2026-09-28",
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
-  "candidate": {
-    "version": "0.1.0-alpha.63",
-    "branch": "fix/presence-config-noop",
-    "status": "local regressions passed; exact PR/main CI and installation pending",
-    "change": "Identical validated presence saves preserve session/revision/deadline and dated publication proof; real changes and suspension recovery still reconfigure.",
-    "local_python_passed": 617,
-    "local_javascript_passed": 75,
-    "api_contracts": 62,
-    "resource_warnings": 0,
-    "prepublication_backup": {
-      "backup_id": "7e502760",
-      "date": "2026-09-28T14:02:19.653887+00:00",
-      "size_bytes": 54466560,
-      "app_version": "0.1.0-alpha.62",
-      "exact_app_only": true,
-      "no_homeassistant_database_folders_or_failures": true,
-      "protected": false,
-      "verification": "native snapshot list and backup/details; no extraction or restore drill"
-    }
-  },
   "release": {
-    "version": "0.1.0-alpha.62",
-    "commit": "3059b0ab1516cb8671897f4db79ec41a309e786b",
-    "tree": "f415c7e2ba08c119c3d7f83bd36679cc16de9522",
-    "app_tree": "96d25705ce7a9f3141dc1e0da73d1068468a9d8f",
-    "pull_request": 134,
-    "candidate_commit": "a0c2761ab9cf9cc20701a68781f1b71f65a71470",
-    "candidate_ci_run_id": 36417973638,
-    "ci_run_id": 36418159721,
+    "version": "0.1.0-alpha.63",
+    "commit": "3779b630985bdedeb0402343dd153acda77974b0",
+    "tree": "2ef439775e2b8bc45c8dd941a4fc740493db4150",
+    "app_tree": "ae8f1051f41ea7e4d7d11d76494fd25b9f055c45",
+    "pull_request": 136,
+    "candidate_commit": "1eccd307966635f330b74c94d91e61d92a811868",
+    "candidate_ci_run_id": 36433388018,
+    "ci_run_id": 36433797302,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.62",
-    "commit": "3059b0ab1516cb8671897f4db79ec41a309e786b",
-    "tree": "f415c7e2ba08c119c3d7f83bd36679cc16de9522",
-    "app_tree": "96d25705ce7a9f3141dc1e0da73d1068468a9d8f",
-    "pull_request": 134,
-    "candidate_commit": "a0c2761ab9cf9cc20701a68781f1b71f65a71470",
-    "candidate_ci_run_id": 36417973638,
-    "ci_run_id": 36418159721,
+    "version": "0.1.0-alpha.63",
+    "commit": "3779b630985bdedeb0402343dd153acda77974b0",
+    "tree": "2ef439775e2b8bc45c8dd941a4fc740493db4150",
+    "app_tree": "ae8f1051f41ea7e4d7d11d76494fd25b9f055c45",
+    "pull_request": 136,
+    "candidate_commit": "1eccd307966635f330b74c94d91e61d92a811868",
+    "candidate_ci_run_id": 36433388018,
+    "ci_run_id": 36433797302,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "6828ab75",
-    "name": "PilotSuite alpha.61 before alpha.62",
-    "date": "2026-09-28T11:46:35.642548+00:00",
-    "size_bytes": 54476800,
-    "app_version": "0.1.0-alpha.61",
+    "backup_id": "7e502760",
+    "name": "PilotSuite alpha.62 before alpha.63",
+    "date": "2026-09-28T14:02:19.653887+00:00",
+    "size_bytes": 54466560,
+    "app_version": "0.1.0-alpha.62",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -75,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.62",
-    "offered_version": "0.1.0-alpha.62",
-    "previous_version": "0.1.0-alpha.61",
+    "installed_version": "0.1.0-alpha.63",
+    "offered_version": "0.1.0-alpha.63",
+    "previous_version": "0.1.0-alpha.62",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -94,10 +74,10 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-28T13:54:17Z",
+    "startup_log_timestamp": "2026-09-28T16:13:24Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-28T13:54:19Z",
-      "2026-09-28T13:57:21Z"
+      "2026-09-28T16:13:25Z",
+      "2026-09-28T16:15:27Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -116,7 +96,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 612,
+    "local_python_passed": 617,
     "local_javascript_passed": 75,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -124,12 +104,12 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Original red/green full-app browser case: closed presence editor and dirty=false retained the global edit guard after save. Extended deterministic save/reload gates, failed save retains draft, discard, another draft, unrelated same-word error, read-only history close and pending existing-control review. No new Python/JS unit methods; 612/75 existing tests remain green.",
+    "regressions": "Two red SQLite/HTTP regressions reproduced lost grace deadline (1790500032 to null) and extra output invalidation (5 to 6 mocked calls) on identical saves. Five added Python methods cover repeated saves, restart/deadline expiry, dated publication proof, stale/disconnected evidence, real changes/suspension recovery and invalid requests. Extended full-app browser verifies unchanged compare/publish form saves.",
     "local_browser_suites": 3,
-    "final_resource_warning_audit": "612 tests repeated on the identical application source with ResourceWarning capture and gc.collect(); zero resource warnings."
+    "final_resource_warning_audit": "617 tests repeated on exact release-main source with ResourceWarning capture and gc.collect(); zero resource warnings."
   },
   "ui_review": {
-    "synthetic_browser": "Expanded full-app zone flow tests edit-guard lifecycle without polling or automatic navigation. Existing-control integration, all four synthetic zones, histories, output package, ontology and themes/390/768/1440 widths retained. Local zone/workspace/Organization suites passed; post-save desktop and mobile screenshots inspected. All 11 browser suites passed exact candidate/main CI. Not household acceptance.",
+    "synthetic_browser": "Unchanged compare/publish form saves preserve revision, grace deadline and dated proof without extra mocked output writes. Existing-control binding/review, four synthetic zones, roles/consents and organization retained. Local zone/workspace/Organization suites passed; desktop and mobile screenshots inspected. All 11 browser suites passed exact candidate/main CI. No UI assets changed; not household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false
@@ -143,22 +123,22 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "All four options unchanged; no schema/configuration migration or presence logic change, startup ready. Synthetic tests preserve all four zone definitions, roles, learning consent, organization bindings and zero HA helper/output/metadata calls in notice segment. Authenticated observation of all four saved zones and household bindings remains pending."
+    "independent_data_preservation": "All four options unchanged; no schema/configuration migration, startup ready. Synthetic unchanged-save segment preserves all four zone definitions, roles, learning consent and organization bindings; no helper/output/metadata calls. Authenticated observation of all four saved zones and household bindings remains pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "6e1cf864e20ec000c65b03e56eb6b9aa4dde1c3f:docs/RELEASE_STATE.json",
-    "integrated_pr": 134,
-    "integrated_commit": "3059b0ab1516cb8671897f4db79ec41a309e786b"
+    "previous_receipt_at": "1719ee11dd92b2a73ca5149cd458fae7f9e56c29:docs/RELEASE_STATE.json",
+    "integrated_pr": 136,
+    "integrated_commit": "3779b630985bdedeb0402343dd153acda77974b0"
   },
-  "next_step": "Read-only authenticated household Ingress acceptance of all four saved zones, Erdkellerbereich and one unlike zone. Review the existing-control path, explicitly choose intended Boolean/timer/public-sensor bindings, then observe without test switching. No household mapping was applied. Runtime/checkpoint consolidation remains separate and measurement-led. Closed bounded-run heartbeat remains paused.",
+  "next_step": "Read-only authenticated household Ingress acceptance of all four saved zones, Erdkellerbereich and one unlike zone. Review existing-control integration, explicitly choose intended Boolean/timer/public-sensor bindings, then observe without test switching. No household mapping was applied. Runtime/checkpoint consolidation remains separate and measurement-led. Both bounded time windows ended; heartbeat remains paused.",
   "runtime_measurement": {
-    "scope": "No performance improvement claimed or scheduler/checkpoint change in Alpha.62. Notice cleanup reuses canonical render/completion hooks, adds no poller and changes no presence evaluation.",
+    "scope": "Identical validated save skips configuration-store write, extra all-zone evaluation and package invalidation; proven by regression call counters and durable state equality. No overall speed/household-load improvement claimed; periodic checkpoint policy and scheduler unchanged.",
     "previous_evidence": "b3aa7966b9df146bc1bca61c0e844f279e6b7884:docs/RELEASE_STATE.json",
     "ha_config_read_policy": "Zone GET projects existing in-memory states only; structural automation configs are fetched only on explicit review. Synthetic binding/review segment has zero HA output/helper/metadata calls."
   },
   "workflow": {
-    "kind": "manual_follow_up_after_closed_three_hour_run",
+    "kind": "manual_continuation_after_closed_one_hour_run",
     "heartbeat": "remains_paused",
     "requested_authority": "existing_automations_remain_controllers",
     "household_binding_changed": false

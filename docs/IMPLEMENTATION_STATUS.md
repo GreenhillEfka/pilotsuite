@@ -1,13 +1,17 @@
-# PilotSuite capability ledger — Alpha.62 installed
+# PilotSuite capability ledger — Alpha.63 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.63 candidate on `fix/presence-config-noop`: identical presence-configuration
+Alpha.63 installed after PR #136 and exact candidate/main CI: identical presence-configuration
 saves preserve the durable grace deadline, session/revision and dated output proof,
 without extra configuration writes, evaluation or invalidation calls. All validation,
 real changes and explicit suspension recovery remain active. Five added Python tests
-and the extended synthetic browser flow pass; exact CI and installation are pending.
+and the extended synthetic browser flow pass: 617 Python / 75 JS / 62 contracts,
+zero ResourceWarnings on exact release-main. All five CI jobs passed, including 11
+browser suites. Scoped backup, installation, readiness and unchanged options are
+verified in RELEASE_STATE.json. No household mapping/automation/output activation;
+authenticated household acceptance remains pending.
 
 Alpha.62 installed after PR #134 and exact candidate/main CI: obsolete presence-editor
 navigation guards clear on completion,
@@ -95,8 +99,9 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
 | Presence editor guard lifecycle | Alpha.62 implemented, tested and installed; settled guards clear without erasing other drafts or unrelated notices; household acceptance pending |
-| Live runtime | Alpha.62 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | No automatic zone/schema migration in Alpha.55–62; not independently read back in an authenticated Ingress session after the update |
+| Identical presence-configuration saves | Alpha.63 implemented, tested and installed; session/deadline/proof retained without redundant configuration writes or invalidation; suspension recovery unchanged |
+| Live runtime | Alpha.63 started, ready, stream connected, snapshot fresh and zone resolved |
+| Four saved PilotSuite zones | No automatic zone/schema migration in Alpha.55–63; not independently read back in an authenticated Ingress session after the update |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded

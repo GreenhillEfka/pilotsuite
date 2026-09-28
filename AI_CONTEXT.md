@@ -33,4 +33,5 @@ The manual follow-up after the closed three-hour run prioritizes existing presen
 integration: existing HA automations remain the controllers. Bind their Boolean,
 timer and public presence sensor through the existing organization profile and
 compare PilotSuite's independent assessment. No takeover or activation is implied.
-The bounded-run heartbeat remains paused; this request does not extend its window.
+The three-hour and subsequent one-hour windows are closed; their reused heartbeat
+remains paused. Later explicit manual continuations do not reopen either window.
