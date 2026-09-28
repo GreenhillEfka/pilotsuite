@@ -1,93 +1,68 @@
-# Current state — Alpha.62 candidate; Alpha.61 installed
-
-## Active focused follow-up
-
-Alpha.62 fixes the reproduced stale workspace edit guard after presence save/cancel.
-Guard ownership is explicit; only a guard with no remaining dirty/busy owner is
-cleared. Canonical render hooks and presence completion callbacks are reused; no
-new polling, automatic navigation, presence logic or HA write authority.
-
-Red/green full-app regression and extended save/reload gates, failed save, discard,
-other draft, unrelated error, history close and pending read-only review pass.
-612 Python / 75 JS / 62 contracts and local zone/workspace/Organization browser suites
-pass; repeated Python audit has zero ResourceWarnings. Fresh PilotSuite-only backup
-`6828ab75` was verified through native metadata: Alpha.61, 54,476,800 bytes, no
-HA/database/folders/failures, local/unprotected. Release CI and installation remain
-pending; the receipt below still describes installed Alpha.61. Authenticated household
-Ingress remains unavailable.
-The duplicate existing-control decision is renumbered ADR-043; ADR-042 stays intact.
+# Current state — Alpha.62 installed; household acceptance pending
 
 ## Verified delivery
 
-PR #132 merged as `14f6cc659ccb5f5ddad7a77453d0038b5b29f8e2`.
-Exact candidate CI `36397807655` and release-main CI `36398080000` passed
+PR #134 merged as `3059b0ab1516cb8671897f4db79ec41a309e786b`.
+Exact candidate CI `36417973638` and release-main CI `36418159721` passed
 all five jobs: tests, 11 browser suites, amd64 container, reproducible checkout
-and disposable Home Assistant protocol. The app tree is
-`a1217ccb99f08c9bdddacd1d5e701c564e9a9bfa`; local and connector trees matched.
+and disposable Home Assistant protocol. App tree:
+`96d25705ce7a9f3141dc1e0da73d1068468a9d8f`; local and connector trees matched.
 
-Native PilotSuite-only backup `16b918fa` completed at 08:26:52 UTC and was
-verified before publication: exactly Alpha.60 app/data/options, 54,456,320 bytes,
-no HA/database/folders/failures, local and unprotected. No extraction or restore drill.
-One Store refresh and one targeted update installed Alpha.61. HA-MCP confirms
-installed/offered/started, all four options unchanged. Startup remains
-`presence_adoption_review`, ready, connected, snapshot-fresh and zone-resolved.
-Raw log times are recorded without independent clock attestation.
+Fresh PilotSuite-only backup `6828ab75` completed at 11:46:35 UTC, before
+publication: exactly Alpha.61 app/data/options, 54,476,800 bytes, no HA/database/
+folders/failures, local and unprotected. Native list and backup/details verified
+metadata; no archive extraction or restore drill.
+
+One native Store refresh and one targeted update installed Alpha.62.
+HA-MCP confirms installed/offered/started, all four options unchanged. Startup
+remains `presence_adoption_review`, ready, connected, snapshot-fresh and zone-resolved.
+Raw log timestamps are copied without independent clock attestation.
 Full evidence: [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
 
-## What Alpha.61 changes
+## What Alpha.62 changes
 
-The user chose existing-control integration, not takeover. Existing HA automations
-remain the writers of their existing Boolean/timer/public presence sensor.
+The reproduced stale “Bearbeitung läuft” notice no longer remains after the presence
+editor successfully saves/reloads or discards its draft. Guard ownership is explicit:
+only a guard with no dirty/busy owner is cleared. Pending requests, failed saves,
+other drafts and unrelated error/context notices are preserved. History close and
+explicit read-only review completion also settle their guards. No automatic navigation,
+new poller, store, presence-evaluation change or HA write authority.
 
-- Primary zone view → **Vorhandenen Bestand verbinden** → existing Organization
-  editor; one canonical saved profile, now including the public occupancy/presence
-  sensor. Missing chain parts remain explicit; no automatic helper creation.
-- Zone view shows observed owner/timer/sensor, actual reported timer deadline,
-  comparison against independent PilotSuite assessment and Boolean/public mismatch.
-  Unknown, stale, changed identity or semantics never imply off. Idle is not vacancy.
-- Explicit structural review finds status/timer writers, trigger/condition consumers,
-  mixed logic and selected unmatched automations. Limited coverage, dated result,
-  no automatic configuration polling, no rewriting or activation.
-- Bidirectional save/runtime guards prevent outputs becoming their own evidence.
-  PilotSuite timing never changes existing household timer/automation timing.
-
+The duplicate existing-control decision is now ADR-043; ADR-042 is unchanged.
 No household binding, helper, metadata, automation, output activation or consent
-was changed. No new engine/store, automatic migration, test switching or weaker
-Ingress/authentication. AGENTS.md remains unchanged and untracked.
+was changed. AGENTS.md remains unchanged and untracked; Ingress/authentication intact.
 
 ## Test evidence
 
-612 Python tests, 75 JS tests, 62 API contracts, discovery and compilation pass.
-Sixteen new Python methods plus one JS test cover the new path and red/green defects:
-omitted consumers, mixed writer, later source feedback, entity-refresh false writer,
-and changed public-sensor semantics. Exact-source repeat with ResourceWarning capture
-and garbage collection reports zero resource warnings.
+612 Python tests, 75 JS tests, 62 API contracts, discovery, syntax and compilation pass.
+Repeat ResourceWarning audit: 612 tests, zero warnings. The original full-app test
+failed before the fix and now passes; added deterministic save/reload gates, failed
+save, discard, other draft, unrelated same-word error, history close and pending
+read-only review checks also pass.
 
-Local full-app zone and Organization Chromium suites pass. The new chain-binding/
-review segment makes zero HA helper/output/metadata calls; all four synthetic zones,
-saved roles/consents and existing workflows remain intact. Screenshots were inspected
-on desktop/mobile; all 11 suites passed exact candidate and main CI. These are not
-household acceptance. No performance improvement or scheduler/checkpoint change claimed.
+Local zone, workspace and Organization Chromium suites pass. Existing-control flow,
+all four synthetic zones, saved roles/consents and other workflows are retained.
+Post-save desktop and mobile screenshots inspected; all 11 browser suites passed exact
+candidate and main CI. These are not household acceptance. No performance gain claimed.
 
 ## Next task and remaining boundaries
 
-When an authorized authenticated household Ingress session is available, first read
-all four saved zones, Erdkellerbereich and one unlike zone without changing anything.
-Then explicitly choose the intended existing Boolean/timer/public sensor bindings
-and observe actual comparisons without test switching. This release did not guess
-or apply household mappings. Existing automations stay in control; a public sensor
-was not automatically generated for the existing chain.
+With an authorized authenticated household Ingress session, first read all four
+saved zones, Erdkellerbereich and one unlike zone without changing anything.
+Then explicitly choose intended existing Boolean/timer/public sensor bindings and
+observe actual comparisons without test switching. No mappings were guessed/applied.
 
-The earlier stale “Bearbeitung läuft” notice is fixed in the active candidate above,
-not yet installed. Scheduler/checkpoint
-consolidation, automation takeover, technical ID migration and adaptive learning
-remain separate work.
+Alpha.61's existing-control path remains: **Vorhandenen Bestand verbinden** reuses the
+canonical Organization editor. Existing HA automations remain controllers of their
+Boolean/timer/public sensor; PilotSuite only reads and compares. Unknown never means
+vacant. No public sensor was automatically generated for that existing chain.
+Scheduler/checkpoint consolidation requires separate baseline measurements and
+regressions. Automation takeover, technical ID migration and adaptive learning remain open.
 
-## Closed bounded run
+## Closed bounded run and history
 
-The earlier three-hour run delivered Alpha.56–60 (PRs #121/#123/#125/#127/#129,
-receipts #122/#124/#126/#128/#130, final audit #131). Detailed historical results and
-measurements are retained at
+The three-hour run ended before 08:01:44 UTC with its heartbeat paused.
+Alpha.61/62 are subsequent explicit manual requests, not an extended overnight job.
+Alpha.61 receipt/history: `6e1cf864e20ec000c65b03e56eb6b9aa4dde1c3f:CURRENT_STATE.md`.
+Alpha.56–60 detailed results/measurements:
 `b3aa7966b9df146bc1bca61c0e844f279e6b7884:CURRENT_STATE.md`.
-It ended before 08:01:44 UTC with its heartbeat paused. Alpha.61 is the subsequent
-explicit manual implementation request, not a resumed or extended overnight job.

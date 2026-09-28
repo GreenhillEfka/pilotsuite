@@ -1,13 +1,16 @@
-# PilotSuite capability ledger — Alpha.61 installed
+# PilotSuite capability ledger — Alpha.62 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.62 candidate: obsolete presence-editor navigation guards clear on completion,
+Alpha.62 installed after PR #134 and exact candidate/main CI: obsolete presence-editor
+navigation guards clear on completion,
 without clearing unrelated notices or other dirty/busy owners. The original failure
 and extended lifecycle guards pass full-app synthetic regression; 612 Python / 75 JS /
-62 contracts and local zone/workspace/Organization browser suites pass. Not yet installed; no new
-household capability, polling or presence-evaluation change.
+62 contracts and local zone/workspace/Organization browser suites pass. All five CI
+jobs passed, including all 11 browser suites. Scoped backup, installation, readiness
+and unchanged options verified in RELEASE_STATE.json. No new household capability,
+polling or presence-evaluation change; household acceptance remains open.
 
 Alpha.61 implements existing-control integration: canonical saved Boolean,
 timer and public sensor bindings, observed comparison in the primary zone view,
@@ -15,9 +18,10 @@ explicit writer/consumer structural review. Existing HA automations remain owner
 no new controller/store, helper creation or automatic consumer migration. Local
 unit and synthetic full-app tests pass: 612 Python / 75 JS / 62 contracts, zero
 ResourceWarnings on the exact source. PR #132 and exact candidate/main CI passed
-all five jobs. Scoped backup, Alpha.61 installation and unchanged options/startup
-are verified in RELEASE_STATE.json. Household mapping and Ingress acceptance remain
-open; existing automations were not changed. Earlier deliveries are history below.
+all five jobs. Alpha.61 delivery evidence is retained at
+`6e1cf864e20ec000c65b03e56eb6b9aa4dde1c3f:docs/RELEASE_STATE.json`.
+Household mapping and Ingress acceptance remain open; existing automations were not
+changed. Earlier deliveries are history below.
 
 Alpha.60 installed after PR #129 and exact candidate/main CI: dated publication evidence survives unchanged throttled ticks
 without additional HA calls, and is withheld on stale/changed/unknown/conflicting
@@ -84,8 +88,9 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Dated publication evidence | Alpha.60 installed; unchanged ticks preserve the last readback date for less than 20 seconds only on a still-matching valid basis; GET never renews it |
 | Adaptive habit learning | Not implemented |
 | Automated browser acceptance | Exact candidate and main source passed complete Chromium flow |
-| Live runtime | Alpha.61 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | No automatic zone/schema migration in Alpha.55–61; not independently read back in an authenticated Ingress session after the update |
+| Presence editor guard lifecycle | Alpha.62 implemented, tested and installed; settled guards clear without erasing other drafts or unrelated notices; household acceptance pending |
+| Live runtime | Alpha.62 started, ready, stream connected, snapshot fresh and zone resolved |
+| Four saved PilotSuite zones | No automatic zone/schema migration in Alpha.55–62; not independently read back in an authenticated Ingress session after the update |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded
