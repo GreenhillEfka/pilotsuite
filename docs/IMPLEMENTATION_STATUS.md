@@ -3,6 +3,12 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.63 candidate on `fix/presence-config-noop`: identical presence-configuration
+saves preserve the durable grace deadline, session/revision and dated output proof,
+without extra configuration writes, evaluation or invalidation calls. All validation,
+real changes and explicit suspension recovery remain active. Five added Python tests
+and the extended synthetic browser flow pass; exact CI and installation are pending.
+
 Alpha.62 installed after PR #134 and exact candidate/main CI: obsolete presence-editor
 navigation guards clear on completion,
 without clearing unrelated notices or other dirty/busy owners. The original failure

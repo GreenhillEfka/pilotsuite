@@ -88,6 +88,20 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(await page.evaluate(()=>location.hash),guardedHash,'completion never resumes blocked navigation');
   if(out)await page.screenshot({path:path.join(out,'zone-edit-complete-desktop.png'),fullPage:true});
   assert.equal((await command({action:'snapshot'})).mode,'compare');console.log('ok 1 - relevance-based presence, typed configuration, no extra grant, dirty guard');
+  await command({action:'tick',values:{'binary_sensor.demo_presence':'off'}});await refreshPresence();
+  await page.waitForFunction(()=>document.querySelector('#ps-presence-state strong')?.textContent==='Nachlauf');
+  const grace=await command({action:'snapshot'});assert.equal(grace.view.current.state,'grace');
+  await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
+  await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
+  await page.locator('#ps-zone-form').waitFor({state:'hidden'});
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  const sameGrace=await command({action:'snapshot'});
+  assert.equal(sameGrace.view.revision,grace.view.revision,'unchanged form save keeps revision');
+  assert.deepEqual(sameGrace.view.current,grace.view.current,'unchanged form save preserves the running deadline and evidence');
+  for(const key of ['zones','roles','learning','organization','helper_creates','output_calls','metadata_calls'])assert.deepEqual(sameGrace[key],grace[key],key+' unchanged by identical save');
+  await command({action:'tick',values:{'binary_sensor.demo_presence':'on'}});await refreshPresence();
+  await page.waitForFunction(()=>document.querySelector('#ps-presence-state strong')?.textContent==='Belegt');
+  console.log('ok 1c - unchanged form save retains running grace, revision and all four zones; zero HA writes');
   const beforeNotices=await command({action:'snapshot'});
   await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
   await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
@@ -196,6 +210,15 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   const published=await command({action:'publish'});assert.equal(published.view.publication,'verified');
   const checkedAt=published.view.publication_checked_at;assert.equal(typeof checkedAt,'number');
   await refreshPresence();await page.getByText('Zuletzt bestätigt',{exact:true}).waitFor();
+  await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
+  await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
+  await page.locator('#ps-zone-form').waitFor({state:'hidden'});
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  const samePublished=await command({action:'snapshot'});
+  assert.equal(samePublished.view.revision,published.view.revision);
+  assert.equal(samePublished.view.publication,'verified');
+  assert.equal(samePublished.view.publication_checked_at,checkedAt,'identical save does not renew readback evidence');
+  assert.equal(samePublished.output_calls,published.output_calls,'identical save does not invalidate output');
   const proofHint=await page.locator('#ps-presence-publication small').textContent();assert.match(proofHint,/Rückleseprüfung:/);
   for(let i=0;i<3;i++){
    await command({action:'tick',seconds:5});const unchanged=await command({action:'publish'});

@@ -94,14 +94,26 @@ class ZonePresenceServiceMixin:
                 previous=cfg.get(KEY) or {};package=previous.get('package')
                 if payload['mode']=='publish' and not package:
                     raise InvalidSelection('Zuerst ein geprüftes eigenes Ausgangspaket bereitstellen')
+                basis=kernel.source_basis(spec,catalog)
+                unchanged=(previous.get('schema')==kernel.SCHEMA and
+                    isinstance(previous.get('session'),str) and bool(previous['session']) and
+                    previous.get('spec')==spec and previous.get('mode')==payload['mode'] and
+                    previous.get('basis')==basis and
+                    not any(key in cfg for key in ('presence_shadow','presence_lifecycle','shadow_lighting')))
+                if unchanged:
+                    state=await self.context.zone_operational(zid)
+                    # Explicit reconfiguration remains the recovery path for a suspended
+                    # evaluator or publisher. An ordinary retry must not reset its clock.
+                    unchanged=not (state.get('suspended') or state.get('output_suspended'))
                 # Existing output packages may have acquired external consumers. This
                 # does not entitle the runtime to disable or rewrite those consumers.
-                record={'schema':kernel.SCHEMA,'spec':spec,'mode':payload['mode'],'session':uuid.uuid4().hex,
-                        'basis':kernel.source_basis(spec,catalog),'package':package}
-                await self.context.save_zone_presence(zid,inv['revision'],record)
-                self._zone_views.pop(zid,None);self._zone_last_published.pop(zid,None)
-                await self._zone_presence_tick_locked()
-            if package:
+                if not unchanged:
+                    record={'schema':kernel.SCHEMA,'spec':spec,'mode':payload['mode'],'session':uuid.uuid4().hex,
+                            'basis':basis,'package':package}
+                    await self.context.save_zone_presence(zid,inv['revision'],record)
+                    self._zone_views.pop(zid,None);self._zone_last_published.pop(zid,None)
+                    await self._zone_presence_tick_locked()
+            if package and not unchanged:
                 await self._zone_invalidate_package(package)
         return await self.zone_presence_view(zid)
 

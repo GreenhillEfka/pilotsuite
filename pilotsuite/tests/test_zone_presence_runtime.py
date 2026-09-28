@@ -65,6 +65,126 @@ class ZonePresenceRuntimeTests(unittest.IsolatedAsyncioTestCase):
             await self.service._zone_presence_tick_locked()
         return await self.service.zone_presence_view('room')
 
+    async def test_unchanged_configuration_preserves_grace_and_saved_basis(self):
+        await self.tick(1, {SOURCE: 'on'})
+        before = await self.tick(1, {SOURCE: 'off'})
+        self.assertEqual('grace', before['current']['state'])
+        config = await self.service.context.get('room')
+        checkpoint = await self.service.context.zone_operational('room')
+        with (patch.object(self.service.context, 'save_zone_presence',
+                           wraps=self.service.context.save_zone_presence) as writes,
+              patch.object(self.service, '_zone_presence_tick_locked',
+                           wraps=self.service._zone_presence_tick_locked) as evaluations):
+            for _ in range(3):
+                response = await self.http.put('/api/v1/zones/room/presence', json={
+                    'revision': before['revision'], 'mode': 'compare', 'spec': self.spec})
+                self.assertEqual(200, response.status)
+                after = await response.json()
+                self.assertEqual(before['current']['deadline'], after['current']['deadline'])
+                self.assertEqual(before['revision'], after['revision'])
+                self.assertEqual(before['current'], after['current'])
+            writes.assert_not_awaited()
+            evaluations.assert_not_awaited()
+        self.assertEqual(config, await self.service.context.get('room'))
+        self.assertEqual(checkpoint, await self.service.context.zone_operational('room'))
+        self.service.context = ContextStore(self.service.selections)
+        self.service._zone_presence_init()
+        after = await self.tick(5)
+        self.assertEqual('grace', after['current']['state'])
+        self.assertEqual(before['current']['deadline'], after['current']['deadline'])
+        after = await self.tick(25)
+        self.assertEqual('vacant', after['current']['state'])
+        self.service.client.zone_output_service.assert_not_awaited()
+
+    async def test_unchanged_publish_configuration_does_not_invalidate_outputs(self):
+        await self.prepare_publisher()
+        await self.service._zone_publish_all()
+        before = await self.service.zone_presence_view('room')
+        checkpoint = await self.service.context.zone_operational('room')
+        calls = self.service.client.zone_output_service.await_count
+        response = await self.http.put('/api/v1/zones/room/presence', json={
+            'revision': before['revision'], 'mode': 'publish', 'spec': before['spec']})
+        self.assertEqual(200, response.status)
+        after = await response.json()
+        self.assertEqual(calls, self.service.client.zone_output_service.await_count)
+        self.assertEqual(before['revision'], after['revision'])
+        self.assertEqual('verified', after['publication'])
+        self.assertEqual(before['publication_checked_at'], after['publication_checked_at'])
+        self.assertEqual(checkpoint, await self.service.context.zone_operational('room'))
+
+    async def test_unchanged_save_does_not_freshen_stale_or_disconnected_evidence(self):
+        for failure in ('age', 'disconnect'):
+            with self.subTest(failure=failure):
+                await self.prepare_publisher()
+                await self.service._zone_publish_all()
+                before = await self.service.zone_presence_view('room')
+                self.assertEqual('verified', before['publication'])
+                receipt = deepcopy(self.service._zone_last_published)
+                checkpoint = await self.service.context.zone_operational('room')
+                calls = self.service.client.zone_output_service.await_count
+                if failure == 'age':
+                    self.now += 21
+                else:
+                    self.service._stream_connected = False
+                after = await self.service.zone_presence_configure('room', {
+                    'revision': before['revision'], 'mode': 'publish', 'spec': self.spec})
+                self.assertEqual(before['revision'], after['revision'])
+                self.assertIsNone(after['current'])
+                self.assertNotEqual('verified', after['publication'])
+                self.assertIsNone(after['publication_checked_at'])
+                self.assertEqual(receipt, self.service._zone_last_published)
+                self.assertEqual(checkpoint, await self.service.context.zone_operational('room'))
+                self.assertEqual(calls, self.service.client.zone_output_service.await_count)
+
+    async def test_configuration_changes_and_suspension_recovery_still_reset_session(self):
+        for change in ('timing', 'mode', 'identity', 'suspended', 'output_suspended'):
+            with self.subTest(change=change):
+                await self.prepare_publisher()
+                before = await self.service.zone_presence_view('room')
+                config = (await self.service.context.get('room'))[KEY]
+                payload = {'revision': before['revision'], 'mode': 'publish', 'spec': deepcopy(self.spec)}
+                if change == 'timing':
+                    payload['spec']['grace_seconds'] += 1
+                elif change == 'mode':
+                    payload['mode'] = 'compare'
+                elif change == 'identity':
+                    next(row for row in self.world['entities'] if row['entity_id'] == SOURCE)['unique_id'] += '_replaced'
+                    await self.service.world.replace(deepcopy(self.world))
+                else:
+                    checkpoint = await self.service.context.zone_operational('room')
+                    await self.service.context.save_zone_operational('room', before['revision'],
+                        {**checkpoint, change: 'synthetic_failure'})
+                after = await self.service.zone_presence_configure('room', payload)
+                saved = (await self.service.context.get('room'))[KEY]
+                self.assertEqual(before['revision'] + 1, after['revision'])
+                self.assertNotEqual(config['session'], saved['session'])
+                self.assertEqual(payload['spec'], saved['spec'])
+                self.assertEqual(payload['mode'], saved['mode'])
+                self.assertFalse((await self.service.context.zone_operational('room')).get('suspended'))
+                self.assertFalse((await self.service.context.zone_operational('room')).get('output_suspended'))
+                self.service.client.zone_output_service.assert_awaited_once_with(
+                    'input_boolean', 'turn_off', self.entities['entscheidung_gueltig'])
+                if change == 'identity':
+                    self.assertNotEqual(config['basis'], saved['basis'])
+
+    async def test_identical_save_still_validates_revision_and_configuration(self):
+        before = await self.service.zone_presence_view('room')
+        config = await self.service.context.get('room')
+        for change, status in (('revision', 409), ('invalid_spec', 400), ('disabled_source', 400)):
+            with self.subTest(change=change):
+                payload = {'revision': before['revision'], 'mode': 'compare', 'spec': deepcopy(self.spec)}
+                if change == 'revision':
+                    payload['revision'] -= 1
+                elif change == 'invalid_spec':
+                    payload['spec']['grace_seconds'] = -1
+                else:
+                    next(row for row in self.world['entities'] if row['entity_id'] == SOURCE)['disabled_by'] = 'user'
+                    await self.service.world.replace(deepcopy(self.world))
+                response = await self.http.put('/api/v1/zones/room/presence', json=payload)
+                self.assertEqual(status, response.status)
+                self.assertEqual(config, await self.service.context.get('room'))
+        self.service.client.zone_output_service.assert_not_awaited()
+
     async def test_all_optional_outage_survives_restart_without_false_free_or_new_grace(self):
         await self.tick(1, {SOURCE: 'on'})
         result = await self.tick(1, {SOURCE: 'off'})

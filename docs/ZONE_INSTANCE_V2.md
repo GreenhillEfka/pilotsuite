@@ -73,6 +73,21 @@ Lernalgorithmus auf TV-/Nutzungsmerkmale und kein neuer autonomer Komfortlerner.
 - Frist, Generation und Gültigkeit stammen aus dem bestehenden Kernel. Neustarts erneuern
   Fristen nicht. Unklar wird nicht zu frei; die stabile Freiphase hat einen festen Beginn.
 
+## Konfiguration speichern ohne unbeabsichtigten Neustart
+
+Alpha.63 erhält bei identischer gespeicherter Konfiguration, Betriebsart und geprüfter
+Quellenbasis die vorhandene Sitzung, Revision und Nachlauffrist. Revision, Relevanz,
+Quellenidentität und Rückkopplungsschutz werden weiterhin geprüft. Der unveränderte
+Aufruf schreibt keine Konfiguration, startet keinen zusätzlichen Zonenlauf und setzt
+keinen eigenen Ausgang ungültig. Er erneuert weder Beobachtungen noch Rücklesenachweise;
+veraltete oder getrennte Daten bleiben nicht beurteilbar.
+
+Erstmaliges Speichern, echte Änderungen, alte parallel gespeicherte Schattenkonfigurationen
+oder eine gesperrte Auswertung/Publikation durchlaufen weiterhin den vollständigen
+Speicherpfad. Insbesondere bleibt erneutes bestätigtes Speichern die bewusste Wiederaufnahme
+nach einer Sperre. Kein neuer Speicher, Scheduler oder HA-Schaltrecht; bestehende
+Automationen und deren Nachlauf werden dadurch nicht verändert.
+
 ## Bestehende Anwesenheitssteuerung: lesend verbinden
 
 Alpha.61 ergänzt den ausdrücklich gewählten Bestandsweg: HA-Automationen bleiben
