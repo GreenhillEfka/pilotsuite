@@ -1,5 +1,18 @@
 # Current state — Alpha.64 installed; household acceptance pending
 
+## Active two-hour follow-up
+
+New user mandate: administration, configuration and lighting, 2026-09-28
+17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
+Reused heartbeat active for this window only. One package on
+`fix/lighting-preview-continuity`: Alpha.65 candidate, not yet delivered.
+Two red regression methods reproduce six interrupted stability windows and an
+old confirmed band surviving an interruption. The fix reacquires the band without
+erasing proposal cooldown. Third test plus full-app Chromium cover the new fixed
+recovery scenario. Local 628 Python / 75 JS tests pass. Release gates pending.
+Next: complete this delivery, then investigate inconsistent usable-source counts
+and configuration guidance in the existing lighting workflow. No household actions.
+
 ## Verified delivery
 
 PR #138 merged as `ee757af548194426d9f115cb29b3932379d5962e`.
@@ -68,8 +81,8 @@ technical ID migration and adaptive learning remain open.
 
 ## Closed bounded runs and history
 
-The three-hour and subsequent one-hour windows remain closed; heartbeat stays paused.
-This delivery follows the explicit manual continuation.
+The three-hour and subsequent one-hour windows remain closed. Alpha.64 followed
+an explicit manual continuation; the separate two-hour mandate is described above.
 Alpha.63 receipt/history: `7a319a571e5d64f31856dd97e9c863af4e060b44:CURRENT_STATE.md`.
 Alpha.62: `1719ee11dd92b2a73ca5149cd458fae7f9e56c29:CURRENT_STATE.md`.
 Alpha.56–60 measurements: `b3aa7966b9df146bc1bca61c0e844f279e6b7884:CURRENT_STATE.md`.

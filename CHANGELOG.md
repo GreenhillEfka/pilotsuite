@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-alpha.65] - 2026-09-28
+
+### Lichtvorschau: Unterbrechungen zählen nicht als stabile Beobachtung
+- Nach fehlenden Helligkeitsdaten, unklarer/freier Präsenz oder manueller Sperre
+  beginnt die Stabilitätsprüfung neu. Eine alte Frist begründet keinen sofortigen
+  Lichtvorschlag; der Mindestabstand zur letzten Empfehlung bleibt erhalten.
+- Das neue feste Szenario „Helligkeitsquelle fällt aus und kehrt zurück“ erklärt
+  die erneute Wartezeit in der vorhandenen Oberfläche.
+- Regressionen reproduzieren sechs Unterbrechungsfälle und prüfen Wiederanlauf,
+  Mindestabstand und den vollständigen synthetischen Browserweg. Keine produktive
+  Lichtsteuerung, Konfigurationsmigration, Speicherung oder Haushaltsaktion.
+
 ## [0.1.0-alpha.64] - 2026-09-28
 
 ### Identische Betriebszwischenstände ohne unnötige Schreibsperre

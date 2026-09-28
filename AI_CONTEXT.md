@@ -33,5 +33,8 @@ The manual follow-up after the closed three-hour run prioritizes existing presen
 integration: existing HA automations remain the controllers. Bind their Boolean,
 timer and public presence sensor through the existing organization profile and
 compare PilotSuite's independent assessment. No takeover or activation is implied.
-The three-hour and subsequent one-hour windows are closed; their reused heartbeat
-remains paused. Later explicit manual continuations do not reopen either window.
+The three-hour and subsequent one-hour windows are closed. The user's new two-hour
+run on 2026-09-28 covers administration, configuration and lighting, from 17:05:52
+to 19:05:52 UTC. The reused heartbeat is active only for this new window; no new
+packages/publications after 18:45:52 UTC. Pause it at completion, never extend it.
+Earlier windows are not reopened. Household and release boundaries still apply.
