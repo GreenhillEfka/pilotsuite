@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-alpha.56] - 2026-09-28
+
+### Keine Freimeldung bei vollständigem Ausfall optionaler Quellen
+- Fehlt jede verwertbare direkte Beobachtung, bleibt die Zone unbekannt — auch
+  wenn alle Quellen optional sind. Ein vorher freier Zustand wird dann ungültig.
+- Einzelne optionale Ausfälle blockieren weiterhin keine anderweitig bestätigte
+  Freimeldung; gültige positive Präsenz hat weiterhin Vorrang.
+- Regressionen prüfen fehlende, veraltete und ungültige Quellen, gehaltene
+  Bewegungsimpulse, begrenzte TV-Stützung, SQLite-Wiederanlauf und den vorhandenen
+  Publisher: unbekannt nimmt Gültigkeit zurück, statt den internen Boolean zu löschen.
+- Keine Konfigurationsmigration, zusätzliche Datenfreigabe oder Haushaltsschaltung.
+
 ## [0.1.0-alpha.55] - 2026-09-28
 
 ### Präsenz zuerst, drei Arbeitsbereiche

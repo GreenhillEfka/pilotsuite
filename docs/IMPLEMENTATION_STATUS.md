@@ -3,6 +3,11 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.56 is a development candidate: complete loss of direct optional coverage
+now yields unknown rather than vacant. Regression tests cover the pure evaluator,
+SQLite restart, HTTP projection and invalidation-only publisher path. Installed
+version and completed delivery remain owned by RELEASE_STATE.json.
+
 PR #118 consolidated the concept without changing app behavior. PR #119 delivered
 Alpha.55 with three navigation groups and one primary zone-presence view; exact CI
 and installation are recorded in RELEASE_STATE.json. Internal deduplication remains

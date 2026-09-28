@@ -96,6 +96,93 @@ class PresenceKernelTests(unittest.TestCase):
 
 
 class ZonePresenceCoverageTests(unittest.TestCase):
+    def test_all_optional_direct_sources_unavailable_never_prove_vacancy(self):
+        spec = {"grace_seconds": 30, "clear_seconds": 0,
+                "support_limit_seconds": 0, "comparison_entity": None,
+                "sources": [{"entity_id": "binary_sensor.optional", "kind": "continuous",
+                             "required": False, "max_age": 0, "group": "optional",
+                             "can_start": True, "active_states": ["on"]}]}
+        for prior_state, deadline in (("grace", 120), ("vacant", None)):
+            previous = {"kernel": {"state": prior_state, "generation": 2,
+                                   "deadline": deadline, "last_activity_at": 90,
+                                   "reason": "grace_deadline_pending"}}
+            for raw in ({}, {"state": "unknown"}, {"state": "unavailable"},
+                        {"state": "invalid"}):
+                with self.subTest(prior_state=prior_state, source=raw):
+                    _, view = evaluate(spec, previous, {"binary_sensor.optional": raw},
+                                       now=200, fresh=True)
+                    self.assertEqual("unknown", view["state"])
+                    self.assertIsNone(view["occupied"])
+                    self.assertFalse(view["valid"])
+
+    def test_optional_coverage_requires_a_current_direct_observation(self):
+        spec = {"grace_seconds": 30, "clear_seconds": 0,
+                "support_limit_seconds": 0, "comparison_entity": None,
+                "sources": [{"entity_id": "binary_sensor.one", "kind": "continuous",
+                             "required": False, "max_age": 10, "group": "one",
+                             "can_start": True, "active_states": ["on"]},
+                            {"entity_id": "binary_sensor.two", "kind": "continuous",
+                             "required": False, "max_age": 0, "group": "two",
+                             "can_start": True, "active_states": ["on"]}]}
+        previous = {"kernel": {"state": "grace", "generation": 2,
+                               "deadline": 120, "last_activity_at": 90,
+                               "reason": "grace_deadline_pending"}}
+        stale = {"state": "off", "last_reported": datetime.fromtimestamp(100, UTC).isoformat()}
+        for other, fresh, expected in (("unavailable", True, "unknown"),
+                                       ("off", True, "vacant"),
+                                       ("on", True, "occupied"),
+                                       ("off", False, "unknown")):
+            with self.subTest(other=other, fresh=fresh):
+                _, view = evaluate(spec, previous, {"binary_sensor.one": stale,
+                    "binary_sensor.two": {"state": other}}, now=200, fresh=fresh)
+                self.assertEqual(expected, view["state"])
+
+    def test_optional_motion_high_level_cannot_prove_clear_after_pulse_expiry(self):
+        spec = {"grace_seconds": 30, "clear_seconds": 0,
+                "support_limit_seconds": 0, "comparison_entity": None,
+                "sources": [{"entity_id": "binary_sensor.motion", "kind": "pulse",
+                             "required": False, "max_age": 0, "group": "motion",
+                             "can_start": True, "active_states": ["on"]}]}
+        at = datetime.fromtimestamp(100, UTC).isoformat()
+        states = {"binary_sensor.motion": {"state": "on", "last_changed": at}}
+        event = {"entity_id": "binary_sensor.motion", "old_state": {"state": "off"},
+                 "new_state": states["binary_sensor.motion"]}
+        checkpoint, view = evaluate(spec, None, states, now=100, fresh=True, event=event)
+        self.assertEqual("grace", view["state"])
+        self.assertEqual(130, view["deadline"])
+        checkpoint, view = evaluate(spec, checkpoint, states, now=131, fresh=True)
+        self.assertEqual("unknown", view["state"])
+        self.assertEqual(130, checkpoint["kernel"]["deadline"])
+        _, view = evaluate(spec, checkpoint, {"binary_sensor.motion": {"state": "off"}},
+                           now=132, fresh=True)
+        self.assertEqual("vacant", view["state"])
+
+    def test_tv_hold_is_bounded_across_polling_and_checkpoint_reload(self):
+        spec = {"grace_seconds": 30, "clear_seconds": 0,
+                "support_limit_seconds": 60, "comparison_entity": None,
+                "sources": [{"entity_id": "binary_sensor.presence", "kind": "continuous",
+                             "required": True, "max_age": 0, "group": "presence",
+                             "can_start": True, "active_states": ["on"]},
+                            {"entity_id": "media_player.tv", "kind": "support",
+                             "required": False, "max_age": 0, "group": "tv",
+                             "can_start": False, "active_states": ["playing"]}]}
+        states = {"binary_sensor.presence": {"state": "off"},
+                  "media_player.tv": {"state": "playing"}}
+        _, view = evaluate(spec, None, states, now=90, fresh=True)
+        self.assertEqual("unknown", view["state"])
+        states["binary_sensor.presence"]["state"] = "on"
+        checkpoint, _ = evaluate(spec, None, states, now=100, fresh=True)
+        checkpoint, _ = evaluate(spec, checkpoint, states, now=110, fresh=True)
+        states["binary_sensor.presence"]["state"] = "off"
+        checkpoint, view = evaluate(spec, checkpoint, states, now=120, fresh=True)
+        self.assertEqual(180, view["deadline"])
+        for now in (130, 150, 179):
+            checkpoint, view = evaluate(spec, copy.deepcopy(checkpoint), states, now=now, fresh=True)
+            self.assertEqual("grace", view["state"])
+            self.assertEqual(180, view["deadline"])
+        _, view = evaluate(spec, copy.deepcopy(checkpoint), states, now=181, fresh=True)
+        self.assertEqual("vacant", view["state"])
+
     def test_required_unknown_in_shared_group_never_proves_vacancy(self):
         def source(entity_id, required=True):
             return {"entity_id": entity_id, "kind": "continuous", "required": required,
