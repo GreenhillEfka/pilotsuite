@@ -33,6 +33,13 @@ Abnahme dieses Pakets:
   bestehenden Zone separat durchführen, sobald ein autorisierter Browser bereitsteht.
   Fehlender Browser blockiert nicht synthetische Entwicklung und wird nicht umgangen.
 
+Offener kleiner Bedienfehler, am 28.09.2026 synthetisch reproduziert: Nach blockiertem
+Bereichswechsel und anschließend erfolgreichem Speichern bleibt der globale Hinweis
+„Bearbeitung läuft“ stehen, obwohl der Zonen-Editor geschlossen und nicht mehr dirty
+ist. Der Navigationsschutz selbst funktioniert. Nächster begrenzter Schritt:
+gezielte Rücknahme genau dieses veralteten Hinweises; Save/Cancel/Fehler und andere
+offene Entwürfe absichern. Kein Anlass für eine neue UI-Schicht.
+
 ## 2. Danach: intern entkoppeln und doppelte Arbeit reduzieren
 
 Nur nach einer gemessenen Ausgangsbasis für Tickdauer, SQLite-Schreibvorgänge,
@@ -57,6 +64,11 @@ Alpha.59, implementiert/getestet/installiert, konsolidiert Zeitparser und Snapsh
 Besitzern. Rote Tests belegen falsche Bereitschaft und Legacy-Belege bei zukünftiger
 Snapshot-Zeit sowie Fehler bei ungültigen Zeitangaben. Gültige Zeitgrenzen und die
 gemessene Datenbankarbeit bleiben gleich; keine Scheduler- oder Datenmigration.
+
+Alpha.60, implementiert/getestet/installiert, erhält den datierten Rücklesenachweis
+über unveränderte Ticks innerhalb der bestehenden 20-Sekunden-Drosselung. GET erneuert
+ihn nicht; geänderte oder ungültige Grundlagen entziehen die Bestätigung. Drei solche
+Ticks benötigen keine zusätzlichen HA-Aufrufe. Keine neue Lease oder Leistungszusage.
 
 Legacy-Lernfelder und Shadow-Einstellungen nur mit expliziter Abbildung überführen:
 Relevanz autorisiert Analyse bereits heute. Eine Migration darf weder alte Belege
