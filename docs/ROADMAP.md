@@ -11,8 +11,9 @@ PR #118 hat Zuständigkeiten, alte Read-only-/Versionsbehauptungen und doppelte
 ADR-Nummern korrigiert. Alpha.55 setzt darauf die vereinfachte Navigation um.
 Installation und Haushaltsabnahme bleiben getrennte Nachweise im Release-Receipt.
 
-Aktuelles Implementierungspaket: **eine verständliche Präsenzansicht je Zone** in
-den vorhandenen Workspace-Dateien. Die Zoneninstanz ist die primäre Live-Aussage;
+Mit Alpha.55 implementiert, getestet und installiert: **eine verständliche
+Präsenzansicht je Zone** in den vorhandenen Workspace-Dateien. Die Haushaltsabnahme
+bleibt offen. Die Zoneninstanz ist die primäre Live-Aussage;
 Rollen-Zusammenfassung, Schattenvergleich und Replay sind keine Ersatzstatus.
 Quellen, Nachlauf, Gültigkeit und Publikation werden im selben Nutzerweg erklärt.
 Diagnose ist aufklappbar; keine zusätzliche „vereinfachte“ Paralleloberfläche.
@@ -42,6 +43,15 @@ nicht unnötig schreiben; benötigte Deadline- und Gültigkeitsaktualisierung er
 Vorhandene Scheduler schrittweise vereinfachen, History-I/O getrennt halten.
 Vergleichende Replay-/Restart-/Konflikt-/Ausfalltests müssen dasselbe fachliche
 Ergebnis liefern. Bestehende API-Aufrufer und gespeicherte Konfigurationen erhalten.
+
+Erster gemessener Schritt, Alpha.58-Kandidat: vorhandenen Bootstrap-Marker ohne
+Schreibreservierung lesen, beim echten Erststart weiterhin unter Transaktion prüfen.
+Je 60 synthetischen Tick-/Ansichtszyklen sinken IMMEDIATE-Transaktionen von 180 auf
+60; alle 60 Checkpoints und 660 Verbindungen bleiben erhalten. Kein Zeitgewinn
+belegt. Messbefehl: `PYTHONPATH=pilotsuite python scripts/benchmark_zone_presence.py`.
+Checkpoint-Zeitstempel sind wegen Uhr-Rücksprungschutz nicht einfach entfernbar.
+Schreibdeduplizierung und Scheduler-Vereinfachung sind weiterhin offen und benötigen
+eigene Messungen und Regressionen; der kleine Lesepfad behebt keine dieser Aufgaben.
 
 Legacy-Lernfelder und Shadow-Einstellungen nur mit expliziter Abbildung überführen:
 Relevanz autorisiert Analyse bereits heute. Eine Migration darf weder alte Belege

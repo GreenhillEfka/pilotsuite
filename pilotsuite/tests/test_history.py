@@ -1,3 +1,4 @@
+from contextlib import closing
 import asyncio
 import json
 import sqlite3
@@ -105,7 +106,7 @@ class ImportTests(unittest.IsolatedAsyncioTestCase):
     async def test_report_rechecks_provenance_source_and_authorized_window(self):
         occurred = self.now-8000
         receipt = await self.run_import([(occurred,P)])
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             payload = json.loads(db.execute(
                 'SELECT payload FROM history_imports WHERE id=?',
                 (receipt['id'],)).fetchone()[0])
@@ -119,7 +120,7 @@ class ImportTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(0, report['history_imports'][0]['retained_from_import'])
         self.assertEqual(1, report['retained_integrity']['normalized_rows']['history_imports'])
 
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             payload['sources'] = [P]
             payload['start'] = occurred+1
             db.execute('UPDATE history_imports SET payload=? WHERE id=?',
@@ -132,7 +133,7 @@ class ImportTests(unittest.IsolatedAsyncioTestCase):
         occurred = self.now-8000
         receipt = await self.run_import([(occurred,P)])
         second = occurred+301
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
                        ('a', P, second, 'unknown'))
             db.execute('INSERT INTO history_provenance VALUES (?,?,?,?)',
@@ -142,14 +143,14 @@ class ImportTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(1, report['retained_integrity']['excluded_rows']['history_provenance'])
         self.assertEqual(1, report['history_imports'][0]['retained_from_import'])
 
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             db.execute('DELETE FROM history_provenance WHERE import_id=?',
                        (receipt['id'],))
         report = await self.context.report('a', now=self.now)
         self.assertEqual(0, report['historical_event_count'])
         self.assertEqual(0, report['history_imports'][0]['retained_from_import'])
         self.assertEqual(1, report['retained_integrity']['normalized_rows']['history_imports'])
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             stored = json.loads(db.execute(
                 'SELECT payload FROM history_imports WHERE id=?',
                 (receipt['id'],)).fetchone()[0])
@@ -179,11 +180,11 @@ class ImportTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(report['config']['learning'])
 
     async def test_v5_migration_backup_preserves_existing_roles(self):
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             db.execute('DROP TABLE history_provenance');db.execute('DROP TABLE history_imports');db.execute('PRAGMA user_version=5')
         await self.selections.initialize()
         backups=list(Path(self.tmp.name).glob('selections.v5.*.bak'));self.assertEqual(1,len(backups))
-        with sqlite3.connect(backups[0]) as db:self.assertEqual(5,db.execute('PRAGMA user_version').fetchone()[0])
+        with closing(sqlite3.connect(backups[0])) as db, db:self.assertEqual(5,db.execute('PRAGMA user_version').fetchone()[0])
         self.assertEqual(self.roles,(await self.context.get('a'))['roles'])
         self.assertEqual(1,(await self.run_import([(self.now-8000,P)]))['accepted'])
 

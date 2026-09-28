@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.0-alpha.58] - 2026-09-28
+
+### Zonen lesen ohne unnötige Schreibsperren
+- Bereits initialisierte Zonen prüfen den vorhandenen Datenbankmarker lesend.
+  Der erste Aufbau behält seine Transaktion und prüft den Marker nach Sperrerwerb
+  erneut: parallele Starts dürfen weder Zonen verdoppeln noch Optionen neu anwenden.
+- Im identischen synthetischen Ein-Zonen-Vergleich entfallen je 60 Tick-/Ansichtszyklen
+  120 von 180 Schreibreservierungen. Alle 60 Präsenz-Checkpoints und 660 Verbindungen
+  bleiben erhalten; kein belegter Zeitgewinn und keine Behauptung über Haushaltslast.
+- Regressionen decken einen konkurrierenden Schreiber, gleichzeitigen Erststart,
+  Rollback, Wiederanlauf sowie vier erhaltene Zonen und Auswahlentscheidungen ab.
+- 43 SQLite-Testkontexte und ein Browser-Fixture schließen ihre Verbindungen
+  ausdrücklich nach Commit/Rollback. Keine Warnungsunterdrückung, Schemaänderung,
+  neue Datenfreigabe oder Haushaltsschaltung.
+
 ## [0.1.0-alpha.57] - 2026-09-28
 
 ### Präsenzveröffentlichung bleibt an aktuelle Belege gebunden

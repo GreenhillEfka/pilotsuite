@@ -1,4 +1,5 @@
 """Full app/PlanStore regressions using the existing synthetic routine fixture."""
+from contextlib import closing
 import asyncio
 import copy
 import json
@@ -129,7 +130,7 @@ class ReviewNoteTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(409,(await self.client.delete(target,json={'revision':2})).status)
         self.assertEqual(409,(await self.client.delete(target,json={'revision':2,'review_revision':0})).status)
         self.assertEqual(200,(await self.client.delete(target,json={'revision':2,'review_revision':1})).status)
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             self.assertEqual(0,db.execute('SELECT COUNT(*) FROM routine_review_notes').fetchone()[0])
 
     async def test_concurrent_note_writers_cannot_overwrite_each_other(self):
@@ -143,7 +144,7 @@ class ReviewNoteTests(unittest.IsolatedAsyncioTestCase):
         draft,payload,report,_=await self.prepared();inventory=await self.service.selection_inventory('a')
         original=self.store._write_review_notes
         def probe(db,*args):
-            with sqlite3.connect(self.service.selections.path,timeout=0.01) as other:
+            with closing(sqlite3.connect(self.service.selections.path,timeout=0.01)) as other, other:
                 with self.assertRaises(sqlite3.OperationalError): other.execute('BEGIN IMMEDIATE')
             original(db,*args)
         with patch.object(self.store,'_write_review_notes',side_effect=probe):
@@ -180,17 +181,17 @@ class ReviewNoteTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_schema7_backup_precedes_additive_migration_and_preserves_draft(self):
         draft=await self.create()
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             db.execute('DROP TABLE routine_review_notes');db.execute('PRAGMA user_version=7')
             old=db.execute('SELECT * FROM routine_drafts').fetchall()
             cfg=db.execute('SELECT * FROM zone_context').fetchall()
         await self.service.selections.initialize()
         backups=list(self.path.glob('selections.v7.*.bak'));self.assertEqual(1,len(backups))
-        with sqlite3.connect(backups[0]) as backup:
+        with closing(sqlite3.connect(backups[0])) as backup, backup:
             self.assertEqual(7,backup.execute('PRAGMA user_version').fetchone()[0])
             self.assertEqual(old,backup.execute('SELECT * FROM routine_drafts').fetchall())
             self.assertFalse(backup.execute("SELECT 1 FROM sqlite_master WHERE name='routine_review_notes'").fetchone())
-        with sqlite3.connect(self.service.selections.path) as db:
+        with closing(sqlite3.connect(self.service.selections.path)) as db, db:
             self.assertEqual(8,db.execute('PRAGMA user_version').fetchone()[0])
             self.assertEqual(old,db.execute('SELECT * FROM routine_drafts').fetchall())
             self.assertEqual(cfg,db.execute('SELECT * FROM zone_context').fetchall())

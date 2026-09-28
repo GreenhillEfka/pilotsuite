@@ -5,6 +5,7 @@ Control messages arrive only over the parent test process's stdin. All fixture
 mutations use existing canonical owners and a temporary database.
 """
 from __future__ import annotations
+from contextlib import closing
 import asyncio
 import copy
 import json
@@ -110,7 +111,7 @@ async def main():
             while line:=await asyncio.to_thread(sys.stdin.readline):
                 command=json.loads(line);action=command['action']
                 if action=='snapshot':
-                    with sqlite3.connect(service.selections.path) as db:
+                    with closing(sqlite3.connect(service.selections.path)) as db, db:
                         notes=[json.loads(row[0]) for row in db.execute('SELECT records FROM routine_review_notes')]
                     result={'related_reads':service.client.related_automations.await_count,
                             'config_reads':service.client.automation_config.await_count,

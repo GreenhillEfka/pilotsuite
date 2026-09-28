@@ -1,3 +1,4 @@
+from contextlib import closing
 import sqlite3
 import json
 import math
@@ -239,7 +240,7 @@ class LearningTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_retention_and_cap_are_enforced_even_without_events(self):
         await self.consent()
-        with sqlite3.connect(self.store.path) as db:
+        with closing(sqlite3.connect(self.store.path)) as db, db:
             db.executemany('INSERT INTO activity_evidence VALUES (?,?,?,?)', [('a','binary_sensor.a',self.now-i,'unknown') for i in range(5002)])
             db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',('a','binary_sensor.a',self.now-15*86400,'unknown'))
         await self.store.maintain()
@@ -248,7 +249,7 @@ class LearningTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(0,(await self.store.report('a',now=self.now+15*86400))['event_count'])
 
     async def test_schema_three_backup_preserves_choices_and_no_inferred_consent(self):
-        with sqlite3.connect(self.store.path) as db:
+        with closing(sqlite3.connect(self.store.path)) as db, db:
             for table in ('zone_context','activity_evidence','pattern_feedback'): db.execute(f'DROP TABLE {table}')
             db.execute('PRAGMA user_version=3')
             db.execute("INSERT INTO selection_modes VALUES ('a',0)")
@@ -256,7 +257,7 @@ class LearningTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue((await self.selections.get('a'))['active'])
         self.assertFalse((await self.store.get('a'))['learning'])
         backups=list(Path(self.temp.name).glob('selections.v3.*.bak'));self.assertEqual(1,len(backups))
-        with sqlite3.connect(backups[0]) as db:
+        with closing(sqlite3.connect(backups[0])) as db, db:
             self.assertEqual(3,db.execute('PRAGMA user_version').fetchone()[0])
             self.assertEqual(0,db.execute("SELECT active FROM selection_modes WHERE zone_id='a'").fetchone()[0])
 

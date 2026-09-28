@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import closing
 import asyncio
 import json
 import sqlite3
@@ -46,7 +47,7 @@ class SelectionStoreTests(unittest.IsolatedAsyncioTestCase):
             return_exceptions=True)
         self.assertEqual(1, sum(isinstance(r, SelectionConflict) for r in results))
         saved = await self.store.get('example')
-        with sqlite3.connect(self.store.path) as db:
+        with closing(sqlite3.connect(self.store.path)) as db, db:
             rows = db.execute('SELECT revision, changes FROM selection_journal').fetchall()
         self.assertEqual(1, len(rows))
         self.assertEqual(1, rows[0][0])
@@ -54,11 +55,11 @@ class SelectionStoreTests(unittest.IsolatedAsyncioTestCase):
                          json.loads(rows[0][1])['sensor.a'])
 
     async def test_future_schema_refused_without_overwrite(self):
-        with sqlite3.connect(self.store.path) as db:
+        with closing(sqlite3.connect(self.store.path)) as db, db:
             db.execute('PRAGMA user_version=99')
         with self.assertRaises(RuntimeError):
             await self.store.initialize()
-        with sqlite3.connect(self.store.path) as db:
+        with closing(sqlite3.connect(self.store.path)) as db, db:
             self.assertEqual(99, db.execute('PRAGMA user_version').fetchone()[0])
 
 
@@ -162,7 +163,7 @@ class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
     async def test_schema_migration_keeps_backup_and_decisions(self):
         store = self.app[SERVICE_KEY].selections
         await store.patch('example', 0, {'sensor.temperature': 'relevant'})
-        with sqlite3.connect(store.path) as db:
+        with closing(sqlite3.connect(store.path)) as db, db:
             db.execute('DROP TABLE selection_modes')
             db.execute('DROP TABLE habitus_zones')
             db.execute('DROP TABLE zone_meta')
@@ -177,7 +178,7 @@ class SelectionAPITests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('relevant', saved['decisions']['sensor.temperature'])
         backups = list(Path(self.temp.name).glob('selections.v1.*.bak'))
         self.assertEqual(1, len(backups))
-        with sqlite3.connect(backups[0]) as db:
+        with closing(sqlite3.connect(backups[0])) as db, db:
             self.assertEqual(1, db.execute('PRAGMA user_version').fetchone()[0])
 
     async def test_ingress_guard_covers_selection_writes(self):

@@ -1,3 +1,4 @@
+from contextlib import closing
 import json
 import sqlite3
 import tempfile
@@ -166,7 +167,7 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         # Both rows deliberately belong to one two-hour bucket; wall-clock time
         # near a boundary otherwise makes this unrelated integrity test nondeterministic.
         self.now = stamp('2026-09-27T12:00:00+00:00')
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)',
                        ('a', 'binary_sensor.p', self.now, 'unknown'))
             db.execute('INSERT INTO activity_context VALUES (?,?,?)', (
@@ -195,7 +196,7 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_context_records_across_time_boundary_are_not_merged(self):
         at = stamp('2026-09-27T13:59:00+00:00')
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             for t in (at, at + 301):
                 db.execute('INSERT INTO activity_evidence VALUES (?,?,?,?)', ('a', 'binary_sensor.p', t, 'unknown'))
                 db.execute('INSERT INTO activity_context VALUES (?,?,?)', ('a', t, json.dumps(self.data)))
@@ -215,7 +216,7 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         future_import = 'c' * 32
         future_receipt = {**valid_receipt, 'id': future_import,
                           'authorized_at': self.now + 3600}
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             db.executemany('INSERT INTO activity_evidence VALUES (?,?,?,?)', [
                 ('a', 'binary_sensor.p', self.now-1000, 'unknown'),
                 ('a', 'binary_sensor.p', self.now-700, 'private-origin'),
@@ -259,7 +260,7 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(1, report['retained_integrity']['normalized_rows']['activity_evidence'])
         encoded = json.dumps(report, allow_nan=False)
         self.assertNotIn('CANARY', encoded)
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             self.assertEqual(6, db.execute(
                 'SELECT COUNT(*) FROM activity_evidence WHERE zone_id="a"').fetchone()[0])
             self.assertEqual(4, db.execute(
@@ -310,19 +311,19 @@ class ContextStorageTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_v4_migration_backs_up_and_preserves_roles_and_choices(self):
         await self.configure()
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             db.execute('DROP TABLE activity_context'); db.execute('DROP TABLE coverage_checks')
             db.execute('PRAGMA user_version=4')
         await self.selections.initialize()
         backups=list(Path(self.tmp.name).glob('selections.v4.*.bak'))
         self.assertEqual(1,len(backups))
-        with sqlite3.connect(backups[0]) as db:
+        with closing(sqlite3.connect(backups[0])) as db, db:
             self.assertEqual(4,db.execute('PRAGMA user_version').fetchone()[0])
             self.assertIsNone(db.execute("SELECT name FROM sqlite_master WHERE name='activity_context'").fetchone())
         self.assertEqual(self.roles, (await self.store.get('a'))['roles'])
         self.assertFalse((await self.store.get('a'))['context_learning'])
         self.assertEqual('relevant',(await self.selections.get('a'))['decisions']['binary_sensor.p'])
-        with sqlite3.connect(self.selections.path) as db:
+        with closing(sqlite3.connect(self.selections.path)) as db, db:
             self.assertEqual(8,db.execute('PRAGMA user_version').fetchone()[0])
 
     async def test_progress_counts_local_days_at_utc_midnight(self):

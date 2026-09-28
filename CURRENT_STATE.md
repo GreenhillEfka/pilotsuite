@@ -36,22 +36,39 @@ compilation and the existing synthetic full-app zone Chromium suite passed.
 All 11 browser suites, amd64 container, reproducible checkout and disposable HA
 protocol passed exact CI. Four-zone UI/configuration semantics remain unchanged.
 
-## Measured next package
+## Alpha.58 candidate — measured SQLite quality package
 
-On the Alpha.56 disposable one-zone fixture, 60 tick-plus-view cycles per stable
-occupied/vacant/unknown scenario each opened 660 SQLite connections, reserved 180
-IMMEDIATE transactions and wrote 60 checkpoints. Median cycle about 2.51 ms,
-p95 2.65–2.75 ms on this host; zero history/output calls. These are synthetic
-baseline counts, not household load or claimed gains. Preserve evaluated_at and
-deadline durability: clock-rollback protection forbids naive timestamp deletion.
+Implemented locally, not yet published or installed: a durable read-first marker
+check avoids reserving a write lock for already initialized zones. First bootstrap
+still rechecks under its transaction. Before the fix, two regressions reproduced
+an unnecessary IMMEDIATE transaction and a database-locked error beside a reserved
+writer. All five new tests now pass, including simultaneous first readers,
+rollback/retry, restored storage and an identical four-zone/selection SQL dump.
 
-ZoneStore.bootstrap reserves a write lock even when its durable marker exists.
-Next: test a read-first path with transaction recheck, concurrent bootstrap,
-restart and preserved zones/selections, then compare identical measurements.
-ResourceWarnings were separately traced to three bare sqlite3 connection contexts
-in test_context_learning.py; source search finds 43 such test contexts and one
-browser fixture. Close ownership properly, never suppress warnings or infer a
-production leak from their delayed emission location.
+Repeat with installed test dependencies:
+`PYTHONPATH=pilotsuite python scripts/benchmark_zone_presence.py --cycles 60`.
+Same disposable one-zone fixture,
+60 tick-plus-view cycles in each stable occupied/vacant/unknown scenario:
+
+| Metric per scenario | Alpha.57 baseline | Candidate |
+|---|---:|---:|
+| SQLite connections | 660 | 660 |
+| IMMEDIATE transactions | 180 | 60 |
+| Operational checkpoint writes | 60 | 60 |
+| History requests / HA output calls | 0 / 0 | 0 / 0 |
+| Median ms, occupied / vacant / unknown | 2.525 / 2.526 / 2.557 | 2.582 / 2.536 / 2.567 |
+| p95 ms, occupied / vacant / unknown | 2.820 / 2.646 / 2.678 | 2.938 / 2.654 / 2.790 |
+
+This proves 120 fewer write reservations, not a speed gain or household load result.
+Every evaluated_at/checkpoint/deadline remains durable for clock-rollback protection.
+The 43 bare SQLite test contexts and one browser fixture now explicitly close after
+commit/rollback. The full 583-test run with ResourceWarning capture and final GC
+passed with zero such warnings; no filters hide failures and no production leak is
+inferred. Also passed: 73 JS tests, 62 API contracts, discovery, compilation,
+synthetic zone and review-compass browsers. Exact candidate/main CI remains a gate.
+
+Next after delivery: measure the existing scheduler/freshness coupling before
+changing it; do not remove evaluated_at or merge legacy configurations speculatively.
 
 Continue only within the bounded run; no new packages after 07:40 UTC, stop
 development/release work by 08:01:44 UTC on 28.09.2026.
