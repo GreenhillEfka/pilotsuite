@@ -1,82 +1,59 @@
-# Current state — Alpha.55 installed; household UI acceptance pending
+# Current state — Alpha.56 installed; household acceptance pending
 
-## Active bounded quality iteration: Alpha.56 candidate
+## Verified delivery
 
-Fresh 2026-09-28 reads confirmed main `2860c06d6d598eb9c7544fc8476e5514de498a9e`,
-no open PRs and Alpha.55 installed/offered/started. The isolated branch
-`fix/alpha56-presence-evidence` fixes a reproduced false-vacancy edge case: when
-all direct sources are optional and unavailable, the previous aggregation could
-still declare vacant. Two new regression methods failed in nine subcases before
-the minimal fix. Current required-group behavior, positive evidence, original
-deadlines and all saved configuration remain unchanged.
+Fresh HA-MCP reads confirm Alpha.56 installed/offered and started. PR #121 merged
+as `fde808afa65ec4c52a85ccf05ee8c8cea74152a9`; exact candidate CI `36383403520`
+and main CI `36383567794` passed all five jobs. Source, backup and runtime evidence
+are in [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
 
-Additional synthetic tests cover pulse expiry, non-sliding TV support, actual
-SQLite reload/HTTP output and invalid publication without owner.off. Release gates,
-installation and household acceptance are not implied by the candidate version.
-RELEASE_STATE.json still records the installed Alpha.55 until delivery is verified.
+Native PilotSuite-only backup `15da86c3` was completed and verified before publication:
+exactly Alpha.55 app/data/options, 54,446,080 bytes, no HA/database/folders or failures.
+One Store refresh and one targeted update installed Alpha.56. All four options match
+the pre-update read. Startup remains `presence_adoption_review`, ready, connected,
+fresh and zone-resolved. Log timestamps are copied as emitted, not clock-attested.
+No explicit restart, rebuild, other-app update, household metadata edit or test
+switching occurred. AGENTS.md remains unchanged and untracked.
 
-## Verified baseline
+## Presence correction and proof
 
-Work continues only in GreenhillEfka/pilotsuite. Concept PR #118 merged as
-`c04cf90770ed4166d692b5dc8f018be2ef57e35f`; its main CI run `36359118246` succeeded.
-Fresh HA-MCP reads initially confirmed Alpha.54 installed/offered, started,
-auto_update enabled. PR #119 is now merged and Alpha.55 installed, as recorded in
-[docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
+When all direct sources were optional and unavailable, aggregation could wrongly
+declare or retain vacancy. Two new regression methods failed in nine baseline
+subcases before the minimal fix. Missing all direct observation now produces unknown;
+positive evidence and individually optional gaps beside valid coverage retain their
+existing meaning. No source settings, schema, zone identities or deadlines migrated.
 
-## Implemented and installed
+Local checks: 574 Python tests, 73 JavaScript tests, 62 API contracts, test discovery,
+Python compilation and the existing synthetic zone Chromium suite passed. All
+11 browser suites, amd64 container, reproducible checkout and disposable HA protocol
+passed exact remote CI. Further tests cover held motion expiry, bounded TV support,
+SQLite reload, HTTP projection and invalidation without owner.off. SQLite
+ResourceWarnings remain; no leak-free claim. Synthetic tests are not household proof.
 
-Alpha.55 reuses the existing workspace and zone-presence API. Three primary entries
-(Zonen, Werkzeuge, System) group the old view keys without replacing preferences,
-forms or stores. Zone state, history and configuration share one primary presence
-card. Module aggregates, the legacy shadow comparison and synthetic replay sit
-under explicit diagnostic details. Organization remains available under Werkzeuge.
+Alpha.55's existing three-entry workspace and primary presence card remain intact.
 
-Missing/unavailable presence is explicit, required-source gaps remain visible,
-paused operation is not labelled comparison, and HA publication is separate from
-calculation. Failed reads disable stale actions while retaining a read-only retry;
-a valid recovered basis is read immediately. No kernel, schema, stored zone,
-source selection, write capability or authentication boundary changes.
+## Measured baseline and next bounded package
 
-## Verification and release gate
+On Alpha.56's disposable one-zone fixture, 60 tick-plus-view cycles per stable
+occupied/vacant/unknown scenario each opened 660 SQLite connections, started 180
+IMMEDIATE transactions and wrote 60 operational checkpoints; median cycle about
+2.51 ms, p95 2.65–2.75 ms on this host. No history or HA output calls occurred.
+These are synthetic baseline counts, not household load or optimization gains.
+Checkpoint evaluated_at participates in clock-rollback protection: do not merely
+drop time fields to force deduplication. ZoneStore.bootstrap obtains a write lock
+even when its durable marker already exists; a read-first, transaction-rechecked
+fast path is a possible small measured improvement.
 
-The navigation regression failed against the six-entry baseline before the change.
-The first candidate CI also exposed an enhancement-order race: status could arrive
-before workspace initialization. A deterministic delayed-script regression reproduced
-missing valid measurements. Workspace now reads the existing app display response
-instead of maintaining a second status reference; no extra polling was introduced.
-Local verification: 568 Python and 73 JavaScript tests, repository/API invariants,
-discovery, frontend syntax and all 11 existing synthetic browser suites passed.
-The extended actual-app fixture uses four zones and covers occupied, empty/unknown,
-paused, required unavailable sources, failed reads, passive scroll/focus preservation,
-draft guards, keyboard/direct links and 390/768/1440-pixel light/dark views.
-Screenshots are synthetic evidence, not household screenshots. SQLite ResourceWarnings
-still occur in the Python suite; no leak-free claim is made.
+First test publication freshness across awaited I/O; source review identified an
+initial freshness check followed by asynchronous reads, not yet a reproduced defect.
+Then pursue measured lock reduction with concurrency/restart tests. Keep one active
+implementation package and observe the bounded run's 08:01:44 UTC stop.
 
-PilotSuite-only backup `89e5ef42` was completed before version publication and
-verified through snapshot list plus native `backup/details`: exactly Alpha.54 app,
-54,446,080 bytes, unprotected local agent, no HA/database/folders, no failures or
-agent errors. Archive extraction and a restore drill were not performed.
+## Still not household-accepted
 
-Final candidate `031b2efc6d4730f8d7604a88d51430e4d8143862` passed all five jobs in
-CI `36360742028`. PR #119 merged as `dab82d1d7f98ce3cb5c76f7e4a1c7b348229dd98`;
-main CI `36360899388` passed all five jobs with the identical app tree. Container
-and disposable HA-protocol results are CI evidence, not claimed as local runs.
-
-One Store metadata refresh offered Alpha.55; one targeted update installed it.
-HA-MCP reports installed/offered Alpha.55, started, unchanged options. Startup logs
-confirm the same `presence_adoption_review` mode and ready/stream/fresh-snapshot/
-resolved-zone state. No explicit restart, rebuild, other-app update, household
-metadata write or device test was performed. Source association is repository,
-version and app tree, not independent image attestation. AGENTS.md remains untouched.
-
-## Remaining acceptance and next scope
-
-No authorized authenticated household browser is connected. No Ingress/auth/sandbox
-bypass was attempted. A local synthetic browser is not household Ingress acceptance.
-All four saved household zones have not been independently read back after Alpha.55.
-Inspect Erdkellerbereich and one unlike saved zone read-only when authorized browser
-access exists; preserve entity cleanup and compare multiple passive refreshes.
-
-Own-output activation, automation takeover, entity-ID migration and adaptive learning
-are not authorized by this UI change. Runtime deduplication remains a later measured
-package, not part of Alpha.55. See [docs/ROADMAP.md](docs/ROADMAP.md).
+No authorized authenticated household browser is connected. Ingress/authentication/
+sandbox were not bypassed. All four saved household zones have not been independently
+read back after update. Inspect Erdkellerbereich and one unlike saved zone read-only
+when authorized browser access exists, including passive refresh and all four zones.
+Output activation, automation takeover, entity-ID migration and adaptive learning
+remain separate, not granted by this quality iteration.
