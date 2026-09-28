@@ -1,72 +1,63 @@
-# Current state — Alpha.65 installed; household acceptance pending
+# Current state — Alpha.66 installed; household acceptance pending
 
 ## Verified delivery
 
-PR #140 merged as `91553c840a826b552181bfe8f9132022b79d9823`.
-Exact candidate CI `36457661481` and release-main CI `36458315513` passed
-all five jobs: tests, 11 browser suites, amd64 container, reproducible checkout
-and disposable Home Assistant protocol. App tree:
-`e8f470a74bdfb87d63a4b401b4647785e62fb383`; local and connector trees matched.
+PR #142 merged as `d0cbb2131d05e5d39520d18ce89b466ff32cb2c2`.
+Exact candidate CI `36461713597` and release-main CI `36461940133` passed all
+five jobs: tests, 11 browser suites, amd64 container, reproducible checkout and
+disposable Home Assistant protocol. App tree:
+`7a60131d68254efa9f8bbcec97ae60f67752a3a9`; local and connector trees matched.
 
-Fresh PilotSuite-only backup `44da1956` completed at 17:19:26 UTC before publication:
-exactly Alpha.64 app/data/options, 54,487,040 bytes, no HA/database/folders/failures,
+Fresh PilotSuite-only backup `0eee33cb` completed at 17:51:58 UTC before publication:
+exactly Alpha.65 app/data/options, 54,476,800 bytes, no HA/database/folders/failures,
 local and unprotected. Native list and backup/details verified metadata; no extraction
-or restore drill. One Store refresh and one targeted update installed Alpha.65.
+or restore drill. One Store refresh and one targeted update installed Alpha.66.
 No extra restart/rebuild or other-app update. All four options remain unchanged.
-
 Startup remains `presence_adoption_review`, ready, connected, snapshot-fresh and
-zone-resolved. Raw log timestamps are recorded as emitted, not independently
-clock-attested. Full evidence: [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
+zone-resolved. Raw log timestamps are recorded as emitted, not clock-attested.
+Full evidence: [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
 
-## What Alpha.65 changes
+## What Alpha.66 changes
 
-Only the existing pure lighting preview: missing daylight/current brightness,
-manual override and unknown/vacant presence interrupt the stable-band observation.
-Recovery must establish a new stable band; the last proposal's cooldown remains.
-The fixed recovery scenario in the existing UI explains the full new waiting
-period. No live lighting controller, persistence or configuration migration.
+The existing explicit presence-automation review now presents reuse strategies for
+controllers, consumers and mixed logic, direct affected references and six open
+behavior/recovery checks. Empty or unresolved structure never establishes takeover
+readiness; unresolved inspected configs participate in the review fingerprint.
+Three regression methods first reproduced four incorrect verdict/fingerprint cases.
+New projection/integration coverage and extended Chromium flow pass: 632 Python /
+75 JS / 62 contracts; discovery/compilation and zero-ResourceWarning audit pass.
+Zone/workspace browser suites passed locally; screenshot inspected. All 11 browser
+suites passed exact candidate/main CI. Synthetic is not household acceptance.
 
-Two new regression methods first failed in seven cases; all pass after the fix.
-Third test and extended Chromium flow verify the timeline. 628 Python / 75 JS /
-62 API contracts, discovery and compilation pass. Repeated exact-source audit:
-zero ResourceWarnings. Local workspace and Organization suites pass, screenshot
-inspected; all 11 suites pass exact candidate and main CI. Synthetic is not household.
-
-No household binding, helper, metadata, automation, output activation or consent
-changed. AGENTS.md remains unchanged and untracked; Ingress/authentication intact.
+No executable automation edit, takeover, new persistence, engine or route. Existing
+import/diff/transform modules and PlanStore remain the future implementation basis.
+No household binding/helper/metadata/automation/output/consent changed. AGENTS.md
+remains unchanged and untracked; Ingress/authentication intact.
 
 ## Active two-hour run and next task
 
-New explicit user mandate: administration, configuration and lighting, 2026-09-28
+User mandate: administration, configuration and lighting, 2026-09-28
 17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
 Reused heartbeat active for this window only; pause at completion, never extend it.
-Alpha.65 receipt PR #141 merged; exact candidate/main CI passed.
+Finish the Alpha.66 documentation receipt before starting another package.
 
-Active focused package: Alpha.66 existing-automation reuse review. Two regression
-methods first reproduced three false-readiness verdicts; the new reuse projection
-test also failed before implementation. A third regression reproduced an unchanged
-fingerprint after a changed unresolved inspection. Locally 632 Python / 75 JS / 62 contracts
-and extended zone browser pass. No execution, store or household change. Delivery
-is pending fresh scoped backup and exact candidate/main CI; installed remains 65.
-Latest user correction permits adoption/reuse. The pending question concerns the
-scope of live edits, not permission to develop the feature. Until answered, no
-household automation edit/enable/disable or active control transfer.
+Latest user correction permits adoption/reuse. The unanswered question concerns
+the scope of live edits, not permission to develop the feature. Until answered,
+no household automation edit/enable/disable or active control transfer.
 
-After this package, next code investigation: inconsistent usable-source counts and guidance in the
-existing lighting/configuration path. Preview currently checks raw nonempty state,
-whereas the decision brief validates lux; reproduce invalid lux/binary states and
-missing/derived versus explicit-empty role handling before any fix. Keep one owner
-and preserve existing roles/drafts/consents; no new engine or household switching.
+Next bounded investigation: inconsistent usable-source counts and guidance in the
+existing lighting/configuration path. Preview accepts raw nonempty state whereas
+the decision brief validates lux. Reproduce invalid lux/binary states and missing/
+derived versus explicit-empty roles first; reuse canonical owners, preserve roles,
+drafts and consent. No household switching. An executable automation change path
+requires its own concrete before/after plan, approved scope and recovery tests.
 
 Authenticated household Ingress and actual four-zone acceptance remain open.
 Review Erdkellerbereich and one unlike zone read-only when an authorized session
-exists. Existing automations remain controllers; Boolean/timer/public-sensor
-bindings are not guessed. No existing-chain public sensor is automatically created.
+exists; do not guess household bindings or replace an existing public sensor.
 
 ## History
 
-Earlier three-hour and one-hour windows remain closed. Alpha.64 receipt:
-`6b7204e3a8620c05978c4a73a54bec2b078ba554:CURRENT_STATE.md`.
-Its measured checkpoint optimization/tradeoff remains in ROADMAP.md and that receipt.
-Alpha.63 unchanged-save/session/deadline behavior and all prior presence safeguards
-remain intact; no scheduler, generic actuation or automation-takeover change.
+Earlier three-hour and one-hour windows remain closed. Alpha.65 receipt:
+`cdd238e9e2cc720544b3d7227b7607e0c642b68a:docs/RELEASE_STATE.json`.
+Alpha.64 measurements/tradeoff remain in ROADMAP.md and its historical receipt.

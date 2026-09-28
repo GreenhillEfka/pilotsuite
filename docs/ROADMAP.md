@@ -135,9 +135,11 @@ Nächster Schritt: widersprüchliche Nutzbarkeitsangaben und Konfigurationshinwe
 im bestehenden Lichtweg reproduzieren und korrigieren, keine neue Steuerung.
 
 Neu priorisierte Nutzerkorrektur: bestehende Automationen dürfen übernommen werden.
-Alpha.66 in Prüfung: vorhandene revisionsgebundene Bestandsprüfung um klare
-Weiterverwendungsstrategie, direkte Bezüge und offene Verhaltens-/Rückwegprüfungen
-ergänzen; falsche Übernahmebereitschaft bei leerem oder ungeklärtem Befund beheben.
+Alpha.66 implementiert, getestet und nach PR #142/exakter Kandidaten-/Main-CI
+installiert: Die vorhandene revisionsgebundene Bestandsprüfung zeigt klare
+Weiterverwendungsstrategie, direkte Bezüge und offene Verhaltens-/Rückwegprüfungen.
+Falsche Übernahmebereitschaft bei leerem/ungeklärtem Befund ist behoben; auch
+ungeklärte Konfigurationen nehmen am Prüffingerabdruck teil. Haushaltsabnahme offen.
 Keine neue Engine, kein Speicher und noch kein ausführbarer Automationsänderungsplan.
 Die alte reine Vergleichspräferenz ist keine dauerhafte Produktgrenze. Live-Änderungs-
 umfang bleibt bis zur Nutzerantwort offen; vorhandene HA-Steuerung unverändert lassen.
