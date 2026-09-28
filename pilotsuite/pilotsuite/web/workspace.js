@@ -220,7 +220,7 @@
   }
   function renderReview(){const root=$('ps-review-result');if(!root)return;if(!lastReview||lastReview.zone!==selectionZone||lastReview.revision!==contextData?.revision){root.textContent=requestBusy?'Bestandsprüfung läuft …':'Noch keine aktuelle Bestandsprüfung.';return;}
     if(lastReview.error){root.textContent=lastReview.error;return;}const d=lastReview.response;root.append(E('p',`${M.count(d.summary?.related)??'—'} verwandte Automationen · ${M.count(d.summary?.conflicts)??'—'} mögliche Schreibkonflikte`));
-    for(const row of d.automations.slice(0,50)){const p=E('p');p.append(E('strong',row.automation_id),document.createTextNode(row.classification==='conflict'?' · Schreiberkonflikt prüfen':' · Entitätsbezug prüfen'));root.append(p);}
+    for(const row of d.automations.slice(0,50)){const p=E('p');p.append(E('strong',row.automation_id),document.createTextNode(row.classification==='conflict'?' · Bestehender Schreiber: Weiterverwendung prüfen; Konflikt erst bei zusätzlicher Steuerung':' · Entitätsbezug prüfen'));root.append(p);}
     root.append(E('p','Nur Strukturprüfung. Kein Treffer ist kein Nachweis für Konfliktfreiheit. Templates, indirekte Aufrufe und reales Laufzeitverhalten bleiben gesondert zu prüfen.','ps-warning'));
   }
   async function runReplay(){if(!valid()||requestBusy)return;const zone=selectionZone,revision=contextData.revision,scenario=presenceScenario,g=++generation;requestBusy=true;lastReplay=null;renderModules(true);

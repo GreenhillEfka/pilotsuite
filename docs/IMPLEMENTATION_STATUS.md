@@ -3,6 +3,14 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.66 candidate: transient reuse review in the existing presence inspector/UI;
+no structural or empty result can claim takeover readiness. Direct affected references,
+controller/consumer/mixed reuse strategy and six open checks are visible. Locally
+632 Python / 75 JS / 62 contracts and extended zone browser pass. No new persistence,
+automation writer or ownership transfer; installed remains Alpha.65 until separate
+source/CI/backup/install verification. Latest user permission permits adoption as a
+product direction; live-change scope is still being clarified.
+
 Alpha.65 installed after PR #140 and exact candidate/main CI: the pure lighting preview discards interrupted
 stability evidence, preserves the proposal cooldown and explains recovery through
 one additional fixed scenario. 628 Python / 75 JS tests and the extended local

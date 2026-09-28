@@ -174,11 +174,29 @@ class ExistingPresenceIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('existing_control', report['mode'])
         self.assertFalse(report['execution']['allowed'])
         self.assertFalse(report['persisted'])
+        self.assertEqual('review_existing_control', report['recommendation'])
+        self.assertEqual([], report['reuse_review']['proposed_changes'])
+        self.assertFalse(report['reuse_review']['apply_implemented'])
+        self.assertTrue(all(c['state'] == 'open' for c in report['reuse_review']['checks']))
+        self.assertTrue(all(not r['takeover_ready'] for r in report['automations']))
         self.assertEqual({'writer', 'consumer', 'unrelated'}, {r['usage'] for r in report['automations']})
         self.assertTrue(all(r['observed_enabled'] is True for r in report['automations']))
         self.assertEqual(before, await self.s.context.get('room'))
         self.assertEqual({}, before['roles'])
         self.assertIn(SENSOR, self.s.client.related_automations.await_args.args[0])
+
+    async def test_review_with_no_relationship_retains_uncertainty(self):
+        await self.bind()
+        self.s.client.related_automations.return_value = {}
+        self.s.client.automation_config.return_value = {'triggers': [], 'actions': []}
+        before = await self.s.context.get('room')
+        report = await self.s.presence_adoption_review('room', {'revision': await self.revision()})
+        self.assertEqual('inspect_missing_relationships', report['recommendation'])
+        self.assertEqual(0, report['summary']['related'])
+        self.assertEqual('inspect_relationship', report['automations'][0]['reuse_disposition'])
+        self.assertIn('no_direct_presence_source_trigger', report['blockers'])
+        self.assertFalse(report['execution']['allowed'])
+        self.assertEqual(before, await self.s.context.get('room'))
 
     async def test_revision_or_disconnect_during_review_discards_result(self):
         await self.bind()

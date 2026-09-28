@@ -180,7 +180,7 @@ class ZonePresenceServiceMixin:
             for row in result['automations']:
                 value = after[row['automation_id']].get('state')
                 row['observed_enabled'] = True if value == 'on' else False if value == 'off' else None
-            result.update(mode='existing_control', recommendation='keep_existing_control',
+            result.update(mode='existing_control',
                 coverage='related_lookup_and_selected_not_exhaustive', checked_at=time.time(),
                 control_changed=False, persisted=False)
             result['summary'].update(

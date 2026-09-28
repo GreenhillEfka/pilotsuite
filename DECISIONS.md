@@ -564,6 +564,13 @@ risk, preference or execution authority is changed.
 
 ## ADR-043 — Connect existing presence control without taking ownership
 
+Amendment, 2026-09-28: the user now explicitly permits adoption/reuse of existing
+automations. The original comparison-only choice below describes the implemented
+Alpha.61 path, not a permanent product constraint. Reuse existing inspection and
+plan ownership. Alpha.66 prepares a transient reuse review; it adds no executable
+automation edit or control handoff. Live-change scope is separately being clarified.
+Structure never proves safety/equivalence, even without a detected conflicting writer.
+
 Accepted 2026-09-28 in the manual follow-up after the closed bounded quality run.
 The user explicitly chose to keep existing HA automations in control. Bind their
 Boolean/logical status, optional timer and public occupancy/presence binary sensor

@@ -90,6 +90,13 @@ Automationen und deren Nachlauf werden dadurch nicht verändert.
 
 ## Bestehende Anwesenheitssteuerung: lesend verbinden
 
+Die neue Nutzerfreigabe vom 28.09.2026 erlaubt kontrollierte Automationsübernahme.
+Die folgenden Alpha.61-Laufzeitgrenzen sind Implementierungsstand, kein dauerhaftes
+Übernahmeverbot. Alpha.66 ergänzt im selben Inspector die Weiterverwendungsprüfung:
+Steuerung, Verbraucher, gemischte Logik und direkte Bezüge; alle Verhaltens-/Rückweg-
+Prüfungen bleiben offen. Keine Struktur meldet automatische Übernahmebereitschaft.
+Noch kein ausführbarer Automationsänderungsplan oder aktiver Zuständigkeitswechsel.
+
 Alpha.61 ergänzt den ausdrücklich gewählten Bestandsweg: HA-Automationen bleiben
 alleinige Schreiber ihrer vorhandenen Helfer. Die Zonenansicht verweist auf den
 bestehenden Editor „Bestand & Ordnung“; kein zweiter Konfigurationsspeicher.

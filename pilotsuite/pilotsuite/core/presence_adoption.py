@@ -43,6 +43,8 @@ def classify_inspection(inspection, runtime):
     blockers=sorted(limitations | ({"no_direct_presence_source_trigger"} if not direct_sources and not reads_status and not reads_timer else set()))
     overlap=bool(direct_sources or writes_owner or writes_timer or reads_status or reads_timer or target_refs)
     writer=writes_owner or writes_timer
+    affected=sorted(set(direct_sources + reads_status +
+        ([owner] if writes_owner else []) + ([timer] if writes_timer or reads_timer else [])))
     return {"automation_id":inspection["entity_id"],"fingerprint":inspection["config_fingerprint"],
       "overlap":overlap,"direct_presence_sources":direct_sources,"writes_owner":writes_owner,"writes_timer":writes_timer,
       "reads_status":reads_status,"reads_timer":reads_timer,"other_actions":other_actions,
@@ -50,7 +52,12 @@ def classify_inspection(inspection, runtime):
               "consumer" if reads_status else "related" if overlap else "unrelated",
       "limitations":sorted(limitations),"blockers":blockers,
       "classification":"conflict" if overlap and (writes_owner or writes_timer) else "related" if overlap else "unrelated",
-      "takeover_ready":bool(direct_sources) and not blockers and not writes_owner and not writes_timer}
+      # Compatibility field: structure alone never establishes takeover readiness.
+      # A current writer conflicts only with a second controller, not with reuse.
+      "takeover_ready":False,"affected_entities":affected,
+      "reuse_disposition":"review_mixed_controller" if writer and other_actions else
+                         "retain_controller" if writer else "retain_consumer" if reads_status else
+                         "inspect_relationship"}
 
 def adoption_plan(zone_id,revision,runtime,inspections,*,include_unrelated=False):
     rows=[classify_inspection(i,runtime) for i in inspections]
@@ -58,13 +65,18 @@ def adoption_plan(zone_id,revision,runtime,inspections,*,include_unrelated=False
     payload={"zone_id":zone_id,"revision":revision,"runtime_basis":{"owner":runtime.get("owner"),
       "raw_sources":runtime.get("raw_sources",[]),"timer":runtime.get("timer"),
       "sensor":runtime.get("sensor")},"automations":rows if include_unrelated else related}
-    fingerprint=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    fingerprint=hashlib.sha256(json.dumps({"view":payload,"inspected":rows},sort_keys=True,separators=(",",":")).encode()).hexdigest()
     conflicts=[r["automation_id"] for r in related if r["classification"]=="conflict"]
-    blockers=sorted({b for r in related for b in r["blockers"]})
+    # Unresolved/disabled relationships must not vanish into a clean verdict.
+    blockers=sorted({b for r in rows for b in r["blockers"]})
     return {"schema":"pilotsuite-presence-adoption-v1",**payload,"fingerprint":fingerprint,
       "summary":{"related":len(related),"conflicts":len(conflicts),"unresolved":len(blockers)},
       "conflicting_automations":conflicts,"blockers":blockers,
-      "recommendation":"review_conflicts" if conflicts or blockers else "ready_for_separate_takeover_approval",
+      "recommendation":"review_existing_control" if related else "inspect_missing_relationships",
+      "reuse_review":{"controller_before":"existing_automations","controller_after":"existing_automations",
+        "proposed_changes":[],"apply_implemented":False,
+        "checks":[{"id":key,"state":"open"} for key in
+                  ("timing","unknown_inputs","manual_override","dependencies","single_writer","backup_recovery")]},
       "execution":{"allowed":False,"actions":[]},
       "boundaries":["No automation is enabled, disabled, edited or deleted.","Configuration structure is not runtime proof.",
                     "Takeover requires a separate backup-bound approval and fresh fingerprint recheck."]}

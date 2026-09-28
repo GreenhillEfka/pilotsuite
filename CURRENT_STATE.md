@@ -40,9 +40,19 @@ changed. AGENTS.md remains unchanged and untracked; Ingress/authentication intac
 New explicit user mandate: administration, configuration and lighting, 2026-09-28
 17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
 Reused heartbeat active for this window only; pause at completion, never extend it.
-Finish the Alpha.65 documentation receipt before starting the next package.
+Alpha.65 receipt PR #141 merged; exact candidate/main CI passed.
 
-Next code investigation: inconsistent usable-source counts and guidance in the
+Active focused package: Alpha.66 existing-automation reuse review. Two regression
+methods first reproduced three false-readiness verdicts; the new reuse projection
+test also failed before implementation. A third regression reproduced an unchanged
+fingerprint after a changed unresolved inspection. Locally 632 Python / 75 JS / 62 contracts
+and extended zone browser pass. No execution, store or household change. Delivery
+is pending fresh scoped backup and exact candidate/main CI; installed remains 65.
+Latest user correction permits adoption/reuse. The pending question concerns the
+scope of live edits, not permission to develop the feature. Until answered, no
+household automation edit/enable/disable or active control transfer.
+
+After this package, next code investigation: inconsistent usable-source counts and guidance in the
 existing lighting/configuration path. Preview currently checks raw nonempty state,
 whereas the decision brief validates lux; reproduce invalid lux/binary states and
 missing/derived versus explicit-empty role handling before any fix. Keep one owner

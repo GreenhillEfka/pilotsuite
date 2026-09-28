@@ -29,10 +29,14 @@ before removing their settings or endpoints. AGENTS.md, when present, is preserv
 Use CURRENT_STATE.md for the next task. Use the release receipt plus a fresh HA
 metadata read for installation, never an old narrative version claim.
 
-The manual follow-up after the closed three-hour run prioritizes existing presence
-integration: existing HA automations remain the controllers. Bind their Boolean,
-timer and public presence sensor through the existing organization profile and
-compare PilotSuite's independent assessment. No takeover or activation is implied.
+The latest user correction explicitly permits reusing/adopting existing automations.
+Prefer existing logic over rebuilding it. Alpha.61 bindings/comparison and the
+existing inspector are the starting point; the earlier comparison-only preference
+is not a permanent product prohibition. Current runtime still leaves HA automations
+in control. Structural alignment never establishes safe/equivalent behavior.
+Until the pending live-change scope is answered, develop/test adoption review but
+do not edit, enable or disable household automations or transfer control. A future
+write needs concrete reviewed changes, fresh preconditions, backup and recovery.
 The three-hour and subsequent one-hour windows are closed. The user's new two-hour
 run on 2026-09-28 covers administration, configuration and lighting, from 17:05:52
 to 19:05:52 UTC. The reused heartbeat is active only for this new window; no new

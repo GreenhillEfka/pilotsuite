@@ -131,7 +131,7 @@
     "integrated_pr": 140,
     "integrated_commit": "91553c840a826b552181bfe8f9132022b79d9823"
   },
-  "next_step": "Within the new two-hour window, reproduce and correct inconsistent usable-source counts and guidance in the existing lighting/configuration path; do not rebuild features. Separately, authenticated household Ingress/four-zone acceptance remains pending. No household mapping or light switching.",
+  "next_step": "Complete the focused Alpha.66 existing-automation reuse review with exact candidate/main CI and scoped backup gates; installation remains Alpha.65 until verified. Then resume lighting-source usability investigation. Authenticated household Ingress/four-zone acceptance remains pending; no live automation edits while their scope is unresolved.",
   "runtime_measurement": {
     "scope": "No performance change claimed for Alpha.65. Alpha.64 checkpoint counts and tradeoff are preserved in the previous receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
@@ -142,7 +142,7 @@
     "start_utc": "2026-09-28T17:05:52Z",
     "no_new_packages_after_utc": "2026-09-28T18:45:52Z",
     "end_utc": "2026-09-28T19:05:52Z",
-    "requested_authority": "existing_automations_remain_controllers",
+    "requested_authority": "User now permits existing-automation adoption/reuse. Live-edit scope is pending clarification; no household automation edits or control transfer in this candidate.",
     "household_binding_changed": false
   }
 }

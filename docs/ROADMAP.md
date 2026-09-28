@@ -39,7 +39,8 @@ den vorhandenen Organization-Editor/-Speicher für Boolean, Timer, öffentlichen
 Präsenzsensor und Automationen. HA bleibt zuständig; kein Takeover, keine Aktivierung.
 Implementiert, getestet und nach PR #132 sowie exakter Kandidaten-/Main-CI installiert.
 Haushaltszuordnung und echte Ingress-Abnahme bleiben offen; keine Bestandsautomation
-wurde geändert. Belege im Release-Receipt. Der alte Heartbeat bleibt pausiert.
+wurde geändert. Belege im Release-Receipt. Dieser frühere Lauf ist abgeschlossen;
+das neue Zweistundenfenster ist unten getrennt definiert.
 
 Alpha.62 behebt den am 28.09.2026 rot reproduzierten Bedienfehler: Nach
 blockiertem Bereichswechsel und anschließendem Speichern/Verwerfen verschwindet
@@ -132,6 +133,14 @@ und Browserablauf bestehen; PR #140 und alle exakten Kandidaten-/Main-CI-Jobs be
 installiert nach geprüfter PilotSuite-only-Sicherung. Haushaltsabnahme bleibt offen.
 Nächster Schritt: widersprüchliche Nutzbarkeitsangaben und Konfigurationshinweise
 im bestehenden Lichtweg reproduzieren und korrigieren, keine neue Steuerung.
+
+Neu priorisierte Nutzerkorrektur: bestehende Automationen dürfen übernommen werden.
+Alpha.66 in Prüfung: vorhandene revisionsgebundene Bestandsprüfung um klare
+Weiterverwendungsstrategie, direkte Bezüge und offene Verhaltens-/Rückwegprüfungen
+ergänzen; falsche Übernahmebereitschaft bei leerem oder ungeklärtem Befund beheben.
+Keine neue Engine, kein Speicher und noch kein ausführbarer Automationsänderungsplan.
+Die alte reine Vergleichspräferenz ist keine dauerhafte Produktgrenze. Live-Änderungs-
+umfang bleibt bis zur Nutzerantwort offen; vorhandene HA-Steuerung unverändert lassen.
 
 Lichtvorschau und Bestandsprüfung existieren; nicht noch einmal bauen.
 Ein späterer Pilot verwendet vorhandene passende HA-Logik oder genau einen

@@ -49,6 +49,11 @@ Der erste Bestandsweg lässt vorhandene Automationen bewusst zuständig: deren
 Boolean, Nachlauf und öffentlicher Sensor werden zugeordnet, gelesen und mit der
 unabhängigen PilotSuite-Bewertung verglichen. „Verbinden“ bedeutet keine Übergabe
 der Steuerung. Verbraucher werden sichtbar gemacht, nicht automatisch umgestellt.
+Die neuere Nutzerfreigabe erlaubt ausdrücklich die kontrollierte Übernahme bestehender
+Automationen. Weiterverwendung ist der bevorzugte Ausgangspunkt, kein dauerhafter
+Vergleichszwang. Eine spätere Anpassung oder Steuerungsübergabe braucht konkrete
+Änderungen, geklärte Schreiber, Verhaltensprüfung, Freigabe und Wiederherstellung.
+Die bestehende Prüfung bereitet dies vor; ein ausführbarer Übernahmepfad ist noch offen.
 
 ## Bedienung und Analyse
 
