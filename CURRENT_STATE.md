@@ -1,88 +1,62 @@
-# Current state — Alpha.64 installed; household acceptance pending
-
-## Active two-hour follow-up
-
-New user mandate: administration, configuration and lighting, 2026-09-28
-17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
-Reused heartbeat active for this window only. One package on
-`fix/lighting-preview-continuity`: Alpha.65 candidate, not yet delivered.
-Two red regression methods reproduce six interrupted stability windows and an
-old confirmed band surviving an interruption. The fix reacquires the band without
-erasing proposal cooldown. Third test plus full-app Chromium cover the new fixed
-recovery scenario. Local 628 Python / 75 JS tests pass. Release gates pending.
-Next: complete this delivery, then investigate inconsistent usable-source counts
-and configuration guidance in the existing lighting workflow. No household actions.
+# Current state — Alpha.65 installed; household acceptance pending
 
 ## Verified delivery
 
-PR #138 merged as `ee757af548194426d9f115cb29b3932379d5962e`.
-Exact candidate CI `36441905253` and release-main CI `36442208985` passed
+PR #140 merged as `91553c840a826b552181bfe8f9132022b79d9823`.
+Exact candidate CI `36457661481` and release-main CI `36458315513` passed
 all five jobs: tests, 11 browser suites, amd64 container, reproducible checkout
 and disposable Home Assistant protocol. App tree:
-`352119664af2716660e0e48535571e2d643c69a8`; local and connector trees matched.
+`e8f470a74bdfb87d63a4b401b4647785e62fb383`; local and connector trees matched.
 
-Fresh PilotSuite-only backup `14f1c9da` completed at 15:10:35 UTC before publication:
-exactly Alpha.63 app/data/options, 54,476,800 bytes, no HA/database/folders/failures,
-local and unprotected. Native list and backup/details verified metadata; no archive
-extraction or restore drill. One native Store refresh and one targeted update
-installed Alpha.64; no extra restart, rebuild or other-app update.
+Fresh PilotSuite-only backup `44da1956` completed at 17:19:26 UTC before publication:
+exactly Alpha.64 app/data/options, 54,487,040 bytes, no HA/database/folders/failures,
+local and unprotected. Native list and backup/details verified metadata; no extraction
+or restore drill. One Store refresh and one targeted update installed Alpha.65.
+No extra restart/rebuild or other-app update. All four options remain unchanged.
 
-HA-MCP confirms installed/offered/started and all four options unchanged. Startup
-remains `presence_adoption_review`, ready, connected, snapshot-fresh and zone-resolved.
-Raw log timestamps are copied without independent clock attestation.
-Full evidence: [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
+Startup remains `presence_adoption_review`, ready, connected, snapshot-fresh and
+zone-resolved. Raw log timestamps are recorded as emitted, not independently
+clock-attested. Full evidence: [docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
 
-## What Alpha.64 changes
+## What Alpha.65 changes
 
-The existing operational checkpoint store reads zone/revision/exact value in one
-SQLite snapshot before requesting a write reservation. Identical repetitions no
-longer fail merely because another writer reserved the database. Changed records
-still recheck revision/value under the existing transaction. No process cache,
-removed timestamps, delayed durability, schema migration or scheduler change.
+Only the existing pure lighting preview: missing daylight/current brightness,
+manual override and unknown/vacant presence interrupt the stable-band observation.
+Recovery must establish a new stable band; the last proposal's cooldown remains.
+The fixed recovery scenario in the existing UI explains the full new waiting
+period. No live lighting controller, persistence or configuration migration.
 
-Measured with the same expanded synthetic benchmark, 60 single-zone cycles each:
-suspended repetitions use 0 instead of 60 write reservations, with 0 actual writes
-before/after. Occupied/vacant/unknown retain all 60 reservations/writes and add 60
-SELECTs; connections stay 660 per case. All four complete decision-trace hashes
-match and were reconfirmed on exact main. No overall speed or household-load gain
-claimed; the additional read on changed writes is an explicit tradeoff.
-Detailed counts/times are in the receipt and [ROADMAP.md](docs/ROADMAP.md).
+Two new regression methods first failed in seven cases; all pass after the fix.
+Third test and extended Chromium flow verify the timeline. 628 Python / 75 JS /
+62 API contracts, discovery and compilation pass. Repeated exact-source audit:
+zero ResourceWarnings. Local workspace and Organization suites pass, screenshot
+inspected; all 11 suites pass exact candidate and main CI. Synthetic is not household.
 
 No household binding, helper, metadata, automation, output activation or consent
-was changed. AGENTS.md remains unchanged and untracked; Ingress/authentication intact.
+changed. AGENTS.md remains unchanged and untracked; Ingress/authentication intact.
 
-## Test evidence
+## Active two-hour run and next task
 
-625 Python tests, 75 JS tests, 62 API contracts, discovery and compilation pass.
-Repeat exact-candidate audit: 625 tests, zero ResourceWarnings; application tree
-identical to release-main. Two original red tests reproduced the needless reservation
-and lock failure. Eight added tests cover four-zone DB preservation, concurrency,
-stale/boolean/missing revisions, clock durability/restart, rollback/retry and the
-service's honest source-basis suspension beside a writer.
+New explicit user mandate: administration, configuration and lighting, 2026-09-28
+17:05:52–19:05:52 UTC. No new packages/publications after 18:45:52 UTC.
+Reused heartbeat active for this window only; pause at completion, never extend it.
+Finish the Alpha.65 documentation receipt before starting the next package.
 
-Local zone, workspace and Organization Chromium suites pass; no frontend assets or
-browser-test logic changed. Desktop screenshot inspected; all 11 browser suites
-passed exact candidate and main CI. Synthetic tests are not household acceptance.
+Next code investigation: inconsistent usable-source counts and guidance in the
+existing lighting/configuration path. Preview currently checks raw nonempty state,
+whereas the decision brief validates lux; reproduce invalid lux/binary states and
+missing/derived versus explicit-empty role handling before any fix. Keep one owner
+and preserve existing roles/drafts/consents; no new engine or household switching.
 
-## Next task and remaining boundaries
+Authenticated household Ingress and actual four-zone acceptance remain open.
+Review Erdkellerbereich and one unlike zone read-only when an authorized session
+exists. Existing automations remain controllers; Boolean/timer/public-sensor
+bindings are not guessed. No existing-chain public sensor is automatically created.
 
-With an authorized authenticated household Ingress session, first read all four
-saved zones, Erdkellerbereich and one unlike zone without changing anything.
-Then explicitly choose intended existing Boolean/timer/public sensor bindings and
-observe actual comparisons without test switching. No mappings were guessed/applied.
+## History
 
-Alpha.61's **Vorhandenen Bestand verbinden** still uses the canonical Organization
-editor. Existing HA automations remain controllers; PilotSuite reads and compares.
-Unknown never means vacant. No public sensor was automatically generated for that
-existing chain. Alpha.63 still preserves unchanged configuration sessions/deadlines.
-Further write batching and scheduler consolidation require separate measurements
-and regressions; current clock updates remain durable. Automation takeover,
-technical ID migration and adaptive learning remain open.
-
-## Closed bounded runs and history
-
-The three-hour and subsequent one-hour windows remain closed. Alpha.64 followed
-an explicit manual continuation; the separate two-hour mandate is described above.
-Alpha.63 receipt/history: `7a319a571e5d64f31856dd97e9c863af4e060b44:CURRENT_STATE.md`.
-Alpha.62: `1719ee11dd92b2a73ca5149cd458fae7f9e56c29:CURRENT_STATE.md`.
-Alpha.56–60 measurements: `b3aa7966b9df146bc1bca61c0e844f279e6b7884:CURRENT_STATE.md`.
+Earlier three-hour and one-hour windows remain closed. Alpha.64 receipt:
+`6b7204e3a8620c05978c4a73a54bec2b078ba554:CURRENT_STATE.md`.
+Its measured checkpoint optimization/tradeoff remains in ROADMAP.md and that receipt.
+Alpha.63 unchanged-save/session/deadline behavior and all prior presence safeguards
+remain intact; no scheduler, generic actuation or automation-takeover change.

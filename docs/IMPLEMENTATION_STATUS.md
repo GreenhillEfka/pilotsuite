@@ -1,13 +1,15 @@
-# PilotSuite capability ledger — Alpha.64 installed
+# PilotSuite capability ledger — Alpha.65 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.65 candidate (not delivered): the pure lighting preview discards interrupted
+Alpha.65 installed after PR #140 and exact candidate/main CI: the pure lighting preview discards interrupted
 stability evidence, preserves the proposal cooldown and explains recovery through
 one additional fixed scenario. 628 Python / 75 JS tests and the extended local
-workspace browser flow pass; release/installation gates remain pending. No live
-lighting controller, persistence or household writes are introduced.
+workspace/Organization browser flows pass; all five exact CI jobs (11 browser suites)
+and repeated zero-ResourceWarning audit pass. Scoped backup, installation and unchanged
+options are verified in RELEASE_STATE.json. No live lighting controller, persistence
+or household writes; authenticated household acceptance remains pending.
 
 Alpha.64 installed after PR #138 and exact candidate/main CI: identical operational checkpoints use a revision-bound read
 without a write reservation; changed data still rechecks under the existing write

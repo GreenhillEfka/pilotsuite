@@ -126,9 +126,12 @@ Entity-ID-Migration bleiben gesondert offen.
 Neuer ausdrücklich beauftragter Zweistundenlauf am 28.09.2026, 17:05:52–19:05:52 UTC:
 Verwaltung, Konfiguration und Licht im bestehenden System verbessern. Ab 18:45:52 UTC
 keine neuen Pakete/Veröffentlichungen. Frühere Zeitfenster bleiben abgeschlossen.
-Erster Alpha.65-Kandidat korrigiert die reine Lichtvorschau: Unterbrechungen beenden
+Alpha.65 korrigiert die reine Lichtvorschau: Unterbrechungen beenden
 eine Stabilitätsbeobachtung, ohne den Mindestabstand zu löschen. Lokale Regressionen
-und Browserablauf bestehen; Lieferung getrennt im Release-Receipt.
+und Browserablauf bestehen; PR #140 und alle exakten Kandidaten-/Main-CI-Jobs bestanden,
+installiert nach geprüfter PilotSuite-only-Sicherung. Haushaltsabnahme bleibt offen.
+Nächster Schritt: widersprüchliche Nutzbarkeitsangaben und Konfigurationshinweise
+im bestehenden Lichtweg reproduzieren und korrigieren, keine neue Steuerung.
 
 Lichtvorschau und Bestandsprüfung existieren; nicht noch einmal bauen.
 Ein späterer Pilot verwendet vorhandene passende HA-Logik oder genau einen
