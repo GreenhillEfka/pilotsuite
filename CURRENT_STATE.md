@@ -1,14 +1,14 @@
-# Current state — Alpha.55 presence-first workspace candidate
+# Current state — Alpha.55 installed; household UI acceptance pending
 
 ## Verified baseline
 
 Work continues only in GreenhillEfka/pilotsuite. Concept PR #118 merged as
 `c04cf90770ed4166d692b5dc8f018be2ef57e35f`; its main CI run `36359118246` succeeded.
-Fresh HA-MCP reads on 2026-09-28 confirmed Alpha.54 installed/offered, started,
-auto_update enabled. The Alpha.54 release receipt remains in
-[docs/RELEASE_STATE.json](docs/RELEASE_STATE.json) until delivery is verified.
+Fresh HA-MCP reads initially confirmed Alpha.54 installed/offered, started,
+auto_update enabled. PR #119 is now merged and Alpha.55 installed, as recorded in
+[docs/RELEASE_STATE.json](docs/RELEASE_STATE.json).
 
-## Implemented in this candidate
+## Implemented and installed
 
 Alpha.55 reuses the existing workspace and zone-presence API. Three primary entries
 (Zonen, Werkzeuge, System) group the old view keys without replacing preferences,
@@ -42,15 +42,23 @@ verified through snapshot list plus native `backup/details`: exactly Alpha.54 ap
 54,446,080 bytes, unprotected local agent, no HA/database/folders, no failures or
 agent errors. Archive extraction and a restore drill were not performed.
 
-Exact candidate CI, main CI and installation must still be verified after publishing
-the reviewable feature PR. Container/protocol checks are CI gates, not claimed as
-local checks. AGENTS.md is pre-existing local untracked work and remains untouched.
+Final candidate `031b2efc6d4730f8d7604a88d51430e4d8143862` passed all five jobs in
+CI `36360742028`. PR #119 merged as `dab82d1d7f98ce3cb5c76f7e4a1c7b348229dd98`;
+main CI `36360899388` passed all five jobs with the identical app tree. Container
+and disposable HA-protocol results are CI evidence, not claimed as local runs.
+
+One Store metadata refresh offered Alpha.55; one targeted update installed it.
+HA-MCP reports installed/offered Alpha.55, started, unchanged options. Startup logs
+confirm the same `presence_adoption_review` mode and ready/stream/fresh-snapshot/
+resolved-zone state. No explicit restart, rebuild, other-app update, household
+metadata write or device test was performed. Source association is repository,
+version and app tree, not independent image attestation. AGENTS.md remains untouched.
 
 ## Remaining acceptance and next scope
 
 No authorized authenticated household browser is connected. No Ingress/auth/sandbox
 bypass was attempted. A local synthetic browser is not household Ingress acceptance.
-All four saved household zones have not been independently read back after Alpha.54.
+All four saved household zones have not been independently read back after Alpha.55.
 Inspect Erdkellerbereich and one unlike saved zone read-only when authorized browser
 access exists; preserve entity cleanup and compare multiple passive refreshes.
 

@@ -1,8 +1,9 @@
 # Workspace — Alltag zuerst, Diagnose bei Bedarf
 
-Umsetzungskandidat Alpha.55 vom 28.09.2026: Die drei Hauptzugänge und die zentrale
+Alpha.55 vom 28.09.2026 (PR #119): Die drei Hauptzugänge und die zentrale
 Präsenzkarte sind im bestehenden Frontend umgesetzt. Den tatsächlichen Installations-
-und CI-Stand führt RELEASE_STATE.json; die angemeldete Haushaltsabnahme bleibt offen.
+und CI-Stand führt RELEASE_STATE.json; Alpha.55 ist installiert, die angemeldete
+Haushaltsabnahme bleibt offen.
 
 ## Drei Hauptzugänge
 
