@@ -1,7 +1,17 @@
-# PilotSuite capability ledger — Alpha.67 installed
+# PilotSuite capability ledger — Alpha.68 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
+
+Alpha.68 installed after PR #146 and exact candidate/main CI: four setup shortcuts
+reuse existing editors, keyboard focus reaches a visible field, and the main-source
+link stays in configuration. Dirty drafts and unavailable-editor explanations are
+covered in the existing workspace browser at 390/768/1440 px, light/dark. Local
+637 Python / 75 JS / 62 contracts and two browser suites passed; all five exact CI
+jobs passed, including all 11 browser suites. Repeated release-main resource audit
+is clean. Fresh scoped backup, unchanged options and healthy runtime are verified.
+No new configuration owner, persistence or household authority. Read-only existing
+zone states/history contain no transition and do not substitute for Ingress acceptance.
 
 Alpha.67 installed after PR #144 and exact candidate/main CI: malformed binary observations remain invalid,
 not false/good; lighting preview/brief share source validity and canonical lux
@@ -136,8 +146,9 @@ runtime/configuration. See ARCHITECTURE.md and ROADMAP.md for the consolidation 
 | Presence editor guard lifecycle | Alpha.62 implemented, tested and installed; settled guards clear without erasing other drafts or unrelated notices; household acceptance pending |
 | Identical presence-configuration saves | Alpha.63 implemented, tested and installed; session/deadline/proof retained without redundant configuration writes or invalidation; suspension recovery unchanged |
 | Identical operational checkpoints | Alpha.64 installed; no write reservation on matching zone/revision/value; changed timestamps remain durable and writers recheck; no overall speed gain claimed |
-| Live runtime | Alpha.64 started, ready, stream connected, snapshot fresh and zone resolved |
-| Four saved PilotSuite zones | No automatic zone/schema migration in Alpha.55–64; not independently read back in an authenticated Ingress session after the update |
+| Direct setup tasks and visible-field focus | Alpha.68 implemented, tested and installed; existing editor/draft guards retained; household acceptance pending |
+| Live runtime | Alpha.68 started, ready, stream connected, snapshot fresh and zone resolved; runtime mode unchanged |
+| Four saved PilotSuite zones | No automatic zone/schema migration in Alpha.68; not independently read back in an authenticated Ingress session after the update |
 | Authenticated household Ingress | Still pending; access protection was not weakened |
 
 The general legacy Apply boundary remains closed. `presence_adoption_review` is a bounded
