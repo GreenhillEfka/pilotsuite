@@ -12,7 +12,7 @@
  function summary(data){
    const paused=data?.analysis_enabled===false||data?.mode==='paused';
    const current=data?.analysis_enabled===true&&!paused?data.current:null;
-   const state=paused?'Pausiert':({occupied:'Belegt',grace:'Nachlauf',vacant:'Frei'}[current?.state]||'Unklar');
+   const state=paused?'Pausiert':current?.valid===true?({occupied:'Belegt',grace:'Nachlauf',vacant:'Frei'}[current.state]||'Unklar'):'Unklar';
    const reason=paused?'Keine aktuelle Auswertung.':current?.explanation||
      (data?.status==='source_basis_changed'?'Quellenbasis geändert; Einrichtung prüfen.':
       !data?.spec?.sources?.length?'Keine bestätigte Präsenzgrundlage; Quellen prüfen.':'Keine aktuelle Entscheidung verfügbar; neu laden.');
@@ -22,6 +22,20 @@
    const publication=paused?'Pausiert':!data?.package?'Nicht eingerichtet':
      data.mode==='compare'?'Nur vergleichen':confirmed?'Zuletzt bestätigt':'Nicht bestätigt';
    return {state,reason,publication,publicationCheckedAt:confirmed?data.publication_checked_at:null};
+ }
+ function headline(data){
+   const chain=data?.existing,sensor=chain?.sensor;
+   if(!chain?.configured)return {...summary(data),kind:'calculated',title:'PilotSuite-Bewertung',
+     authority:'Keine Bestandskette verbunden; eigene Bewertung, kein Nachweis einer HA-Steuerung.'};
+   const usable=chain.fresh===true&&sensor?.available===true&&!sensor.own_output&&['on','off'].includes(sensor.state);
+   return {kind:'existing',title:'Zonen-Präsenz · Bestandsmeldung',
+     state:usable?({on:'Anwesenheit gemeldet',off:'Frei gemeldet'}[sensor.state]||'Unklar'):'Unklar',
+     reason:!sensor?'Öffentlichen Bestands-Präsenzsensor zuordnen. Kein Ersatz durch Boolean oder Vergleich.':
+       sensor.own_output?'Zugeordneter PilotSuite-Ausgang ist keine unabhängige Bestandsmeldung.':
+       `${sensor.name||'Bestands-Präsenzsensor'} · ${sensor.entity_id||sensor.saved_entity_id||'Identität ungeklärt'}`+
+       (!usable?' · Keine gültige aktuelle Meldung.':' · Gemeldeter HA-Zustand, kein Verhaltensnachweis.'),
+     controller:sensor?.own_output?'PilotSuite-Ausgang':'Home Assistant',
+     authority:sensor?.own_output?'Eigener Ausgang; nicht als unabhängige HA-Bestandssteuerung bestätigt.':'Bestandssteuerung unverändert. Diese Ansicht ändert keine HA-Automation.'};
  }
  function plot(series,start,end){
    if(!finite(start)||!finite(end)||start>=end)return {segments:[],labels:[],error:'invalid_window'};
@@ -42,5 +56,5 @@
    if(current.length)segments.push(current);
    return {segments,labels,numeric,error:null};
  }
- const api=Object.freeze({plot,summary,existing});if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.PilotSuiteZonePresenceModel=api;
+ const api=Object.freeze({plot,summary,existing,headline});if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.PilotSuiteZonePresenceModel=api;
 })(typeof window!=='undefined'?window:null);

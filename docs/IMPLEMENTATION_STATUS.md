@@ -1,16 +1,26 @@
-# PilotSuite capability ledger — Alpha.68 installed
+# PilotSuite capability ledger — Alpha.69 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.69 candidate, not installed: zone-owned Automationen navigation, explicitly
+Alpha.70 candidate, not installed: explicitly connected public HA sensor first,
+separate own comparison/publication, strict calculated validity and no Boolean fallback.
+Role-specific links reuse the existing helper editor and preserve search/drafts.
+The existing own-package preview explains effects and recovery limits; failed previews
+remain closable. Local 640 Python / 78 JS / 62 contracts and three browser suites pass,
+resource audit clean. No new executor/store/controller, individual missing-helper
+creation, HA parameter editing or takeover execution. Exact remote gates pending.
+
+Alpha.69 installed after PR #148: zone-owned Automationen navigation, explicitly
 mapped presence/lighting/other topics in the existing organization profile, shared
 zone/topic indications and loaded (not continuously verified) activation state.
 Deduplicated selected inspections use explicit eight-rule batches; unread and stale
 states stay visible. Selection focus and dirty drafts are preserved. Legacy learning
 guide moved out of basic setup; helper assignment grouped, not reimplemented.
 Regression-first local evidence: 640 Python / 76 JS / 62 contracts and three affected
-browser suites; resource audit clean. Exact remote gates and installation pending.
+browser suites; resource audit clean. All five exact candidate/main CI jobs passed,
+including 11 browser suites. Fresh scoped publication/install backups verified;
+installed/offered Alpha.69 started with unchanged options and healthy runtime.
 No helper provisioning extension, active HA-parameter editor or automation writer
 is claimed by this first concept slice. ADR-043 describes subsequent target behavior.
 

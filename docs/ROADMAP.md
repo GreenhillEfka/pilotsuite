@@ -1,6 +1,6 @@
 # Roadmap — weniger Parallelität, vollständige Nutzerwege
 
-Stand 28.09.2026. Kein Neustart und keine neue Versionsversprechung.
+Stand 29.09.2026. Kein Neustart und keine neue Versionsversprechung.
 Release-Chronik: [CHANGELOG](../CHANGELOG.md). Tatsächliche Fähigkeiten:
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md). Installationsbelege:
 [RELEASE_STATE.json](RELEASE_STATE.json).
@@ -32,6 +32,13 @@ Primärquellen-Recherche wird in konkrete Entscheidungen und Regressionen übers
 nicht als isolierter Bericht betrieben. Haushaltsänderungen bleiben bis zur Klärung
 des Live-Schreibumfangs aus; Browser-Abnahme ohne autorisierten Zugang offen.
 
+Zwischenstand: Alpha.69 nach PR #148 installiert, Themenbereich ausgeliefert.
+Alpha.70-Kandidat verbindet die Status-/Helfereinstiege im vorhandenen UI; ungültige
+Berechnungen bleiben unklar. Noch offen: einzelne fehlende Bestandshelfer gezielt
+ergänzen, tatsächlich HA-eigene Parameter bearbeiten und Automationsübernahme ausführen.
+Vor einer Erweiterung des Helferpfads gilt: bestehende Paket-/Identitäts-/Plan-Gates
+wiederverwenden, Teilbestand und fremde Schreiber prüfen, keinen Legacy-Executor öffnen.
+
 ### Vorheriger Stand
 
 Der UI-Stundenlauf am 28.09., 19:33:18–20:33:18 UTC endete mit Draft PR #146.
@@ -39,7 +46,8 @@ Nach ausdrücklicher Zustimmung zum anschließenden Abschluss ist Alpha.68 insta
 vier Aufgaben-Einstiege, sichtbarer Feldfokus und korrigierter Hauptsensor-Link,
 keine zusätzliche Oberfläche oder Konfiguration. Rot/grün-Regressionsnachweis,
 alle fünf exakten Kandidaten-/Main-CI-Jobs und frische PilotSuite-only-Sicherung
-sind im Release-Receipt belegt. Der Heartbeat bleibt pausiert; kein neuer Zeitlauf.
+sind im historischen Release-Receipt belegt. Damals blieb der Heartbeat pausiert;
+der später ausdrücklich beauftragte Nachtlauf oben ist eine neue Freigabe.
 Angemeldete Ingress-/Vier-Zonen-Abnahme bleibt offen. Lesende Erdkeller-Zustände
 und drei Stunden Historie zeigen keinen Übergang und beweisen daher weder Nachlauf
 noch sicheres Übernahmeverhalten; keine Testschaltung oder Haushaltsänderung.
