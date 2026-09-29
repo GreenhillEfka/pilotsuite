@@ -90,6 +90,20 @@ Automationen und deren Nachlauf werden dadurch nicht verändert.
 
 ## Bestehende Anwesenheitssteuerung: lesend verbinden
 
+Entwicklungsbranch `feat/zone-missing-helper`, noch nicht ausgeliefert:
+Ein fehlender Boolean oder Timer kann einzeln im bestehenden Paket-Transaktionsweg
+geplant und nach konkreter Bestätigung angelegt werden. Keine automatische Bindung,
+Automation, öffentliche Ausgabe oder Übernahme. Bestehende/unaufgelöste Bindungen
+und ein vorhandenes eigenes Ausgangspaket sperren Ersatzanlagen. Timerdauer ist
+explizit 1–86400 Sekunden; sie ist keine Änderung einer bestehenden HA-Regel.
+Anlagebeleg bleibt im PlanStore. Anzeigenamen/Rollen sind ein separater Metadatenplan;
+keine automatische Löschung. Wiederanlauf verwendet dieselben kumulativen Belege.
+Vor Auslieferung noch fault-/Protokoll- und exakte Release-Gates abschließen.
+
+Primärquelle: [HA Input Boolean](https://www.home-assistant.io/integrations/input_boolean/)
+stellt ohne wiederherstellbaren Zustand initial off her. Deshalb ist Anlage nicht
+gleich gültiger Präsenzstatus; vorhandener öffentlicher Gültigkeitspfad bleibt nötig.
+
 Alpha.69 bündelt den vorhandenen Organization-Editor im eigenen Zonenbereich
 „Automationen“. `presence_automations` bleibt kompatibel; ausdrückliche Zuordnungen
 für `lighting_automations` und `other_automations` nutzen denselben Speicher und

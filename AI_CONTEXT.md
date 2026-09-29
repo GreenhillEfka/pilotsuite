@@ -37,7 +37,12 @@ in control. Structural alignment never establishes safe/equivalent behavior.
 Until the pending live-change scope is answered, develop/test adoption review but
 do not edit, enable or disable household automations or transfer control. A future
 write needs concrete reviewed changes, fresh preconditions, backup and recovery.
-Earlier timed runs are closed. A new, explicitly authorized overnight development
+Latest explicit extension: 29 September 06:43:54–07:43:54 UTC. Existing heartbeat
+reused; stop new packages at 07:23:54 and release publication at 07:28:54, pause at
+end. `feat/zone-missing-helper` is a non-release development candidate; Alpha.70
+remains installed. See CURRENT_STATE for gates and exact handoff. No household write
+scope has changed. The following overnight window is historical, not current:
+Earlier timed runs are closed. An explicitly authorized overnight development
 window runs from 28 September 22:26:57 UTC to 29 September 06:30 UTC
 (08:30 Europe/Berlin). The existing heartbeat is active; no extra background jobs.
 No new feature package after 05:45 UTC and no new publication after 06:00 UTC.

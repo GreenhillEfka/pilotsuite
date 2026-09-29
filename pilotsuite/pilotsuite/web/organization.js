@@ -216,6 +216,12 @@
   }
   function drawPlan(plan){planPanel.replaceChildren();planPanel.append(E('h3',outcomeLabels[plan.state]||plan.state));if(plan.state==='unchanged'){planPanel.append(E('p',plan.message));return;}
     planPanel.dataset.planId=plan.id;
+    if(plan.kind==='presence_helper'||plan.kind==='presence_package'){
+      planPanel.append(E('p',plan.kind==='presence_helper'?'Einzelhelfer-Anlageplan. Keine Namensänderung, Zuordnung oder Steuerungsübernahme.':'Eigenes Ausgangspaket; kein Namensplan.'));
+      for(const op of plan.operations)planPanel.append(E('p',op.entity_id+' · '+(op.outcome||'Noch nicht angelegt'),'org-plan-change'));
+      planPanel.append(E('p','Gespeicherter Anlegenachweis, kein aktueller Funktionsbeleg. Unklare Ergebnisse nicht blind wiederholen. Angelegte Helfer werden hier nicht gelöscht.','ps-warning'));
+      return;
+    }
     for(const op of plan.operations){const row=E('p','','org-plan-change');row.append(E('strong',op.entity_id||op.path),E('span',`${op.before_entity_id||op.before||'Standardname ohne Override'} → ${op.after_entity_id||op.after||'Standardname ohne Override'}`));if(op.outcome)row.append(E('small',op.outcome+(op.write_response_confirmed===false?' · Antwort verloren, Zielzustand gelesen; keine Rücknahmeberechtigung abgeleitet':'')));planPanel.append(row);}
     if(plan.kind==='repair_review'){
       planPanel.append(E('p','Reparaturvorschau gespeichert. Die aufgeführten Stellen wurden erneut gegen die Automation geprüft. Dieser Release schreibt noch keine Automationskonfiguration; auch ein passender Ersatz ist noch kein Nachweis gleichen Verhaltens.','ps-warning'));return;

@@ -1,6 +1,31 @@
 # Current state — Alpha.70 installed; household acceptance pending
 
-## Overnight closing phase — ends 29 September 08:30 Europe/Berlin
+## Additional hour — development branch, not a release
+
+Explicit user extension: 29 September 06:43:54–07:43:54 UTC (09:43:54 Berlin).
+No new package after 07:23:54; no new release publication after 07:28:54.
+At the end pause the reused heartbeat. Prior overnight run remains completed.
+Fresh main `001811bd01cc1202245b6a6ef47994d4f2ac7d64`, no open PRs at entry;
+Alpha.70 installed/offered/started at 06:48 UTC. No household writes performed.
+
+Active package: `feat/zone-missing-helper`. Targeted Boolean/timer plan reuses
+the existing package endpoint, PlanStore, creation/readback/recovery transaction.
+Existing or unresolved role bindings and owned packages block duplicate creation;
+timer duration is explicit and bounded. Creation does not bind a role, publish a
+presence result or connect/change an automation. Initial off/idle is not vacancy.
+UI separates the single helper from a complete owned output package and retains
+duration drafts. Plan history no longer treats helper plans as name-edit plans.
+Three added Python regressions failed before implementation; 643 Python, 78 JS,
+62 contracts and discovery passed. Extended zone browser passed before the final
+plan-history correction; final browser rerun and review recorded in the PR.
+Synthetic screenshot inspected; no authenticated household browser available.
+
+NOT release-ready: no version bump, fresh release backup, exact candidate/main CI,
+release preflight or installation for this package. Do not merge as Alpha.70.
+Next: finish fault/recovery and disposable-HA protocol acceptance of the individual
+helper path, then version and release under a fresh authorized window/runbook.
+
+## Historical overnight closing phase — ended 29 September 08:30 Europe/Berlin
 
 Window: 28 September 22:26:57 UTC–29 September 06:30 UTC. Feature work completed;
 no new feature package. No new publication after 06:00 UTC. At 06:30 UTC report

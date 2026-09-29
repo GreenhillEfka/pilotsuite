@@ -9,6 +9,7 @@ from aiohttp.test_utils import TestClient, TestServer
 from pilotsuite.app import SERVICE_KEY, create_app
 from pilotsuite.core.plans import PlanStore
 from pilotsuite.core.settings import Settings
+from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from organization_support import seed
 
 
@@ -62,6 +63,58 @@ class ZonePackageRecoveryTests(unittest.IsolatedAsyncioTestCase):
 
     async def _preview(self):
         return await self.service.zone_package_preview('room', {'revision': 1})
+
+    async def test_single_missing_helper_has_no_package_binding_or_control(self):
+        before = await self.service.context.get('room')
+        for role, domain, duration in [('presence_status', 'input_boolean', None),
+                                       ('presence_timer', 'timer', 180)]:
+            plan = await self.service.zone_package_preview('room', {
+                'revision': 1, 'helper_role': role, 'duration_seconds': duration})
+            self.assertEqual('presence_helper', plan['kind'])
+            self.assertEqual(1, len(plan['operations']))
+            self.assertEqual(domain, plan['operations'][0]['domain'])
+            self.assertFalse(plan['details']['automation_connected'])
+            result = await self.service.zone_package_apply('room', plan['id'], {
+                'sha256': plan['sha256'], 'confirm': True})
+            self.assertEqual('verified', result['state'])
+            self.assertEqual(before, await self.service.context.get('room'))
+            count = len(self.storage_calls)
+            repeated = await self.service.zone_package_apply('room', plan['id'], {
+                'sha256': plan['sha256'], 'confirm': True})
+            self.assertFalse(repeated['write_repeated'])
+            self.assertEqual(count, len(self.storage_calls))
+        self.assertEqual(180, self.storage_calls[-1][2])
+        self.service.client.zone_create_binary_sensor.assert_not_awaited()
+        self.service.client.zone_output_service.assert_not_awaited()
+
+    async def test_missing_helper_rejects_unresolved_binding_and_invalid_requests(self):
+        profile = {'schema': 'pilotsuite-organization-v1', 'timing': 'observe',
+            'assignments': {'presence_status': [{'entity_id': 'input_boolean.missing',
+                'platform': 'input_boolean', 'unique_id': 'old'}]}}
+        await self.service.context.save_organization('room', 1, profile)
+        with self.assertRaises(SelectionConflict):
+            await self.service.zone_package_preview('room', {
+                'revision': 2, 'helper_role': 'presence_status', 'duration_seconds': None})
+        for role, duration in [('presence_output', None), ('presence_timer', True),
+                               ('presence_timer', 0), ('presence_timer', 86401),
+                               ('presence_status', 180)]:
+            with self.assertRaises(InvalidSelection):
+                await self.service.zone_package_preview('room', {
+                    'revision': 2, 'helper_role': role, 'duration_seconds': duration})
+        self.service.client.zone_create_storage_helper.assert_not_awaited()
+
+    async def test_missing_helper_collision_and_changed_revision_never_create(self):
+        request = {'revision': 1, 'helper_role': 'presence_timer', 'duration_seconds': 180}
+        plan = await self.service.zone_package_preview('room', request)
+        self.rows.append({'entity_id': plan['operations'][0]['entity_id']})
+        with self.assertRaises(SelectionConflict):
+            await self.service.zone_package_preview('room', request)
+        await self.service.context.save_organization('room', 1, {
+            'schema': 'pilotsuite-organization-v1', 'timing': 'observe', 'assignments': {}})
+        with self.assertRaises(SelectionConflict):
+            await self.service.zone_package_apply('room', plan['id'], {
+                'sha256': plan['sha256'], 'confirm': True})
+        self.service.client.zone_create_storage_helper.assert_not_awaited()
 
     async def test_receipts_are_merged_instead_of_losing_creation_identity(self):
         plan = await self._preview()

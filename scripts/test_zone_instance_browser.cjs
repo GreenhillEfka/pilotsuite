@@ -73,6 +73,26 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal((await command({action:'snapshot'})).helper_creates,0);
   await page.locator('#ps-helper-options>summary').click();
   console.log('ok 0c - failed helper preview can be closed without creation, retry or trapped editor');
+  await page.locator('#ps-helper-options>summary').click();
+  await page.locator('#ps-helper-single').click();
+  await page.getByLabel('Fehlende Funktion',{exact:true}).selectOption('presence_timer');
+  await page.getByLabel('Timerdauer (Sekunden)',{exact:true}).fill('240');
+  await page.evaluate(async()=>{await load({background:true});await load({background:true});});
+  assert.equal(await page.getByLabel('Timerdauer (Sekunden)',{exact:true}).inputValue(),'240');
+  await page.getByRole('button',{name:'Einzelhelfer-Plan prüfen',exact:true}).click();
+  await page.getByRole('button',{name:'Diesen einzelnen Helfer anlegen',exact:true}).waitFor();
+  assert.match(await page.locator('#ps-zone-presence').innerText(),/240 Sekunden/);
+  assert.match(await page.locator('#ps-zone-presence').innerText(),/Steuerungsverantwortung bleiben unverändert/);
+  if(out)await page.screenshot({path:path.join(out,'single-helper-preview-desktop.png'),fullPage:true});
+  await page.getByRole('button',{name:'Schließen',exact:true}).click();
+  assert.equal((await command({action:'snapshot'})).helper_creates,0,'single-helper preview performs no HA write');
+  await page.locator('#ps-helper-options>summary').click();
+  await page.evaluate(()=>{location.hash='#ps-organization';});
+  await page.locator('#org-load:not([disabled])').click();
+  await page.locator('.org-plan-history').filter({hasText:'presence_helper'}).first().click();
+  await page.getByText('Einzelhelfer-Anlageplan. Keine Namensänderung, Zuordnung oder Steuerungsübernahme.',{exact:true}).waitFor();
+  assert.equal(await page.locator('#org-apply-names').count(),0,'helper plan must not enter name executor');
+  await page.locator('#org-back-zone').click();
   // Gates are deterministic: no timing delay or real Home Assistant request.
   async function holdRequest(pattern,method){
    let resume,arrive;const held=new Promise(resolve=>resume=resolve),received=new Promise(resolve=>arrive=resolve);
