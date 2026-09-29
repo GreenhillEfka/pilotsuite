@@ -42,6 +42,8 @@ async def main():
                         'else':[{'condition':'trigger','id':'<img src=x onerror=alert(1)>'}]})
                     service.client.automation_config.side_effect=None
                     service.client.automation_config.return_value=config
+                elif cmd['action']=='inventory_case':
+                    service.client.automation_config.side_effect=inventory_config
                 elif cmd['action']=='presence_lifecycle_case':
                     service.client.automation_config.side_effect=None
                     service.client.automation_config.return_value={

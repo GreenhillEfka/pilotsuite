@@ -145,6 +145,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   console.log('ok 1a - save/reload gates, failed save, cancel, other draft, unrelated error and read-only close');
   await page.locator('#ps-existing-connect').click();await page.locator('#org-load').click();
   await page.locator('#org-save').waitFor();
+  await page.locator('#org-helpers>summary').click();
+  await page.locator('[data-org-group=presence_automations]>summary').click();
   for(const [role,eid] of [['presence_status','input_boolean.existing_presence'],['presence_timer','timer.existing_presence'],['presence_output','binary_sensor.existing_presence'],['presence_automations','automation.existing_presence']]){
    await page.locator(`[data-org-role="${role}"][data-org-candidate="${eid}"]`).click();
   }

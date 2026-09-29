@@ -90,6 +90,14 @@ Automationen und deren Nachlauf werden dadurch nicht verändert.
 
 ## Bestehende Anwesenheitssteuerung: lesend verbinden
 
+Alpha.69-Kandidat bündelt den vorhandenen Organization-Editor im eigenen Zonenbereich
+„Automationen“. `presence_automations` bleibt kompatibel; ausdrückliche Zuordnungen
+für `lighting_automations` und `other_automations` nutzen denselben Speicher und
+dieselbe Identitätsprüfung. Themen sind weder neue HA-Labels noch Ausführungsrechte.
+Mehrfach verwendete Automationen bleiben ein Objekt; ausgewählte Strukturprüfungen
+lesen die deduplizierte Vereinigung in ausdrücklich gestarteten Achterpaketen.
+Damit sind keine vorhandenen Automationen geändert oder fachlich abgenommen.
+
 Die neue Nutzerfreigabe vom 28.09.2026 erlaubt kontrollierte Automationsübernahme.
 Die folgenden Alpha.61-Laufzeitgrenzen sind Implementierungsstand, kein dauerhaftes
 Übernahmeverbot. Alpha.66 ergänzt im selben Inspector die Weiterverwendungsprüfung:

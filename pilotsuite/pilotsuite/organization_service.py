@@ -63,12 +63,18 @@ class OrganizationServiceMixin:
         if len(eligible)>10000:
             raise InvalidSelection('Bestandsgrenze überschritten; keine Teilmenge als vollständig ausgeben')
         naming=naming_proposals(zone,cfg,catalog)
-        shared=await self._organization_shared(zone_id,{r['entity_id'] for r in naming},catalog)
+        bindings=binding_view(cfg,catalog)
+        bound_ids={row['entity_id'] for rows in bindings['assignments'].values()
+                   for row in rows if row.get('entity_id')}
+        shared=await self._organization_shared(zone_id,bound_ids|{r['entity_id'] for r in naming},catalog)
+        for rows in bindings['assignments'].values():
+            for row in rows:
+                row['shared_zone_ids']=shared.get(row.get('entity_id'),[])
         for row in naming:
             row['shared_zone_ids']=shared.get(row['entity_id'],[])
             if row['shared_zone_ids']: row['name_change_eligible']=False
         return {'schema':'pilotsuite-organization-v1','zone_id':zone_id,'revision':inv['revision'],
-            'zone_name':zone['name'],'bindings':binding_view(cfg,catalog),'catalog':eligible,
+            'zone_name':zone['name'],'bindings':bindings,'catalog':eligible,
             'roles':{key:{'label':v[0],'domains':list(v[1]),'max':v[2]} for key,v in ROLES.items()},
             'naming':naming,'plans':await self.plans.organization_plans(zone_id),
             'fresh':(await self.status())['ready'], 'scope':'global_registry_and_state_snapshot',

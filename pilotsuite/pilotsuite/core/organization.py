@@ -22,7 +22,9 @@ ROLES = {
     'presence_duration': ('Nachlauf-Dauer', ('input_number', 'number'), 1),
     'manual_override': ('Manuelle Bedienung', ('input_boolean', 'binary_sensor'), 1),
     'automation_blocker': ('Automatiksperre', ('input_boolean', 'binary_sensor'), 1),
-    'presence_automations': ('Zuständige Automationen', ('automation',), 20),
+    'presence_automations': ('Anwesenheitsautomationen', ('automation',), 20),
+    'lighting_automations': ('Lichtautomationen', ('automation',), 20),
+    'other_automations': ('Weitere Automationen', ('automation',), 20),
 }
 TIMINGS = ('observe', 'existing_for', 'timer', 'external')
 HELPER_PLATFORMS = frozenset(('input_boolean', 'input_number', 'timer', 'input_select',

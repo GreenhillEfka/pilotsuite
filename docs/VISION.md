@@ -5,6 +5,12 @@ Projekt. Dies ist kein Nachweis neuer Laufzeitfunktionen. Den Funktionsstand fü
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), die Installation
 [RELEASE_STATE.json](RELEASE_STATE.json).
 
+Präzisierung vom 29.09.: zuerst vorhandene Habituszonen vollständig und verständlich
+einrichten, noch keine neue Intelligenz. Übersicht, Einrichtung, thematisch gebündelte
+Automationen und Diagnose gehören zur Zone. Bestehende Helfer/Regeln wiederverwenden,
+notwendige Lücken konkret planen. ADR-043 und [UX_WORKSPACE.md](UX_WORKSPACE.md)
+definieren diesen Nutzerweg; Fähigkeiten nicht aus dem Zielbild ableiten.
+
 ## Nutzen vor Funktionsumfang
 
 PilotSuite soll drei Fragen zuverlässig beantworten: **Was passiert in meiner
@@ -58,6 +64,11 @@ Die bestehende Prüfung bereitet dies vor; ein ausführbarer Übernahmepfad ist 
 ## Bedienung und Analyse
 
 Im Alltag zuerst Zone, Zustand, Grund, verbleibender Nachlauf und Datenlücke.
+Bei ausdrücklich verbundener Bestandskette soll ihr öffentlicher HA-Sensor als
+Bestandsstatus erscheinen, die eigene Bewertung getrennt als Vergleich. Ohne
+Verbindung bleibt sie klar als PilotSuite-Berechnung gekennzeichnet. Ein unklarer
+Bestandsstatus darf niemals unbemerkt durch die eigene Berechnung ersetzt werden.
+Diese Darstellungsrichtung ist keine bereits erfolgte Steuerungsübergabe.
 Quellenkonfiguration, Verlauf und Diagnose werden bei Bedarf geöffnet. Das Dashboard
 „Habituszonen“ bleibt ontologische und gestalterische Referenz, nicht Wahrheitsbeweis.
 Alle vier gespeicherten Zonen und laufende Entitätsbereinigung bleiben erhalten.

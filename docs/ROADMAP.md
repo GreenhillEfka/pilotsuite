@@ -7,6 +7,33 @@ Release-Chronik: [CHANGELOG](../CHANGELOG.md). Tatsächliche Fähigkeiten:
 
 ## 1. Jetzt: Konzept und Alltagsansicht konsolidieren
 
+### Aktiver Nachtlauf: Habituszonen vollständig einrichten
+
+Neu beauftragt: 28.09. 22:26:57 UTC bis 29.09.2026 06:30 UTC (08:30 Berlin).
+Ab 05:45 UTC kein neues Funktionspaket; ab 06:00 UTC keine neue Veröffentlichung.
+Der bestehende Heartbeat ist wieder aktiv. Frühere Läufe bleiben abgeschlossen.
+Ein aktiver Branch/PR; keine neue Intelligenz, Engine oder Konfigurationsquelle.
+ADR-043 und UX_WORKSPACE.md präzisieren die Richtung anhand von Habituszonen und
+Primärquellen. Die Reihenfolge ist ein Arbeitsplan, keine Fertigstellungszusage:
+
+1. **Zonenstruktur und Automationen:** eigener Zonenbereich, ausdrücklich zugeordnete
+   Themen Anwesenheit/Licht/Weitere, vorhandener Organization-Speicher und Inspector.
+   Zuordnung, aktuelle Aktivierung und fachliche Prüfung getrennt darstellen.
+2. **Einrichtung und Helfer:** vorhandene Kette zusammenhängend zeigen; Helfer
+   wiederverwenden und fehlende gezielt planen. Vorhandene Funktionen nicht duplizieren.
+   Tatsächliche HA-Nachlaufparameter von PilotSuite-Vergleichseinstellungen trennen.
+3. **Alltagsklarheit und Abnahme:** vorhandener öffentlicher Sensor als ausdrücklich
+   gekennzeichneter Bestandsstatus; Vergleich, Lernrelikte und Diagnose nachgeordnet.
+   Tastatur, Mobilansicht, Entwurfserhalt, widersprüchliche/unbekannte Daten prüfen.
+4. **Auslieferung:** eigener Diff-Review, vollständige lokale und exakte Remote-Gates,
+   frische PilotSuite-only-Sicherung, sicheres Test-Release; offene Punkte ehrlich.
+
+Primärquellen-Recherche wird in konkrete Entscheidungen und Regressionen übersetzt,
+nicht als isolierter Bericht betrieben. Haushaltsänderungen bleiben bis zur Klärung
+des Live-Schreibumfangs aus; Browser-Abnahme ohne autorisierten Zugang offen.
+
+### Vorheriger Stand
+
 Der UI-Stundenlauf am 28.09., 19:33:18–20:33:18 UTC endete mit Draft PR #146.
 Nach ausdrücklicher Zustimmung zum anschließenden Abschluss ist Alpha.68 installiert:
 vier Aufgaben-Einstiege, sichtbarer Feldfokus und korrigierter Hauptsensor-Link,

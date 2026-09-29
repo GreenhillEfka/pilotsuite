@@ -6,6 +6,46 @@ docs/IMPLEMENTATION_STATUS.md; delivery: docs/RELEASE_STATE.json. Old statements
 such as “no alpha writes”, “PR remains off main” or separate learning consent apply
 to their recorded slice, not universally to today's zone-instance path.
 
+## ADR-043 — Configure the existing Habitus zone before adding intelligence
+
+Accepted product direction, 2026-09-29, following explicit user feedback and the
+overnight development authorization. This decision is a target, not a claim that
+all proposed workflows are implemented, installed or household-accepted.
+
+The zone owns overview, setup, automations, and history/diagnosis. Reuse the current
+workspace router, organization assignments, inspectors and revision-bound plans.
+Do not build a parallel wizard store or infer household ownership from names.
+Existing HA rules are the starting point; no new adaptive/learning behavior.
+
+Automation topics (presence, lighting, other) are explicit associations, independent
+of writer/consumer function, enabled state and review evidence. One automation may
+serve several topics or zones; it is not copied. Unknown associations remain open.
+Reuse stable registry identity. Display-name cleanup and technical ID migration are
+different operations; the latter stays unavailable until consumer migration exists.
+
+For an explicitly connected existing chain, the intended everyday display starts
+with its public HA presence result, honestly unavailable if unassessable. PilotSuite's
+independent result is a named comparison, not an implicit fallback. Without a linked
+chain it remains a clearly labeled calculation. This refines ADR-042's presentation
+direction, not the kernel or current control owner; actual implementation must be
+recorded separately. A Boolean alone cannot establish output validity or ownership.
+
+Parameters belong to the logic that actually uses them. Editing PilotSuite's grace
+must not appear to edit an existing HA automation. Reuse a verified duration helper
+or exact supported configuration path; otherwise explain the missing editing path.
+Timer idle, enabled automation and a successful static inspection are not behavioral
+proof. Review restart, cancellation, quiet occupancy, unknown inputs, manual actions,
+downstream consumers and competing writers before any takeover.
+
+Helper setup offers existing identity, missing-component plan, or unresolved state.
+Never create a duplicate merely because the UI cannot yet reuse an existing helper.
+Existing five-part owned output safety remains intact. Reuse/rename/provision/control
+handoff each needs its own concrete preview and confirmation, fresh preconditions,
+readback and supported recovery. Overnight app release authority does not resolve
+the unanswered live household-edit scope.
+
+Primary research and measurable acceptance criteria: docs/UX_WORKSPACE.md.
+
 ## ADR-042 — Consolidate the product around the existing zone instance
 
 Proposed implementation direction, 2026-09-28, following the user's request to

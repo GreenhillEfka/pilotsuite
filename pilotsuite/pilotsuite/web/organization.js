@@ -6,11 +6,16 @@
   const labels={presence_sources:'Präsenzquellen',presence_status:'Raumstatus / interner Boolean',presence_timer:'Nachlauftimer',
     presence_output:'Öffentlicher Zonen-Präsenzsensor',
     presence_duration:'Nachlauf-Dauer',manual_override:'Manuelle Bedienung',automation_blocker:'Automatiksperre',
-    presence_automations:'Zuständige Automationen'};
+    presence_automations:'Anwesenheitsautomationen',lighting_automations:'Lichtautomationen',other_automations:'Weitere Automationen'};
+  const topics=[
+    {id:'presence',role:'presence_automations',title:'Anwesenheit',description:'Quellen, Raumstatus und Nachlauf der vorhandenen Anwesenheitskette.'},
+    {id:'lighting',role:'lighting_automations',title:'Licht',description:'Bestehende Lichtregeln und ihre Abhängigkeit vom Zonenstatus.'},
+    {id:'other',role:'other_automations',title:'Weitere Automationen',description:'Weitere ausdrücklich zugeordnete Regeln. Keine automatische Sortierung nach Namen.'}
+  ];
   const timingLabels={observe:'Nur beobachten / noch nicht zugeordnet',existing_for:'Bestehender for:-Nachlauf',timer:'Vorhandener Timer',external:'Andere Bestandslogik'};
   const statusLabels={present:'Vorhanden',missing:'Referenz fehlt',disabled:'Deaktiviert',unavailable:'Nicht verfügbar',snapshot_stale:'Datenstand nicht aktuell'};
   const outcomeLabels={preview:'Vorschau – noch nicht ausgeführt',applying:'Unterbrochen oder noch in Bearbeitung – nicht wiederholen',verified:'Änderung zurückgelesen',attention:'Teilweise / unklar – Einzelstatus prüfen',unchanged:'Bereits einheitlich'};
-  let root,message,form,reports,planPanel,history,data=null,basis=null,loadedBasis=null,draft={},initial='',busy=false,serial=0,afterSave,scanOffset=0,pendingSave=false;
+  let root,message,form,reports,planPanel,history,data=null,basis=null,loadedBasis=null,draft={},initial='',busy=false,serial=0,afterSave,scanOffset=0,selectionOffset=0,pendingSave=false;
   let reportView={reports:new Map(),unread:new Map(),filter:'attention',mode:'selection',requested:0,total:0};
   const reportReplacements=new Map();
   const selections={}, searches={};
@@ -50,23 +55,51 @@
     else if(draft[role].size<max)draft[role].add(eid);
     else{notice(`Maximal ${max} Zuordnungen für ${labels[role]}.`);return;}
     drawChoices(role);updateButtons();
+    if(topics.some(t=>t.role===role)){selectionOffset=0;scanOffset=0;resetReports();drawAutomationTopics();resetAnalysisButton();resetScanButton();}
   }
-  function drawChoices(role){const node=selections[role];node.replaceChildren();const picked=E('div','','org-picked');
+  const selectedAutomations=()=>[...new Set(topics.flatMap(t=>[...(draft[t.role]||[])]))].sort();
+  function resetAnalysisButton(){const b=root?.querySelector('#org-analyze');if(b)b.textContent='Ausgewählte Automationen analysieren';}
+  function resetScanButton(){const b=root?.querySelector('#org-scan');if(b){b.textContent='Globalen Automationsbestand paketweise prüfen';b.disabled=false;}}
+  function drawAutomationTopics(){
+    for(const topic of topics){
+      const target=form.querySelector('[data-org-topic="'+topic.id+'"] .org-topic-summary');if(!target)continue;
+      target.replaceChildren();const ids=[...(draft[topic.role]||[])];
+      if(!ids.length){target.append(E('p','Noch keine Automation zugeordnet.','ps-muted'));continue;}
+      const list=E('ul','','org-automation-list');target.append(list);
+      for(const eid of ids){
+        const bound=(data.bindings.assignments[topic.role]||[]).find(r=>(r.entity_id||r.saved_entity_id)===eid);
+        const row=bound||data.catalog.find(r=>r.entity_id===eid);
+        const status=!data.fresh?'Datenstand nicht bestätigt':!row||row.status==='identity_unresolved'?'Identität ungeklärt':row.disabled?'Im Register deaktiviert':row.state==='on'?'Aktiviert in HA':row.state==='off'?'Deaktiviert in HA':'Aktivierung unbekannt';
+        const item=E('li');item.append(E('strong',row?.name||eid),E('span',bound?'Zuordnung gespeichert':'Noch nicht gespeichert','ps-badge'),E('p',status+' · Beim Laden gemeldeter Stand; kein Verhaltensnachweis.','ps-muted'));
+        const shared=row?.shared_zone_ids||[];
+        if(shared.length)item.append(E('p','Auch zugeordnet in: '+shared.join(', ')+'. Gemeinsame Automation, keine Kopie.','ps-warning'));
+        const otherTopics=topics.filter(t=>t.role!==topic.role&&draft[t.role]?.has(eid)).map(t=>t.title);
+        if(otherTopics.length)item.append(E('p','Auch unter '+otherTopics.join(' / ')+'. Dasselbe Objekt.','ps-muted'));
+        item.append(E('code',eid,'ps-technical-id'));list.append(item);
+      }
+    }
+  }
+  function drawChoices(role){const node=selections[role],hadFocus=node.contains(document.activeElement),focusedId=document.activeElement?.dataset.orgCandidate;node.replaceChildren();const picked=E('div','','org-picked');
     for(const eid of draft[role]){const chip=B(chosen(role,eid)+' ×',()=>choose(role,eid));chip.className='org-chip';chip.setAttribute('aria-label',labels[role]+': '+eid+' entfernen');picked.append(chip);}node.append(picked);
     const q=searches[role].value.trim().toLocaleLowerCase('de');const candidates=data.catalog.filter(r=>data.roles[role].domains.includes(r.entity_id.split('.')[0])&&(role!=='presence_output'||['occupancy','presence'].includes(r.device_class))&&!r.disabled&&r.in_registry&&[r.name,r.entity_id,r.area_id||'',r.platform||''].join(' ').toLocaleLowerCase('de').includes(q));
     node.append(E('p',`${draft[role].size} gewählt · ${candidates.length} passend · bis zu 30 Treffer angezeigt`,'ps-muted'));
     const list=E('div','','org-candidates');
     for(const row of candidates.slice(0,30)){const b=B('',()=>choose(role,row.entity_id));b.dataset.orgCandidate=row.entity_id;b.dataset.orgRole=role;b.setAttribute('aria-pressed',String(draft[role].has(row.entity_id)));
       b.append(E('strong',row.name),E('code',row.entity_id),E('small',[row.area_id||'Ohne HA-Bereich',row.derived?'Abgeleiteter / logischer Status':row.platform||'Plattform unklar',row.state||'Kein Zustand',row.unit||''].join(' · ')));list.append(b);}node.append(list);
+    if(hadFocus){const replacement=[...list.querySelectorAll('button')].find(b=>b.dataset.orgCandidate===focusedId);(replacement||searches[role]).focus({preventScroll:true});}
   }
-  function render(){const view=new Map([...form.querySelectorAll('[data-org-group]')].map(e=>[e.dataset.orgGroup,{open:e.open,query:e.querySelector('input[type=search]')?.value||''}]));scanOffset=0;form.replaceChildren();resetReports();planPanel.replaceChildren();history.replaceChildren();
+  function render(){const helperOpen=form.querySelector('#org-helpers')?.open||false;const view=new Map([...form.querySelectorAll('[data-org-group]')].map(e=>[e.dataset.orgGroup,{open:e.open,query:e.querySelector('input[type=search]')?.value||''}]));scanOffset=0;selectionOffset=0;form.replaceChildren();resetReports();planPanel.replaceChildren();history.replaceChildren();
     draft=Object.fromEntries(Object.keys(labels).map(k=>[k,new Set((data.bindings.assignments[k]||[]).map(r=>r.entity_id||r.saved_entity_id))]));
-    const timingLabel=E('label','Nachlaufverfahren');const select=E('select');select.id='org-timing';for(const [v,t] of Object.entries(timingLabels)){const o=E('option',t);o.value=v;select.append(o);}select.value=data.bindings.timing;select.addEventListener('change',updateButtons);timingLabel.append(select);form.append(timingLabel);
+    const topicGrid=E('div','','org-topic-grid');form.append(topicGrid);
+    const topicNodes={};
+    for(const topic of topics){const section=E('section','','org-topic');section.dataset.orgTopic=topic.id;section.append(E('h3',topic.title),E('p',topic.description,'ps-muted'),E('div','','org-topic-summary'));topicGrid.append(section);topicNodes[topic.role]=section;}
+    const helpers=E('details');helpers.id='org-helpers';helpers.open=helperOpen;helpers.append(E('summary','Anwesenheitskette & vorhandene Helfer zuordnen'),E('p','Sensoren → Bestandsautomation mit Nachlauf → Boolean → öffentlicher Präsenzsensor. Hier verbinden, nicht die HA-Regeln oder deren Zeiten verändern.','ps-muted'));
+    const timingLabel=E('label','Nachlaufverfahren der Bestandskette');const select=E('select');select.id='org-timing';for(const [v,t] of Object.entries(timingLabels)){const o=E('option',t);o.value=v;select.append(o);}select.value=data.bindings.timing;select.addEventListener('change',updateButtons);timingLabel.append(select);helpers.append(timingLabel);
     const groups=E('div','','org-role-grid');
-    for(const role of Object.keys(labels)){const group=E('details');group.dataset.orgGroup=role;group.open=view.get(role)?.open??['presence_status','presence_timer','presence_output','presence_automations'].includes(role);
-      const summary=E('summary',labels[role]);group.append(summary);const label=E('label','Bestand durchsuchen');const search=E('input');search.type='search';search.value=view.get(role)?.query||'';search.setAttribute('aria-label',labels[role]+' im gesamten Bestand suchen');search.placeholder='Name, ID, Bereich oder Plattform …';label.append(search);searches[role]=search;
-      const choices=E('div');selections[role]=choices;search.addEventListener('input',()=>drawChoices(role));group.append(label,choices);groups.append(group);drawChoices(role);
-    }form.append(groups);
+    for(const role of Object.keys(labels)){const group=E('details');group.dataset.orgGroup=role;group.open=view.get(role)?.open??['presence_status','presence_timer','presence_output'].includes(role);
+      const summary=E('summary',topicNodes[role]?'Automationen zuordnen':labels[role]);group.append(summary);const label=E('label','Bestand durchsuchen');const search=E('input');search.type='search';search.value=view.get(role)?.query||'';search.setAttribute('aria-label',labels[role]+' im gesamten Bestand suchen');search.placeholder='Name, ID, Bereich oder Plattform …';label.append(search);searches[role]=search;
+      const choices=E('div');selections[role]=choices;search.addEventListener('input',()=>drawChoices(role));group.append(label,choices);(topicNodes[role]||groups).append(group);drawChoices(role);
+    }helpers.append(groups);form.append(helpers);drawAutomationTopics();
     const actions=E('div','','selection-tools');const save=B('Funktionszuordnung speichern',()=>run(async()=>{
       assertCurrent();if(!window.confirm('Diese Funktionszuordnung speichern? Bestehende Lernquellen, Lernfreigaben und HA-Steuerung bleiben unverändert.'))return;
       const origin=ticket(),payload={revision:data.revision,...JSON.parse(encode()),confirm:true};
@@ -90,10 +123,19 @@
     }));save.id='org-save';actions.append(save,B('Entwurf verwerfen',()=>{if(busy)return;if(pendingSave){notice('Speicherstand zuerst über „Gespeicherten Stand prüfen“ abgleichen.');return;}if(data)render();notice('Lokaler Entwurf verworfen.');}));form.append(actions);
     const analysis=B('Ausgewählte Automationen analysieren',()=>run(async()=>{
       assertCurrent();const generation=++serial,zid=basis.zone,rev=data.revision;
-      const response=await request(path()+'/analyze',{method:'POST',body:JSON.stringify({revision:rev,automation_ids:[...draft.presence_automations]})});
+      const ids=selectedAutomations();
+      if(!ids.length){notice('Zuerst mindestens eine Automation zuordnen.');return;}
+      if(selectionOffset>=ids.length)selectionOffset=0;
+      const slice=ids.slice(selectionOffset,selectionOffset+8);
+      const response=await request(path()+'/analyze',{method:'POST',body:JSON.stringify({revision:rev,automation_ids:slice})});
       if(generation!==serial||zid!==basis.zone||rev!==basis.revision)return;
-      drawReports(response);notice('Strukturprüfung abgeschlossen. Keine Referenz oder Automation verändert.');
-    }));analysis.id='org-analyze';analysis.dataset.orgWrite='read';form.append(analysis,E('p','Die Auswahl darf zunächst ein Entwurf bleiben. Analyse liest nur die ausgewählten Automationen, keine komplette Verbraucherlandschaft.','ps-muted'));
+      const nextOffset=selectionOffset+slice.length;
+      scanOffset=0;resetScanButton();
+      drawReports(response,{append:true,reset:selectionOffset===0,mode:'selection',requested:nextOffset,total:ids.length});
+      reportView.filter='all';renderReports();selectionOffset=nextOffset;
+      analysis.textContent=selectionOffset<ids.length?'Nächste ausgewählte Automationen analysieren':'Auswahl erneut analysieren';
+      notice(nextOffset+' von '+ids.length+' ausgewählten Automationen angefragt. Keine Referenz oder Automation verändert; Verhaltensprüfung bleibt offen.');
+    }));analysis.id='org-analyze';analysis.dataset.orgWrite='read';form.append(analysis,E('p','Die Auswahl darf zunächst ein Entwurf bleiben. Jeder Klick liest höchstens acht verschiedene Automationen aus allen Themen; gemeinsam zugeordnete Regeln nur einmal. Keine komplette Verbraucherlandschaft.','ps-muted'));
     const scan=B('Globalen Automationsbestand paketweise prüfen',()=>run(async()=>{
       assertCurrent();const generation=++serial,zid=basis.zone,rev=data.revision;
       const ids=data.catalog.filter(r=>r.entity_id.startsWith('automation.')).map(r=>r.entity_id).sort();
@@ -102,11 +144,11 @@
       const response=await request(path()+'/analyze',{method:'POST',body:JSON.stringify({revision:rev,automation_ids:slice})});
       if(generation!==serial||zid!==basis.zone||rev!==basis.revision)return;
       const nextOffset=scanOffset+slice.length;
-      drawReports(response,{append:true,reset:scanOffset===0,mode:'inventory',requested:nextOffset,total:ids.length});scanOffset=nextOffset;
+      drawReports(response,{append:true,reset:scanOffset===0,mode:'inventory',requested:nextOffset,total:ids.length});scanOffset=nextOffset;selectionOffset=0;resetAnalysisButton();
       notice(`Paket geprüft: ${scanOffset} von ${ids.length} katalogisierten Automationen angefragt. ${response.unread.length} in diesem Paket nicht lesbar. Kein vollständiger Verbraucher- oder Verhaltensnachweis.`);
       scan.textContent=scanOffset<ids.length?'Nächste bis zu acht Automationen prüfen':'Alle katalogisierten Pakete angefragt';
       scan.disabled=scanOffset>=ids.length;
-    }));scan.id='org-scan';form.append(scan,E('p','Der globale Katalog ist nicht auf Zonen oder Namen eingeschränkt. Jede Betätigung liest höchstens acht weitere Konfigurationen; die abgeleitete Übersicht behält alle Ergebnisse dieser Prüfsitzung bis zum Neuladen oder Zonenwechsel.','ps-muted'));
+    }));scan.id='org-scan';const globalScan=E('details');globalScan.id='org-global-scan';globalScan.append(E('summary','Zonenübergreifenden Bestand prüfen'),scan,E('p','Nicht auf diese Zone eingeschränkt. Jeder Klick liest höchstens acht weitere Konfigurationen; diese Prüfung ersetzt die Auswahlprüfung in der Ergebnisliste.','ps-muted'));form.append(globalScan);
 
     const names=E('details');names.id='org-naming';names.append(E('summary','Einheitliche Namen & technische Bereinigung'));
     for(const row of data.naming){const line=E('label','','org-name-row');const check=E('input');check.type='checkbox';check.value=row.role;check.disabled=!row.name_change_eligible;check.dataset.orgNameRole=row.role;
@@ -132,13 +174,13 @@
     const toolbar=E('section','','org-report-tools');
     const summary=E('p',reportView.mode==='inventory'
       ?`Geprüft: ${reportView.requested} von ${reportView.total} · ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen · ${lifecycleCount} mit Präsenzablauf-Hinweisen`
-      :`Auswahl: ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen · ${lifecycleCount} mit Präsenzablauf-Hinweisen`,'ps-muted');
+      :`Auswahl: ${reportView.requested} von ${reportView.total} angefragt · ${allReports.length} lesbar · ${allUnread.length} nicht lesbar · ${missingCount} mit Referenzhinweisen · ${triggerCount} mit Auslöserhinweisen · ${lifecycleCount} mit Präsenzablauf-Hinweisen`,'ps-muted');
     summary.id='org-report-summary';summary.setAttribute('role','status');
     const label=E('label','Ergebnisse anzeigen');const filter=E('select');filter.id='org-report-filter';filter.setAttribute('aria-controls','org-report-list');
     for(const [value,text] of [['attention','Handlungsbedarf'],['lifecycle','Präsenzablauf fachlich prüfen'],['missing','Referenzen fehlen oder sind nicht aktuell'],['trigger','Auslöserkennungen auffällig'],['unread','Nicht lesbar'],['all','Alle gelesenen Ergebnisse']]){const option=E('option',text);option.value=value;filter.append(option);}
     filter.value=reportView.filter;filter.addEventListener('change',()=>{reportView.filter=filter.value;renderReports();});label.append(filter);toolbar.append(summary,label);reports.append(toolbar);
     const list=E('div');list.id='org-report-list';reports.append(list);
-    const showUnread=['attention','unread'].includes(reportView.filter);
+    const showUnread=['attention','unread','all'].includes(reportView.filter);
     if(showUnread)for(const missed of allUnread.sort((a,b)=>a.automation_id.localeCompare(b.automation_id))){const warning=E('p',`${missed.automation_id}: Konfiguration nicht lesbar. Prüfung unvollständig.`,'ps-warning');warning.dataset.orgUnread=missed.automation_id;list.append(warning);}
     const visible=allReports.filter(report=>reportView.filter==='all'||(reportView.filter==='attention'&&reportAttention(report))||(reportView.filter==='lifecycle'&&lifecycleAttention(report))||(reportView.filter==='missing'&&referenceAttention(report))||(reportView.filter==='trigger'&&triggerAttention(report)))
       .sort((a,b)=>Number(reportAttention(b))-Number(reportAttention(a))||Number(lifecycleAttention(b))-Number(lifecycleAttention(a))||Number(triggerAttention(b))-Number(triggerAttention(a))||a.automation_id.localeCompare(b.automation_id));
@@ -180,8 +222,8 @@
     }
   }
   window.PilotSuiteOrganization={
-    mount(node,onSaved){root=node;afterSave=onSaved;root.id='ps-organization';root.append(E('h2','Bestand & Ordnung'),E('p','Vorhandene Logik verstehen, Funktionen verbindlich zuordnen und Helfernamen vereinheitlichen. Keine automatische Übernahme der Steuerung.'));
-      root.append(E('p','Bestehende Automationen steuern weiterhin: Raumstatus/Boolean, vorhandenen Nachlauf und öffentlichen Präsenzsensor zuordnen. Fehlende Teile dürfen leer bleiben; es werden keine Ersatzhelfer erzeugt. Die unabhängige PilotSuite-Bewertung und der Bestandsvergleich stehen in der Zonenansicht.'));
+    mount(node,onSaved){root=node;afterSave=onSaved;root.id='ps-organization';root.append(E('h2','Vorhandene Automationen & Helfer'),E('p','Anwesenheit, Licht und weitere Aufgaben getrennt zuordnen. Dieselbe Automation darf mehreren Themen oder Zonen dienen; sie wird nicht kopiert.'));
+      root.append(E('p','Home Assistant steuert weiterhin. Zuordnen speichert nur die Verbindung; Prüfen liest die Struktur. Beides bestätigt weder korrektes Verhalten noch eine Steuerungsübernahme.','ps-muted'));
       const back=E('a','Zur Zonenansicht und zum Bestandsvergleich');back.href='#ps-zone';back.id='org-back-zone';root.append(back);
       message=E('p','','edit-status');message.id='org-message';message.setAttribute('role','status');form=E('div');form.id='org-form';reports=E('div');reports.id='org-reports';planPanel=E('section');planPanel.id='org-plan';planPanel.setAttribute('aria-label','Geprüfter Ordnungsplan');history=E('div');history.id='org-history';
       const loadButton=B('Bestand & Zuordnungen laden',load);loadButton.id='org-load';root.append(loadButton,message,form,reports,planPanel,E('h3','Gespeicherte Pläne'),history);},
