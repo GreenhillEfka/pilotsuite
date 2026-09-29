@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.0-alpha.70] - 2026-09-29
+
+- Put an explicitly connected public HA presence sensor first, labelled as a reported
+  state. Keep PilotSuite comparison and own publication separate; an unknown public
+  sensor never falls back to a Boolean or calculated occupancy.
+- Require explicit validity before displaying a definite calculated state; separate
+  existing HA timer status from PilotSuite grace and explain each setting's owner.
+- Focus the existing helper role directly from the zone; retain its canonical editor,
+  drafts and search. Reuse first; no implicit mapping or automation takeover.
+- Explain every component of the existing five-helper output plan and its recovery
+  boundary. Failed plan preparation remains closable without creation or blind retry.
+- No new executor, controller, persistence or household write. Individual missing
+  helpers in an existing chain and active HA-parameter editing remain follow-up work.
+
 ## [0.1.0-alpha.69] - 2026-09-29
 
 - Give each zone its own Automationen destination, grouping explicitly associated

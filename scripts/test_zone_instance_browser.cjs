@@ -19,6 +19,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(await page.locator('#ps-module-grid').isVisible(),false);
   assert.equal(await page.locator('#ps-presence-state strong').textContent(),'Belegt');
   assert.equal(await page.locator('#ps-presence-publication strong').textContent(),'Nicht eingerichtet');
+  assert.match(await page.locator('#ps-presence-state').innerText(),/PilotSuite-Bewertung/);
+  assert.equal(await page.locator('#ps-helper-options').evaluate(e=>e.open),false);
   await page.locator('#ps-zone-diagnostics > summary').click();
   await page.locator('[data-ps-module="climate"]').click();
   assert.equal(await page.locator('#ps-zone-presence').isVisible(),true,'presence is independent of diagnostic module');
@@ -62,6 +64,15 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('#ps-zone-diagnostics > summary').focus();await page.keyboard.press('Enter');
   assert.equal(await page.locator('#ps-zone-diagnostics').evaluate(e=>e.open),false);
   console.log('ok 0b - required source gaps, failed reads and keyboard/direct-link recovery stay explicit');
+  await page.locator('#ps-helper-options>summary').click();
+  await page.route('**/api/v1/zones/room/presence/package',route=>route.fulfill({status:503,json:{message:'Synthetic package preview failure'}}),{times:1});
+  await page.locator('#ps-zone-prepare').click();
+  await page.getByText('Synthetic package preview failure',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Schließen',exact:true}).click();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  assert.equal((await command({action:'snapshot'})).helper_creates,0);
+  await page.locator('#ps-helper-options>summary').click();
+  console.log('ok 0c - failed helper preview can be closed without creation, retry or trapped editor');
   // Gates are deterministic: no timing delay or real Home Assistant request.
   async function holdRequest(pattern,method){
    let resume,arrive;const held=new Promise(resolve=>resume=resolve),received=new Promise(resolve=>arrive=resolve);
@@ -145,7 +156,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   console.log('ok 1a - save/reload gates, failed save, cancel, other draft, unrelated error and read-only close');
   await page.locator('#ps-existing-connect').click();await page.locator('#org-load').click();
   await page.locator('#org-save').waitFor();
-  await page.locator('#org-helpers>summary').click();
+  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Raumstatus / interner Boolean im gesamten Bestand suchen');
+  assert.equal(await page.locator('#org-helpers').evaluate(e=>e.open),true,'presence entry opens the existing helper editor');
+  assert.equal(await page.getByLabel('Raumstatus / interner Boolean im gesamten Bestand suchen',{exact:true}).evaluate(e=>e===document.activeElement),true);
   await page.locator('[data-org-group=presence_automations]>summary').click();
   for(const [role,eid] of [['presence_status','input_boolean.existing_presence'],['presence_timer','timer.existing_presence'],['presence_output','binary_sensor.existing_presence'],['presence_automations','automation.existing_presence']]){
    await page.locator(`[data-org-role="${role}"][data-org-candidate="${eid}"]`).click();
@@ -159,6 +172,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(bound.mode,'compare');assert.equal(bound.helper_creates,0);assert.equal(bound.output_calls,0);assert.equal(bound.automation_reads,0);
   await command({action:'tick'});await refreshPresence(); // Explicit synthetic worker cycle after revision change.
   await page.waitForFunction(()=>document.querySelector('#ps-existing-comparison')?.textContent.includes('Übereinstimmung'));
+  assert.equal(await page.locator('#ps-presence-state strong').textContent(),'Anwesenheit gemeldet');
+  assert.equal(await page.locator('[data-ps-live=calculation]').evaluate(e=>e.open),false,'comparison is secondary to existing HA status');
+  assert.equal(await page.locator('#ps-presence-calculation strong').textContent(),'Belegt');
+  assert.match(await page.locator('#ps-presence-state').innerText(),/Bestandsmeldung/);
   const reviewGate=await holdRequest('**/api/v1/zones/room/presence-adoption/review','POST');
   await page.locator('#ps-existing-review').click();await reviewGate.received;
   await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
@@ -178,9 +195,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await refreshPresence();assert.equal((await command({action:'snapshot'})).automation_reads,2,'polling never rereads automation configs');
   await command({action:'tick',values:{'binary_sensor.existing_presence':'unavailable'}});await refreshPresence();
   await page.waitForFunction(()=>document.querySelector('[data-existing-role="sensor"] strong')?.textContent==='Unklar');
+  assert.equal(await page.locator('#ps-presence-state strong').textContent(),'Unklar','no fallback to on Boolean or occupied calculation');
   assert.match(await page.locator('#ps-existing-comparison').innerText(),/Nicht beurteilbar/);
   await command({action:'tick',values:{'binary_sensor.existing_presence':'off'}});await refreshPresence();
   await page.waitForFunction(()=>document.querySelector('#ps-existing-comparison')?.textContent.includes('Abweichung'));
+  assert.equal(await page.locator('#ps-presence-state strong').textContent(),'Frei gemeldet');
+  assert.equal(await page.locator('#ps-presence-calculation strong').textContent(),'Belegt','comparison does not replace HA report');
   assert.match(await page.locator('#ps-existing-presence').innerText(),/widersprechen sich aktuell/);
   await command({action:'tick',values:{'binary_sensor.existing_presence':'on'}});await refreshPresence();
   const compared=await command({action:'snapshot'});assert.equal(compared.helper_creates,0);assert.equal(compared.output_calls,0);assert.equal(compared.metadata_calls,0);
@@ -188,14 +208,28 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   for(const key of ['mode','roles','zones','learning'])assert.deepEqual(compared[key],bound[key],key+' unchanged by reuse review');
   if(out)await page.screenshot({path:path.join(out,'zone-existing-presence-desktop.png'),fullPage:true});
   console.log('ok 1b - existing chain binding, writer/consumer review, unavailable and mismatch; zero HA writes');
+  await page.locator('[data-existing-role=timer] a').click();
+  const timerSearch=page.getByLabel('Nachlauftimer im gesamten Bestand suchen',{exact:true});
+  await timerSearch.waitFor();
+  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Nachlauftimer im gesamten Bestand suchen');
+  assert.equal(await timerSearch.evaluate(e=>e===document.activeElement),true,'specific helper link focuses the existing role without reload');
+  await timerSearch.fill('existing_presence');
+  await page.evaluate(async()=>{await load({background:true});await load({background:true});});
+  assert.equal(await timerSearch.inputValue(),'existing_presence');
+  await page.locator('#org-back-zone').click();await page.locator('#ps-zone-configure:not([disabled])').waitFor();
+  assert.deepEqual((await command({action:'snapshot'})).organization,bound.organization,'focused helper navigation changes no bindings');
   await page.getByRole('button',{name:'Sensordaten & Verläufe',exact:true}).click();
   try{await page.locator('.ps-zone-chart:visible').first().waitFor();}catch(e){throw Error('Historienansicht blieb leer: '+await page.locator('#ps-zone-presence .ps-notice').first().textContent()+' / '+e.message);}assert.equal(await page.locator('.ps-zone-chart:visible').count()>0,true);
   assert.equal((await command({action:'snapshot'})).history_reads,compared.history_reads+1);
   if(out)await page.screenshot({path:path.join(out,'zone-data-desktop.png'),fullPage:true});
   await page.getByRole('button',{name:'Ansicht schließen',exact:true}).click();
   console.log('ok 2 - real data endpoint, recorded history charts and tables without consent step');
+  await page.locator('#ps-helper-options>summary').click();
+  assert.match(await page.locator('#ps-helper-options').innerText(),/Kein einzelner Ersatzhelfer/);
   await page.getByRole('button',{name:'Eigenen Anwesenheitssensor vorbereiten',exact:true}).click();
   await page.getByRole('button',{name:'Genau diesen Plan anwenden',exact:true}).waitFor();
+  assert.equal(await page.locator('.ps-package-change').count(),5);
+  assert.match(await page.locator('#ps-zone-presence').innerText(),/Bestehende Zuordnung bleibt erhalten/);
   assert.equal((await command({action:'snapshot'})).helper_creates,0);
   await page.getByRole('button',{name:'Genau diesen Plan anwenden',exact:true}).click();
   await page.getByText('Planstatus: verified',{exact:true}).waitFor();
@@ -219,7 +253,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await command({action:'tick',seconds:1,values:{'binary_sensor.demo_presence':'on'}});
   const published=await command({action:'publish'});assert.equal(published.view.publication,'verified');
   const checkedAt=published.view.publication_checked_at;assert.equal(typeof checkedAt,'number');
-  await refreshPresence();await page.getByText('Zuletzt bestätigt',{exact:true}).waitFor();
+  await refreshPresence();await page.locator('[data-ps-live=calculation]>summary').click();
+  await page.getByText('Zuletzt bestätigt',{exact:true}).waitFor();
   await page.locator('#ps-zone-configure').click();await page.locator('#ps-zone-form').waitFor();
   await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).click();
   await page.locator('#ps-zone-form').waitFor({state:'hidden'});
@@ -244,7 +279,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
    await page.locator('#ps-zone-configure:not([disabled])').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'overflow '+width);
    if(out){
     await page.screenshot({path:path.join(out,`zone-instance-${theme}-${width}.png`),fullPage:true});
-    if(width===390){await page.locator('#ps-presence-publication').evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));
+    if(width===390){if(!await page.locator('[data-ps-live=calculation]').evaluate(e=>e.open))await page.locator('[data-ps-live=calculation]>summary').click();
+     await page.locator('#ps-presence-publication').evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));
      await page.locator('#ps-presence-publication').screenshot({path:path.join(out,`zone-publication-proof-mobile-${theme}.png`)});}
    }
   }}

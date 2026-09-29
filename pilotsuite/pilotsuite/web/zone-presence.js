@@ -40,42 +40,62 @@
  }
  function mount(host){
    host.replaceChildren();root=host;
-   root.append(E('h2','Anwesenheit'),E('p','Aktuelle Entscheidung aus den relevanten Quellen dieser Zone.','ps-muted'));
+   root.append(E('h2','Anwesenheit'),E('p','Bestandsmeldung, zuständige Steuerung und eigene Bewertung getrennt prüfen.','ps-muted'));
    notice=E('p','','ps-notice');notice.setAttribute('role','status');tools=E('div','','selection-tools');editor=E('div');output=E('div');charts=E('div');
    root.append(output,notice,tools,editor,charts);
  }
  function render(){
    if(!data||editing)return;
    if(!tools.firstElementChild){
-     const configure=B('Präsenz konfigurieren',openEditor);configure.id='ps-zone-configure';
+     const configure=B('PilotSuite-Bewertung konfigurieren',openEditor);configure.id='ps-zone-configure';
      const refresh=B('Aktualisieren',()=>read());refresh.id='ps-zone-refresh';
      tools.append(configure,refresh,B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
-     const prepare=B('Eigenen Anwesenheitssensor vorbereiten',preparePackage);prepare.id='ps-zone-prepare';tools.append(prepare);
+     const helperOptions=E('details');helperOptions.id='ps-helper-options';helperOptions.append(E('summary','Fehlende Helfer · Möglichkeiten prüfen'));
+     helperOptions.append(E('p','Zuerst vorhandenen Boolean, Timer und Präsenzsensor verbinden. Ein fehlender oder nicht erreichbarer zugeordneter Helfer wird nicht automatisch ersetzt.'));
+     helperOptions.append(E('p','Ein eigenes Ausgangspaket umfasst Boolean, Gültigkeit, Frist, Timer und öffentlichen Sensor. Kein einzelner Ersatzhelfer für eine bestehende HA-Kette; deren Automation wird nicht angeschlossen oder übernommen.','ps-muted'));
+     const prepare=B('Eigenen Anwesenheitssensor vorbereiten',preparePackage);prepare.id='ps-zone-prepare';helperOptions.append(prepare);tools.append(helperOptions);
    }
    tools.querySelector('#ps-zone-prepare').hidden=!!data.package;
+   tools.querySelector('#ps-helper-options').hidden=!!data.package;
    const horizontal=output.querySelector('.ps-zone-scroll')?.scrollLeft||0;
    const openSources=output.querySelector('[data-ps-live=sources]')?.open||false;
    const openTrace=output.querySelector('[data-ps-live=trace]')?.open||false;
    const openReview=output.querySelector('[data-ps-live=existing-review]')?.open??true;
+   const openCalculation=output.querySelector('[data-ps-live=calculation]')?.open||false;
    const focusedLive=output.contains(document.activeElement)?document.activeElement.closest('[data-ps-live]')?.dataset.psLive:null;
    output.replaceChildren();
    tools.querySelectorAll('button').forEach(button=>button.disabled=busy);
-   const d=data.current,summary=window.PilotSuiteZonePresenceModel.summary(data);const cards=E('div','','ps-presence-summary');
+   const model=window.PilotSuiteZonePresenceModel,d=data.current,summary=model.summary(data),headline=model.headline(data);
+   const hasExisting=headline.kind==='existing',cards=E('div','','ps-presence-summary');
    const publicationHint=(data.package?.entities?.sensor||'Kein eigenes Ausgangspaket. Die Präsenzberechnung ist davon unabhängig.')+
       (summary.publicationCheckedAt!==null?' · Rückleseprüfung: '+date(summary.publicationCheckedAt):'');
-   for(const [title,value,hint] of [
-      ['Präsenz',summary.state,summary.reason],
-      ['Nachlauf',d?.deadline?fmt(d.remaining_seconds)+' s':'—',d?.deadline?date(d.deadline):'Kein laufender Nachlauf'],
-      ['HA-Veröffentlichung',summary.publication,publicationHint]]){
-      const c=E('article','','ps-kpi');if(title==='Präsenz')c.id='ps-presence-state';if(title==='HA-Veröffentlichung')c.id='ps-presence-publication';c.append(E('span',title),E('strong',value),E('small',hint));cards.append(c);
-   } output.append(cards);
+   const addCard=(target,id,title,value,hint)=>{const c=E('article','','ps-kpi');if(id)c.id=id;c.append(E('span',title),E('strong',value),E('small',hint));target.append(c);};
+   addCard(cards,'ps-presence-state',headline.title,headline.state,headline.reason);
+   const ownDeadline=d?.valid===true&&d?.deadline;
+   const addCalculation=target=>{
+     if(hasExisting)addCard(target,'ps-presence-calculation','PilotSuite-Vergleich',summary.state,summary.reason);
+     addCard(target,'','PilotSuite-Nachlauf',ownDeadline?fmt(d.remaining_seconds)+' s':'—',ownDeadline?date(d.deadline):'Kein bestätigter eigener Nachlauf');
+     addCard(target,'ps-presence-publication','Eigene HA-Veröffentlichung',summary.publication,publicationHint);
+   };
+   if(hasExisting){
+     const chain=data.existing,timer=chain.timer,labels=model.existing(chain);
+     const timed=chain.fresh===true&&timer?.available===true&&timer.state==='active'&&typeof timer.finishes_at==='number'&&typeof timer.remaining_seconds==='number';
+     addCard(cards,'','Nachlauf des Bestands',timed?fmt(timer.remaining_seconds)+' s':labels.timer,
+       timed?'Gemeldete Frist: '+date(timer.finishes_at):'HA-Timerstatus; weder sein Ablauf noch „Inaktiv“ beweist Abwesenheit.');
+     addCard(cards,'','Anbindung · keine Übernahme',headline.controller,headline.authority);
+   }else addCalculation(cards);
+   output.append(cards);
    renderExisting(openReview);
+   if(hasExisting){const comparison=E('details');comparison.dataset.psLive='calculation';comparison.open=openCalculation;
+     comparison.append(E('summary','PilotSuite-Vergleich & eigenes Ausgangspaket'),E('p','Unabhängige Bewertung, kein Ersatz für die Bestandsmeldung. Diese Zeiten verändern den HA-Nachlauf nicht.','ps-muted'));
+     const values=E('div','','ps-presence-summary');addCalculation(values);comparison.append(values);output.append(comparison);
+   }
    const missing=d?.sources?.filter(s=>s.required&&!s.usable)||[];
-   if(missing.length)output.append(E('p',`${missing.length} erforderliche Quelle(n) derzeit nicht nutzbar. Eine Datenlücke ist kein Freibeleg. Die Entscheidung oben berücksichtigt die Quellenkombination.`,'ps-warning'));
+   if(missing.length)output.append(E('p',`${missing.length} erforderliche Quelle(n) derzeit nicht nutzbar. Eine Datenlücke ist kein Freibeleg. Die PilotSuite-Bewertung berücksichtigt diese Quellenkombination; sie erklärt nicht automatisch die HA-Bestandslogik.`,'ps-warning'));
    if(d){const table=E('table','','ps-zone-source-table');const header=E('tr');for(const text of ['Quelle','Signaltyp','Zustand','Meldealter','Indirekte Frist'])header.append(E('th',text));table.append(header);
       for(const s of d.sources){const tr=E('tr');for(const text of [s.name||s.entity_id,s.kind,state(s.state),s.age_seconds===null?'Ereignisorientiert / unbekannt':fmt(s.age_seconds)+' s',date(s.support_until)])tr.append(E('td',text));table.append(tr);}
       const sources=E('details');sources.dataset.psLive='sources';sources.open=openSources;
-      sources.append(E('summary',`Warum? · Aktuelle Quellen (${d.sources.length})`));
+      sources.append(E('summary',`PilotSuite-Belege · Aktuelle Quellen (${d.sources.length})`));
       const wrap=E('div','','ps-zone-scroll');wrap.append(table);sources.append(wrap);output.append(sources);wrap.scrollLeft=horizontal;
       sources.append(E('p','Bestandsvergleich: '+(d.comparison==='same'?'Übereinstimmung':d.comparison==='different'?'Abweichung':'Nicht beurteilbar')+' · HA-Zustand: '+state(d.ha_state),'ps-muted'));
       const trace=data.trace||[];if(trace.length){
@@ -84,14 +104,15 @@
       }
       if(focusedLive)output.querySelector(`[data-ps-live="${focusedLive}"] summary`)?.focus({preventScroll:true});
    }
-   note(summary.state==='Pausiert'?'Zone oder Präsenzbetrieb pausiert; keine aktuelle Auswertung.':'Relevant erlaubt Live- und verfügbare Historienauswertung. Änderungen in Home Assistant brauchen eine eigene Bestätigung.');
+   note(summary.state==='Pausiert'?'PilotSuite-Bewertung pausiert. Eine vorhandene HA-Steuerung läuft davon unabhängig.':'Relevant erlaubt Live- und verfügbare Historienauswertung. Änderungen in Home Assistant brauchen eine eigene Bestätigung.');
  }
  function renderExisting(openReview){
    const existing=data.existing,labels=window.PilotSuiteZonePresenceModel.existing(existing);
    const section=E('section');section.id='ps-existing-presence';section.append(E('h3','Bestehende Anwesenheitssteuerung'));
    section.append(E('p','Bestehende Automationen bleiben zuständig. PilotSuite liest und vergleicht; diese Zuordnung schaltet nichts.','ps-muted'));
-   const connect=E('a',existing?.configured?'Bestandszuordnung bearbeiten':'Vorhandenen Bestand verbinden');connect.href='#ps-organization';connect.id='ps-existing-connect';section.append(connect);
-   if(!existing?.configured){section.append(E('p','Vorhandenen Boolean, Timer und öffentlichen Präsenzsensor zuordnen. Auch Helfer ohne HA-Bereich sind auswählbar.','ps-muted'));output.append(section);return;}
+   const connect=organizationLink(existing?.configured?'Bestandszuordnung bearbeiten':'Vorhandenen Bestand verbinden','presence_status');connect.id='ps-existing-connect';section.append(connect);
+   if(!existing?.configured){section.append(E('p','Vorhandenen Boolean, Timer und öffentlichen Präsenzsensor zuordnen. Auch Helfer ohne HA-Bereich sind auswählbar.','ps-muted'));
+     const links=E('div','','selection-tools');for(const [text,role] of [['Boolean wählen','presence_status'],['Timer wählen','presence_timer'],['Präsenzsensor wählen','presence_output']])links.append(organizationLink(text,role));section.append(links);output.append(section);return;}
    const chain=E('div','','ps-presence-summary');
    for(const [key,title] of [['owner','Raumstatus / Boolean'],['timer','Nachlauftimer'],['sensor','Öffentlicher Präsenzsensor']]){
      const item=existing[key],card=E('article','','ps-kpi');card.dataset.existingRole=key;
@@ -100,12 +121,15 @@
      if(item?.own_output)card.append(E('small','PilotSuite-eigener Ausgang: kein unabhängiger Bestandsvergleich.','ps-warning'));
      if(key==='timer'&&item?.available&&existing.fresh){
        card.append(E('small',item.remaining_seconds!==null?`Gemeldete Frist: ${date(item.finishes_at)} · ${fmt(item.remaining_seconds)} s`:'Keine bestätigte laufende Frist.'));
-     }chain.append(card);
+     }card.append(organizationLink(item?'Zuordnung prüfen':'Vorhandenen Helfer wählen',{owner:'presence_status',timer:'presence_timer',sensor:'presence_output'}[key]));chain.append(card);
    }section.append(chain);
    const comparison=E('p',`PilotSuite ↔ ${existing.comparison_reference==='sensor'?'Bestands-Präsenzsensor':'Bestands-Raumstatus'}: ${labels.comparison}`);
    comparison.id='ps-existing-comparison';section.append(comparison);
    if(existing.chain_consistency==='different'&&existing.fresh)section.append(E('p','Boolean und öffentlicher Bestands-Präsenzsensor widersprechen sich aktuell. Es wird nichts automatisch korrigiert.','ps-warning'));
    if(!existing.sensor)section.append(E('p','Kein öffentlicher Bestands-Präsenzsensor zugeordnet; ein Boolean allein bestätigt diese Stufe noch nicht.','ps-warning'));
+   const timing={observe:'Nachlaufverfahren noch nicht zugeordnet.',timer:'Vorhandener Timer ist als Nachlaufverfahren angegeben.',existing_for:'Bestandsautomation nutzt for:-Nachlauf; ein separater Timer ist nicht zwingend erforderlich.',external:'Nachlauf liegt in einer anderen Bestandslogik; ein separater Timer ist nicht zwingend erforderlich.'};
+   section.append(E('p',(timing[existing.timing]||timing.observe)+' Zeiten werden in der bestehenden HA-Konfiguration gepflegt, nicht im PilotSuite-Vergleich.','ps-muted'));
+   section.append(organizationLink('Anwesenheitsautomationen zuordnen','presence_automations'));
    const review=B('Übernahme vorhandener Automationen prüfen',reviewExisting);review.id='ps-existing-review';review.disabled=busy||!existing.fresh;section.append(review);
    section.append(E('p',`${existing.automations?.length||0} Automation(en) zugeordnet. Prüfung ergänzt direkt verknüpfte Automationen; keine vollständige Verbraucher- oder Verhaltensgarantie.`,'ps-muted'));
    if(existingReview){
@@ -135,6 +159,7 @@
      section.append(report);
    }output.append(section);
  }
+ function organizationLink(text,role){const link=E('a',text);link.href='#ps-organization';link.addEventListener('click',()=>window.PilotSuiteOrganization?.focusRole(role));return link;}
  async function reviewExisting(){
    if(!data?.existing?.configured||busy||editing)return;
    const z=zone,r=revision,g=generation;busy=true;existingReview=null;render();note('Bestandsautomationen werden ausschließlich gelesen …');
@@ -150,7 +175,7 @@
  function cancel(){if(busy)return;editing=false;plan=null;editor.replaceChildren();render();reloadBasis().catch(()=>note('Aktuellen Zonenstand erneut laden.')).finally(editingChanged);}
  async function save(action){if(busy)return;busy=true;try{await action();}catch(e){note(e.message);}finally{busy=false;if(!editing){try{await reloadBasis();}catch{note('Aktuellen Zonenstand erneut laden.');}if(data)render();else if(eligible())await read();}editingChanged();}}
  function openEditor(){
-   if(!data||busy)return;startEditor('Präsenzverhalten je Zone');
+   if(!data||busy)return;startEditor('PilotSuite-Bewertung · Quellen und Zeiten');
    const form=E('form');form.id='ps-zone-form';const values=data.spec;
    const controls=E('div','','ps-zone-form-grid');
    const grace=number(values.grace_seconds,1,86400),clear=number(values.clear_seconds,0,300),support=number(values.support_limit_seconds,0,14400);
@@ -217,14 +242,20 @@
    });
    editor.append(B('Zeitraum laden',fetchData),B('Ansicht schließen',()=>{editing=false;editor.replaceChildren();render();editingChanged();}));await fetchData();
  }
- async function preparePackage(){if(!data||busy)return;startEditor('Eigenen Anwesenheitssensor bereitstellen');await save(async()=>{
+ async function preparePackage(){if(!data||busy)return;startEditor('Eigenen Anwesenheitssensor bereitstellen');editor.append(B('Schließen',cancel));await save(async()=>{
    plan=await api('presence/package','POST',{revision});renderPlan('presence/package');
  });}
  function renderPlan(path){
    editor.replaceChildren(E('h3','Änderungsvorschau'));
    if(plan.state==='migration_required'){editor.append(E('p',plan.reason,'ps-warning'),B('Schließen',cancel));return;}
    editor.append(E('p',path==='ontology'?'Anzeigename und Rollenlabels. Technische ID und physische Bereiche bleiben erhalten.':'Neue interne Helfer und ein Template-Anwesenheitssensor. Keine bestehende Automation wird verändert; Veröffentlichung bleibt zunächst aus.'));
-   const details=E('pre',JSON.stringify(plan.operations,null,2));details.className='ps-zone-plan';editor.append(details);
+   if(path==='presence/package'){
+     editor.append(E('p','Bestehende Zuordnung bleibt erhalten. Dieses zusätzliche Paket steuert keine vorhandene Automation und veröffentlicht zunächst nichts.','ps-warning'));
+     const meanings={anwesenheit_intern:['Interner Anwesenheitsstatus','Boolean als eigener Zustandsspeicher.'],entscheidung_gueltig:['Gültigkeit der Entscheidung','Trennt eine gültige Entscheidung von unbekannten Daten.'],gueltig_bis:['Ablauffrist der Gültigkeit','Begrenzt die Gültigkeit ohne frische Bestätigung.'],nachlauf:['Eigener Nachlauftimer','Bildet den PilotSuite-Nachlauf ab; ersetzt keinen Bestands-Timer.'],sensor:['Öffentlicher Anwesenheitssensor','Meldet den eigenen Zustand mit Gültigkeitsprüfung.']};
+     const list=E('ol');for(const operation of plan.operations){const [title,description]=meanings[operation.role]||['Weitere geplante Änderung','Technische Details vor der Bestätigung prüfen.'];const item=E('li','','ps-package-change');item.append(E('strong',title),E('p',description),E('code',operation.entity_id));list.append(item);}editor.append(list);
+     editor.append(E('p','Rückweg: Veröffentlichung ausgeschaltet lassen. Angelegte Helfer werden hier nicht automatisch gelöscht; eine spätere Entfernung braucht eine eigene Prüfung ihrer Verbraucher.','ps-muted'));
+   }
+   const details=E('details');details.append(E('summary','Technische Änderungsdetails'));const raw=E('pre',JSON.stringify(plan.operations,null,2));raw.className='ps-zone-plan';details.append(raw);editor.append(details);
    const apply=B('Genau diesen Plan anwenden',()=>save(async()=>{
      if(!window.confirm('Angezeigte Änderungen jetzt in Home Assistant ausführen?'))return;
      const result=await api(`${path}/${plan.id}/apply`,'POST',{sha256:plan.sha256,confirm:true});

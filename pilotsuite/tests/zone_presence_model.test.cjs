@@ -13,11 +13,11 @@ test('existing chain presentation keeps missing, stale and mismatching data expl
  assert.equal(M.existing(null).sensor,'Nicht zugeordnet');
  assert.equal(M.existing({...existing,timer:{available:true,state:'paused'}}).timer,'Pausiert');
 });
-test('canonical current state is the only presence truth; missing never means vacant',()=>{
- const data={analysis_enabled:true,mode:'compare',current:{state:'occupied',explanation:'Signal aktiv'}};
+test('only a valid canonical calculation yields a definite calculated state',()=>{
+ const data={analysis_enabled:true,mode:'compare',current:{state:'occupied',valid:true,explanation:'Signal aktiv'}};
  assert.equal(M.summary(data).state,'Belegt');
- assert.equal(M.summary({...data,current:{state:'grace'}}).state,'Nachlauf');
- assert.equal(M.summary({...data,current:{state:'vacant'}}).state,'Frei');
+ assert.equal(M.summary({...data,current:{state:'grace',valid:true}}).state,'Nachlauf');
+ assert.equal(M.summary({...data,current:{state:'vacant',valid:true}}).state,'Frei');
  for(const current of [null,{state:'unknown'},{state:'unavailable'},{state:'new_state'}]){
   assert.equal(M.summary({...data,current}).state,'Unklar');
  }
@@ -50,6 +50,25 @@ test('a publication label needs an explicit dated readback and valid presence',(
   const result=M.summary({...data,current});
   assert.equal(result.publication,'Nicht bestätigt');assert.equal(result.publicationCheckedAt,null);
  }
+});
+test('invalid or unconfirmed calculated states never claim occupied, grace or vacancy',()=>{
+ for(const state of ['occupied','grace','vacant'])for(const valid of [false,undefined,null,1,'true']){
+  assert.equal(M.summary({analysis_enabled:true,mode:'compare',current:{state,valid}}).state,'Unklar');
+ }
+});
+test('the connected public HA sensor is primary without falling back to Boolean or calculation',()=>{
+ const data={analysis_enabled:true,mode:'compare',current:{state:'occupied',valid:true},existing:{configured:true,fresh:true,
+  sensor:{available:true,state:'off',name:'Raumpräsenz',entity_id:'binary_sensor.room'},owner:{available:true,state:'on'}}};
+ assert.equal(M.headline(data).state,'Frei gemeldet');assert.equal(M.headline(data).kind,'existing');
+ assert.match(M.headline(data).reason,/binary_sensor.room/);
+ assert.equal(M.headline({...data,existing:{...data.existing,sensor:{...data.existing.sensor,state:'on'}}}).state,'Anwesenheit gemeldet');
+ for(const sensor of [null,{available:false,state:'off'},{available:true,state:'unknown'},{available:true,state:'on',own_output:true}]){
+  assert.equal(M.headline({...data,existing:{...data.existing,sensor}}).state,'Unklar');
+ }
+ assert.equal(M.headline({...data,existing:{...data.existing,fresh:false}}).state,'Unklar');
+ assert.equal(M.headline({...data,mode:'paused'}).state,'Frei gemeldet','pausing comparison does not pause HA');
+ assert.equal(M.headline({...data,existing:{configured:false}}).state,'Belegt');
+ assert.equal(M.headline({...data,existing:{configured:false}}).kind,'calculated');
 });
 test('numeric unknown values split curves, zero remains a measurement',()=>{
  const p=M.plot({kind:'numeric',points:[[0,0],[1,5],[2,null],[3,0]]},0,4);

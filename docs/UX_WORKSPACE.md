@@ -1,16 +1,18 @@
 # Workspace — Alltag zuerst, Diagnose bei Bedarf
 
 Überarbeitet am 29.09.2026 nach Nutzerfeedback; Zielkonzept gemäß ADR-043.
-Alpha.68 besitzt drei Hauptzugänge, Zonenpräsenz, Konfiguration und vier direkte
-Einrichtungseinstiege. Ein eigener Automationsbereich und der vollständige Helfer-
-Einrichtungsweg sind zu Beginn dieser Iteration noch nicht umgesetzt.
+Alpha.69 besitzt drei Hauptzugänge, Zonenpräsenz, Konfiguration, vier direkte
+Einrichtungseinstiege und einen thematischen Automationsbereich je Zone.
 IMPLEMENTATION_STATUS.md beschreibt Fähigkeiten, RELEASE_STATE.json die Installation.
 Die angemeldete Haushaltsabnahme bleibt ein eigener Nachweis.
 
-Erstes Umsetzungspaket, Alpha.69-Kandidat: eigener Automationsbereich, ausdrückliche
+Erstes Umsetzungspaket, Alpha.69 installiert: eigener Automationsbereich, ausdrückliche
 Themenzuordnung im bestehenden Profil, geteilte Verwendung und geladene Aktivierung,
 begrenzte deduplizierte Auswahlprüfung, Fokus-/Entwurfsschutz. Helferzuordnung bleibt
-derselbe Editor; seine Neuanlage-/Parameter-/Status-Zielwege unten sind noch offen.
+derselbe Editor. Zweites Paket, Alpha.70-Kandidat: Bestandsmeldung zuerst, getrennte
+Vergleichsansicht, fokussierte Wege zur jeweiligen Helferrolle und verständliche
+Vorschau des bestehenden eigenen Ausgangspakets. Einzelne fehlende Bestandshelfer
+erstellen, aktive HA-Parameter bearbeiten und Automationen übernehmen bleibt offen.
 
 ## Drei Hauptzugänge
 
@@ -46,12 +48,16 @@ Zonenliste → aktuelle Zone → **Übersicht**, **Einrichtung**, **Automationen
 Die erste Ansicht zeigt Anwesenheit, Herkunft, kurzen Grund, Nachlauf und Datenlücke.
 Bei ausdrücklich verbundener Bestandskette ist der öffentliche HA-Sensor der sichtbare
 Bestandsstatus; die unabhängige PilotSuite-Bewertung wird als Vergleich ausgewiesen.
-Ohne solche Verbindung steht die eigene Berechnung mit „nicht veröffentlicht“ da.
+Ohne solche Verbindung steht die eigene Berechnung mit getrenntem Publikationsstatus
+da; ohne bestätigtes eigenes Paket wird keine HA-Veröffentlichung behauptet.
 Ein unklarer öffentlicher Sensor wird niemals durch einen gültigen Boolean oder eine
-abweichende Berechnung kaschiert. Das ist die neue Zielordnung; Alpha.68 zeigt noch
-die eigene Zoneninstanz zuerst. Kein impliziter Wechsel der Steuerungsverantwortung.
+abweichende Berechnung kaschiert. Alpha.70 setzt diese Zielordnung um; Alpha.69
+zeigt noch die eigene Zoneninstanz zuerst. Kein Wechsel der Steuerungsverantwortung.
+„Frei gemeldet“ bezeichnet den ausgelesenen HA-Zustand, keinen unabhängigen Nachweis
+physischer Abwesenheit. Eine pausierte PilotSuite-Bewertung pausiert nicht Home Assistant.
 
-„Warum?“ öffnet Quellen und Entscheidungsverlauf. Erforderliche Datenlücken bleiben
+„PilotSuite-Belege“ öffnet die eigenen Quellen; der Sitzungsverlauf bleibt getrennt
+erreichbar. Diese Belege erklären nicht automatisch die HA-Automation. Datenlücken bleiben
 bereits in der Zusammenfassung sichtbar. Sitzungstrace und Recorder-Verlauf werden
 klar benannt. Ein nicht angelegter Ausgang ist kein Fehler der Präsenzberechnung.
 Interner Boolean und öffentlicher Binärsensor sind verschiedene Darstellungen,
@@ -101,6 +107,13 @@ Steuerungsverantwortung, Prüfgrenzen und konkreten Rückweg. Bestätigte Teilst
 bleiben sichtbar; verlorene Antworten rechtfertigen kein blindes Wiederholen.
 Die fünf Sicherheitsbausteine eigener Ausgaben bleiben erhalten. Ein vorhandener
 Teilbestand ist kein Anlass, ein ganzes Parallelpaket anzulegen.
+
+Der Alpha.70-Kandidat trennt deshalb den direkten Bestands-Einstieg von der
+aufklappbaren Option eines **vollständigen eigenen** Ausgangspakets. Dessen Vorschau
+erklärt jeden Baustein, unveränderte Bestandszuordnung, ausgeschaltete Veröffentlichung
+und den begrenzten Rückweg: keine automatische Löschung angelegter Helfer. Die Option
+ist ausdrücklich keine Reparatur eines einzelnen fehlenden Bestandshelfers. Auch eine
+fehlgeschlagene Vorschau bleibt schließbar; keine Sackgasse oder blinde Wiederholung.
 
 Ein Nachlauffeld nennt ausdrücklich seinen Besitzer: **HA-Bestandsautomation** oder
 **PilotSuite-Vergleich**. Nur ausgelesene, eindeutig unterstützte HA-Parameter dürfen

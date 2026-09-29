@@ -19,6 +19,13 @@
   let reportView={reports:new Map(),unread:new Map(),filter:'attention',mode:'selection',requested:0,total:0};
   const reportReplacements=new Map();
   const selections={}, searches={};
+  let requestedRole=null;
+  function focusRequestedRole(){
+    if(!requestedRole||requestedRole.zone!==basis?.zone||!data||busy||pendingSave||!loadedBasis||loadedBasis.revision!==basis?.revision||!root?.getClientRects().length)return;
+    const role=requestedRole.role,group=form.querySelector('[data-org-group="'+role+'"]');if(!group)return;
+    const helpers=group.closest('#org-helpers');if(helpers)helpers.open=true;group.open=true;
+    searches[role]?.focus();group.scrollIntoView({block:'center'});requestedRole=null;
+  }
   const encode=()=>JSON.stringify({assignments:Object.fromEntries(Object.entries(draft).map(([k,v])=>[k,[...v].sort()])),timing:form?.querySelector('#org-timing')?.value||'observe'});
   const changed=()=>data!==null&&initial!==encode();
   const notice=t=>{if(message)message.textContent=t;};
@@ -47,7 +54,7 @@
     if(generation!==serial||current.zone!==basis.zone||current.revision!==basis.revision)return;
     if(response.zone_id!==current.zone||response.revision!==current.revision)throw Error('Serverstand hat sich geändert. Zonenansicht aktualisieren.');
     data=response;loadedBasis=current;pendingSave=false;scanOffset=0;render();notice('Globaler Bestand geladen. Zuordnung ist keine Steuerungs- oder Lernfreigabe.');
-  });}
+  }).then(focusRequestedRole);}
   function chosen(role,eid){const row=data.catalog.find(r=>r.entity_id===eid);return row?`${row.name} · ${eid}`:eid+' · Identität ungeklärt';}
   function choose(role,eid){if(busy||pendingSave)return;const max=data.roles[role].max;
     if(draft[role].has(eid))draft[role].delete(eid);
@@ -222,12 +229,14 @@
     }
   }
   window.PilotSuiteOrganization={
+    focusRole(role){if(!Object.hasOwn(labels,role)||!basis)return;requestedRole={role,zone:basis.zone};window.requestAnimationFrame(focusRequestedRole);},
     mount(node,onSaved){root=node;afterSave=onSaved;root.id='ps-organization';root.append(E('h2','Vorhandene Automationen & Helfer'),E('p','Anwesenheit, Licht und weitere Aufgaben getrennt zuordnen. Dieselbe Automation darf mehreren Themen oder Zonen dienen; sie wird nicht kopiert.'));
       root.append(E('p','Home Assistant steuert weiterhin. Zuordnen speichert nur die Verbindung; Prüfen liest die Struktur. Beides bestätigt weder korrektes Verhalten noch eine Steuerungsübernahme.','ps-muted'));
       const back=E('a','Zur Zonenansicht und zum Bestandsvergleich');back.href='#ps-zone';back.id='org-back-zone';root.append(back);
       message=E('p','','edit-status');message.id='org-message';message.setAttribute('role','status');form=E('div');form.id='org-form';reports=E('div');reports.id='org-reports';planPanel=E('section');planPanel.id='org-plan';planPanel.setAttribute('aria-label','Geprüfter Ordnungsplan');history=E('div');history.id='org-history';
       const loadButton=B('Bestand & Zuordnungen laden',load);loadButton.id='org-load';root.append(loadButton,message,form,reports,planPanel,E('h3','Gespeicherte Pläne'),history);},
     context(zone,revision){if(!zone||!Number.isSafeInteger(revision))return;
+      if(basis&&basis.zone!==zone)requestedRole=null;
       if(basis&&(basis.zone!==zone||basis.revision!==revision)){serial++;resetReports();if(!changed()&&!pendingSave){data=null;initial='';loadedBasis=null;form.replaceChildren();planPanel.replaceChildren();history.replaceChildren();}notice('Zonenstand geändert. Bestand erneut laden.');}
       basis={zone,revision};updateButtons();},
     dirty:()=>busy||!!pendingSave||changed(),
