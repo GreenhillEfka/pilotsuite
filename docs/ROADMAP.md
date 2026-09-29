@@ -32,12 +32,14 @@ Primärquellen-Recherche wird in konkrete Entscheidungen und Regressionen übers
 nicht als isolierter Bericht betrieben. Haushaltsänderungen bleiben bis zur Klärung
 des Live-Schreibumfangs aus; Browser-Abnahme ohne autorisierten Zugang offen.
 
-Zwischenstand: Alpha.69 nach PR #148 installiert, Themenbereich ausgeliefert.
-Alpha.70-Kandidat verbindet die Status-/Helfereinstiege im vorhandenen UI; ungültige
+Abschlussstand: Alpha.69 nach PR #148 installiert, Themenbereich ausgeliefert.
+Alpha.70 nach PR #149 installiert und verbindet die Status-/Helfereinstiege; ungültige
 Berechnungen bleiben unklar. Noch offen: einzelne fehlende Bestandshelfer gezielt
 ergänzen, tatsächlich HA-eigene Parameter bearbeiten und Automationsübernahme ausführen.
 Vor einer Erweiterung des Helferpfads gilt: bestehende Paket-/Identitäts-/Plan-Gates
 wiederverwenden, Teilbestand und fremde Schreiber prüfen, keinen Legacy-Executor öffnen.
+Keine neue Funktion mehr im Nachtlauf. Nächster Schritt ist die angemeldete lesende
+Erdkeller-Abnahme der vollständigen Bestandskette, nicht eine neue Intelligenzschicht.
 
 ### Vorheriger Stand
 

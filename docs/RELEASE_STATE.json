@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.69",
-    "commit": "8a9d9845bc4fe9bf8f9d672817c44b31995b3e26",
-    "tree": "a4326d5ff121a2510954c886b506d6deae3d3629",
-    "app_tree": "d0fd7f0fffa8d245aa2bdb5e9b0c97fa22725996",
-    "pull_request": 148,
-    "candidate_commit": "acadb3e8985a7b1504ba3834005f21407fc42a29",
-    "candidate_ci_run_id": 36495264701,
-    "ci_run_id": 36514145015,
+    "version": "0.1.0-alpha.70",
+    "commit": "bf1846166738d90be71757f7d6d3c14075acc04f",
+    "tree": "4194f957c66f3efcf9bfa51d68d766228d7650a4",
+    "app_tree": "ee72e06bc41fd45715dc54cefd5cc62f9bf4b4eb",
+    "pull_request": 149,
+    "candidate_commit": "ee5cb290f3d1d4a93e6778984f915ec37c25fe95",
+    "candidate_ci_run_id": 36526970718,
+    "ci_run_id": 36527163624,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.69",
-    "commit": "8a9d9845bc4fe9bf8f9d672817c44b31995b3e26",
-    "tree": "a4326d5ff121a2510954c886b506d6deae3d3629",
-    "app_tree": "d0fd7f0fffa8d245aa2bdb5e9b0c97fa22725996",
-    "pull_request": 148,
-    "candidate_commit": "acadb3e8985a7b1504ba3834005f21407fc42a29",
-    "candidate_ci_run_id": 36495264701,
-    "ci_run_id": 36514145015,
+    "version": "0.1.0-alpha.70",
+    "commit": "bf1846166738d90be71757f7d6d3c14075acc04f",
+    "tree": "4194f957c66f3efcf9bfa51d68d766228d7650a4",
+    "app_tree": "ee72e06bc41fd45715dc54cefd5cc62f9bf4b4eb",
+    "pull_request": 149,
+    "candidate_commit": "ee5cb290f3d1d4a93e6778984f915ec37c25fe95",
+    "candidate_ci_run_id": 36526970718,
+    "ci_run_id": 36527163624,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "8094439d",
-    "name": "PilotSuite alpha.68 before alpha.69 release",
-    "date": "2026-09-28T22:50:48.930509+00:00",
-    "size_bytes": 54487040,
-    "app_version": "0.1.0-alpha.68",
+    "backup_id": "b7c38f9d",
+    "name": "PilotSuite alpha.69 before alpha.70 release",
+    "date": "2026-09-29T05:20:31.450999+00:00",
+    "size_bytes": 54507520,
+    "app_version": "0.1.0-alpha.69",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.69",
-    "offered_version": "0.1.0-alpha.69",
-    "previous_version": "0.1.0-alpha.68",
+    "installed_version": "0.1.0-alpha.70",
+    "offered_version": "0.1.0-alpha.70",
+    "previous_version": "0.1.0-alpha.69",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -74,11 +74,11 @@
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-29T04:53:18Z",
+    "startup_log_timestamp": "2026-09-29T07:41:29Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-29T04:53:19Z",
-      "2026-09-29T04:58:56Z",
-      "2026-09-29T04:59:26Z"
+      "2026-09-29T07:41:30Z",
+      "2026-09-29T07:44:02Z",
+      "2026-09-29T07:44:33Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -98,19 +98,19 @@
   },
   "tests": {
     "local_python_passed": 640,
-    "local_javascript_passed": 76,
+    "local_javascript_passed": 78,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
     "browser_suites": 11,
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success",
     "reproducible_source_checkout": "success",
-    "regressions": "Missing zone automation navigation/topic roles and lost selection focus reproduced first. Explicit presence/light/other roles, shared assignments, eight-rule inspection batches, stale/unknown enablement, search/draft/focus preservation pass.",
+    "regressions": "Invalid calculated occupancy/vacancy and missing primary HA-status presentation failed first. Existing browser reproduced missing guided helper entry and unclosable failed preview. Explicit no-fallback, role focus, drafts/search, package effects and failed-preview recovery pass.",
     "local_browser_suites": 3,
     "final_resource_warning_audit": "640 Python tests repeated on exact release-main; zero ResourceWarnings after gc.collect()."
   },
   "ui_review": {
-    "synthetic_browser": "Workspace, zone-instance and extended organization suites passed locally; all 11 passed exact candidate/main CI. Topic screenshots at 390/768/1440 light/dark; desktop light and mobile dark inspected. Not household acceptance.",
+    "synthetic_browser": "Existing workspace, organization and extended zone-instance suites passed locally; all 11 passed exact candidate/main CI. 390/768/1440 light/dark screenshots; desktop light/mobile dark inspected. No household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false,
@@ -139,13 +139,13 @@
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "0b6c5fe798591f9a5ee6a437e85571d72386084b:docs/RELEASE_STATE.json",
-    "integrated_pr": 148,
-    "integrated_commit": "8a9d9845bc4fe9bf8f9d672817c44b31995b3e26"
+    "previous_receipt_at": "bf1846166738d90be71757f7d6d3c14075acc04f:docs/RELEASE_STATE.json",
+    "integrated_pr": 149,
+    "integrated_commit": "bf1846166738d90be71757f7d6d3c14075acc04f"
   },
-  "next_step": "Authenticated read-only Ingress acceptance of Erdkellerbereich and one unlike existing zone, preserving all four saved zones and drafts. Observe actual presence transitions without test switching; prepare a concrete reuse plan only from checked bindings and behavior. Live automation-edit scope remains unanswered. Derived versus explicit-empty lighting roles remain a separate investigation.",
+  "next_step": "Read-only authenticated Ingress acceptance of Erdkellerbereich: explicitly check existing Boolean/timer/public-sensor/automation assignments, reported occupancy versus comparison, actual HA timing ownership and missing-helper gaps. Then confirm unlike-zone/four-zone preservation. No test switching. Individual missing-helper creation and active HA-parameter/takeover editing remain unimplemented; live-edit scope unanswered.",
   "runtime_measurement": {
-    "scope": "No performance change claimed for Alpha.69. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
+    "scope": "No performance change claimed for Alpha.70. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
@@ -156,81 +156,7 @@
     "no_new_publications_after_utc": "2026-09-29T06:00:00Z",
     "end_utc": "2026-09-29T06:30:00Z",
     "requested_authority": "Concept, research, development, tests and safe app releases. Concrete household write scope unanswered; no helper/automation changes or control transfer.",
-    "household_binding_changed": false
-  },
-  "preinstall_backup": {
-    "backup_id": "fff917f6",
-    "name": "PilotSuite alpha.68 before alpha.69 install 0247 UTC",
-    "date": "2026-09-29T02:47:23.086474+00:00",
-    "size_bytes": 54487040,
-    "app_version": "0.1.0-alpha.68",
-    "app_slugs": [
-      "0d79c5e8_pilotsuite"
-    ],
-    "homeassistant_included": false,
-    "database_included": false,
-    "folders": [],
-    "failed_addons": [],
-    "failed_folders": [],
-    "failed_agent_ids": [],
-    "agent_errors": {},
-    "agent_ids": [
-      "hassio.local"
-    ],
-    "protected": false,
-    "verification": [
-      "native snapshot list",
-      "native backup/details"
-    ],
-    "archive_extraction_performed": false,
-    "restore_drill_performed": false,
-    "completion_verified_before_publication": false,
-    "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim.",
-    "completion_verified_before_installation": true
-  },
-  "candidate": {
-    "version": "0.1.0-alpha.70",
-    "branch": "feat/zone-presence-setup",
-    "status": "locally_tested_remote_gates_pending",
-    "python_tests": 640,
-    "javascript_tests": 78,
-    "api_contracts": 62,
-    "resource_warnings": 0,
-    "affected_browser_suites": [
-      "workspace",
-      "organization",
-      "zone_instance"
-    ],
-    "installed": false,
-    "household_accepted": false,
-    "prepublication_backup": {
-      "backup_id": "b7c38f9d",
-      "name": "PilotSuite alpha.69 before alpha.70 release",
-      "date": "2026-09-29T05:20:31.450999+00:00",
-      "size_bytes": 54507520,
-      "app_version": "0.1.0-alpha.69",
-      "app_slugs": [
-        "0d79c5e8_pilotsuite"
-      ],
-      "homeassistant_included": false,
-      "database_included": false,
-      "folders": [],
-      "failed_addons": [],
-      "failed_folders": [],
-      "failed_agent_ids": [],
-      "agent_errors": {},
-      "agent_ids": [
-        "hassio.local"
-      ],
-      "protected": false,
-      "verification": [
-        "native snapshot list",
-        "native backup/details"
-      ],
-      "archive_extraction_performed": false,
-      "restore_drill_performed": false,
-      "completion_verified_before_publication": true,
-      "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
-    }
+    "household_binding_changed": false,
+    "phase": "Closing documentation and acceptance handoff; no new feature package."
   }
 }

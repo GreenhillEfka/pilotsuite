@@ -9,7 +9,7 @@ Die angemeldete Haushaltsabnahme bleibt ein eigener Nachweis.
 Erstes Umsetzungspaket, Alpha.69 installiert: eigener Automationsbereich, ausdrückliche
 Themenzuordnung im bestehenden Profil, geteilte Verwendung und geladene Aktivierung,
 begrenzte deduplizierte Auswahlprüfung, Fokus-/Entwurfsschutz. Helferzuordnung bleibt
-derselbe Editor. Zweites Paket, Alpha.70-Kandidat: Bestandsmeldung zuerst, getrennte
+derselbe Editor. Zweites Paket, Alpha.70 installiert: Bestandsmeldung zuerst, getrennte
 Vergleichsansicht, fokussierte Wege zur jeweiligen Helferrolle und verständliche
 Vorschau des bestehenden eigenen Ausgangspakets. Einzelne fehlende Bestandshelfer
 erstellen, aktive HA-Parameter bearbeiten und Automationen übernehmen bleibt offen.
@@ -51,8 +51,8 @@ Bestandsstatus; die unabhängige PilotSuite-Bewertung wird als Vergleich ausgewi
 Ohne solche Verbindung steht die eigene Berechnung mit getrenntem Publikationsstatus
 da; ohne bestätigtes eigenes Paket wird keine HA-Veröffentlichung behauptet.
 Ein unklarer öffentlicher Sensor wird niemals durch einen gültigen Boolean oder eine
-abweichende Berechnung kaschiert. Alpha.70 setzt diese Zielordnung um; Alpha.69
-zeigt noch die eigene Zoneninstanz zuerst. Kein Wechsel der Steuerungsverantwortung.
+abweichende Berechnung kaschiert. Alpha.70 setzt diese Zielordnung um; bis Alpha.69
+stand die eigene Zoneninstanz zuerst. Kein Wechsel der Steuerungsverantwortung.
 „Frei gemeldet“ bezeichnet den ausgelesenen HA-Zustand, keinen unabhängigen Nachweis
 physischer Abwesenheit. Eine pausierte PilotSuite-Bewertung pausiert nicht Home Assistant.
 
@@ -108,7 +108,7 @@ bleiben sichtbar; verlorene Antworten rechtfertigen kein blindes Wiederholen.
 Die fünf Sicherheitsbausteine eigener Ausgaben bleiben erhalten. Ein vorhandener
 Teilbestand ist kein Anlass, ein ganzes Parallelpaket anzulegen.
 
-Der Alpha.70-Kandidat trennt deshalb den direkten Bestands-Einstieg von der
+Alpha.70 trennt deshalb den direkten Bestands-Einstieg von der
 aufklappbaren Option eines **vollständigen eigenen** Ausgangspakets. Dessen Vorschau
 erklärt jeden Baustein, unveränderte Bestandszuordnung, ausgeschaltete Veröffentlichung
 und den begrenzten Rückweg: keine automatische Löschung angelegter Helfer. Die Option
