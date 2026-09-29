@@ -90,13 +90,26 @@ Automationen und deren Nachlauf werden dadurch nicht verändert.
 
 ## Bestehende Anwesenheitssteuerung: lesend verbinden
 
-Alpha.69-Kandidat bündelt den vorhandenen Organization-Editor im eigenen Zonenbereich
+Alpha.69 bündelt den vorhandenen Organization-Editor im eigenen Zonenbereich
 „Automationen“. `presence_automations` bleibt kompatibel; ausdrückliche Zuordnungen
 für `lighting_automations` und `other_automations` nutzen denselben Speicher und
 dieselbe Identitätsprüfung. Themen sind weder neue HA-Labels noch Ausführungsrechte.
 Mehrfach verwendete Automationen bleiben ein Objekt; ausgewählte Strukturprüfungen
 lesen die deduplizierte Vereinigung in ausdrücklich gestarteten Achterpaketen.
 Damit sind keine vorhandenen Automationen geändert oder fachlich abgenommen.
+
+Alpha.70 setzt den ausdrücklich verbundenen öffentlichen HA-Sensor an die erste
+Stelle: „Anwesenheit gemeldet“, „Frei gemeldet“ oder „Unklar“. Das ist eine Meldung,
+kein unabhängiger Nachweis physischer Abwesenheit. Kein Rückfall auf Boolean oder
+PilotSuite-Berechnung bei unklarem Sensor. Eigene berechnete Zustände benötigen
+ausdrückliche Gültigkeit; Vergleich, Quellenbelege und eigenes Ausgangspaket sind
+nachgeordnet und eindeutig benannt. Pause des Vergleichs pausiert nicht die HA-Logik.
+
+Helferlinks öffnen/fokussieren die jeweilige Rolle im vorhandenen Editor. Neue eigene
+Ausgaben bleiben das bestehende vollständige Fünf-Bausteine-Paket mit geprüfter
+Vorschau; jeder Baustein und der begrenzte Rückweg werden erklärt. Fehlgeschlagene
+Vorschauen bleiben schließbar. Einzelne fehlende Bestandshelfer und aktive HA-Zeiten
+sind noch nicht direkt anlegbar/editierbar; kein paralleler oder Legacy-Executor.
 
 Die neue Nutzerfreigabe vom 28.09.2026 erlaubt kontrollierte Automationsübernahme.
 Die folgenden Alpha.61-Laufzeitgrenzen sind Implementierungsstand, kein dauerhaftes

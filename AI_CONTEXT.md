@@ -47,10 +47,10 @@ automations, helper reuse/missing-helper plans, understandable presence and actu
 HA-owned parameters. No new intelligence. ADR-043 and UX_WORKSPACE.md specify the
 concept and bounded sequence. Research primary sources and translate findings into
 regressions and code; keep one active package, branch and reviewable PR.
-Alpha.69 is installed after PR #148, exact candidate/main CI and verified scoped
-backups. PR #147 recorded Alpha.68 delivery only. Do not repeat either installation.
-Current work is on feat/zone-presence-setup: honest primary Bestandsstatus, separate
-comparison and guided existing helper entry. Safe app releases remain allowed after every
+Alpha.70 is installed after PR #149, exact candidate/main CI and verified scoped
+backup. PR #148 delivered Alpha.69; PR #147 recorded Alpha.68. Do not repeat installs.
+Current work on feat/zone-presence-setup is closing documentation and acceptance
+handoff, no new feature package. Safe app releases remain allowed after every
 runbook gate; this does not authorize unconfirmed live household edits.
 Existing-zone HA-MCP state/history reads did not observe a presence transition and
 do not establish Ingress acceptance, saved PilotSuite bindings or safe takeover.

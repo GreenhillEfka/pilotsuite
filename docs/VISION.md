@@ -64,8 +64,8 @@ Die bestehende Prüfung bereitet dies vor; ein ausführbarer Übernahmepfad ist 
 ## Bedienung und Analyse
 
 Im Alltag zuerst Zone, Zustand, Grund, verbleibender Nachlauf und Datenlücke.
-Bei ausdrücklich verbundener Bestandskette soll ihr öffentlicher HA-Sensor als
-Bestandsstatus erscheinen, die eigene Bewertung getrennt als Vergleich. Ohne
+Seit Alpha.70 erscheint bei ausdrücklich verbundener Bestandskette ihr öffentlicher
+HA-Sensor als Bestandsmeldung, die eigene Bewertung getrennt als Vergleich. Ohne
 Verbindung bleibt sie klar als PilotSuite-Berechnung gekennzeichnet. Ein unklarer
 Bestandsstatus darf niemals unbemerkt durch die eigene Berechnung ersetzt werden.
 Diese Darstellungsrichtung ist keine bereits erfolgte Steuerungsübergabe.

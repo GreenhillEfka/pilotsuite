@@ -1,15 +1,18 @@
-# PilotSuite capability ledger — Alpha.69 installed
+# PilotSuite capability ledger — Alpha.70 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.70 candidate, not installed: explicitly connected public HA sensor first,
+Alpha.70 installed after PR #149: explicitly connected public HA sensor first,
 separate own comparison/publication, strict calculated validity and no Boolean fallback.
 Role-specific links reuse the existing helper editor and preserve search/drafts.
 The existing own-package preview explains effects and recovery limits; failed previews
 remain closable. Local 640 Python / 78 JS / 62 contracts and three browser suites pass,
 resource audit clean. No new executor/store/controller, individual missing-helper
-creation, HA parameter editing or takeover execution. Exact remote gates pending.
+creation, HA parameter editing or takeover execution. All five exact candidate/main
+CI jobs passed, including 11 browser suites; exact-main repeated resource audit clean.
+Fresh scoped backup, unchanged options and healthy startup verified. Ingress/four-zone
+household acceptance remains open; see the receipt and PR #149 delivery comment.
 
 Alpha.69 installed after PR #148: zone-owned Automationen navigation, explicitly
 mapped presence/lighting/other topics in the existing organization profile, shared

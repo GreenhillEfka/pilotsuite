@@ -47,7 +47,9 @@ ADR-043 präzisiert die Darstellung: Ein ausdrücklich verbundener vorhandener
 öffentlicher HA-Sensor liefert den benannten Bestandsstatus; die Zoneninstanz bleibt
 die unabhängige PilotSuite-Berechnung, kein verdeckter Ersatz für unklare Bestandsdaten.
 Schattenvergleich und Replay sind ausdrücklich benannte Diagnoseansichten.
-Dies ist eine Darstellungsentscheidung, kein neuer Entscheider oder Controller.
+Seit Alpha.70 im vorhandenen UI umgesetzt: reine Darstellungsentscheidung, kein
+neuer Entscheider oder Controller. Eindeutige berechnete Zustände erfordern valid=true;
+Bestandsmeldung, deren Gültigkeit und eigene Publikation bleiben getrennt.
 Legacy-Konfigurationen bleiben
 lesbar, bis eine getestete Überführung Quellen, Fristen und Bedeutungsunterschiede
 erhält. Keine automatische Zusammenführung allein nach Feld- oder Anzeigenamen.
