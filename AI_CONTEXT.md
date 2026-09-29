@@ -31,13 +31,14 @@ edit/enable/disable automations, activate outputs, transfer control or grant lea
 
 Timed overnight and additional-hour runs ended; the existing heartbeat stays paused.
 The user subsequently said to continue the existing package directly in this chat.
-Finish `feat/zone-missing-helper`, PR #151, using every release-runbook gate.
+PR #151 on `feat/zone-missing-helper` is merged and Alpha.71 safely delivered.
 No new timed loop, chat or background job. This continuation does not change
 household-write scope.
 
-Alpha.70 installed after PR #149; PR #150 recorded its delivery. PR #151 prepares
+Alpha.70 followed PR #149; PR #150 recorded its delivery. PR #151 delivered
 Alpha.71 single Boolean/timer creation through existing transactions, without
-assignment or automation wiring. CURRENT_STATE.md owns fresh progress; the receipt
+assignment or automation wiring. Exact candidate/main CI, scoped backup, installation
+and runtime are verified. CURRENT_STATE.md owns fresh progress; the receipt
 plus live HA metadata owns installation, never a version marker or old narrative.
 
 Next household acceptance is read-only authenticated Ingress for Erdkellerbereich

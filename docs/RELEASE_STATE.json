@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.70",
-    "commit": "bf1846166738d90be71757f7d6d3c14075acc04f",
-    "tree": "4194f957c66f3efcf9bfa51d68d766228d7650a4",
-    "app_tree": "ee72e06bc41fd45715dc54cefd5cc62f9bf4b4eb",
-    "pull_request": 149,
-    "candidate_commit": "ee5cb290f3d1d4a93e6778984f915ec37c25fe95",
-    "candidate_ci_run_id": 36526970718,
-    "ci_run_id": 36527163624,
+    "version": "0.1.0-alpha.71",
+    "commit": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3",
+    "tree": "3958527cdd2d4c4fbe0aaffbb3ba9a738f949a4c",
+    "app_tree": "4d7baccf4b09c637fd8179336cc830853d8c991e",
+    "pull_request": 151,
+    "candidate_commit": "c96fda7ddb4225fb383bd7b206005a10190911f9",
+    "candidate_ci_run_id": 36540248104,
+    "ci_run_id": 36540501031,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.70",
-    "commit": "bf1846166738d90be71757f7d6d3c14075acc04f",
-    "tree": "4194f957c66f3efcf9bfa51d68d766228d7650a4",
-    "app_tree": "ee72e06bc41fd45715dc54cefd5cc62f9bf4b4eb",
-    "pull_request": 149,
-    "candidate_commit": "ee5cb290f3d1d4a93e6778984f915ec37c25fe95",
-    "candidate_ci_run_id": 36526970718,
-    "ci_run_id": 36527163624,
+    "version": "0.1.0-alpha.71",
+    "commit": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3",
+    "tree": "3958527cdd2d4c4fbe0aaffbb3ba9a738f949a4c",
+    "app_tree": "4d7baccf4b09c637fd8179336cc830853d8c991e",
+    "pull_request": 151,
+    "candidate_commit": "c96fda7ddb4225fb383bd7b206005a10190911f9",
+    "candidate_ci_run_id": 36540248104,
+    "ci_run_id": 36540501031,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "b7c38f9d",
-    "name": "PilotSuite alpha.69 before alpha.70 release",
-    "date": "2026-09-29T05:20:31.450999+00:00",
-    "size_bytes": 54507520,
-    "app_version": "0.1.0-alpha.69",
+    "backup_id": "e5df45f0",
+    "name": "PilotSuite alpha.70 before alpha.71 release",
+    "date": "2026-09-29T07:58:30.470906+00:00",
+    "size_bytes": 54497280,
+    "app_version": "0.1.0-alpha.70",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,9 +55,9 @@
     "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.70",
-    "offered_version": "0.1.0-alpha.70",
-    "previous_version": "0.1.0-alpha.69",
+    "installed_version": "0.1.0-alpha.71",
+    "offered_version": "0.1.0-alpha.71",
+    "previous_version": "0.1.0-alpha.70",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -68,17 +68,18 @@
     "explicit_restart_calls": 0,
     "rebuild_calls": 0,
     "other_app_update_calls": 0,
-    "source_association": "repository/version/app-tree; not independent installed-image attestation"
+    "source_association": "repository/version/app-tree; not independent installed-image attestation",
+    "verified_at_utc": "2026-09-29T08:12:48Z"
   },
   "runtime": {
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-29T07:41:29Z",
+    "startup_log_timestamp": "2026-09-29T10:12:29Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-29T07:41:30Z",
-      "2026-09-29T07:44:02Z",
-      "2026-09-29T07:44:33Z"
+      "2026-09-29T10:12:30Z",
+      "2026-09-29T10:14:01Z",
+      "2026-09-29T10:14:32Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -97,20 +98,20 @@
     ]
   },
   "tests": {
-    "local_python_passed": 640,
+    "local_python_passed": 651,
     "local_javascript_passed": 78,
     "api_contracts": 62,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
     "browser_suites": 11,
     "container_platform": "linux/amd64",
-    "disposable_home_assistant_protocol": "success",
+    "disposable_home_assistant_protocol": "success; HA 2026.9.3, six scenarios including native individual Boolean/timer, explicit timer duration/restore and no duplicate after reconnect",
     "reproducible_source_checkout": "success",
-    "regressions": "Invalid calculated occupancy/vacancy and missing primary HA-status presentation failed first. Existing browser reproduced missing guided helper entry and unclosable failed preview. Explicit no-fallback, role focus, drafts/search, package effects and failed-preview recovery pass.",
+    "regressions": "Initial three single-helper cases and stale zone revision after registry I/O / disabled readback identity failed before fixes. Lost creation response, readback outage/restart, wrong identity, expiry, exact confirmation/zone and absent comparison config are covered.",
     "local_browser_suites": 3,
-    "final_resource_warning_audit": "640 Python tests repeated on exact release-main; zero ResourceWarnings after gc.collect()."
+    "final_resource_warning_audit": "651 Python tests repeated on exact release-main; zero ResourceWarnings after gc.collect()."
   },
   "ui_review": {
-    "synthetic_browser": "Existing workspace, organization and extended zone-instance suites passed locally; all 11 passed exact candidate/main CI. 390/768/1440 light/dark screenshots; desktop light/mobile dark inspected. No household acceptance.",
+    "synthetic_browser": "Existing workspace, organization and extended zone-instance suites passed locally; all 11 passed exact candidate/main CI. Unlike-zone individual-helper preview/apply, preserved draft after collision, no binding/control/false vacancy. 390/768/1440 light/dark screenshots; desktop light/mobile dark inspected. No household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false,
@@ -135,17 +136,17 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "All four app options unchanged; no schema/configuration migration or new persistent data. Existing exact candidate/main synthetic browser suites include four-zone/configuration preservation. Real four-zone PilotSuite Ingress readback remains pending."
+    "independent_data_preservation": "Four app option values unchanged; no schema/configuration migration or new store. Exact synthetic browser suites cover four-zone/configuration preservation. Real four-zone PilotSuite Ingress readback remains pending."
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "bf1846166738d90be71757f7d6d3c14075acc04f:docs/RELEASE_STATE.json",
-    "integrated_pr": 149,
-    "integrated_commit": "bf1846166738d90be71757f7d6d3c14075acc04f"
+    "previous_receipt_at": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3:docs/RELEASE_STATE.json",
+    "integrated_pr": 151,
+    "integrated_commit": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3"
   },
-  "next_step": "Read-only authenticated Ingress acceptance of Erdkellerbereich: explicitly check existing Boolean/timer/public-sensor/automation assignments, reported occupancy versus comparison, actual HA timing ownership and missing-helper gaps. Then confirm unlike-zone/four-zone preservation. No test switching. Individual missing-helper creation and active HA-parameter/takeover editing remain unimplemented; live-edit scope unanswered.",
+  "next_step": "Read-only authenticated Ingress acceptance of Erdkellerbereich: check existing Boolean/timer/public-sensor/automation assignments, reported occupancy versus comparison and actual HA timing ownership; then contrast unlike-zone/four-zone preservation. Identify genuinely missing helpers before any separately authorized household creation or wiring. Active HA-parameter editing and automation wiring/takeover remain unimplemented; no test switching.",
   "runtime_measurement": {
-    "scope": "No performance change claimed for Alpha.70. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
+    "scope": "No performance change claimed for Alpha.71. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
@@ -153,25 +154,6 @@
     "heartbeat": "PAUSED; prior timed runs completed",
     "requested_authority": "Finish existing package and safely release after all runbook gates; no household write scope expansion.",
     "household_binding_changed": false,
-    "phase": "Alpha.71 candidate, Alpha.70 installed; source/CI/installation gates pending."
-  },
-  "candidate": {
-    "version": "0.1.0-alpha.71",
-    "pull_request": 151,
-    "branch": "feat/zone-missing-helper",
-    "scope": "Single missing Boolean/timer, no automatic binding or automation wiring.",
-    "local_python_passed": 651,
-    "local_javascript_passed": 78,
-    "api_contracts": 62,
-    "resource_warnings": 0,
-    "local_browser_suites": 3,
-    "release_gates": "Exact candidate and main CI including extended disposable HA acceptance pending.",
-    "prepublication_backup": {
-      "backup_id": "e5df45f0",
-      "date": "2026-09-29T07:58:30.470906+00:00",
-      "size_bytes": 54497280,
-      "app_version": "0.1.0-alpha.70",
-      "native_scope_verified": true
-    }
+    "phase": "Alpha.71 installed and healthy; closing delivery receipt. Prior timed runs completed, heartbeat remains paused."
   }
 }

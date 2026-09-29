@@ -11,7 +11,7 @@ Themenzuordnung im bestehenden Profil, geteilte Verwendung und geladene Aktivier
 begrenzte deduplizierte Auswahlprüfung, Fokus-/Entwurfsschutz. Helferzuordnung bleibt
 derselbe Editor. Zweites Paket, Alpha.70 installiert: Bestandsmeldung zuerst, getrennte
 Vergleichsansicht, fokussierte Wege zur jeweiligen Helferrolle und verständliche
-Vorschau des bestehenden eigenen Ausgangspakets. Alpha.71-Kandidat (PR #151) ergänzt
+Vorschau des bestehenden eigenen Ausgangspakets. Alpha.71 installiert (PR #151) ergänzt
 die gezielte Einzelanlage fehlender Booleans/Timer; aktive HA-Parameter bearbeiten
 und Automationen anschließen/übernehmen bleibt offen. Installation siehe Receipt.
 

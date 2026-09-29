@@ -1,16 +1,19 @@
-# PilotSuite capability ledger — Alpha.70 installed
+# PilotSuite capability ledger — Alpha.71 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Alpha.71 candidate, PR #151: targeted single Boolean/timer creation through the
+Alpha.71 installed after PR #151: targeted single Boolean/timer creation through the
 existing plan/store/transaction, explicit duration, collision/binding guards,
 restart-safe cumulative receipts and separate plan-history projection. Creation
 does not bind roles, connect automations or enable publication. Stale revisions
 and disabled readback identities reproduced red, then fixed. Local 651 Python /
 78 JS / 62 contracts, three browser suites and zero ResourceWarnings; unlike-zone
-390/768/1440 light/dark screenshots inspected. Exact candidate/main remote CI and
-installation must be verified separately; Alpha.70 remains the installed receipt.
+390/768/1440 light/dark screenshots inspected. All five exact candidate/main CI jobs
+passed, including 11 browser suites and six disposable HA 2026.9.3 scenarios.
+Repeated exact-main resource audit clean. Fresh scoped backup, installation/start,
+four unchanged options, unchanged mode and healthy runtime verified. No household
+helper creation or automation/binding/control change; real Ingress acceptance open.
 
 Alpha.70 installed after PR #149: explicitly connected public HA sensor first,
 separate own comparison/publication, strict calculated validity and no Boolean fallback.
