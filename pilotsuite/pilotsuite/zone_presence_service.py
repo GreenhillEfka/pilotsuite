@@ -414,6 +414,9 @@ class ZonePresenceServiceMixin:
                     if any(r['entity_id']==op['entity_id'] for r in before):
                         raise SelectionConflict('Identität nicht mehr frei')
                     await self.plans.organization_progress(zid,plan_id,index,'sending')
+                    # Registry I/O and durable progress both yield. Recheck the
+                    # user's exact zone basis immediately before the HA write.
+                    await self._organization_basis(zid,plan['revision'])
                     if op['domain']=='template':
                         # Native HA transliteration is not our ontology transliteration.
                         # Create a brand-new ASCII identity, then set its display name only.
@@ -434,7 +437,9 @@ class ZonePresenceServiceMixin:
                         matches=[r for r in new if r.get('config_entry_id')==entry_id and r.get('platform')=='template' and r['entity_id']==op['entity_id']]
                     else:
                         matches=[r for r in new if r.get('platform')==op['domain'] and r.get('unique_id')==result['id'] and r['entity_id']==op['entity_id']]
-                    if len(matches)!=1 or not matches[0].get('unique_id'):raise HomeAssistantError('Unabhängiges Identitäts-Readback fehlgeschlagen')
+                    if (len(matches)!=1 or not matches[0].get('unique_id') or
+                        matches[0].get('disabled_by') is not None):
+                        raise HomeAssistantError('Unabhängiges aktives Identitäts-Readback fehlgeschlagen')
                     row=matches[0];identities[op['role']]=identity(row);entities[op['role']]=row['entity_id']
                     await self.plans.organization_receipt(zid,plan_id,index,{'identity':identity(row),'entity_id':row['entity_id']})
                     if op['domain']=='template':
@@ -445,15 +450,16 @@ class ZonePresenceServiceMixin:
                     await self.plans.organization_progress(zid,plan_id,index,'verified',True)
                 except SelectionConflict:return await self.plans.organization_progress(zid,plan_id,index,'conflict')
                 except (HomeAssistantError,TimeoutError):return await self.plans.organization_progress(zid,plan_id,index,'unknown')
+            if plan['kind']=='presence_helper':
+                # The durable operation receipt already independently confirmed
+                # creation. No binding follows: do not imply a live functionality
+                # check or let an unnecessary later read mask this historical fact.
+                return await self.plans.organization_plan_get(zid,plan_id)
             latest={r['entity_id']:r for r in await self.client.zone_output_registry()}
             if len(entities)!=len(plan['operations']) or any(
                 not same_identity(identities[role],latest.get(eid,{})) or
                 latest[eid].get('disabled_by') is not None for role,eid in entities.items()):
                 raise SelectionConflict('Ausgangsidentität vor Bindung geändert')
-            if plan['kind']=='presence_helper':
-                # Creation is not wiring, assignment or an occupancy observation.
-                # Keep the existing profile and runtime entirely unchanged.
-                return await self.plans.organization_plan_get(zid,plan_id)
             async with self._projection_lock:
                 inv,cfg,catalog,relevant=await self._zone_basis(zid)
                 if inv['revision']!=plan['revision']:

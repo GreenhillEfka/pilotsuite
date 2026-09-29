@@ -304,6 +304,42 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
      await page.locator('#ps-presence-publication').screenshot({path:path.join(out,`zone-publication-proof-mobile-${theme}.png`)});}
    }
   }}
+  // A second, unlike zone has no saved PilotSuite presence configuration. A
+  // helper is still creatable there, but it must not become a presence output.
+  const beforeSingles=await command({action:'snapshot'});
+  await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
+  await page.locator('[data-ps-zone="z_other"]').click();
+  await page.waitForFunction(()=>selectionZone==='z_other'&&!selectionBusy&&document.querySelector('#ps-zone-configure')?.disabled===false);
+  if(!await page.locator('#ps-helper-options').evaluate(e=>e.open))await page.locator('#ps-helper-options>summary').click();
+  await page.locator('#ps-helper-single').click();
+  assert.equal(await page.getByLabel('Fehlende Funktion',{exact:true}).evaluate(e=>e===document.activeElement),true);
+  await page.getByLabel('Fehlende Funktion',{exact:true}).selectOption('presence_timer');
+  await page.getByLabel('Timerdauer (Sekunden)',{exact:true}).fill('240');
+  await page.getByRole('button',{name:'Einzelhelfer-Plan prüfen',exact:true}).click();
+  await page.getByRole('button',{name:'Diesen einzelnen Helfer anlegen',exact:true}).waitFor();
+  for(const width of [390,768,1440]){await page.setViewportSize({width,height:1100});for(const theme of ['light','dark']){
+   await page.evaluate(theme=>document.documentElement.dataset.psTheme=theme,theme);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'helper preview overflow '+width);
+   if(out)await page.screenshot({path:path.join(out,`single-helper-${theme}-${width}.png`),fullPage:true});
+  }}
+  await page.getByRole('button',{name:'Diesen einzelnen Helfer anlegen',exact:true}).click();
+  await page.getByRole('heading',{name:'Helferanlage bestätigt · Anschluss noch offen',exact:true}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Diesen einzelnen Helfer anlegen',exact:true}).count(),0);
+  const afterSingle=await command({action:'snapshot'});
+  assert.equal(afterSingle.helper_creates,beforeSingles.helper_creates+1);
+  for(const key of ['output_calls','metadata_calls','organization','roles','learning','mode','zones'])assert.deepEqual(afterSingle[key],beforeSingles[key]);
+  await page.getByRole('button',{name:'Schließen',exact:true}).click();
+  await page.locator('#ps-zone-refresh:not([disabled])').click();
+  assert.equal(await page.locator('#ps-presence-state strong').textContent(),'Unklar');
+  await page.locator('#ps-helper-single').click();
+  await page.getByLabel('Fehlende Funktion',{exact:true}).selectOption('presence_timer');
+  await page.getByLabel('Timerdauer (Sekunden)',{exact:true}).fill('240');
+  await page.getByRole('button',{name:'Einzelhelfer-Plan prüfen',exact:true}).click();
+  await page.getByText('Helferkennung existiert bereits; vorhandenen Plan oder Bestand prüfen',{exact:true}).waitFor();
+  assert.equal(await page.getByLabel('Timerdauer (Sekunden)',{exact:true}).inputValue(),'240');
+  await page.getByRole('button',{name:'Verwerfen',exact:true}).click();
+  assert.equal((await command({action:'snapshot'})).helper_creates,afterSingle.helper_creates);
+  console.log('ok 4c - individual helper creation in unlike zone; no binding/control, mobile themes, no duplicate, error retains draft');
   const final=await command({action:'snapshot'});assert.equal(final.learning,false);assert.deepEqual(final.roles,baseline.roles);assert.deepEqual(final.zones,baseline.zones);assert.deepEqual(errors,[]);
   assert.equal(network.some(r=>/presence-runtime|transactions\/.+\/apply|history\/import/.test(r.url)),false);
   await page.evaluate(()=>window.PilotSuiteZonePresence.invalidate());assert.equal(await page.locator('#ps-zone-configure').isDisabled(),true);

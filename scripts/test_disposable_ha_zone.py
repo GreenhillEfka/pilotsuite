@@ -93,6 +93,37 @@ async def main():
                 async with service._projection_lock:
                     await service._zone_presence_tick_locked()
 
+            # Missing individual helpers need no PilotSuite presence config and
+            # must neither bind a role nor establish occupancy/publication.
+            config_before = await service.context.get(zid)
+            registry_before = {r['entity_id'] for r in await service.client.zone_output_registry()}
+            singles = []
+            for role, duration, expected in [('presence_status', None, 'off'),
+                                               ('presence_timer', 180, 'idle')]:
+                single = await service.zone_package_preview(zid, {
+                    'revision':await revision(), 'helper_role':role, 'duration_seconds':duration})
+                result = await service.zone_package_apply(zid, single['id'], {
+                    'sha256':single['sha256'], 'confirm':True})
+                assert result['state']=='verified'
+                eid = single['operations'][0]['entity_id']
+                await wait_state(service.client, eid, expected)
+                if role=='presence_timer':
+                    attrs=(await service.client.zone_output_states())[eid]['attributes']
+                    assert attrs['duration']=='0:03:00', attrs
+                    assert attrs['restore'] is True, attrs
+                singles.append(single)
+            assert await service.context.get(zid)==config_before
+            created_ids={r['entity_id'] for r in await service.client.zone_output_registry()}-registry_before
+            assert created_ids=={p['operations'][0]['entity_id'] for p in singles}
+            await service.client.close()
+            await service.client.start()
+            for single in singles:
+                repeated=await service.zone_package_apply(zid,single['id'],{
+                    'sha256':single['sha256'],'confirm':True})
+                assert repeated['write_repeated'] is False
+            assert {r['entity_id'] for r in await service.client.zone_output_registry()}-registry_before==created_ids
+            print('ok 0 - two individual native helpers, explicit duration/restore, no binding or duplicate after reconnect', flush=True)
+
             await service.zone_presence_configure(zid, {'revision':await revision(), 'spec':spec, 'mode':'compare'})
             plan = await service.zone_package_preview(zid, {'revision':await revision()})
             applied = await service.zone_package_apply(zid, plan['id'], {'sha256':plan['sha256'], 'confirm':True})
@@ -157,7 +188,7 @@ async def main():
             assert all(same_identity(identities[k], rows[v]) for k,v in e.items())
             assert not (await service.context.get(zid))['learning']
             print('ok 5 - reconnect preserves identity and learning remains unchanged', flush=True)
-            print(json.dumps({'actual_homeassistant': info['version'], 'tests':5,
+            print(json.dumps({'actual_homeassistant': info['version'], 'tests':6,
                 'scope':'disposable Core APIs, not household or Supervisor principal attestation'}), flush=True)
         finally:
             if service is not None:

@@ -2,7 +2,7 @@ from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 from aiohttp.test_utils import TestClient, TestServer
 
@@ -10,6 +10,7 @@ from pilotsuite.app import SERVICE_KEY, create_app
 from pilotsuite.core.plans import PlanStore
 from pilotsuite.core.settings import Settings
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
+from pilotsuite.ha.client import HomeAssistantError
 from organization_support import seed
 
 
@@ -115,6 +116,110 @@ class ZonePackageRecoveryTests(unittest.IsolatedAsyncioTestCase):
             await self.service.zone_package_apply('room', plan['id'], {
                 'sha256': plan['sha256'], 'confirm': True})
         self.service.client.zone_create_storage_helper.assert_not_awaited()
+
+    async def _single_preview(self):
+        return await self.service.zone_package_preview('room', {
+            'revision': 1, 'helper_role': 'presence_timer', 'duration_seconds': 180})
+
+    async def _single_apply(self, plan):
+        return await self.service.zone_package_apply('room', plan['id'], {
+            'sha256': plan['sha256'], 'confirm': True})
+
+    async def test_single_helper_rechecks_revision_after_registry_io(self):
+        plan = await self._single_preview()
+        async def changed_registry():
+            await self.service.context.save_organization('room', 1, {
+                'schema': 'pilotsuite-organization-v1', 'timing': 'external', 'assignments': {}})
+            return []
+        self.service.client.zone_output_registry.side_effect = changed_registry
+        result = await self._single_apply(plan)
+        self.assertEqual('conflict', result['operations'][0]['outcome'])
+        self.service.client.zone_create_storage_helper.assert_not_awaited()
+
+    async def test_single_helper_readback_outage_recovers_receipt_after_restart(self):
+        plan = await self._single_preview()
+        before = await self.service.context.get('room')
+        async def failing_readback():
+            if self.rows:
+                raise HomeAssistantError('Synthetic readback outage')
+            return []
+        self.service.client.zone_output_registry.side_effect = failing_readback
+        result = await self._single_apply(plan)
+        self.assertEqual('attention', result['state'])
+        self.assertIn('storage_id', result['operations'][0]['receipt'])
+        self.service.plans = PlanStore(self.service.settings.data_dir, self.service.audit, self.service.context)
+        self.service.client.zone_output_registry.side_effect = self._registry
+        recovered = await self._single_apply(plan)
+        self.assertEqual('verified', recovered['state'])
+        self.assertEqual(1, len(self.storage_calls))
+        self.assertEqual(before, await self.service.context.get('room'))
+        self.assertIn('storage_id', recovered['operations'][0]['receipt'])
+        self.assertIn('identity', recovered['operations'][0]['receipt'])
+
+    async def test_single_helper_lost_creation_response_never_replays_or_adopts_name(self):
+        plan = await self._single_preview()
+        async def lost(domain, name, *, grace_seconds):
+            await self._create_storage(domain, name, grace_seconds=grace_seconds)
+            raise HomeAssistantError('Synthetic lost creation response')
+        self.service.client.zone_create_storage_helper.side_effect = lost
+        self.assertEqual('attention', (await self._single_apply(plan))['state'])
+        self.service.plans = PlanStore(self.service.settings.data_dir, self.service.audit, self.service.context)
+        result = await self._single_apply(plan)
+        self.assertEqual('ownership_unconfirmed', result['recovery'])
+        self.assertEqual(1, len(self.storage_calls))
+        with self.assertRaises(SelectionConflict):
+            await self._single_preview()
+
+    async def test_single_helper_wrong_identity_is_not_confirmed(self):
+        plan = await self._single_preview()
+        async def wrong(domain, name, *, grace_seconds):
+            await self._create_storage(domain, name, grace_seconds=grace_seconds)
+            self.rows[0]['unique_id'] = 'foreign'
+            return {'id': name}
+        self.service.client.zone_create_storage_helper.side_effect = wrong
+        self.assertEqual('attention', (await self._single_apply(plan))['state'])
+        self.assertEqual('ownership_unconfirmed', (await self._single_apply(plan))['recovery'])
+        self.assertEqual(1, len(self.storage_calls))
+
+    async def test_single_helper_disabled_during_creation_is_not_verified(self):
+        plan = await self._single_preview()
+        async def disabled(domain, name, *, grace_seconds):
+            result = await self._create_storage(domain, name, grace_seconds=grace_seconds)
+            self.rows[0]['disabled_by'] = 'user'
+            return result
+        self.service.client.zone_create_storage_helper.side_effect = disabled
+        result = await self._single_apply(plan)
+        self.assertEqual('attention', result['state'])
+        self.assertEqual('ownership_unconfirmed', (await self._single_apply(plan))['recovery'])
+        self.assertEqual(1, len(self.storage_calls))
+
+    async def test_single_helper_expired_preview_does_not_create(self):
+        plan = await self._single_preview()
+        with patch('pilotsuite.core.organization_store.time.time', return_value=plan['expires_at']+1):
+            with self.assertRaises(SelectionConflict):
+                await self._single_apply(plan)
+        self.service.client.zone_create_storage_helper.assert_not_awaited()
+
+    async def test_single_helper_requires_exact_confirmation_and_zone(self):
+        plan = await self._single_preview()
+        for payload in ({'sha256': plan['sha256'], 'confirm': False},
+                        {'sha256': 'wrong', 'confirm': True}):
+            with self.assertRaises((InvalidSelection, SelectionConflict)):
+                await self.service.zone_package_apply('room', plan['id'], payload)
+        with self.assertRaises(InvalidSelection):
+            await self.service.zone_package_apply('other', plan['id'], {
+                'sha256': plan['sha256'], 'confirm': True})
+        self.service.client.zone_create_storage_helper.assert_not_awaited()
+
+    async def test_single_helper_does_not_require_pilotsuite_presence_configuration(self):
+        plan = await self.service.zone_package_preview('other', {
+            'revision': 0, 'helper_role': 'presence_status', 'duration_seconds': None})
+        before = await self.service.context.get('other')
+        result = await self.service.zone_package_apply('other', plan['id'], {
+            'sha256': plan['sha256'], 'confirm': True})
+        self.assertEqual('verified', result['state'])
+        self.assertEqual(before, await self.service.context.get('other'))
+        self.service.client.zone_output_service.assert_not_awaited()
 
     async def test_receipts_are_merged_instead_of_losing_creation_identity(self):
         plan = await self._preview()

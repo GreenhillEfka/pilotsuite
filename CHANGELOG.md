@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.0-alpha.71] - 2026-09-29
+
+- Prepare one missing Boolean or timer through the existing zone helper transaction,
+  with an explicit timer duration, exact identity and separate confirmation.
+- Preserve existing/unresolved bindings and owned output packages; collisions never
+  create a numbered duplicate. Creation does not assign, wire or take over a control.
+- Retain cumulative identity receipts across lost readbacks/restarts without replay;
+  reject stale zone revisions before creation and disabled readback identities.
+- Show helper plans separately from name changes. Keep drafts on errors, wrap IDs on
+  mobile and distinguish confirmed creation from a working presence chain.
+- New off/idle helpers are not vacancy evidence. No household automation, binding,
+  learning permission or output activation is changed by this release.
+
 ## [0.1.0-alpha.70] - 2026-09-29
 
 - Put an explicitly connected public HA presence sensor first, labelled as a reported

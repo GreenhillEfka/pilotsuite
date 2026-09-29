@@ -1,102 +1,73 @@
-# Current state — Alpha.70 installed; household acceptance pending
+# Current state — Alpha.70 installed; Alpha.71 candidate
 
-## Additional hour — development branch, not a release
+## Active work: finish PR #151
 
-Explicit user extension: 29 September 06:43:54–07:43:54 UTC (09:43:54 Berlin).
-No new package after 07:23:54; no new release publication after 07:28:54.
-At the end pause the reused heartbeat. Prior overnight run remains completed.
-Fresh main `001811bd01cc1202245b6a6ef47994d4f2ac7d64`, no open PRs at entry;
-Alpha.70 installed/offered/started at 06:48 UTC. No household writes performed.
+The user explicitly continued this package after the timed runs ended.
+The existing heartbeat remains paused; no new timed loop or background job.
+Branch `feat/zone-missing-helper`, PR #151. Alpha.70 was freshly verified
+installed/offered/started on 29 September at 07:49 UTC; options retained privately.
 
-Active package: `feat/zone-missing-helper`. Targeted Boolean/timer plan reuses
-the existing package endpoint, PlanStore, creation/readback/recovery transaction.
-Existing or unresolved role bindings and owned packages block duplicate creation;
-timer duration is explicit and bounded. Creation does not bind a role, publish a
-presence result or connect/change an automation. Initial off/idle is not vacancy.
-UI separates the single helper from a complete owned output package and retains
-duration drafts. Plan history no longer treats helper plans as name-edit plans.
-Three added Python regressions failed before implementation; 643 Python, 78 JS,
-62 contracts and discovery passed. Extended zone browser passed before the final
-plan-history correction; final browser rerun and review recorded in the PR.
-Synthetic screenshot inspected; no authenticated household browser available.
+Alpha.71 adds one missing Boolean/timer through the existing package endpoint,
+PlanStore and creation/readback/recovery transaction. Existing or unresolved role
+bindings, owned packages and registry collisions block replacement. Timer duration
+is explicit and bounded. No automatic binding, automation connection, publication,
+control transfer or interpretation of initial off/idle as vacancy.
 
-NOT release-ready: no version bump, fresh release backup, exact candidate/main CI,
-release preflight or installation for this package. Do not merge as Alpha.70.
-Next: finish fault/recovery and disposable-HA protocol acceptance of the individual
-helper path, then version and release under a fresh authorized window/runbook.
+The original three feature regressions and two new fault regressions failed first.
+Additional coverage includes lost response, failed readback/restart, wrong identity,
+disabled identity, expired/stale plan, exact confirmation and unlike-zone operation.
+Local 651 Python / 78 JS / 62 contracts, discovery and compilation pass.
+Repeated resource audit: zero warnings. Workspace, organization and extended zone
+browsers pass. Unlike-zone 390/768/1440 light/dark screenshots inspected.
+Synthetic tests do not establish household acceptance.
 
-## Historical overnight closing phase — ended 29 September 08:30 Europe/Berlin
+Fresh prepublication backup `e5df45f0`, 29 Sep 07:58:30.470906 UTC: native list and
+backup/details confirm only Alpha.70 PilotSuite app/data/options, 54,497,280 bytes,
+no HA/database/folders/failures, local unprotected agent. No extraction/restore drill.
+Before release require versioned source preflight, own diff review, all five exact
+candidate and main CI jobs (including extended disposable HA protocol acceptance).
+Do not confuse a candidate or successful backup with installation.
 
-Window: 28 September 22:26:57 UTC–29 September 06:30 UTC. Feature work completed;
-no new feature package. No new publication after 06:00 UTC. At 06:30 UTC report
-saved work and pause the existing heartbeat. Do not extend or create extra jobs/chats.
-Only closing documentation, release evidence and acceptance handoff remain.
-
-## Delivered and verified
+## Delivered baseline
 
 PR #148 delivered Alpha.69: zone-owned Automationen, explicit presence/light/other
-topics in the existing store, shared-use hints, deduplicated eight-rule inspections,
-honest unavailable enablement and preserved drafts/focus. Legacy guide moved out
-of basic setup. ADR-043 and UX_WORKSPACE.md document primary-source research.
+topics, shared-use hints, deduplicated inspections and preserved drafts/focus.
+PR #149 delivered Alpha.70: connected public HA sensor first, independent comparison,
+no unknown fallback to Boolean/calculation, strict validity and separated timing.
+Role-specific links reuse the helper editor; complete owned output remains five
+components. ADR-043 and UX_WORKSPACE.md document the research and concept.
 
-PR #149 delivered Alpha.70: connected public HA sensor first, independent comparison
-secondary, no unknown fallback to Boolean/calculation, strict calculated validity,
-clear HA versus PilotSuite timing. Role-specific helper links reuse the existing
-editor; own-package preview explains five components and recovery limits, and a
-failed preview can be closed. No new executor, API, controller or persistence.
-
-Exact candidate `ee5cb290f3d1d4a93e6778984f915ec37c25fe95` and release-main
-`bf1846166738d90be71757f7d6d3c14075acc04f` passed all five CI jobs:
-runs `36526970718` / `36527163624`, including all 11 browser suites.
-Root tree `4194f957c66f3efcf9bfa51d68d766228d7650a4`;
-app tree `ee72e06bc41fd45715dc54cefd5cc62f9bf4b4eb`.
-Source preflight and own diff review passed. 640 Python / 78 JS / 62 contracts,
-discovery and compilation pass; exact-main repeated resource audit: zero warnings.
-New invalid-state and failed-preview regressions failed before their fixes.
-Workspace, organization and zone browsers pass; synthetic 390/768/1440 light/dark
-screenshots inspected. Synthetic tests do not establish household usability.
-
-Fresh prepublication backup `b7c38f9d`, 29 Sep 05:20:31.450999 UTC, native list and
-backup/details verified: only Alpha.69 PilotSuite app/data/options, 54,507,520 bytes,
-no HA/database/folders/failures, local unprotected agent. No extraction/restore drill.
-
-At 05:41 UTC: Alpha.70 installed/offered, started, all four options unchanged.
-One Store refresh and one targeted update, no extra restart/rebuild/other-app update.
-Startup remains presence_adoption_review; ready/stream/fresh snapshot/zone resolved.
-Log times copied as emitted, not clock-attested. Receipt: docs/RELEASE_STATE.json;
-PR #149 has exact delivery evidence. Do not repeat the Alpha.70 installation.
-
-Closing documentation remains on the same feature branch for reviewed integration.
-No follow-up PR is needed merely to record its own CI; final CI goes in its PR comment.
+Alpha.70 release-main `bf1846166738d90be71757f7d6d3c14075acc04f`; source and
+delivery evidence in RELEASE_STATE.json and PR #149. PR #150 closed its documentation
+at main `001811bd01cc1202245b6a6ef47994d4f2ac7d64`, unchanged app tree.
+Do not repeat the Alpha.70 installation.
 
 ## Boundaries and actual gaps
 
-All four saved zones, entity cleanup and untracked AGENTS.md remain preserved.
-No schema/configuration migration. Ingress/auth/sandbox unchanged. General Apply
-closed; existing bounded executors are not described as universal hard_read_only.
+Preserve all four saved zones, entity cleanup and untracked AGENTS.md. No schema or
+configuration migration, auth/Ingress/sandbox change or learning grant. General
+Apply remains closed; bounded executors are not universal hard_read_only.
+Current mode remains presence_adoption_review; existing HA automations own control.
 
-Concrete live household write scope remains unanswered. No household helper creation,
-rename, automation edit/enable/disable, output activation, control transfer or new
-learning consent. Reuse/adoption is an authorized direction, not permanently forbidden.
+Concrete household-write scope remains unanswered. No household helper creation,
+rename, automation edit/enable/disable, output activation or control transfer.
+Reuse/adoption is an authorized direction, not permanently forbidden. New individual
+helper creation still requires an exact user-confirmed plan; app installation alone
+creates no helper. Active HA-parameter editing and automation wiring/execution remain
+unimplemented. Do not reopen the legacy provisioner.
 
-Still unimplemented: targeted single missing-helper creation in an existing chain,
-active HA-parameter editing and automation-change execution. The full own-output
-package is not a substitute for those paths. Do not reopen the legacy provisioner.
+No authenticated HA browser is connected. Real Ingress/four-zone acceptance remains
+open. Prior read-only states/history contained no transition and do not prove vacancy,
+timer expiry, quiet occupancy, saved bindings or safe takeover.
 
-No authenticated HA browser session is connected. Actual Ingress/four-zone acceptance
-is open. Previous read-only states and 18:00–21:00 UTC history showed no transition;
-they do not prove vacancy, timer expiry, quiet occupancy, wiring or safe takeover.
-
-## Next step
+## Next step after release
 
 Read-only authenticated Ingress acceptance of Erdkellerbereich: verify the existing
 Boolean/timer/public sensor/responsible automation bindings and actual HA timing,
-then contrast an unlike saved zone. Preserve all four zones; no test switching.
-List missing helper/parameter gaps before authorizing any concrete household edit.
+then contrast an unlike saved zone. No test switching. Identify genuinely missing
+helpers before any separately authorized household creation or wiring.
 
 ## History
 
-Alpha.69 receipt is retained at
-`bf1846166738d90be71757f7d6d3c14075acc04f:docs/RELEASE_STATE.json`.
-Alpha.68 receipt: `0b6c5fe798591f9a5ee6a437e85571d72386084b:docs/RELEASE_STATE.json`.
-Previous timed runs remain closed. Alpha.64 measurements remain in ROADMAP.md.
+Alpha.69 receipt: `bf1846166738d90be71757f7d6d3c14075acc04f:docs/RELEASE_STATE.json`.
+Earlier timed runs are closed; Alpha.64 measurements remain in ROADMAP.md.

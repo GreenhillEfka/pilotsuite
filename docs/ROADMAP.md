@@ -7,11 +7,11 @@ Release-Chronik: [CHANGELOG](../CHANGELOG.md). Tatsächliche Fähigkeiten:
 
 ## 1. Jetzt: Konzept und Alltagsansicht konsolidieren
 
-### Aktiver Nachtlauf: Habituszonen vollständig einrichten
+### Habituszonen vollständig einrichten
 
-Neu beauftragt: 28.09. 22:26:57 UTC bis 29.09.2026 06:30 UTC (08:30 Berlin).
-Ab 05:45 UTC kein neues Funktionspaket; ab 06:00 UTC keine neue Veröffentlichung.
-Der bestehende Heartbeat ist wieder aktiv. Frühere Läufe bleiben abgeschlossen.
+Nachtlauf und zusätzliche Stunde sind abgeschlossen; der Heartbeat bleibt pausiert.
+Der Nutzer hat anschließend ausdrücklich die direkte Fortsetzung von PR #151
+beauftragt. Kein neuer Zeitlauf und keine automatische Wiederaufnahme alter Fenster.
 Ein aktiver Branch/PR; keine neue Intelligenz, Engine oder Konfigurationsquelle.
 ADR-043 und UX_WORKSPACE.md präzisieren die Richtung anhand von Habituszonen und
 Primärquellen. Die Reihenfolge ist ein Arbeitsplan, keine Fertigstellungszusage:
@@ -34,11 +34,12 @@ des Live-Schreibumfangs aus; Browser-Abnahme ohne autorisierten Zugang offen.
 
 Abschlussstand: Alpha.69 nach PR #148 installiert, Themenbereich ausgeliefert.
 Alpha.70 nach PR #149 installiert und verbindet die Status-/Helfereinstiege; ungültige
-Berechnungen bleiben unklar. Noch offen: einzelne fehlende Bestandshelfer gezielt
-ergänzen, tatsächlich HA-eigene Parameter bearbeiten und Automationsübernahme ausführen.
-Vor einer Erweiterung des Helferpfads gilt: bestehende Paket-/Identitäts-/Plan-Gates
-wiederverwenden, Teilbestand und fremde Schreiber prüfen, keinen Legacy-Executor öffnen.
-Keine neue Funktion mehr im Nachtlauf. Nächster Schritt ist die angemeldete lesende
+Berechnungen bleiben unklar. Alpha.71-Kandidat in PR #151 ergänzt einzelne fehlende
+Booleans/Timer im bestehenden Paket-/Identitäts-/Planweg, ohne automatischen Anschluss.
+Regressionen für stale Revision, deaktivierte Identität, verlorene Antwort und
+Wiederanlauf sowie synthetischer Bedienweg sind grün; Lieferung siehe Release-Receipt.
+Offen bleiben tatsächlich HA-eigene Parameter und Automationsanschluss/-übernahme.
+Keinen Legacy-Executor öffnen. Nächster Schritt ist die angemeldete lesende
 Erdkeller-Abnahme der vollständigen Bestandskette, nicht eine neue Intelligenzschicht.
 
 ### Vorheriger Stand

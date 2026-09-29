@@ -11,8 +11,9 @@ Themenzuordnung im bestehenden Profil, geteilte Verwendung und geladene Aktivier
 begrenzte deduplizierte Auswahlprüfung, Fokus-/Entwurfsschutz. Helferzuordnung bleibt
 derselbe Editor. Zweites Paket, Alpha.70 installiert: Bestandsmeldung zuerst, getrennte
 Vergleichsansicht, fokussierte Wege zur jeweiligen Helferrolle und verständliche
-Vorschau des bestehenden eigenen Ausgangspakets. Einzelne fehlende Bestandshelfer
-erstellen, aktive HA-Parameter bearbeiten und Automationen übernehmen bleibt offen.
+Vorschau des bestehenden eigenen Ausgangspakets. Alpha.71-Kandidat (PR #151) ergänzt
+die gezielte Einzelanlage fehlender Booleans/Timer; aktive HA-Parameter bearbeiten
+und Automationen anschließen/übernehmen bleibt offen. Installation siehe Receipt.
 
 ## Drei Hauptzugänge
 
@@ -114,6 +115,16 @@ erklärt jeden Baustein, unveränderte Bestandszuordnung, ausgeschaltete Veröff
 und den begrenzten Rückweg: keine automatische Löschung angelegter Helfer. Die Option
 ist ausdrücklich keine Reparatur eines einzelnen fehlenden Bestandshelfers. Auch eine
 fehlgeschlagene Vorschau bleibt schließbar; keine Sackgasse oder blinde Wiederholung.
+
+Alpha.71 ergänzt innerhalb derselben Helferoptionen einen fokussierten Rollen-/Dauer-
+Entwurf und eine konkrete Einzelvorschau. Ohne eigene Präsenzkonfiguration nutzbar;
+vorhandene oder unaufgelöste Zuordnungen sperren einen vermeintlichen Ersatz.
+Erfolg heißt „Helferanlage bestätigt · Anschluss noch offen“, nicht „Zone fertig“.
+Technische ID, unveränderte Steuerung und begrenzter Rückweg bleiben sichtbar.
+Ein Fehler erhält die Dauer; Historie zeigt Anlagepläne ohne Namens-Apply/Rücknahme.
+Synthetisch geprüft: andersartige Zone ohne Präsenzkonfiguration, Rollenfokus,
+240-Sekunden-Entwurf, Vorschau/Bestätigung, keine Bindung/Steuerung, Kollisionsfehler
+mit erhaltenem Entwurf; 390/768/1440 px in Hell/Dunkel. Keine Haushaltsabnahme.
 
 Ein Nachlauffeld nennt ausdrücklich seinen Besitzer: **HA-Bestandsautomation** oder
 **PilotSuite-Vergleich**. Nur ausgelesene, eindeutig unterstützte HA-Parameter dürfen
