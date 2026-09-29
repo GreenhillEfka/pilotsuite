@@ -34,10 +34,12 @@ des Live-Schreibumfangs aus; Browser-Abnahme ohne autorisierten Zugang offen.
 
 Abschlussstand: Alpha.69 nach PR #148 installiert, Themenbereich ausgeliefert.
 Alpha.70 nach PR #149 installiert und verbindet die Status-/Helfereinstiege; ungültige
-Berechnungen bleiben unklar. Alpha.71-Kandidat in PR #151 ergänzt einzelne fehlende
+Berechnungen bleiben unklar. Alpha.71 nach PR #151 installiert: einzelne fehlende
 Booleans/Timer im bestehenden Paket-/Identitäts-/Planweg, ohne automatischen Anschluss.
 Regressionen für stale Revision, deaktivierte Identität, verlorene Antwort und
-Wiederanlauf sowie synthetischer Bedienweg sind grün; Lieferung siehe Release-Receipt.
+Wiederanlauf sowie synthetischer Bedienweg sind grün. Alle fünf exakten Kandidaten-/
+Main-CI-Jobs einschließlich echter isolierter HA-Prüfung bestanden; Sicherung,
+Installation und unveränderte Optionen sind im Release-Receipt belegt.
 Offen bleiben tatsächlich HA-eigene Parameter und Automationsanschluss/-übernahme.
 Keinen Legacy-Executor öffnen. Nächster Schritt ist die angemeldete lesende
 Erdkeller-Abnahme der vollständigen Bestandskette, nicht eine neue Intelligenzschicht.

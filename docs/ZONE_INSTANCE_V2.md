@@ -90,7 +90,7 @@ Automationen und deren Nachlauf werden dadurch nicht verändert.
 
 ## Bestehende Anwesenheitssteuerung: lesend verbinden
 
-Alpha.71-Kandidat in PR #151; Installation siehe RELEASE_STATE.json:
+Alpha.71 nach PR #151 installiert; Belege siehe RELEASE_STATE.json:
 Ein fehlender Boolean oder Timer kann einzeln im bestehenden Paket-Transaktionsweg
 geplant und nach konkreter Bestätigung angelegt werden. Keine automatische Bindung,
 Automation, öffentliche Ausgabe oder Übernahme. Bestehende/unaufgelöste Bindungen
