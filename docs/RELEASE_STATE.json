@@ -149,14 +149,29 @@
     "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
   },
   "workflow": {
-    "kind": "explicit_overnight_habitus_zone_development",
-    "heartbeat": "ACTIVE; existing heartbeat reused",
-    "start_utc": "2026-09-28T22:26:57Z",
-    "no_new_packages_after_utc": "2026-09-29T05:45:00Z",
-    "no_new_publications_after_utc": "2026-09-29T06:00:00Z",
-    "end_utc": "2026-09-29T06:30:00Z",
-    "requested_authority": "Concept, research, development, tests and safe app releases. Concrete household write scope unanswered; no helper/automation changes or control transfer.",
+    "kind": "manual_continuation_of_pr_151",
+    "heartbeat": "PAUSED; prior timed runs completed",
+    "requested_authority": "Finish existing package and safely release after all runbook gates; no household write scope expansion.",
     "household_binding_changed": false,
-    "phase": "Closing documentation and acceptance handoff; no new feature package."
+    "phase": "Alpha.71 candidate, Alpha.70 installed; source/CI/installation gates pending."
+  },
+  "candidate": {
+    "version": "0.1.0-alpha.71",
+    "pull_request": 151,
+    "branch": "feat/zone-missing-helper",
+    "scope": "Single missing Boolean/timer, no automatic binding or automation wiring.",
+    "local_python_passed": 651,
+    "local_javascript_passed": 78,
+    "api_contracts": 62,
+    "resource_warnings": 0,
+    "local_browser_suites": 3,
+    "release_gates": "Exact candidate and main CI including extended disposable HA acceptance pending.",
+    "prepublication_backup": {
+      "backup_id": "e5df45f0",
+      "date": "2026-09-29T07:58:30.470906+00:00",
+      "size_bytes": 54497280,
+      "app_version": "0.1.0-alpha.70",
+      "native_scope_verified": true
+    }
   }
 }

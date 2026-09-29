@@ -90,6 +90,24 @@ Automationen und deren Nachlauf werden dadurch nicht verändert.
 
 ## Bestehende Anwesenheitssteuerung: lesend verbinden
 
+Alpha.71-Kandidat in PR #151; Installation siehe RELEASE_STATE.json:
+Ein fehlender Boolean oder Timer kann einzeln im bestehenden Paket-Transaktionsweg
+geplant und nach konkreter Bestätigung angelegt werden. Keine automatische Bindung,
+Automation, öffentliche Ausgabe oder Übernahme. Bestehende/unaufgelöste Bindungen
+und ein vorhandenes eigenes Ausgangspaket sperren Ersatzanlagen. Timerdauer ist
+explizit 1–86400 Sekunden; sie ist keine Änderung einer bestehenden HA-Regel.
+Anlagebeleg bleibt im PlanStore. Anzeigenamen/Rollen sind ein separater Metadatenplan;
+keine automatische Löschung. Wiederanlauf verwendet dieselben kumulativen Belege.
+Revision wird nach Register-I/O unmittelbar vor dem Schreiben erneut geprüft.
+Unabhängiges Rücklesen muss die exakte, aktive Identität bestätigen. Verlorene
+Anlageantworten erlauben weder Namensübernahme noch erneutes Anlegen; ein gesicherter
+Anlagebeleg erlaubt nach Neustart Rücklesen ohne zweite Anlage. HA und SQLite sind
+keine gemeinsame atomare Transaktion; unbekannte Ergebnisse bleiben sichtbar.
+
+Primärquelle: [HA Input Boolean](https://www.home-assistant.io/integrations/input_boolean/)
+stellt ohne wiederherstellbaren Zustand initial off her. Deshalb ist Anlage nicht
+gleich gültiger Präsenzstatus; vorhandener öffentlicher Gültigkeitspfad bleibt nötig.
+
 Alpha.69 bündelt den vorhandenen Organization-Editor im eigenen Zonenbereich
 „Automationen“. `presence_automations` bleibt kompatibel; ausdrückliche Zuordnungen
 für `lighting_automations` und `other_automations` nutzen denselben Speicher und
@@ -108,8 +126,9 @@ nachgeordnet und eindeutig benannt. Pause des Vergleichs pausiert nicht die HA-L
 Helferlinks öffnen/fokussieren die jeweilige Rolle im vorhandenen Editor. Neue eigene
 Ausgaben bleiben das bestehende vollständige Fünf-Bausteine-Paket mit geprüfter
 Vorschau; jeder Baustein und der begrenzte Rückweg werden erklärt. Fehlgeschlagene
-Vorschauen bleiben schließbar. Einzelne fehlende Bestandshelfer und aktive HA-Zeiten
-sind noch nicht direkt anlegbar/editierbar; kein paralleler oder Legacy-Executor.
+Vorschauen bleiben schließbar. Alpha.71 ergänzt einzelne Booleans/Timer wie oben;
+aktive HA-Zeiten und Automationsanschlüsse bleiben nicht editierbar. Kein paralleler
+oder Legacy-Executor; die fünf Bausteine eigener Ausgaben bleiben unverändert nötig.
 
 Die neue Nutzerfreigabe vom 28.09.2026 erlaubt kontrollierte Automationsübernahme.
 Die folgenden Alpha.61-Laufzeitgrenzen sind Implementierungsstand, kein dauerhaftes

@@ -3,6 +3,15 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Alpha.71 candidate, PR #151: targeted single Boolean/timer creation through the
+existing plan/store/transaction, explicit duration, collision/binding guards,
+restart-safe cumulative receipts and separate plan-history projection. Creation
+does not bind roles, connect automations or enable publication. Stale revisions
+and disabled readback identities reproduced red, then fixed. Local 651 Python /
+78 JS / 62 contracts, three browser suites and zero ResourceWarnings; unlike-zone
+390/768/1440 light/dark screenshots inspected. Exact candidate/main remote CI and
+installation must be verified separately; Alpha.70 remains the installed receipt.
+
 Alpha.70 installed after PR #149: explicitly connected public HA sensor first,
 separate own comparison/publication, strict calculated validity and no Boolean fallback.
 Role-specific links reuse the existing helper editor and preserve search/drafts.

@@ -52,6 +52,7 @@
      tools.append(configure,refresh,B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
      const helperOptions=E('details');helperOptions.id='ps-helper-options';helperOptions.append(E('summary','Fehlende Helfer · Möglichkeiten prüfen'));
      helperOptions.append(E('p','Zuerst vorhandenen Boolean, Timer und Präsenzsensor verbinden. Ein fehlender oder nicht erreichbarer zugeordneter Helfer wird nicht automatisch ersetzt.'));
+     const single=B('Einzelnen fehlenden Helfer vorbereiten',prepareMissingHelper);single.id='ps-helper-single';helperOptions.append(single);
      helperOptions.append(E('p','Ein eigenes Ausgangspaket umfasst Boolean, Gültigkeit, Frist, Timer und öffentlichen Sensor. Kein einzelner Ersatzhelfer für eine bestehende HA-Kette; deren Automation wird nicht angeschlossen oder übernommen.','ps-muted'));
      const prepare=B('Eigenen Anwesenheitssensor vorbereiten',preparePackage);prepare.id='ps-zone-prepare';helperOptions.append(prepare);tools.append(helperOptions);
    }
@@ -245,9 +246,34 @@
  async function preparePackage(){if(!data||busy)return;startEditor('Eigenen Anwesenheitssensor bereitstellen');editor.append(B('Schließen',cancel));await save(async()=>{
    plan=await api('presence/package','POST',{revision});renderPlan('presence/package');
  });}
+ function prepareMissingHelper(){
+   if(!data||busy)return;startEditor('Fehlenden Bestandshelfer ergänzen');
+   const role=select([['presence_status','Interner Boolean'],['presence_timer','Nachlauftimer']],'presence_status');
+   const duration=number(180,1,86400),durationLabel=labelled('Timerdauer (Sekunden)',duration);
+   const update=()=>{durationLabel.hidden=role.value!=='presence_timer';};role.addEventListener('change',update);update();
+   editor.append(E('p','Nur einen tatsächlich fehlenden Baustein anlegen. Vorhandene Helfer zuerst verbinden; ein Timer ist bei einer bestehenden for:-Regel nicht automatisch erforderlich.'),
+     labelled('Fehlende Funktion',role),durationLabel,
+     E('p','Die Anlage verbindet keine Automation und meldet keine Anwesenheit. Ein neuer Boolean auf Aus und ein inaktiver Timer sind kein Freibeleg. Ein öffentlicher Sensor benötigt zusätzlich eine geprüfte Gültigkeitslogik.','ps-warning'),
+     B('Einzelhelfer-Plan prüfen',()=>save(async()=>{
+       if(role.value==='presence_timer'&&!duration.reportValidity())return;
+       plan=await api('presence/package','POST',{revision,helper_role:role.value,duration_seconds:role.value==='presence_timer'?Number(duration.value):null});renderPlan('presence/package');
+     })),B('Verwerfen',cancel));role.focus();
+ }
  function renderPlan(path){
    editor.replaceChildren(E('h3','Änderungsvorschau'));
    if(plan.state==='migration_required'){editor.append(E('p',plan.reason,'ps-warning'),B('Schließen',cancel));return;}
+   if(plan.kind==='presence_helper'){
+     const op=plan.operations[0];editor.append(E('p','Ein neuer, noch nicht angeschlossener Helfer für: '+op.suggested_display_name),E('pre',op.entity_id,'ps-zone-plan'));
+     if(plan.details.duration_seconds!==null)editor.append(E('p','Vorgesehene Timerdauer: '+plan.details.duration_seconds+' Sekunden. Keine Änderung einer bestehenden HA-Nachlaufregel.'));
+     editor.append(E('p','Zuordnung, Automationen und Steuerungsverantwortung bleiben unverändert. Der Anfangszustand belegt keine Anwesenheit oder Abwesenheit. Anzeigename und Habitus-Rollen können später separat geprüft werden.','ps-warning'),
+       E('p','Rückweg: keine automatische Löschung. Vor Entfernen des neu angelegten Helfers seine Verbraucher prüfen.'),
+       B('Diesen einzelnen Helfer anlegen',()=>save(async()=>{
+         if(!window.confirm('Genau diesen neuen Helfer in Home Assistant anlegen, ohne Zuordnung oder Automationsänderung?'))return;
+         const result=await api(`presence/package/${plan.id}/apply`,'POST',{sha256:plan.sha256,confirm:true});
+         editor.replaceChildren(E('h3',result.state==='verified'?'Helferanlage bestätigt · Anschluss noch offen':'Helferanlage nicht vollständig bestätigt'),
+           E('pre',op.entity_id,'ps-zone-plan'),E('p',result.state==='verified'?'Bestand aktualisieren und den Helfer ausdrücklich zuordnen. Die verantwortliche Automation und die Gültigkeit des öffentlichen Sensors müssen separat geprüft werden.':'Nicht blind erneut anlegen. Den gespeicherten Plan unter Automationen prüfen.'),B('Schließen',cancel));
+       })),B('Schließen',cancel));return;
+   }
    editor.append(E('p',path==='ontology'?'Anzeigename und Rollenlabels. Technische ID und physische Bereiche bleiben erhalten.':'Neue interne Helfer und ein Template-Anwesenheitssensor. Keine bestehende Automation wird verändert; Veröffentlichung bleibt zunächst aus.'));
    if(path==='presence/package'){
      editor.append(E('p','Bestehende Zuordnung bleibt erhalten. Dieses zusätzliche Paket steuert keine vorhandene Automation und veröffentlicht zunächst nichts.','ps-warning'));

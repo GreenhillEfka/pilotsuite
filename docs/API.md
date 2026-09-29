@@ -185,10 +185,20 @@ fails when implementation and documentation drift.
 | `GET` | `/api/v1/zones/{zone_id}/presence` | Current typed presence, relevant live sources and configuration; no HA writes. |
 | `PUT` | `/api/v1/zones/{zone_id}/presence` | Revision-bound behavior save; publish requires an owned verified output package. |
 | `POST` | `/api/v1/zones/{zone_id}/data` | Relevant raw history and numerical/state visualizations, no extra data consent. |
-| `POST` | `/api/v1/zones/{zone_id}/presence/package` | Prepare an explicitly reviewable new helper package; no HA write. |
+| `POST` | `/api/v1/zones/{zone_id}/presence/package` | Prepare an explicitly reviewable owned output package or one missing Boolean/timer; no HA write. |
 | `POST` | `/api/v1/zones/{zone_id}/presence/package/{plan_id}/apply` | Confirm exact helper-creation plan with durable receipts and no blind replay. |
 | `GET` | `/api/v1/zones/{zone_id}/ontology` | Current entity/label inventory and canonical Habitus roles. |
 | `POST` | `/api/v1/zones/{zone_id}/ontology` | Preview custom display name and exact role labels; ID migration remains blocked. |
 | `POST` | `/api/v1/zones/{zone_id}/ontology/{plan_id}/apply` | Apply exact metadata plan; no physical area or entity-ID mutation. |
 
 | `POST` | `/api/v1/zones/{zone_id}/ontology/{plan_id}/restore-preview` | Prepare a guarded metadata rollback only if the current after-image still matches. |
+
+The package preview accepts `{revision}` for the complete owned output package.
+Alpha.71 additionally accepts exactly `{revision, helper_role, duration_seconds}`:
+`helper_role` is `presence_status` (duration null) or `presence_timer` (integer
+1–86400 seconds). A `presence_helper` plan creates one unconnected helper through
+the same confirmed apply endpoint. Existing/unresolved role bindings, owned packages
+and registry collisions block creation. It does not require a PilotSuite presence
+configuration and does not alter assignments, automations or publication. Durable
+identity receipts are historical creation evidence, not current functionality;
+lost responses never authorize blind replay or ownership inferred from a name.

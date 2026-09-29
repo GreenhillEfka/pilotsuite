@@ -315,6 +315,8 @@ class ZonePresenceServiceMixin:
             return
 
     async def zone_package_preview(self,zid,payload):
+        if isinstance(payload,dict) and 'helper_role' in payload:
+            return await self._zone_missing_helper_preview(zid,payload)
         if not isinstance(payload,dict) or set(payload)!={'revision'}:raise InvalidSelection('Revision erforderlich')
         inv,cfg,zone,catalog=await self._organization_basis(zid,payload['revision'])
         record=cfg.get(KEY)
@@ -337,14 +339,47 @@ class ZonePresenceServiceMixin:
             details={'no_existing_automation_takeover':True,'previously_existing_outputs_untouched':True,
                      'grace_seconds':record['spec']['grace_seconds'],'lease_seconds':90,'availability_resolution_seconds':60})
 
+    async def _zone_missing_helper_preview(self,zid,payload):
+        if (set(payload)!={'revision','helper_role','duration_seconds'} or
+            type(payload['revision']) is not int or payload['revision']<0 or
+            payload['helper_role'] not in ('presence_status','presence_timer')):
+            raise InvalidSelection('Einzelnen Boolean oder Timer mit gültiger Revision auswählen')
+        role=payload['helper_role'];duration=payload['duration_seconds']
+        if ((role=='presence_timer' and (type(duration) is not int or not 1<=duration<=86400)) or
+            (role=='presence_status' and duration is not None)):
+            raise InvalidSelection('Timerdauer muss 1–86400 Sekunden sein; Boolean hat keine Dauer')
+        inv,cfg,zone,_=await self._organization_basis(zid,payload['revision'])
+        # A missing/unavailable saved identity is not an empty role. Never replace it.
+        if cfg.get('organization',{}).get('assignments',{}).get(role):
+            raise SelectionConflict('Funktion bereits zugeordnet; vorhandene Identität prüfen statt Ersatz anlegen')
+        if (cfg.get(KEY) or {}).get('package'):
+            raise SelectionConflict('Eigenes Ausgangspaket vorhanden; dessen Helfer zuerst prüfen')
+        domain='timer' if role=='presence_timer' else 'input_boolean'
+        title='Nachlauf' if role=='presence_timer' else 'Anwesenheit intern'
+        token=hashlib.sha256(zid.encode()).hexdigest()[:12]
+        name=f'ps_{token}_bestand_{role}';eid=domain+'.'+name
+        rows=await self.client.zone_output_registry()
+        if any(r['entity_id']==eid for r in rows):
+            raise SelectionConflict('Helferkennung existiert bereits; vorhandenen Plan oder Bestand prüfen')
+        return await self.plans.organization_plan_create(zid,inv['revision'],[
+            {'role':role,'domain':domain,'name':name,'entity_id':eid,
+             'suggested_display_name':zone['name']+' '+title,'effect':'create_unconnected_helper'}],
+            kind='presence_helper',details={'helper_role':role,'grace_seconds':duration or 300,
+                'duration_seconds':duration,'automation_connected':False,'binding_changed':False,
+                'control_enabled':False,'initial_state_is_presence_evidence':False,
+                'recovery':'No automatic deletion; inspect consumers before removing the new helper.',
+                'review_required':['existing_helpers','writers_and_consumers','automation_wiring','valid_public_output']})
+
     async def zone_package_apply(self,zid,plan_id,payload):
         if not isinstance(payload,dict) or set(payload)!={'sha256','confirm'} or payload['confirm'] is not True:
             raise InvalidSelection('Konkreten Ausgangsplan bestätigen')
         async with self._zone_io_lock:
             plan=await self.plans.organization_plan_get(zid,plan_id)
-            if plan['kind']!='presence_package':raise InvalidSelection('Kein Zonen-Ausgangsplan')
+            if plan['kind'] not in ('presence_package','presence_helper'):raise InvalidSelection('Kein Zonen-Helferplan')
             plan,claimed=await self.plans.organization_claim(zid,plan_id,payload['sha256'])
             if not claimed:
+                if plan['kind']=='presence_helper' and plan['state']=='verified':
+                    return {**plan,'write_repeated':False,'recovery':'creation_previously_verified'}
                 current=(await self.context.get(zid)).get(KEY) or {}
                 if (current.get('package') or {}).get('plan_id')==plan_id:
                     return {**plan,'write_repeated':False,'recovery':'already_bound'}
@@ -379,6 +414,9 @@ class ZonePresenceServiceMixin:
                     if any(r['entity_id']==op['entity_id'] for r in before):
                         raise SelectionConflict('Identität nicht mehr frei')
                     await self.plans.organization_progress(zid,plan_id,index,'sending')
+                    # Registry I/O and durable progress both yield. Recheck the
+                    # user's exact zone basis immediately before the HA write.
+                    await self._organization_basis(zid,plan['revision'])
                     if op['domain']=='template':
                         # Native HA transliteration is not our ontology transliteration.
                         # Create a brand-new ASCII identity, then set its display name only.
@@ -399,7 +437,9 @@ class ZonePresenceServiceMixin:
                         matches=[r for r in new if r.get('config_entry_id')==entry_id and r.get('platform')=='template' and r['entity_id']==op['entity_id']]
                     else:
                         matches=[r for r in new if r.get('platform')==op['domain'] and r.get('unique_id')==result['id'] and r['entity_id']==op['entity_id']]
-                    if len(matches)!=1 or not matches[0].get('unique_id'):raise HomeAssistantError('Unabhängiges Identitäts-Readback fehlgeschlagen')
+                    if (len(matches)!=1 or not matches[0].get('unique_id') or
+                        matches[0].get('disabled_by') is not None):
+                        raise HomeAssistantError('Unabhängiges aktives Identitäts-Readback fehlgeschlagen')
                     row=matches[0];identities[op['role']]=identity(row);entities[op['role']]=row['entity_id']
                     await self.plans.organization_receipt(zid,plan_id,index,{'identity':identity(row),'entity_id':row['entity_id']})
                     if op['domain']=='template':
@@ -410,6 +450,11 @@ class ZonePresenceServiceMixin:
                     await self.plans.organization_progress(zid,plan_id,index,'verified',True)
                 except SelectionConflict:return await self.plans.organization_progress(zid,plan_id,index,'conflict')
                 except (HomeAssistantError,TimeoutError):return await self.plans.organization_progress(zid,plan_id,index,'unknown')
+            if plan['kind']=='presence_helper':
+                # The durable operation receipt already independently confirmed
+                # creation. No binding follows: do not imply a live functionality
+                # check or let an unnecessary later read mask this historical fact.
+                return await self.plans.organization_plan_get(zid,plan_id)
             latest={r['entity_id']:r for r in await self.client.zone_output_registry()}
             if len(entities)!=len(plan['operations']) or any(
                 not same_identity(identities[role],latest.get(eid,{})) or
