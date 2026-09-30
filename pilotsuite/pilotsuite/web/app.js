@@ -477,9 +477,16 @@ function renderZoneMembers() {
     host.append(line);
   }
 }
+function renderZoneLabelControls(){
+  const pending=zoneLabelBusy||zoneSaving;
+  byId('zone-label-load').disabled=pending;
+  byId('zone-label-new').disabled=pending||!!zoneBoundLabel;
+  byId('zone-candidates-import').disabled=pending;
+  byId('zone-form').querySelector('button[type=submit]').disabled=pending;
+}
 byId('zone-member-search').addEventListener('input',renderZoneMembers);
 byId('zone-label-load').addEventListener('click',async()=>{
-  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-load').disabled=true;
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;renderZoneLabelControls();byId('zone-label-load').disabled=true;
   const epoch=zoneSetupEpoch;
   try {
     if(structureOnly)await json('api/v1/refresh',{method:'POST',body:'{}'});
@@ -500,11 +507,11 @@ byId('zone-label-load').addEventListener('click',async()=>{
       text('zone-label-message','Label wählen und Mitglieder prüfen. Bestehende Eingaben bleiben bis zur Übernahme erhalten.');
     }
   } catch(error){text('zone-label-message',error.message);}
-  finally {zoneLabelBusy=false;byId('zone-label-load').disabled=false;}
+  finally {zoneLabelBusy=false;renderZoneLabelControls();byId('zone-label-load').disabled=false;}
 });
 byId('zone-label-select').addEventListener('change',()=>{byId('zone-label-import').disabled=!byId('zone-label-select').value;});
 byId('zone-label-import').addEventListener('click',async()=>{
-  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-import').disabled=true;
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;renderZoneLabelControls();byId('zone-label-import').disabled=true;
   const epoch=zoneSetupEpoch,select=byId('zone-label-select'),selectionWasDisabled=select.disabled;
   select.disabled=true;
   try {
@@ -523,7 +530,7 @@ byId('zone-label-import').addEventListener('click',async()=>{
     renderZoneMembers();
     text('zone-label-message',`${result.members.length} Mitglieder eingelesen. Bisherige Auswahl und Rollen bleiben erhalten; neue Mitglieder werden nur vorgeschlagen. Abweichungen stehen an den Einträgen. ${structureOnly ? '' : 'Quellen für die Auswertung gezielt anhaken. '}Speichern ändert keine HA-Labels.`);
   } catch(error){text('zone-label-message',error.message);}
-  finally {zoneLabelBusy=false;if(epoch===zoneSetupEpoch){select.disabled=selectionWasDisabled;byId('zone-label-import').disabled=!select.value;}}
+  finally {zoneLabelBusy=false;renderZoneLabelControls();if(epoch===zoneSetupEpoch){select.disabled=selectionWasDisabled;byId('zone-label-import').disabled=!select.value;}}
 });
 byId('zone-label-new').addEventListener('click',()=>{
   if(zoneLabelBusy || zoneSaving)return;
@@ -539,7 +546,7 @@ byId('zone-label-new').addEventListener('click',()=>{
 byId('zone-candidates-import').addEventListener('click',async()=>{
   if(zoneLabelBusy || zoneSaving)return;
   if(!zoneSetupDraft){text('zone-label-message','Zuerst ein bestehendes Zonenlabel übernehmen oder ein neues Label planen.');return;}
-  zoneLabelBusy=true;byId('zone-candidates-import').disabled=true;
+  zoneLabelBusy=true;renderZoneLabelControls();byId('zone-candidates-import').disabled=true;
   const epoch=zoneSetupEpoch;
   try {
     if(structureOnly)await json('api/v1/refresh',{method:'POST',body:'{}'});
@@ -555,7 +562,7 @@ byId('zone-candidates-import').addEventListener('click',async()=>{
     for(const row of result.members)if(!zoneSetupDraft.roles[row.entity_id])zoneSetupDraft.roles[row.entity_id]=row.habitus_roles||[];
     renderZoneMembers();text('zone-label-message',`${result.members.length} Kandidaten eingelesen. Bisherige Auswahl, Abwahl und Rollen bleiben erhalten. Neue Quellen werden nicht automatisch für die Auswertung aktiviert.`);
   }catch(error){text('zone-label-message',error.message);}
-  finally{zoneLabelBusy=false;byId('zone-candidates-import').disabled=false;}
+  finally{zoneLabelBusy=false;renderZoneLabelControls();byId('zone-candidates-import').disabled=false;}
 });
 byId('zone-cancel').addEventListener('click', () => {
   if (zoneSaving) return;

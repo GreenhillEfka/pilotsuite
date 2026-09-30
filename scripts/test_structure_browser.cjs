@@ -33,7 +33,15 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
    await page.waitForFunction(()=>!zoneLabelBusy && !document.getElementById('zone-form').hidden);
   };
   const member=eid=>page.locator('.zone-member').filter({hasText:eid});
-  await openEditor();
+  let releaseLabels;const heldLabels=new Promise(resolve=>releaseLabels=resolve);
+  await page.route('**/api/v1/zone-labels',async route=>{await heldLabels;await route.continue();},{times:1});
+  await page.getByRole('link',{name:'Zone bearbeiten',exact:true}).click();await page.locator('#zone-edit').click();
+  await page.waitForFunction(()=>zoneLabelBusy);
+  try{
+   for(const id of ['zone-label-new','zone-candidates-import','zone-label-load'])assert.equal(await page.locator('#'+id).isDisabled(),true,id);
+   assert.equal(await page.getByRole('button',{name:'Zone speichern',exact:true}).isDisabled(),true);
+  }finally{releaseLabels();}
+  await page.waitForFunction(()=>!zoneLabelBusy && !document.getElementById('zone-form').hidden);
   assert.equal(await page.getByText('Für Auswertung verwenden',{exact:true}).isVisible(),false);
   await page.locator('#zone-label-select').selectOption('setup_demo');await page.locator('#zone-label-import').click();
   await page.waitForFunction(()=>!zoneLabelBusy && zoneSetupRows.length===2);

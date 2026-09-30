@@ -22,7 +22,10 @@ contains Erdkellerbereich and its configuration/diagnostic/documentation views.
 Its shared template inherits both zone and role labels from devices. No current
 Habitus role label is attached to a device. Import/readback and plan guards now
 handle that supported inheritance; two explicit red/green regressions protect it.
-This observation does not reveal the four saved PilotSuite bindings.
+This observation does not reveal the four saved PilotSuite bindings. CI also
+exposed a label-loading interaction race: a visually enabled new-label button
+could discard a click during the asynchronous read. A held-response browser
+regression reproduces it; dependent actions now reflect their actual busy state.
 
 Two external gates remain. The available HA browser still shows the login page;
 the user has been asked to log in and open PilotSuite. Native direct app proxy
