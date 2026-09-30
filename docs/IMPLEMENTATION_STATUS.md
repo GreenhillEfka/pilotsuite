@@ -1,13 +1,22 @@
-# PilotSuite capability ledger — Alpha.72 installed
+# PilotSuite capability ledger — Alpha.73 installed
 
-Local Alpha.73 candidate: reduced overview/editor/documentation, legacy route
-remapping, saved structural summaries, fresh entity/device/label/area verification,
-shared-role conflict checks, preserved runtime/analysis choices, existing plan
-receipts/rollback and dated documentation export. Local validation: 729 Python,
-77 JS, five current browser suites and seven native HA protocol scenarios. See
-CURRENT_STATE.md for the pending release and real household gates; none of this
-candidate has been installed yet. The installed Alpha.72 ledger follows.
+Alpha.73 installed on 30.09.2026 after PR #155, exact candidate/main CI
+(36698531500 / 36703236135), fresh scoped backup b510f891 and one targeted update.
+The user now permanently permits the narrow additional-Synology-listing exception
+when every native local scope/completion/version/size condition is confirmed.
+Four options and presence_adoption_review unchanged; started/ready/stream/fresh/
+resolved confirmed. No household metadata or control changes. Real authenticated
+zone readback remains pending login; already-open clients need a frontend reload.
 
+Installed: reduced overview/editor/documentation, old-route remapping, saved
+structural summaries, fresh entity/device/label/area verification, inherited and
+shared-role guards, preserved runtime/analysis decisions, existing plan receipts/
+rollback and dated export. Validation: 729 Python, 77 JS, 68 API contracts, five
+current browser suites, seven native HA protocol scenarios and amd64 build.
+The detailed contract is HABITUS_FOUNDATION_RESET.md. Historical wider UI modules
+remain backend capabilities, not currently exposed product views.
+
+## Historical Alpha.72 delivery and development
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.

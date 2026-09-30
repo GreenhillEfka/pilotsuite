@@ -1,110 +1,67 @@
-# Current state — Alpha.72 installed
+# Current state — Alpha.73 installed
 
-## New product direction after delivery, 30.09.2026
+## Delivered structural foundation, 30.09.2026
 
-The user explicitly requests development through **real structural zone adoption**:
-HA and PilotSuite synchronized with matching manual zone/role labels. This supersedes
-the temporary deferral of structural acceptance. Presence, helpers, light control
-and later modules remain hidden/deferred. No authority to change household control.
+PilotSuite now exposes only the Habitus zone overview, structure editor and zone
+documentation. Old routes/preferences return to this flow. Deferred comparison,
+presence/light setup, helpers, learning and automation views are hidden, with their
+background UI queries removed. Existing stores, runtime and analysis choices are
+preserved; hiding UI does not disable existing backend behavior.
 
-The Alpha.73 candidate on `docs/habitus-foundation-reset` implements the reduced
-zone overview/editor/documentation, preserved runtime/analysis choices, fresh
-registry verification, plan receipts/restore and dated export using existing owners.
-729 Python and 77 JS tests plus all five current browser suites passed locally;
-all seven native HA 2026.9.3 protocol scenarios also passed, including fresh
-structure verification. Exact CI remains recorded in the candidate PR.
-The current UI contract replaces seven old full-product navigation suites; their
-backend/model coverage and selected isolated component tests remain. Screenshots
-from the actual local fixture reviewed at 390/820/1440 in light/dark.
+PR #155 release main: `a620dafbeb472868d56d3cf5475dc3ec45b72ed1`.
+Exact candidate/main CI: 36698531500 / 36703236135, all five jobs successful.
+App tree: `7cda002218b58062265520abb6dfe18ad1c04661`; source preflight passed.
+729 Python tests, 77 JS tests, 68 API contracts, five current Chromium suites,
+seven native scenarios against disposable HA 2026.9.3 and amd64 build passed.
+Actual fixture screenshots were inspected at 390/820/1440 in light/dark. The current
+browser contract replaces seven historical full-product navigation suites; backend,
+model and selected isolated-component coverage remains. Full scope and regressions:
+[HABITUS_FOUNDATION_RESET.md](docs/HABITUS_FOUNDATION_RESET.md).
 
-Read-only household inspection also confirmed the Habitus dashboard currently
-contains Erdkellerbereich and its configuration/diagnostic/documentation views.
-Its shared template inherits both zone and role labels from devices. No current
-Habitus role label is attached to a device. Import/readback and plan guards now
-handle that supported inheritance; two explicit red/green regressions protect it.
-This observation does not reveal the four saved PilotSuite bindings. CI also
-exposed a label-loading interaction race: a visually enabled new-label button
-could discard a click during the asynchronous read. A held-response browser
-regression reproduces it; dependent actions now reflect their actual busy state.
+Fresh backup `b510f891`, 30 September 10:33:30 UTC: only installed Alpha.72 app/data,
+54,558,720 bytes local, unprotected, no HA/database/folders or failed components.
+Two additional Synology agents report only “Failed to list backups”. The user
+answered “ja immer” to this concrete exception: it is now a standing narrow
+permission, documented in the runbook and quality skill. Verify all local conditions
+on every release; do not ask repeatedly. NAS settings are unchanged; no archive
+extraction, restore drill or off-device resilience is claimed.
 
-Two external gates remain. The available HA browser still shows the login page;
-the user has been asked to log in and open PilotSuite. Native direct app proxy
-returns 403 Ingress required; that route is stopped, with no auth workaround.
-Fresh backup `e57999fb` (30 Sep 09:29:25 UTC) confirms only Alpha.72 app/data,
-54,558,720 bytes local, no failed components or HA/database/folders. Two Synology
-agents again fail to list backups. Runbook's empty-agent-errors gate is not met;
-the previous Alpha.72 exception is not silently extended. No merge/publication,
-installation or real structural acceptance is claimed for Alpha.73.
+One Store refresh and one targeted update installed Alpha.73. At 10:36:55 UTC,
+native metadata reports started; all four option values match the baseline.
+Startup and readiness logs confirm presence_adoption_review unchanged, connected
+stream, fresh snapshot and resolved zone. General Apply stays closed in source;
+existing bounded metadata/helper paths retain their prior scope. No extra restart,
+rebuild, other-app update, household import/apply, label edit or control action.
+Source evidence is repository/version/app-tree association, not image attestation.
+Already-open clients must reload to obtain the reduced frontend; old Safari-client
+requests were still visible after update, so household UI acceptance is not claimed.
 
-## Delivery completed, 30.09.2026
+## Current target and remaining access
 
-PR #153 is merged. Exact release main: `04c47bb0b99ccf34872e938bd0029b6cdac6e325`.
-Candidate `4306a924679f397d6e3c7ca9f511ade7ce1aed61` and release main passed all five
-CI jobs (36687732779 / 36690038477). Repository/app trees matched the tested local
-candidate. Receipt: docs/RELEASE_STATE.json; development ledger:
-docs/IMPLEMENTATION_STATUS.md and docs/HABITUS_SETUP_PLAN.md.
+The user explicitly commissions **real structural zone adoption**: synchronize
+actual HA/PilotSuite members and manual Habitus roles through concrete existing
+metadata plans, then independently verify fresh registries. Newly imported members
+receive no new analysis or control authority. Presence, helpers, active light,
+climate, multimedia and learning remain later work.
 
-The user requested “Bitte abschließen” after the stated backup exception blocker.
-This was treated as approval for that disclosed narrow exception, announced before
-release. Fresh native backup `e636bd76`, 30 Sep 08:28:34 UTC: only PilotSuite Alpha.71
-and data/options, 54,538,240 bytes on hassio.local, unprotected, no HA/database/
-folders and no failed components. Two additional Synology agents still failed to
-list backups. Their errors are retained in the receipt, not claimed resolved.
-No NAS/settings change, archive extraction or restore drill.
+The available HA browser still shows the login form (fresh DOM check after update).
+The earlier direct app proxy returned 403 Ingress required; that route remains
+stopped. User login/opening PilotSuite was requested and is still pending. This is
+the remaining access prerequisite; the backup exception is no longer a blocker.
 
-One Store refresh offered Alpha.72 from the canonical repository. One targeted
-update completed; no separate restart/rebuild or other-app update. Native app
-metadata confirms Alpha.72 started, all four options unchanged. Startup mode is
-still presence_adoption_review; ready/stream/fresh/resolved confirmed. General
-Apply remains closed in the exact source; existing bounded paths are preserved.
-No independent installed-image attestation is claimed.
+Read-only HA inspection confirms the existing Erdkellerbereich dashboard and its
+configuration/diagnostic/documentation views. Its shared template inherits zone
+and role tags from devices; no current role tag is device-assigned. Alpha.73's
+import/readback and conflict guards cover that inheritance, with red/green tests.
+This does not establish actual saved PilotSuite bindings or household acceptance.
+Private input stays in ignored pilot_data/reviews; release proof is in
+[RELEASE_STATE.json](docs/RELEASE_STATE.json).
 
-## Installed capability
+Next: once authenticated, inspect all four saved zones and compare Erdkellerbereich
+and one unlike zone against HA areas/tags, stable members and roles. Reconcile only
+confirmed structural differences through the existing preview/apply/readback path;
+retain foreign labels, physical locations and saved runtime decisions. Record real
+readback before claiming synchronization. No guessed binding or auth workaround.
 
-- One zone editor combines physical HA areas, additional entities and existing
-  device/entity labels or a planned new label. Membership, stable identities,
-  roles and analysis relevance save together in the existing store.
-- New labels and member metadata use one concrete existing plan with fresh conflict
-  checks, durable receipts, independent readback and bounded rollback. Physical
-  locations and foreign metadata remain protected.
-- Own presence output packages include readable names/autolabeling and join the
-  zone structure. Existing anchors, disabled identities and competing roles are
-  checked. Failed readback does not authorize duplicate creation.
-- Setup steps lead to existing editors; verified suggestions fill only empty
-  bindings. Whole-zone/module pause and publication effects are explicit.
-  Missing saved sources remain visible until deliberate correction; cancel
-  preserves them. Empty/support-only source sets explain missing direct coverage.
-- Light comparison uses the primary presence and existing policy/store. It has
-  explicit outdoor-lux provenance, bounded proposals, group coverage checks,
-  durable manual holds and restart cooldown. Named blockers and daylight validity
-  are explained. Identity conflicts require review.
-- Older partial savepoints cannot erase newer zone/presence/light settings or
-  owned bindings. Native app backup remains the complete recovery path.
-
-Validation: 719 Python tests, 78 JS tests, 68 API contracts, eleven browser suites,
-seven native HA 2026.9.3 protocol scenarios and amd64 build. Relevant errors were
-reproduced before fixes; actual mobile/desktop light/dark screenshots inspected.
-Local final Python garbage collection had zero ResourceWarnings. Both project
-skills are maintained and validated. Exact completion receipts are in PR #153.
-
-## Deferred acceptance from the delivered package
-
-No authenticated household Ingress session was available. Real saved bindings
-and preservation of all four household zones remain to be observed there; runtime
-readiness and synthetic UI tests do not prove that acceptance. Existing HA-chain
-inspection found coupled status/timer/light logic and unevaluated template limits.
-Private evidence is in ignored pilot_data/reviews, not public documentation.
-
-When accepting the reduced structure, inspect Erdkellerbereich and one unlike zone
-read-only in authenticated Ingress: areas/tags, members, roles and stable identities.
-Independent sources, status/timer/automation bindings and genuinely missing helpers
-belong to the later presence phase, before any household connection/apply.
-No household helpers/labels/bindings, automations or learning grants were changed.
-Active light actuation and automation takeover remain unimplemented. Climate,
-media and pattern recognition follow a household-accepted foundation.
-
-The overnight deadline ended. Its heartbeat is confirmed PAUSED; no new timed
-loop or task. Preserve untracked AGENTS.md and the original local feature commits.
-The completed documentation receipt is PR #154. The new direction is prepared on
-docs/habitus-foundation-reset; the current code changes are local. No household
-labels, helpers, control bindings or learning grants have been changed.
+The overnight heartbeat remains PAUSED; no new agents, tasks or timed run.
+Historical Alpha.72 delivery is preserved in Git and the implementation ledger.

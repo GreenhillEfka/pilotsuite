@@ -4,9 +4,9 @@
 
 Der Nutzer ersetzt den bisherigen Ausbaukurs durch einen strukturellen Neustart:
 nur Zonen erstellen, darstellen und dokumentieren. Alle Vergleiche und weiteren
-Module sollen aus der Oberfläche verschwinden. Alpha.73-Kandidat lokal umgesetzt; reale
-strukturelle Abnahme ausdrücklich beauftragt und noch offen. Verbindlicher Umfang: [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md)
-und ADR-044. Alpha.72 bleibt der installierte Stand.
+Module sind in Alpha.73 aus der Oberfläche entfernt. Die Version ist installiert; reale
+strukturelle Abnahme ist ausdrücklich beauftragt und noch wegen fehlender Anmeldung offen. Verbindlicher Umfang: [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md)
+und ADR-044/045. Den Auslieferungsnachweis führt RELEASE_STATE.json.
 
 1. **Oberfläche reduzieren:** vorhandenen Router und Editoren auf Zonenübersicht,
    strukturelle Bearbeitung und Dokumentation begrenzen. Alte Links/Präferenzen
@@ -23,7 +23,7 @@ und ADR-044. Alpha.72 bleibt der installierte Stand.
 Keine Datenlöschung, neue Engine oder automatische Betriebsartenmigration.
 Ein UI-Ausblenden ist kein Beleg für angehaltene Hintergrundauswertung.
 Nacht-Heartbeat bleibt pausiert. Veröffentlichung folgt dem bestehenden Runbook;
-der jetzige Entscheidungsstand enthält keine App- oder Haushaltsänderung.
+Alpha.73 ist ausgeliefert, konkrete Haushaltszuordnungen bleiben noch unverändert.
 
 ## Historischer Ausbaukurs bis Alpha.72
 

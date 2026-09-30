@@ -4,17 +4,17 @@
 
 Nur Zonenübersicht, strukturelle Bearbeitung und Zonendokumentation. Vergleiche,
 Präsenz-/Lichtkonfiguration, Automationswerkbank, Lernbereiche und ihre Kennzahlen
-sind im lokalen Alpha.73-Kandidaten ausgeblendet. Die vereinfachte Navigation benutzt den
+sind in der installierten Alpha.73 ausgeblendet. Die vereinfachte Navigation benutzt den
 vorhandenen Router und dieselben Editoren/Stores. Alte Links und gespeicherte
 Ansichten führen zur Zonenstruktur; „Alle Bereiche“ darf keine Hintertür bleiben.
 Strukturkonflikte und konkrete HA-Metadatenvorschauen bleiben verständlich erreichbar.
 
 Verbindlicher Zielumfang und Prüfkriterien:
 [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md), ADR-044.
-Lokal umgesetzt und geprüft; noch keine Änderung der installierten Oberfläche. Die folgenden Abschnitte
+Implementiert, geprüft und installiert; reale angemeldete Zonenabnahme noch offen. Die folgenden Abschnitte
 beschreiben den bisherigen Bestand und nachgelagerte Module; ihr breiterer
 Navigationsumfang und ihre Kompatibilitätsforderung für alle sichtbaren Ansichten
-sind für den kommenden Umbau ausdrücklich ersetzt.
+sind durch den strukturellen Umbau ausdrücklich ersetzt.
 
 ## Bisheriger Workspace bis Alpha.72
 

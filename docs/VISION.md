@@ -14,8 +14,7 @@ stabile Identitäten und die bestehenden Speicher bleiben erhalten.
 
 Verbindlicher nächster Umfang und Abnahme:
 [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md), ADR-044.
-Der Alpha.73-Kandidat setzt diese Richtung lokal um. Alpha.72 bleibt bis zum
-Release installiert. Reale strukturelle Zonenabnahme ist ausdrücklich beauftragt
+Alpha.73 setzt diese Richtung um und ist nach geprüfter Auslieferung installiert. Reale strukturelle Zonenabnahme ist ausdrücklich beauftragt
 und benötigt die angemeldete Prüfung der tatsächlichen Zuordnungen. Aktive Lichtsteuerung bleibt offen. Erst nach tragfähiger Struktur folgen Präsenz/Helfer, dann Licht und später
 Klima, Multimedia und Mustererkennung.
 
