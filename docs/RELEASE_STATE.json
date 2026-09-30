@@ -1,36 +1,36 @@
 {
   "schema": "pilotsuite-release-receipt-v1",
-  "verified_date": "2026-09-29",
+  "verified_date": "2026-09-30",
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.71",
-    "commit": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3",
-    "tree": "3958527cdd2d4c4fbe0aaffbb3ba9a738f949a4c",
-    "app_tree": "4d7baccf4b09c637fd8179336cc830853d8c991e",
-    "pull_request": 151,
-    "candidate_commit": "c96fda7ddb4225fb383bd7b206005a10190911f9",
-    "candidate_ci_run_id": 36540248104,
-    "ci_run_id": 36540501031,
+    "version": "0.1.0-alpha.72",
+    "commit": "04c47bb0b99ccf34872e938bd0029b6cdac6e325",
+    "tree": "32baaa4b79b31a6aecac2fb8cb8034fe94b5c689",
+    "app_tree": "6dafabbb7bb6ad628de0052f1f07222b5d33f78a",
+    "pull_request": 153,
+    "candidate_commit": "4306a924679f397d6e3c7ca9f511ade7ce1aed61",
+    "candidate_ci_run_id": 36687732779,
+    "ci_run_id": 36690038477,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.71",
-    "commit": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3",
-    "tree": "3958527cdd2d4c4fbe0aaffbb3ba9a738f949a4c",
-    "app_tree": "4d7baccf4b09c637fd8179336cc830853d8c991e",
-    "pull_request": 151,
-    "candidate_commit": "c96fda7ddb4225fb383bd7b206005a10190911f9",
-    "candidate_ci_run_id": 36540248104,
-    "ci_run_id": 36540501031,
+    "version": "0.1.0-alpha.72",
+    "commit": "04c47bb0b99ccf34872e938bd0029b6cdac6e325",
+    "tree": "32baaa4b79b31a6aecac2fb8cb8034fe94b5c689",
+    "app_tree": "6dafabbb7bb6ad628de0052f1f07222b5d33f78a",
+    "pull_request": 153,
+    "candidate_commit": "4306a924679f397d6e3c7ca9f511ade7ce1aed61",
+    "candidate_ci_run_id": 36687732779,
+    "ci_run_id": 36690038477,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "e5df45f0",
-    "name": "PilotSuite alpha.70 before alpha.71 release",
-    "date": "2026-09-29T07:58:30.470906+00:00",
-    "size_bytes": 54497280,
-    "app_version": "0.1.0-alpha.70",
+    "backup_id": "e636bd76",
+    "name": "PilotSuite Alpha.71 before Alpha.72 final release 2026-09-30 08:28 UTC",
+    "date": "2026-09-30T08:28:34.953756+00:00",
+    "size_bytes": 54538240,
+    "app_version": "0.1.0-alpha.71",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -40,7 +40,10 @@
     "failed_addons": [],
     "failed_folders": [],
     "failed_agent_ids": [],
-    "agent_errors": {},
+    "agent_errors": {
+      "synology_agent_1": "Failed to list backups",
+      "synology_agent_2": "Failed to list backups"
+    },
     "agent_ids": [
       "hassio.local"
     ],
@@ -52,12 +55,20 @@
     "archive_extraction_performed": false,
     "restore_drill_performed": false,
     "completion_verified_before_publication": true,
-    "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim."
+    "recovery_boundary": "Only PilotSuite app/data; restore overwrites data/options since backup and requires explicit confirmation. No off-device resilience claim.",
+    "exception": {
+      "scope": "Only nonempty agent_errors from two additional Synology backup-list operations; local PilotSuite-only scope/completion/size and all failed-component lists independently confirmed.",
+      "user_message": "Bitte abschließen",
+      "authorization_context": "Direct response to the last stated local-backup exception blocker. Treated as approval to complete with this disclosed narrow exception; interpretation announced before release.",
+      "settings_changed": false,
+      "restore_test_performed": false
+    },
+    "agent_error_keys_redacted": true
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.71",
-    "offered_version": "0.1.0-alpha.71",
-    "previous_version": "0.1.0-alpha.70",
+    "installed_version": "0.1.0-alpha.72",
+    "offered_version": "0.1.0-alpha.72",
+    "previous_version": "0.1.0-alpha.71",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -69,17 +80,16 @@
     "rebuild_calls": 0,
     "other_app_update_calls": 0,
     "source_association": "repository/version/app-tree; not independent installed-image attestation",
-    "verified_at_utc": "2026-09-29T08:12:48Z"
+    "verified_at_utc": "2026-09-30T08:33:23Z"
   },
   "runtime": {
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-29T10:12:29Z",
+    "startup_log_timestamp": "2026-09-30T10:33:12Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-29T10:12:30Z",
-      "2026-09-29T10:14:01Z",
-      "2026-09-29T10:14:32Z"
+      "2026-09-30T10:33:13Z",
+      "2026-09-30T10:33:43Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -88,43 +98,37 @@
     "timestamp_note": "Copied as emitted by app logs; no independent clock validation.",
     "capabilities_available": [
       "temperature",
+      "humidity",
       "illuminance"
     ],
     "capabilities_partial": [
-      "humidity",
       "motion",
       "presence",
       "light"
     ]
   },
   "tests": {
-    "local_python_passed": 651,
+    "local_python_passed": 719,
     "local_javascript_passed": 78,
-    "api_contracts": 62,
+    "api_contracts": 68,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
     "browser_suites": 11,
     "container_platform": "linux/amd64",
-    "disposable_home_assistant_protocol": "success; HA 2026.9.3, six scenarios including native individual Boolean/timer, explicit timer duration/restore and no duplicate after reconnect",
+    "disposable_home_assistant_protocol": "success; HA 2026.9.3, seven native scenarios in an isolated instance",
     "reproducible_source_checkout": "success",
-    "regressions": "Initial three single-helper cases and stale zone revision after registry I/O / disabled readback identity failed before fixes. Lost creation response, readback outage/restart, wrong identity, expiry, exact confirmation/zone and absent comparison config are covered.",
-    "local_browser_suites": 3,
-    "final_resource_warning_audit": "651 Python tests repeated on exact release-main; zero ResourceWarnings after gc.collect()."
+    "regressions": "Label/identity/manual-conflict guards, cumulative helper metadata/readback, preserved imports/drafts, excluded output feedback, missing saved sources, light groups and daylight/manual blockers, restart holds/cooldown, legacy partial restore scope. Concrete failures reproduced before fixes.",
+    "local_browser_suites": 11,
+    "final_resource_warning_audit": "719 local Python tests with final gc.collect(), zero ResourceWarnings; later change only in frontend/docs. Exact candidate and release-main Python CI passed."
   },
   "ui_review": {
-    "synthetic_browser": "Existing workspace, organization and extended zone-instance suites passed locally; all 11 passed exact candidate/main CI. Unlike-zone individual-helper preview/apply, preserved draft after collision, no binding/control/false vacancy. 390/768/1440 light/dark screenshots; desktop light/mobile dark inspected. No household acceptance.",
+    "synthetic_browser": "All eleven existing browser suites passed exact candidate and release-main CI. Extended zone/selection flows and 390/768/1440 light/dark screenshots inspected during development. Missing-source, source identity, draft/cancel and zero-write navigation cases covered; no household acceptance.",
     "authenticated_household_ingress": "Not independently observed; no authenticated Home Assistant browser session was available.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false,
     "read_only_household_observation": {
-      "reference": "Existing Habituszonen storage dashboard read without modification.",
-      "scope": "One existing zone: motion/contact inputs and existing Boolean, timer and public occupancy sensor read through HA-MCP; no binding change.",
-      "observation": "Boolean and public sensor reported off; timer idle with configured three-minute duration. Motion/contact inputs reported off. These values are not a proof of physical absence.",
-      "history_window_utc": {
-        "start": "2026-09-28T18:00:00Z",
-        "end": "2026-09-28T21:00:00Z"
-      },
-      "history_result": "Six queried entities returned only initial held states and no transitions, without pagination. Entry, quiet occupancy, departure, expiry and unknown handling are not household-validated.",
-      "limitation": "Not authenticated Ingress observation, not proof of PilotSuite saved bindings, automation wiring or safe takeover. No household identifiers/configuration copied into this receipt."
+      "reference": "Existing HA structure register, Habitus dashboard and one existing automation chain inspected through HA-MCP on 30.09.2026. Private input/review remains in ignored pilot_data/reviews.",
+      "scope": "Existing presence/status/timer/light dependencies read without mutation. Actual saved PilotSuite bindings not observed.",
+      "limitation": "Mixed status/timer/light writers and unevaluated templates remain acceptance boundaries; no takeover, household switching or physical-vacancy claim."
     }
   },
   "boundaries": {
@@ -136,24 +140,24 @@
     "technical_entity_id_migration": false,
     "new_adaptive_learning": false,
     "general_apply": "READ_ONLY_RELEASE=True in exact source; no live Apply call",
-    "independent_data_preservation": "Four app option values unchanged; no schema/configuration migration or new store. Exact synthetic browser suites cover four-zone/configuration preservation. Real four-zone PilotSuite Ingress readback remains pending."
+    "independent_data_preservation": "Four app option values unchanged. No household import, helper/metadata apply, binding or control action; existing stores reused. Exact synthetic browser suites cover four-zone/configuration preservation. Real four-zone Ingress readback remains pending.",
+    "active_light_actuation": false
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3:docs/RELEASE_STATE.json",
-    "integrated_pr": 151,
-    "integrated_commit": "7e6bb5ee9348df9999106cd283d448cb7e3b8ad3"
+    "previous_receipt_at": "e3e5dc29dc6881f806a52917d3f0b2c9ae4386e4:docs/RELEASE_STATE.json",
+    "integrated_pr": 153,
+    "integrated_commit": "04c47bb0b99ccf34872e938bd0029b6cdac6e325"
   },
-  "next_step": "Read-only authenticated Ingress acceptance of Erdkellerbereich: check existing Boolean/timer/public-sensor/automation assignments, reported occupancy versus comparison and actual HA timing ownership; then contrast unlike-zone/four-zone preservation. Identify genuinely missing helpers before any separately authorized household creation or wiring. Active HA-parameter editing and automation wiring/takeover remain unimplemented; no test switching.",
+  "next_step": "Read-only authenticated Ingress acceptance of Erdkellerbereich and one unlike zone: compare saved areas/tags, independent sources and existing status/timer/automation bindings before household import or apply. Then jointly review any missing helpers/labels. Active lighting takeover remains a later implementation with confirmed authority, not an installed capability.",
   "runtime_measurement": {
-    "scope": "No performance change claimed for Alpha.71. Alpha.64 checkpoint counts and tradeoff remain in its historical receipt.",
-    "previous_evidence": "6b7204e3a8620c05978c4a73a54bec2b078ba554:docs/RELEASE_STATE.json"
+    "scope": "No performance improvement claimed for Alpha.72. Current changes were validated functionally; historical measurements remain in prior receipts."
   },
   "workflow": {
-    "kind": "manual_continuation_of_pr_151",
-    "heartbeat": "PAUSED; prior timed runs completed",
-    "requested_authority": "Finish existing package and safely release after all runbook gates; no household write scope expansion.",
+    "kind": "manual_completion_of_pr_153",
+    "heartbeat": "PAUSED; the overnight assignment ended and was not restarted",
+    "requested_authority": "Finish existing package and deliver Alpha.72; narrow disclosed backup-list exception accepted in context of Bitte abschließen. No household control handover.",
     "household_binding_changed": false,
-    "phase": "Alpha.71 installed and healthy; closing delivery receipt. Prior timed runs completed, heartbeat remains paused."
+    "phase": "Alpha.72 installed and healthy; closing delivery documentation. Authenticated household UI remains pending."
   }
 }
