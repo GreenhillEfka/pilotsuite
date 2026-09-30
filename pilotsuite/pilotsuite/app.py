@@ -218,7 +218,7 @@ async def _zone_labels(request: web.Request) -> web.Response:
 
 
 async def _zone_candidates(request: web.Request) -> web.Response:
-    from .core.zone_ontology import ROLES
+    from .core.zone_ontology import ROLES, display_role_suggestion
     try:
         payload = await request.json()
     except ValueError as exc:
@@ -232,7 +232,7 @@ async def _zone_candidates(request: web.Request) -> web.Response:
     service = request.app[SERVICE_KEY]
     labels = await service.client.zone_labels()
     roles = {row['label_id']:row['name'] for row in labels if row['name'] in ROLES}
-    members = [{**row, 'habitus_roles':sorted({roles[key] for key in set(row['labels']) | set(row.get('device_labels', [])) if key in roles}),
+    members = [{**row, **display_role_suggestion(row), 'habitus_roles':sorted({roles[key] for key in set(row['labels']) | set(row.get('device_labels', [])) if key in roles}),
                 'device_habitus_roles':sorted({roles[key] for key in row.get('device_labels', []) if key in roles}),
                 'membership_source':'area' if row['area_id'] in payload['area_ids'] else 'explicit'}
                for row in await service.world.organization_catalog()

@@ -381,6 +381,7 @@ async function openZoneEditor(existing) {
     zoneSetupRows = structure ? Object.entries(structure.members).map(([entity_id,row])=>{
       const current=memberIdentities.get(entity_id);
       return {entity_id,name:current?.name||entity_id,habitus_roles:row.roles,identity_status:current?.status,
+        suggested_habitus_roles:current?.suggested_habitus_roles||[],habitus_role_reason:current?.habitus_role_reason,
         resolved_entity_id:current?.entity_id,disabled:!!current&&current.status!=='bound'};
     }) : [];
     byId('zone-label-name').value = structure?.label_name || zone.name;
@@ -419,6 +420,12 @@ byId('zone-extras').addEventListener('change', () => {
   }
 });
 
+function initialZoneMemberRoles(row) {
+  const observed=row.habitus_roles||[],suggested=row.suggested_habitus_roles||[];
+  row.role_preselection=!observed.length && !!suggested.length;
+  return [...(observed.length?observed:suggested)];
+}
+
 function renderZoneMembers() {
   const host=byId('zone-label-members'), filter=byId('zone-member-search').value.trim().toLocaleLowerCase();
   host.replaceChildren();
@@ -429,7 +436,7 @@ function renderZoneMembers() {
     const memberLabel=document.createElement('label'),member=document.createElement('input');member.type='checkbox';
     member.checked=zoneSetupDraft.entity_ids.includes(row.entity_id);member.disabled=unavailable && !member.checked;
     memberLabel.append(member,document.createTextNode(row.name || row.entity_id));
-    const detail=document.createElement('small');
+    const detail=document.createElement('small');let roleSummary,roleHint,rolePreset;
     const updateDetail=()=>{
       const current=[...(row.habitus_roles||[])].sort(),draft=[...(zoneSetupDraft.roles[row.entity_id]||[])].sort();
       let note=row.label_observation==='missing'
@@ -443,6 +450,12 @@ function renderZoneMembers() {
       if(identityNote)note+=` · Zuordnung beim Öffnen: ${identityNote}`;
       if(row.device_habitus_roles?.length)note+=` · Rollen vom Gerät geerbt: ${row.device_habitus_roles.join(', ')}`;
       detail.textContent=`${row.entity_id} · ${note}${row.membership_source==='device'?' · vom Gerät':''}${unavailable?' · nicht auswählbar':''}`;
+      if(roleSummary)roleSummary.textContent='Darstellung im Habitus-Dashboard · '+(draft.map(r=>r.replace(/^Habitus /,'')).join(', ')||'keine Auswahl');
+      if(roleHint)roleHint.textContent=row.role_preselection
+        ? `Vorauswahl: ${row.habitus_role_reason} Du kannst sie ändern oder abwählen.`
+        : current.length?'Vorhandene Rollen bleiben erhalten. Änderungen werden erst im HA-Abgleich angewendet.'
+        : row.habitus_role_reason||'Darstellung manuell wählen.';
+      if(rolePreset)rolePreset.hidden=JSON.stringify(draft)===JSON.stringify([...(row.suggested_habitus_roles||[])].sort());
     };updateDetail();
     const relevantLabel=document.createElement('label'),relevant=document.createElement('input');relevant.type='checkbox';
     const isAnchor=()=>!!zoneSetupDraft.roles[row.entity_id]?.includes('Habitus Zone'),anchor=isAnchor();
@@ -453,18 +466,22 @@ function renderZoneMembers() {
       if(member.checked) zoneSetupDraft.entity_ids.push(row.entity_id);
       else {zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);relevant.checked=false;}
       relevant.disabled=!member.checked || isAnchor() || unavailable;
+      if(rolePreset)rolePreset.disabled=!member.checked || unavailable;
     });
     relevant.addEventListener('change',()=>{zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);if(relevant.checked)zoneSetupDraft.relevant_entity_ids.push(row.entity_id);});
     relevantLabel.hidden=structureOnly;
     line.append(memberLabel,detail,relevantLabel);
     if(zoneRoleChoices.length){
-      const roles=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Darstellung im Habitus-Dashboard';roles.append(summary);
+      const roles=document.createElement('details');roleSummary=document.createElement('summary');roles.append(roleSummary);
+      roleHint=document.createElement('p');roleHint.className='zone-role-hint';roles.append(roleHint);
+      const roleInputs=new Map();
       for(const role of zoneRoleChoices){
         const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';
-        input.checked=(zoneSetupDraft.roles[row.entity_id]||[]).includes(role);input.disabled=!!row.identity_status&&row.identity_status!=='bound';label.append(input,document.createTextNode(role));
+        input.checked=(zoneSetupDraft.roles[row.entity_id]||[]).includes(role);input.disabled=unavailable;label.append(input,document.createTextNode(role));roleInputs.set(role,input);
         input.addEventListener('change',()=>{
           const selected=new Set(zoneSetupDraft.roles[row.entity_id]||[]);if(input.checked)selected.add(role);else selected.delete(role);
           zoneSetupDraft.roles[row.entity_id]=[...selected];
+          row.role_preselection=false;
           updateDetail();
           if(role==='Habitus Zone'){
             relevant.disabled=input.checked || !member.checked;
@@ -472,6 +489,15 @@ function renderZoneMembers() {
           }
         });roles.append(label);
       }
+      if(!row.habitus_roles?.length && row.suggested_habitus_roles?.length && !unavailable){
+        rolePreset=document.createElement('button');rolePreset.type='button';rolePreset.textContent='Typbasierte Vorauswahl übernehmen';rolePreset.disabled=!member.checked;
+        rolePreset.addEventListener('click',()=>{
+          zoneSetupDraft.roles[row.entity_id]=[...row.suggested_habitus_roles];row.role_preselection=true;
+          for(const [role,input] of roleInputs)input.checked=zoneSetupDraft.roles[row.entity_id].includes(role);
+          relevant.disabled=!member.checked || isAnchor() || unavailable;updateDetail();
+        });roles.append(rolePreset);
+      }
+      updateDetail();
       line.append(roles);
     }
     host.append(line);
@@ -525,7 +551,7 @@ byId('zone-label-import').addEventListener('click',async()=>{
     for(const row of result.members)rows.set(row.entity_id,{...rows.get(row.entity_id),...row,label_observation:'present',disabled:row.disabled || !row.unique_id || !row.platform});
     zoneSetupRows=[...rows.values()];
     zoneSetupDraft={label_id:chosen,entity_ids:[...new Set([...(old?.entity_ids||[]),...result.members.filter(r=>!known.has(r.entity_id)&&!r.disabled && r.unique_id && r.platform).map(r=>r.entity_id)])],relevant_entity_ids:old?.relevant_entity_ids||[],
-      roles:Object.fromEntries(zoneSetupRows.map(row=>[row.entity_id,[...(old?.roles?.[row.entity_id]||row.habitus_roles||[])]]))};
+      roles:Object.fromEntries(zoneSetupRows.map(row=>[row.entity_id,[...(old?.roles?.[row.entity_id]||initialZoneMemberRoles(row))]]))};
     if(!byId('zone-name').value.trim())byId('zone-name').value=result.name;
     renderZoneMembers();
     text('zone-label-message',`${result.members.length} Mitglieder eingelesen. Bisherige Auswahl und Rollen bleiben erhalten; neue Mitglieder werden nur vorgeschlagen. Abweichungen stehen an den Einträgen. ${structureOnly ? '' : 'Quellen für die Auswertung gezielt anhaken. '}Speichern ändert keine HA-Labels.`);
@@ -559,7 +585,7 @@ byId('zone-candidates-import').addEventListener('click',async()=>{
     for(const row of result.members)rows.set(row.entity_id,{...rows.get(row.entity_id),...row,disabled:row.disabled || !row.unique_id || !row.platform});
     zoneSetupRows=[...rows.values()];
     zoneSetupDraft.entity_ids=[...new Set([...zoneSetupDraft.entity_ids,...result.members.filter(r=>!known.has(r.entity_id)&&!r.disabled&&r.unique_id&&r.platform).map(r=>r.entity_id)])];
-    for(const row of result.members)if(!zoneSetupDraft.roles[row.entity_id])zoneSetupDraft.roles[row.entity_id]=row.habitus_roles||[];
+    for(const row of zoneSetupRows)if(!zoneSetupDraft.roles[row.entity_id])zoneSetupDraft.roles[row.entity_id]=initialZoneMemberRoles(row);
     renderZoneMembers();text('zone-label-message',`${result.members.length} Kandidaten eingelesen. Bisherige Auswahl, Abwahl und Rollen bleiben erhalten. Neue Quellen werden nicht automatisch für die Auswertung aktiviert.`);
   }catch(error){text('zone-label-message',error.message);}
   finally{zoneLabelBusy=false;renderZoneLabelControls();byId('zone-candidates-import').disabled=false;}

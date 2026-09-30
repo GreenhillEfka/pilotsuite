@@ -1,7 +1,7 @@
 """HA labels describe membership; explicit selection authorizes analysis, not control."""
 from .organization import identity, same_identity
 from .selections import InvalidSelection, SelectionConflict
-from .zone_ontology import ROLES
+from .zone_ontology import ROLES, display_role_suggestion
 
 KEY = 'zone_structure'
 SCHEMA = 'pilotsuite-zone-structure-v1'
@@ -83,7 +83,7 @@ def label_members(label_id, labels, catalog):
         inherited = label_id in row.get('device_labels', [])
         if not direct and not inherited:
             continue
-        members.append({**row, 'membership_source': 'entity' if direct else 'device',
+        members.append({**row, **display_role_suggestion(row), 'membership_source': 'entity' if direct else 'device',
                         'habitus_roles': sorted({role_names[key] for key in set(row.get('labels', [])) | set(row.get('device_labels', [])) if key in role_names}),
                         'device_habitus_roles': sorted({role_names[key] for key in row.get('device_labels', []) if key in role_names})})
     if len(members) > MAX_MEMBERS:
@@ -103,7 +103,7 @@ def member_identities(profile, catalog):
             status = 'identity_unresolved'
         elif row.get('disabled'):
             status = 'disabled'
-        result.append({'saved_entity_id':eid,
+        result.append({**display_role_suggestion(row if status == 'bound' else {}), 'saved_entity_id':eid,
                        'entity_id':row.get('entity_id') if status != 'identity_unresolved' else None,
                        'name':row.get('name') or eid, 'status':status})
     return result

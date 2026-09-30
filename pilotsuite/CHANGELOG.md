@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-alpha.74] - 2026-09-30
+
+- Preselect editable Habitus display roles for newly imported entities from their
+  HA category, device class and entity type. Explain each suggestion and show the
+  current roles directly in the collapsed display section.
+- Preserve existing entity/device labels and every saved/manual choice, including
+  empty role selections. Offer explicit reuse of a type default for untagged rows.
+- Classify device functions individually; never infer a zone anchor, analysis
+  permission or control grant. Unknown/disabled identities receive no default.
+
 ## [0.1.0-alpha.73] - 2026-09-30
 
 - Reduce the product to zone overview, structure editing and documentation. Redirect

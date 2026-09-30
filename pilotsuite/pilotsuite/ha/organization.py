@@ -22,6 +22,7 @@ class OrganizationWorldMixin:
                     'labels':list(row.get('labels') or []),
                     'device_labels':list(self._devices.get(row.get('device_id'),{}).get('labels') or []),
                     'disabled':row.get('disabled_by') is not None,
+                    'entity_category':row.get('entity_category'),
                     'state':state.get('state'),'unit':attrs.get('unit_of_measurement'),
                     'device_class':row.get('device_class') or attrs.get('device_class'),
                     'in_registry':eid in self._entities,
