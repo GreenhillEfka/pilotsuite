@@ -2,7 +2,8 @@
 
 ## Aktueller Vorrang, 30.09.2026
 
-Der neue ausdrückliche Auftrag läuft bis 08:00 Europe/Berlin. Zuerst Zone/Tags mit
+Der befristete Auftrag endete um 08:00 Europe/Berlin. Der Nutzer hat danach mit
+„weiter“ die direkte Fortsetzung beauftragt; der alte Heartbeat ist pausiert. Zuerst Zone/Tags mit
 einem gemeinsamen Einrichtungsweg; dann Präsenz und Helfer/Sensoren mit Autolabeling;
 darauf Licht. Klima, Multimedia und Mustererkennung sind nachgelagert. Der aktive
 Branch ist `feat/habitus-zone-setup`; [Umsetzungsplan](HABITUS_SETUP_PLAN.md) und

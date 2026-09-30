@@ -29,22 +29,17 @@ edit/enable/disable automations, activate outputs, transfer control or grant lea
 
 ## Current continuation
 
-New explicit user assignment on 30.09.2026 supersedes the expired loops below:
-implement the complete Habitus setup concept until 08:00 Europe/Berlin (06:00 UTC).
-Use `feat/habitus-zone-setup` and `docs/HABITUS_SETUP_PLAN.md`; keep progressing
-through zone/tag setup, presence/helper autolabeling and then lighting. Climate,
-multimedia and pattern recognition follow the foundation. The heartbeat now targets
-the current implementation thread; no extra thread/agent. The earlier statements
-about no new timed loop describe the prior completed assignment, not this one.
+The 30.09.2026 timed Habitus setup assignment ended at 08:00 Europe/Berlin.
+The user subsequently requested “weiter”: continue the existing implementation
+package directly in this thread. The expired heartbeat is PAUSED; do not revive
+it or create another timed loop, chat, agent or checkout.
+Use `feat/habitus-zone-setup` / draft PR #153 and `docs/HABITUS_SETUP_PLAN.md`.
+Keep progressing through zone/tag setup, presence/helper autolabeling and then
+lighting. Climate, multimedia and pattern recognition follow the foundation.
+CURRENT_STATE.md owns current progress; PR #153 holds exact candidate CI receipts.
+Alpha.72 is developed/tested, while Alpha.71 remains installed. The latest “weiter”
+is not the pending narrow backup-agent exception or a household-control handover.
 Existing zones, identities and HA control remain intact during development.
-CURRENT_STATE.md identifies implemented/tested/pending work; installation remains
-Alpha.71 until separately verified through the release routine.
-
-Timed overnight and additional-hour runs ended; the existing heartbeat stays paused.
-The user subsequently said to continue the existing package directly in this chat.
-PR #151 on `feat/zone-missing-helper` is merged and Alpha.71 safely delivered.
-No new timed loop, chat or background job. This continuation does not change
-household-write scope.
 
 Alpha.70 followed PR #149; PR #150 recorded its delivery. PR #151 delivered
 Alpha.71 single Boolean/timer creation through existing transactions, without

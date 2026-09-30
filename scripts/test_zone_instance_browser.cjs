@@ -36,6 +36,13 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
    await page.locator(`[data-ps-zone="${zone}"]`).click();
    await page.waitForFunction(value=>document.querySelector('#ps-presence-state strong')?.textContent===value,expected);
    assert.equal(await page.locator('#ps-view-title').evaluate(e=>e===document.activeElement),true);
+   if(zone==='z_empty'){
+    await page.locator('#ps-zone-configure').click();
+    assert.equal(await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).isDisabled(),true,'empty editor explains missing direct sources before save');
+    assert.match(await page.locator('#ps-presence-config-effect').innerText(),/Mindestens eine direkte Präsenz- oder Bewegungsquelle/);
+    await page.getByRole('button',{name:'Verwerfen',exact:true}).click();
+    await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+   }
   }
   assert.deepEqual((await command({action:'snapshot'})).zones,baseline.zones);
   assert.equal(network.length,0,'zone navigation performs no POST, PUT or HA write');
@@ -662,6 +669,34 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   const afterLightDiagnosis=await command({action:'snapshot'});
   for(const key of ['zones','mode','roles','learning','output_calls','metadata_calls','helper_creates','organization'])assert.deepEqual(afterLightDiagnosis[key],afterLight[key]);
   console.log('ok 10 - live light comparison shares primary presence; bounded settings, drafts/errors and no actuator calls');
+  const beforeMissingSource=await command({action:'snapshot'});
+  await command({action:'member_identity',variant:'disabled'});
+  await page.reload();await page.waitForFunction(()=>contextData&&!selectionBusy);
+  await page.evaluate(()=>loadSelection('room'));await page.locator('#ps-zone-configure:not([disabled])').waitFor();
+  await page.locator('#ps-zone-configure').click();
+  const missingSource=page.locator('.ps-zone-source-edit').filter({hasText:'binary_sensor.demo_presence'}).filter({has:page.locator('legend')});
+  assert.equal(await missingSource.count(),1,'saved source missing from the selectable catalog must remain visible');
+  assert.match(await missingSource.innerText(),/Gespeicherte Quelle derzeit nicht wählbar/);
+  assert.equal(await missingSource.locator('legend input').isChecked(),true);
+  assert.equal(await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).isDisabled(),true);
+  if(out)for(const width of [390,1440]){await page.setViewportSize({width,height:1100});await page.locator('#ps-zone-form').screenshot({path:path.join(out,`zone-missing-presence-source-${width}.png`)});}
+  await missingSource.locator('legend input').uncheck();
+  assert.equal(await missingSource.locator('legend input').isDisabled(),true);
+  assert.equal(await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).isDisabled(),false);
+  const remainingSource=page.locator('.ps-zone-source-edit').filter({hasText:'binary_sensor.demo_motion'}).filter({has:page.locator('legend')});
+  await remainingSource.getByLabel('Typ',{exact:true}).selectOption('support');
+  assert.equal(await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).isDisabled(),true,'support alone cannot save a presence configuration');
+  await remainingSource.getByLabel('Typ',{exact:true}).selectOption('pulse');
+  assert.equal(await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).isDisabled(),false);
+  await page.getByRole('button',{name:'Verwerfen',exact:true}).click();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  const afterMissingSource=await command({action:'snapshot'});
+  assert.deepEqual(afterMissingSource.view.spec,beforeMissingSource.view.spec,'cancel retains the unavailable saved source');
+  for(const key of ['zones','mode','roles','learning','output_calls','metadata_calls','helper_creates','organization'])assert.deepEqual(afterMissingSource[key],beforeMissingSource[key]);
+  await command({action:'member_identity',variant:'normal'});
+  await page.reload();await page.waitForFunction(()=>contextData&&!selectionBusy);
+  await page.evaluate(()=>loadSelection('room'));await page.locator('#ps-zone-configure:not([disabled])').waitFor();
+  console.log('ok 10b - unavailable saved presence source stays visible and requires explicit removal; cancel preserves configuration');
   await command({action:'legacy_anchor_role'});await page.evaluate(()=>loadSelection('room'));await refreshPresence();
   const beforeAnchorEdit=await command({action:'snapshot'});
   assert.equal(beforeAnchorEdit.view.current,null,'a legacy source later marked as zone output cannot self-confirm');

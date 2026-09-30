@@ -1,13 +1,14 @@
 # Current state — Alpha.72 candidate; Alpha.71 installed
 
-## Active assignment through 30.09.2026 08:00 Europe/Berlin
+## Manual continuation after the overnight window
 
-Continue only this repository and the existing package. Preserve untracked AGENTS.md.
-The user authorized Habitus zone setup from HA areas/manual tags, then presence,
-helpers/autolabeling, then lighting. Climate, media and further learning come later.
-The existing heartbeat is active; no new agents/tasks/checkouts. No new feature
-package after 07:20 local, no new publication after 07:30, stop at 08:00 and pause
-that heartbeat. See docs/HABITUS_SETUP_PLAN.md and the current release runbook.
+The timed assignment ended at 08:00 Europe/Berlin on 30.09.2026. The user then
+explicitly requested “weiter”. Continue the existing package directly in this
+thread; the expired heartbeat is now PAUSED. No new timed run, agent or checkout.
+Preserve untracked AGENTS.md. Priority remains zones/tags, presence and helpers/
+autolabeling, then lighting. Climate, media and learning follow. Household writes
+and the unresolved backup exception are not implied by this continuation.
+See docs/HABITUS_SETUP_PLAN.md and the existing release runbook.
 
 Local branch: feat/habitus-zone-setup, based on e3e5dc2. Draft PR #153 is the only
 active PR. Git CLI has no write credentials; use the connected GitHub git-object
@@ -77,8 +78,21 @@ Nine initially failing diagnostic cases pass; 719 Python/78 JS tests, 68 contrac
 and the extended zone browser pass. Open details and keyboard focus survive passive
 refresh. Missing values withhold proposals; recovery reacquires stability. Actual
 390/1440 screenshots inspected in /private/tmp/habitus-light-diagnostics-ui/.
-Final Python garbage collection emitted no ResourceWarnings. New exact CI is still
-required for this additive diagnosis; the receipt belongs in PR #153.
+Final Python garbage collection emitted no ResourceWarnings. Light-diagnostic
+candidate 8a48e8d passed all five jobs in run 36668689077; the exact receipt is in
+PR #153. Local 1520ce9 and remote 8a48e8d have identical source trees.
+
+The manually requested continuation fixes incomplete presence editors. Saved inputs
+missing from the selectable catalog remain visible and selected, block saving and
+require explicit removal or correction of membership/relevance/registry state.
+Cancel preserves the full saved spec. Empty or support-only selection explains the
+required direct source before saving. These are UI checks of existing server rules;
+no source, mode, helper or HA control is changed by opening the editor.
+Both failures were reproduced in the existing browser suite; the extended full
+zone flow, 78 JS tests and 68 contracts pass. Actual 390/1440 screenshots inspected
+in /private/tmp/habitus-incomplete-presence-ui/. Python code is unchanged from the
+719-test candidate. New exact CI remains required. Both local skills were updated
+and validated; the expired automation is confirmed PAUSED.
 
 ## Release boundary and actual backup finding
 
@@ -96,11 +110,11 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish the light-diagnostic candidate with exact latest PR CI; obtain clean
+Next: finish the incomplete-presence editor correction and its exact CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation
-proceed within the authorized time window. Update the release receipt only after
+proceed under a current release authorization. Update the release receipt only after
 actual verified delivery. Prior Alpha.71 receipt remains in RELEASE_STATE.json.
 
 ## Boundaries and remaining work

@@ -2,6 +2,9 @@
 
 ## [0.1.0-alpha.72] - 2026-09-30
 
+- Keep saved presence sources visible when they become unselectable; require explicit
+  correction and preserve them on cancel. Explain missing direct coverage before save.
+
 - Explain daylight validity and named manual blockers in the live light comparison;
   retain open diagnostics and keyboard focus on refresh without changing the policy.
 

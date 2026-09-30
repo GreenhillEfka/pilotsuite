@@ -69,6 +69,13 @@ unavailable inputs, recovery stability, retained open/focus state and zero write
 719 Python/78 JS tests and 68 contracts pass; mobile/desktop screenshots inspected.
 Final full-suite garbage collection reports no resource warnings. Latest exact CI
 must be verified after this change.
+Light-diagnostic candidate 8a48e8d passed all five jobs (36668689077). After the
+expired overnight run, the user explicitly requested continuation in this chat;
+the heartbeat was paused. The next UI correction preserves saved presence sources
+that disappear from the selectable catalog until an explicit removal. Cancel keeps
+the original spec; empty/support-only input explains the missing direct source.
+Both failures reproduced in the existing browser; full extended zone flow, 78 JS
+tests and 68 contracts pass. Actual screenshots inspected; new exact CI required.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 
 Alpha.71 installed after PR #151: targeted single Boolean/timer creation through the

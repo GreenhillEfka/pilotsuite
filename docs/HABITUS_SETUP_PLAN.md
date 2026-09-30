@@ -4,6 +4,14 @@ Zeitfenster: bis 08:00 Europe/Berlin (06:00 UTC). Diese neue ausdrückliche
 Beauftragung ersetzt die abgelaufenen Zeitfenster, nicht historische Release-Belege.
 Arbeitsbranch: `feat/habitus-zone-setup`, Ausgang `e3e5dc2` / installierte Alpha.71.
 
+## Fortsetzung nach Ende des Zeitfensters
+
+Der Nutzer beauftragte am 30.09.2026 nach 08:00 mit „weiter“ die direkte Fortsetzung
+im bestehenden Chat. Der abgelaufene Heartbeat ist PAUSED; kein neuer Zeitlauf.
+Die folgenden Zeitgrenzen dokumentieren den beendeten Nachtauftrag. Bestehende
+Haushalts- und Release-Grenzen gelten weiter; die offene Backup-Ausnahme ist nicht
+beantwortet. Aktueller Arbeitsstand: CURRENT_STATE.md, exakte CI-Belege in PR #153.
+
 ## Ziel und Reihenfolge
 
 1. Zonenerstellung aus physischen HA-Bereichen und vorhandenen Zonenlabels in
@@ -191,6 +199,19 @@ Logs `/private/tmp/habitus-light-diagnostics-*`, tatsächlich angesehene Bilder
 unter `/private/tmp/habitus-light-diagnostics-ui/`. Zwei Browser-Wartepunkte wurden
 an bestätigte Antwort bzw. beendetes Nachladen gebunden, ohne feste Wartezeiten.
 Abschluss-CI wieder am exakten neuen Kandidaten prüfen; keine Auslieferung behaupten.
+
+Manuelle Fortsetzung nach 08:00: Der Lichtdiagnose-Kandidat `8a48e8d` bestand
+alle fünf CI-Jobs (`36668689077`). Der abgelaufene Heartbeat ist bestätigt pausiert.
+Im Präsenzeditor wurden verschwundene gespeicherte Quellen bislang nicht angezeigt;
+neues Speichern konnte sie dadurch still entfernen. Fehlende Quellen bleiben jetzt
+sichtbar, bis sie ausdrücklich entfernt oder im Bestand geklärt werden. Leere
+Auswahl und reine Nutzungsindizien erklären die fehlende direkte Quelle vor dem
+Speichern. Beide Fälle rot reproduziert; der Test benennt nach Reload ausdrücklich
+die betroffene Zone. Gesamter Zonenbrowser, 78 JS-Tests und 68 Verträge grün; keine
+Python-Änderung. Abbrechen erhält die vollständige Quellenspezifikation und alle
+geprüften Schreibzähler. Angesehene Screenshots unter
+`/private/tmp/habitus-incomplete-presence-ui/`, Logs `/private/tmp/habitus-*-presence-*`.
+Beide Skills gepflegt/validiert. Exakte Folge-CI im PR; keine Auslieferung behaupten.
 
 ## Übergabepunkte für die Fortsetzung
 

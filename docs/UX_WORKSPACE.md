@@ -255,3 +255,10 @@ Meldealter und konfigurierte Altersgrenze stehen zusammen. Ein unbekannter
 Sperrsensor wird nicht als bestätigte manuelle Bedienung dargestellt. Details und
 Tastaturfokus bleiben bei passiver Aktualisierung erhalten; dies verändert keine
 Schaltrechte oder Vorschlagsregeln.
+
+Im Präsenzeditor bleiben gespeicherte Quellen sichtbar, wenn sie nicht mehr zum
+wählbaren Bestand gehören. Sie verschwinden nicht durch normales Speichern:
+Mitgliedschaft, Relevanz oder Registry klären, alternativ bewusst abwählen.
+Abbrechen erhält die gespeicherte Konfiguration. Ein unbekannter Live-Zustand ist
+kein solcher Auswahlverlust. Ohne direkte Quelle erklärt das Formular die Lücke
+vor dem Speichern; Nutzungsindizien allein genügen nicht zur Raumabdeckung.
