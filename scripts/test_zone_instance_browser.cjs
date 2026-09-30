@@ -484,12 +484,19 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
 
   await page.locator('.ps-nav [data-ps-nav="cockpit"]').click();
   await page.locator('[data-ps-zone="room"]').click();await page.waitForFunction(()=>selectionZone==='room'&&!selectionBusy);
+  await command({action:'light_group'});await page.evaluate(()=>loadSelection('room'));
   await command({action:'tick',values:{'binary_sensor.demo_presence':'on','binary_sensor.demo_motion':'off'}});await refreshPresence();
   const beforeLight=await command({action:'snapshot'});
   await page.locator('#ps-lighting-configure').click();
   await page.getByLabel('Tageslichtquelle',{exact:true}).selectOption('sensor.demo_lux');
   await page.getByLabel('Herkunft der Luxmessung',{exact:true}).selectOption('outdoor');
   await page.getByLabel('Pause nach Lichtänderung (s)',{exact:true}).fill('600');
+  await page.getByLabel('Lichtgruppe Demo',{exact:true}).check();
+  await page.getByRole('button',{name:'Lichtvergleich speichern',exact:true}).click();
+  await page.getByText('Lichtgruppen und ihre Mitglieder überschneiden sich; nur einmal zuordnen',{exact:true}).waitFor();
+  assert.equal(await page.getByLabel('Lichtgruppe Demo',{exact:true}).isChecked(),true,'group conflict retains the draft');
+  assert.equal(await page.getByLabel('Pause nach Lichtänderung (s)',{exact:true}).inputValue(),'600');
+  await page.getByLabel('Lichtgruppe Demo',{exact:true}).uncheck();
   await page.evaluate(async()=>{await load({background:true});await load({background:true});});
   assert.equal(await page.getByLabel('Pause nach Lichtänderung (s)',{exact:true}).inputValue(),'600');
   await page.route('**/api/v1/zones/room/lighting',route=>route.fulfill({status:503,json:{message:'Synthetic light save failure'}}),{times:1});

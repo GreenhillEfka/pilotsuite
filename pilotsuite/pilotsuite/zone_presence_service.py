@@ -229,11 +229,14 @@ class ZonePresenceServiceMixin:
             spec=zone_lighting.validate_spec(record['spec'],catalog,relevant)
             if record.get('basis')!=zone_lighting.basis(spec,catalog,cfg.get(KEY) or {}):
                 return {**previous,'suspended':'basis_changed'},None,'basis_changed'
-            watched=spec['lights']+spec['manual_entities']+([spec['daylight_source']] if spec['daylight_source'] else [])
+            members=zone_lighting.target_members(spec['lights'],catalog)
+            watched=sorted(set(spec['lights']+spec['manual_entities']+
+                ([spec['daylight_source']] if spec['daylight_source'] else [])+
+                [eid for group in members.values() for eid in group]))
             scope=await self.world.scope((),tuple(watched))
             observations={row['entity_id']:row['state'] for row in scope['entities']}
             point,lighting=zone_lighting.evaluate(spec,state.get('lighting'),observations,view,
-                now=now,fresh=self._presence_inputs_fresh(now),event=event,restart=zid not in self._zone_lighting_seen)
+                now=now,fresh=self._presence_inputs_fresh(now),event=event,restart=zid not in self._zone_lighting_seen,members=members)
             self._zone_lighting_seen.add(zid)
             return point,lighting,'current'
         except (InvalidSelection,ValueError,TypeError,KeyError):
@@ -246,7 +249,16 @@ class ZonePresenceServiceMixin:
             zid=zone['zone_id'];record={};inv=None
             try:
                 inv,cfg,catalog,relevant=await self._zone_basis(zid,catalog);record=cfg.get(KEY) or {}
-                if event and event.get('entity_id') not in relevant:continue
+                if event and event.get('entity_id') not in relevant:
+                    # Explicitly selected aggregates include observation of their
+                    # known members. They never become independent presence inputs.
+                    from .core import zone_lighting
+                    light_record=cfg.get(zone_lighting.KEY) or {}
+                    if light_record.get('mode')!='compare':continue
+                    try:
+                        groups=zone_lighting.target_members(light_record['spec']['lights'],catalog)
+                    except (InvalidSelection,KeyError,TypeError):continue
+                    if not any(event.get('entity_id') in group for group in groups.values()):continue
                 if not inv['enabled'] or record.get('mode')=='paused':
                     self._zone_views[zid]={'revision':inv['revision'],'status':'paused','current':None};continue
                 spec=record.get('spec') or {**deepcopy(kernel.DEFAULTS),'sources':kernel.suggested_sources(catalog,relevant)}

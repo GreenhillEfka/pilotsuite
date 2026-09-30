@@ -110,6 +110,15 @@ die konkrete Übernahme einer Haushaltssteuerung sind getrennte Schritte.
   werden. Im bestehenden Browserablauf rot reproduziert; Filter auf exakte
   Rollenmitgliedschaft begrenzt. Vollständiger Zonenbrowser und 68 Verträge grün,
   tatsächlicher Handy-Screenshot geprüft. Neue Kandidaten-CI bleibt erforderlich.
+- Kandidat `c8f37e4` bestand danach alle fünf CI-Jobs. Die reine HA-Bestandsprüfung
+  bestätigte gekoppelte Anwesenheits-/Lichtverantwortung; private Daten liegen nur
+  unter ignoriertem `pilot_data/reviews/`, keine Live-Zuordnung oder Steuerung geändert.
+  Der anschließende Gruppenreview reproduzierte acht fehlschlagende Fälle:
+  Gruppen/Mitglieder dürfen nicht doppelt geplant werden, unaufgelöste Mitglieder
+  und geänderte Identitäten sind keine verlässliche Vergleichsbasis. Der vorhandene
+  Lichtadapter berücksichtigt jetzt bekannte Mitglieder auch für die Bedienpause.
+  711 Python-/78 JS-Tests und 68 Verträge sowie der erweiterte Zonenbrowser grün;
+  kein ResourceWarning nach Gesamtsuite und Garbage Collection. Exakte neue CI folgt.
 
 Synthetische UI-Belege, keine Haushaltsbilder:
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),

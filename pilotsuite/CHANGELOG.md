@@ -14,6 +14,8 @@
 - Add a configurable live light comparison using the primary zone presence and
   existing light policy. Bound proposals, confirm daylight provenance and preserve
   manual-change holds/cooldowns; identity conflicts require explicit review.
+- Reject overlapping light groups/members and unknown group topology. Observe known
+  members for manual holds and availability; membership/identity changes suspend comparison.
 - No new household control, light actuator path or automation takeover. Installation
   does not import household assignments, create helpers or enable publication/learning.
 - Refuse legacy partial-savepoint restores that would discard newer zone, presence

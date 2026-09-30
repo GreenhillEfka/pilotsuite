@@ -14,6 +14,9 @@ Lokal umgesetzt sind Zonen-/Labelimport und Abgleich, neue Labelanlage samt
 Mitgliedslabels, Autolabeling eigener Helfer sowie der geführte Präsenzanschluss.
 Das Lichtmodul muss dieselbe primäre Präsenz und vorhandene Lichtpolicy verwenden;
 der ältere Schattenvergleich darf dafür keine zweite Präsenzsitzung starten.
+Dieser Vergleich ist jetzt lokal angeschlossen, einschließlich Gruppenabdeckung,
+Mitgliedsänderungen und Bedienpausen. Aktive Ausführung bleibt ein weiterer Schritt
+mit geklärter Steuerungsverantwortung; kein zweiter Präsenz- oder Ausführungskern.
 
 Stand 29.09.2026. Kein Neustart und keine neue Versionsversprechung.
 Release-Chronik: [CHANGELOG](../CHANGELOG.md). Tatsächliche Fähigkeiten:

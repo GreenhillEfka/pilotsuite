@@ -307,3 +307,10 @@ Es gibt in dieser Stufe keinen Leuchten-Schreibpfad und keine automatische
 Übernahme vorhandener Lichtautomationen. Diese spätere Ausführung benötigt einen
 konkreten Plan mit geklärten Schreibern, manueller Hoheit, Fehlerbehandlung und
 Rückweg. App-Installation, Tags oder Relevanz erteilen diese Freigabe nicht.
+
+Aggregierte Leuchten: bekannte Mitgliedschaft wird im selben Lichtadapter begrenzt
+aufgelöst (höchstens 500 Gruppen/Leuchten). Zyklen, fehlende Identitäten und doppelte
+Zielabdeckung werden abgelehnt. Untergeordnete Mitglieder werden nur zur Gültigkeit
+und Bedienpause der ausdrücklich gewählten Gruppe beobachtet; Relevanz, eigene
+Präsenzquellen und konfigurierte Vorschlagsziele bleiben unverändert. Gruppen- oder
+Mitgliedswechsel gehören zur gespeicherten Basis und setzen den Vergleich aus.

@@ -141,6 +141,7 @@
      for(const id of [...new Set([...ids,...selected])]){const input=E('input');input.type='checkbox';input.value=id;input.checked=set.has(id);inputs.push(input);const label=E('label');label.append(input,document.createTextNode(known(id)+(ids.includes(id)?'':' · nicht mehr verfügbar')));items.append(label);}
      parent.append(box);return inputs;};
    const lights=choices('Leuchten · höchstens 20',candidates.lights,values.lights.length?values.lights:(contextData?.config?.roles?.light||[]).filter(id=>candidates.lights.includes(id)));
+   form.append(E('p','Gruppen oder einzelne Leuchten wählen, ohne Überschneidung. Bei Gruppen werden bekannte Mitglieder mitbeobachtet: ihre Änderungen lösen die Bedienpause aus, unklare Mitglieder halten den Vergleich an.','ps-muted'));
    const daylight=select([['','Keine bestätigte Tageslichtquelle'],...[...new Set([...candidates.daylight,...(values.daylight_source?[values.daylight_source]:[])])].map(id=>[id,known(id)+(candidates.daylight.includes(id)?'':' · nicht mehr verfügbar')])],values.daylight_source||'');
    const provenance=select([['unconfirmed','Herkunft noch ungeklärt'],['outdoor','Außenlicht ohne Eigenlicht der Leuchten']],values.daylight_provenance);
    form.append(labelled('Tageslichtquelle',daylight),labelled('Herkunft der Luxmessung',provenance),E('p','Innen-Lux ist durch Eigenlicht beeinflusst. Nur eine tatsächlich geeignete Außenmessung bestätigen; unklare Herkunft liefert keine Helligkeitsvorschläge.','ps-muted'));

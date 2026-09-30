@@ -23,6 +23,12 @@ changes also receive a manual hold after a further six-case red/green check. Leg
 partial savepoints cannot erase the newer module settings; preview and transactional
 restore reject unsupported scope. Three omitted-module cases reproduced red. 704 Python,
 78 JS and 68 contracts pass; extended zone browser and seven native HA cases pass.
+Follow-up: group/member overlaps and unresolved light topology are rejected. Known
+group-member events trigger the existing hold even when aggregate state is unchanged;
+unknown members withhold proposals, identity changes suspend only lighting. Eight
+initial failing group cases, then 711 Python/78 JS tests and 68 contracts pass; the
+complete zone browser covers overlap errors and preserved drafts. No ResourceWarnings
+after the full Python suite and garbage collection. New exact candidate CI is required.
 Active lighting/automation takeover and release/household acceptance remain open.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 

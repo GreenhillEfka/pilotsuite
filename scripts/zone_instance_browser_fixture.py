@@ -105,6 +105,14 @@ async def main():
    cmd=json.loads(line)
    if cmd['action']=='tick':await tick(cmd.get('seconds',1),cmd.get('values',{}))
    elif cmd['action']=='publish':await s._zone_publish_all() # Only the mocked client above.
+   elif cmd['action']=='light_group':
+    eid='light.demo_group'
+    world['entities'].append({'entity_id':eid,'name':'Lichtgruppe Demo','platform':'group',
+      'unique_id':eid,'area_id':'room','disabled_by':None})
+    world['states'].append(state(eid,'off',now,{'entity_id':['light.demo'],'supported_color_modes':['brightness']}))
+    inv=await s.selection_inventory('room')
+    await s.selections.patch('room',inv['revision'],{eid:'relevant'})
+    await tick()
    elif cmd['action']!='snapshot':raise ValueError('Invalid fixture command')
    cfg=await s.context.get('room')
    print(json.dumps({'view':await s.zone_presence_view('room'),'zones':[{k:v for k,v in z.items() if k!='revision'} for z in await s.zones.list()],'mode':(cfg.get(KEY)or{}).get('mode'),

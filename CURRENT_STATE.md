@@ -36,24 +36,27 @@ commits although trees match. Check fresh PR head/CI rather than reusing an old 
   supported capabilities, brightness bounds and manual-change holds are explicit.
   Restart retains cooldown but reacquires stability. Identity conflicts remain
   suspended until explicit review. Pure color/effect changes also trigger holds.
+- Group/member overlap, missing members and cycles are rejected. Known group members
+  are observed for availability/manual holds without becoming independent presence
+  inputs or output targets. Member identity/topology changes suspend only lighting.
 - Legacy partial savepoints cannot silently erase newer zone/presence/light module
   settings or owned bindings. Preview and transactional restore reject unsupported
   scope. Native app backup is still the complete recovery path; no ownership replay.
 
-Validation: 704 Python tests, 78 JS tests and 68 API contracts pass. All eleven
+Validation: 711 Python tests, 78 JS tests and 68 API contracts pass. All eleven
 browser suites passed; the maintenance suite passed again after the restore guard.
 Seven actual HA 2026.9.3 protocol scenarios pass in a disposable local instance.
-Final Python resource audit: 704 tests, subsequent garbage collection, zero ResourceWarnings.
+Final Python resource audit: 711 tests, subsequent garbage collection, zero ResourceWarnings.
 Red/green cases cover label/anchor races, helper metadata drift, disabled anchors,
 restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
 selected synthetic images are in docs/screenshots/habitus-setup-alpha72/.
 Skills home-assistant-struktur and pilotsuite-quality-release are maintained locally.
-Candidate 4fc9808 passed all five CI jobs in run 36659360740; its receipt is in PR #153.
-Continuation fixes one browser-only label filter: ordinary names beginning with
-"Habitus" remain selectable; only the six canonical roles are excluded. Reproduced
-red in the existing zone browser; complete zone browser and contracts passed after
-the fix. Actual mobile screenshot inspected. A new exact-head CI is required.
+Candidate c8f37e4 passed all five CI jobs in run 36660672269, including the corrected
+Habitus label filter. Current continuation adds the group safeguards above. Eight
+group cases initially failed; full Python/JS and extended zone browser are green.
+Screenshots and source diff are reviewed before updating the same PR. New exact-head
+CI is required after this correction; previous receipts remain in PR #153.
 
 ## Release boundary and actual backup finding
 
@@ -71,7 +74,7 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: verify the label-filter correction and new exact latest PR CI; obtain clean
+Next: finish group correction review and new exact latest PR CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation

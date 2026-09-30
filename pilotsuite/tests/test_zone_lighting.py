@@ -95,6 +95,53 @@ class ZoneLightingPolicyTests(unittest.TestCase):
         self.assertEqual('stabilizing',view['lights'][0]['status'])
 
 
+class ZoneLightingGroupTests(unittest.TestCase):
+    def setUp(self):
+        self.a='light.group_a';self.b='light.group_b';self.leaf='light.member'
+        self.catalog=[{'entity_id':eid,'platform':'group' if members else 'demo',
+            'unique_id':eid,'in_registry':True,'disabled':False,'member_entity_ids':members}
+            for eid,members in [(self.a,[self.leaf]),(self.b,[self.leaf]),(self.leaf,[])]]
+
+    def spec(self,targets):
+        return deepcopy(light.DEFAULTS)|{'lights':targets}
+
+    def test_overlapping_groups_and_members_cannot_receive_duplicate_proposals(self):
+        for targets in ([self.a,self.leaf],[self.a,self.b]):
+            with self.subTest(targets=targets),self.assertRaises(InvalidSelection):
+                light.validate_spec(self.spec(targets),self.catalog,set(targets))
+
+    def test_group_requires_known_stable_members_without_cycles(self):
+        for change in ('missing','disabled','unstable','empty','cycle'):
+            with self.subTest(change=change):
+                self.setUp()
+                if change=='missing':self.catalog.pop()
+                if change=='disabled':self.catalog[-1]['disabled']=True
+                if change=='unstable':self.catalog[-1]['unique_id']=None
+                if change=='empty':self.catalog[0]['member_entity_ids']=[]
+                if change=='cycle':self.catalog[-1]['member_entity_ids']=[self.a]
+                with self.assertRaises(InvalidSelection):
+                    light.validate_spec(self.spec([self.a]),self.catalog,{self.a})
+
+    def test_group_membership_and_identity_are_part_of_saved_basis(self):
+        spec=self.spec([self.a]);before=light.basis(spec,self.catalog,{})
+        self.catalog[-1]['unique_id']='replacement'
+        self.assertNotEqual(before,light.basis(spec,self.catalog,{}))
+        self.catalog[-1]['unique_id']=self.leaf
+        self.catalog[0]['member_entity_ids']=[self.b]
+        self.assertNotEqual(before,light.basis(spec,self.catalog,{}))
+
+    def test_nested_group_scope_is_bounded_and_disjoint(self):
+        self.catalog[0]['member_entity_ids']=[self.b]
+        self.assertEqual({self.a:[self.b,self.leaf]},light.target_members([self.a],self.catalog))
+        with self.assertRaises(InvalidSelection):
+            light.validate_spec(self.spec([self.a,self.leaf]),self.catalog,{self.a,self.leaf})
+        self.catalog=[{'entity_id':f'light.chain_{i}','platform':'group','unique_id':str(i),
+            'in_registry':True,'member_entity_ids':[f'light.chain_{i+1}']}
+            for i in range(light.MAX_LIGHT_SCOPE+1)]
+        with self.assertRaisesRegex(InvalidSelection,'500'):
+            light.target_members(['light.chain_0'],self.catalog)
+
+
 class ZoneLightingRuntimeTests(unittest.IsolatedAsyncioTestCase):
     asyncSetUp=runtime.ZonePresenceRuntimeTests.asyncSetUp
     asyncTearDown=runtime.ZonePresenceRuntimeTests.asyncTearDown
@@ -105,6 +152,54 @@ class ZoneLightingRuntimeTests(unittest.IsolatedAsyncioTestCase):
         spec=deepcopy(light.DEFAULTS)|{'lights':[LAMP],'daylight_source':LUX,'daylight_provenance':'outdoor','manual_entities':[OVERRIDE]}|changes
         response=await self.http.put('/api/v1/zones/room/lighting',json={'revision':inv['revision'],'mode':'compare','spec':spec})
         body=await response.json();self.assertEqual(200,response.status,body);return body
+
+    async def prepare_group(self):
+        self.member='light.member';self.other='light.other_member'
+        next(r for r in self.world['entities'] if r['entity_id']==LAMP)['platform']='group'
+        group=next(r for r in self.world['states'] if r['entity_id']==LAMP)
+        group['state']='on';group['attributes']['entity_id']=[self.member,self.other]
+        for eid,value in [(self.member,'off'),(self.other,'on')]:
+            self.world['entities'].append({'entity_id':eid,'platform':'demo','unique_id':eid,
+                'area_id':'room','disabled_by':None})
+            self.world['states'].append(state(eid,value,self.now,{'brightness':80}))
+        await self.tick(1,{SOURCE:'on'})
+        return await self.configure()
+
+    async def test_group_member_change_holds_group_without_changing_presence_or_relevance(self):
+        before=await self.prepare_group()
+        decisions=await self.service.selections.get('room')
+        self.assertNotIn(self.member,decisions['decisions'])
+        member=next(r for r in self.world['states'] if r['entity_id']==self.member)
+        old=deepcopy(member);self.now+=1
+        member.update(state(self.member,'on',self.now,member['attributes']))
+        await self.service._on_state_change({'entity_id':self.member,'old_state':old,'new_state':member})
+        result=await self.service.zone_presence_view('room')
+        row=result['lighting']['current']['lights'][0]
+        self.assertEqual(self.now+900,row['manual_until'])
+        self.assertEqual({},row['settings'])
+        self.assertEqual(before['current']['state'],result['current']['state'])
+        self.assertEqual([LAMP],[r['entity_id'] for r in result['lighting']['current']['lights']])
+        self.assertEqual(decisions,await self.service.selections.get('room'))
+        self.service.client.zone_output_service.assert_not_awaited()
+
+    async def test_unavailable_member_hides_group_proposals_without_changing_primary_presence(self):
+        await self.prepare_group()
+        result=await self.tick(1,{self.member:'unavailable'})
+        self.assertTrue(result['current']['valid'])
+        row=result['lighting']['current']['lights'][0]
+        self.assertEqual('input_unavailable',row['status']);self.assertEqual({},row['settings'])
+
+    async def test_group_member_replacement_suspends_only_lighting_until_review(self):
+        await self.prepare_group()
+        member=next(r for r in self.world['entities'] if r['entity_id']==self.member)
+        member['unique_id']='replacement'
+        result=await self.tick(1)
+        self.assertTrue(result['current']['valid'])
+        self.assertEqual('basis_changed',result['lighting']['status'])
+        self.assertIsNone(result['lighting']['current'])
+        member['unique_id']=self.member;result=await self.tick(1)
+        self.assertEqual('basis_changed',result['lighting']['status'])
+        result=await self.configure();self.assertEqual('current',result['lighting']['status'])
 
     async def test_configuration_preserves_primary_presence_deadline_and_other_context(self):
         await self.tick(1,{SOURCE:'on'});before=await self.tick(1,{SOURCE:'off'})

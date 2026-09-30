@@ -29,6 +29,11 @@ Feinparameter sind aufklappbar. Fehlende oder unklare Quellen ergeben keine
 Abschaltfreigabe. Die Vorschläge schalten nichts; aktive Lichtsteuerung und die
 Übernahme vorhandener Automationen sind noch nicht Bestandteil dieses Moduls.
 Der ältere Schattenvergleich ist dafür nicht erforderlich.
+Lichtgruppen und einzelne Mitglieder dürfen sich nicht überschneiden. Eine gewählte
+Gruppe umfasst die Beobachtung ihrer bekannten Mitglieder, nicht zusätzliche
+Präsenzquellen oder Schaltziele. Auch eine Änderung nur eines Mitglieds startet die
+Bedienpause. Unklare Mitglieder verhindern Vorschläge; geänderte Mitgliedschaft oder
+Identität erfordert erneute Prüfung. Unaufgelöste Gruppen werden begründet abgelehnt.
 
 ## Zoneninstanz: Präsenz, Daten & Ordnung
 
