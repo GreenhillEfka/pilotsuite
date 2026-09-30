@@ -62,6 +62,15 @@ class ZoneLightingPolicyTests(unittest.TestCase):
         self.presence={'state':'vacant','valid':True}
         _,view=self.step();self.assertEqual({},view['lights'][0]['settings'])
 
+    def test_color_only_and_effect_changes_also_start_manual_hold(self):
+        for key,value in [('hs_color',[120,50]),('xy_color',[0.3,0.2]),('rgbw_color',[20,30,40,50]),
+                          ('rgbww_color',[20,30,40,50,60]),('effect','colorloop'),('color_temp',300)]:
+            with self.subTest(attribute=key):
+                old=state(LAMP,'on',NOW,{'brightness':100})
+                new=state(LAMP,'on',NOW+1,{'brightness':100,key:value})
+                _,view=self.step(seconds=1,event={'entity_id':LAMP,'old_state':old,'new_state':new})
+                self.assertEqual(NOW+61,view['lights'][0]['manual_until'])
+
     def test_gap_or_restart_requires_new_stabilization(self):
         point,_=self.step()
         for kwargs in ({'seconds':31},{'seconds':10,'restart':True}):

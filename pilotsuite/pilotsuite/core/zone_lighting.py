@@ -89,7 +89,9 @@ def evaluate(spec, previous, states, presence, *, now, fresh, event=None, restar
             at = timestamp(new.get('last_updated'))
             def effect(row):
                 attrs = row.get('attributes') or {}
-                return (row.get('state'), attrs.get('brightness'), attrs.get('color_temp_kelvin'), attrs.get('rgb_color'))
+                return (row.get('state'), *(attrs.get(key) for key in ('brightness',
+                    'color_temp_kelvin','color_temp','rgb_color','hs_color','xy_color',
+                    'rgbw_color','rgbww_color','effect')))
             if (finite(at) and 0 <= now-at <= 15 and at > last_event.get(eid, -1) and
                     old.get('state') in ('on','off') and new.get('state') in ('on','off') and effect(old) != effect(new)):
                 holds[eid] = at + spec['manual_hold_seconds']; last_event[eid] = at

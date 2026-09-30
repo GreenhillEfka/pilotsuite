@@ -82,18 +82,23 @@ die konkrete Übernahme einer Haushaltssteuerung sind getrennte Schritte.
 - Lichtvergleich lokal verbunden: vorhandene Policy, dieselbe Zonenpräsenz und
   derselbe Tick/Checkpoint. Einstellbare Luxherkunft, Stimmung, Grenzen, Stabilität
   und Bedienpause; kein neuer Präsenzkern. Neustart erhält Mindestabstand,
-  Quellenkonflikte bleiben bis zur expliziten Prüfung ausgesetzt. 701 Python,
+  Quellenkonflikte bleiben bis zur expliziten Prüfung ausgesetzt. 702 Python,
   78 JS und 68 Verträge grün; erweiterter Zonenbrowser und sieben native HA-Fälle grün.
   Aktive Lichtausführung/Automationsübernahme bleibt offen; es existiert weiterhin
   kein Leuchten-Schreibpfad. Alle elf Browser-Suiten und die Ressourcenprüfung
   sind grün. Das Komponentenskript hat abweichend keinen `_browser`-Suffix;
   der erste Sammelaufruf wurde entsprechend korrigiert.
+  Eigenes Diff-Review ergänzte einen rot/grün belegten Schutz für reine Farb- und
+  Effektwechsel (HS/XY/RGBW/RGBWW/Effekt/Mireds), die ebenfalls die Bedienpause starten.
 - Nächster Schritt: vollständige Gates/Review, Version und sichere Auslieferung
   nach Runbook. Alpha.72 lokal vorbereitet, keine Veröffentlichung/Installation.
   Frische Sicherung `63f11346` enthält bestätigt nur PilotSuite Alpha.71 lokal;
   `backup/details` meldet jedoch Lesefehler zweier weiterer Synology-Agenten.
   Die verlangte leere `agent_errors`-Liste ist damit nicht bestätigt. Kein blindes
   erneutes Backup, keine Änderung der fremden Speicherorte oder stiller Gate-Verzicht.
+  Entwurfs-PR #153 ist gesichert; GitHub-Connector statt nicht angemeldetem CLI-Push.
+  Lokale Commits bleiben erhalten, der gefetchte Kandidatenbaum wurde identisch
+  geprüft. CI immer auf den neuesten Connector-Kandidaten beziehen; Main unverändert.
 
 Synthetische UI-Belege, keine Haushaltsbilder:
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),

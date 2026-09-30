@@ -18,7 +18,8 @@ replace generic extra confirmation; disabled anchors block replacement. 685 Pyth
 78 JS, 67 contracts and four affected browsers pass; new screenshots inspected.
 Light comparison is integrated into the primary presence tick/store, with explicit
 outdoor-lux provenance, bounded proposals and external-change holds. Restart
-cooldown and sticky identity conflicts have red/green regressions. 701 Python,
+cooldown and sticky identity conflicts have red/green regressions. Pure color/effect
+changes also receive a manual hold after a further six-case red/green check. 702 Python,
 78 JS and 68 contracts pass; extended zone browser and seven native HA cases pass.
 Active lighting/automation takeover and release/household acceptance remain open.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.

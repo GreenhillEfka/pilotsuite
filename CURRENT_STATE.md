@@ -52,19 +52,25 @@ explicit outdoor-lux provenance, bounded brightness/temperature proposals and a
 configurable hold after external light changes are visible in the zone editor.
 No second presence session or light actuator path. Restart preserves proposal
 cooldown; identity conflicts remain suspended until explicit reconfiguration.
-701 Python / 78 JS / 68 API contracts pass. Extended zone browser passes the light
+702 Python / 78 JS / 68 API contracts pass. Extended zone browser passes the light
 editor, unsaved/error retention and proposals without actuator calls. All eleven
 browser suites pass; complete resource audit reports no ResourceWarnings. Seven
 native HA protocol cases passed again. The component-browser launcher filename
 was corrected before completing the remaining suites; no product failure hidden.
 Active light control/automation takeover remains a separate unfinished capability,
 not implied by comparison settings, relevance, tags or app installation.
+Own diff review additionally reproduced missed HS/XY/RGBW/RGBWW/effect-only light
+changes. These now trigger the same conservative hold; six cases went red/green.
 Full exact-source release gates and actual household acceptance remain pending.
 Alpha.72 markers/changelogs prepared locally. Fresh partial backup `63f11346`,
 30 Sep 02:05:15 UTC, confirms only Alpha.71 PilotSuite, 54,528,000 bytes locally,
 no HA/database/folders or failed components. However native backup/details reports
 list failures for two unrelated Synology agents. The runbook's empty agent_errors
 gate is not met. No publication/installation; do not weaken that gate implicitly.
+Draft PR #153 secures the package. Git CLI has no push credentials; GitHub connector
+created an identical tree, verified by fetch and a zero diff. The original local
+commits remain on the existing branch. Exact PR CI is in progress; after each
+connector update fetch its SHA and compare trees rather than claiming commit identity.
 
 ## Completed package: PR #151
 
