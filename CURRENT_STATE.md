@@ -1,136 +1,72 @@
-# Current state — Alpha.72 candidate; Alpha.71 installed
+# Current state — Alpha.72 installed
 
-## Manual continuation after the overnight window
+## Delivery completed, 30.09.2026
 
-The timed assignment ended at 08:00 Europe/Berlin on 30.09.2026. The user then
-explicitly requested “weiter”. Continue the existing package directly in this
-thread; the expired heartbeat is now PAUSED. No new timed run, agent or checkout.
-Preserve untracked AGENTS.md. Priority remains zones/tags, presence and helpers/
-autolabeling, then lighting. Climate, media and learning follow. Household writes
-and the unresolved backup exception are not implied by this continuation.
-See docs/HABITUS_SETUP_PLAN.md and the existing release runbook.
+PR #153 is merged. Exact release main: `04c47bb0b99ccf34872e938bd0029b6cdac6e325`.
+Candidate `4306a924679f397d6e3c7ca9f511ade7ce1aed61` and release main passed all five
+CI jobs (36687732779 / 36690038477). Repository/app trees matched the tested local
+candidate. Receipt: docs/RELEASE_STATE.json; development ledger:
+docs/IMPLEMENTATION_STATUS.md and docs/HABITUS_SETUP_PLAN.md.
 
-Local branch: feat/habitus-zone-setup, based on e3e5dc2. Draft PR #153 is the only
-active PR. Git CLI has no write credentials; use the connected GitHub git-object
-API and a non-force ref update. Its candidate tree is fetched and compared exactly
-to local HEAD. Preserve the original local commits; their SHAs differ from connector
-commits although trees match. Check fresh PR head/CI rather than reusing an old SHA.
+The user requested “Bitte abschließen” after the stated backup exception blocker.
+This was treated as approval for that disclosed narrow exception, announced before
+release. Fresh native backup `e636bd76`, 30 Sep 08:28:34 UTC: only PilotSuite Alpha.71
+and data/options, 54,538,240 bytes on hassio.local, unprotected, no HA/database/
+folders and no failed components. Two additional Synology agents still failed to
+list backups. Their errors are retained in the receipt, not claimed resolved.
+No NAS/settings change, archive extraction or restore drill.
 
-## Implemented and tested locally
+One Store refresh offered Alpha.72 from the canonical repository. One targeted
+update completed; no separate restart/rebuild or other-app update. Native app
+metadata confirms Alpha.72 started, all four options unchanged. Startup mode is
+still presence_adoption_review; ready/stream/fresh/resolved confirmed. General
+Apply remains closed in the exact source; existing bounded paths are preserved.
+No independent installed-image attestation is claimed.
 
-- One zone editor combines physical areas, additional entities, existing device/
-  entity labels or a planned new zone label. Stable identities, Habitus roles,
-  membership and relevance save together in the existing SQLite transaction.
-- HA label changes reuse ontology/PlanStore. New label and member metadata share
-  one concrete reviewed plan. Actual returned IDs bind only after durable receipt
-  and independent readback. No replay after unknown creation without identity proof.
-  Metadata restore preserves the label itself and unrelated names/labels/locations.
-- Own presence helper packages include readable names/autolabeling and atomically
-  join the zone structure. Fresh device/registry, disabled anchors, shared roles,
-  manual edits and cumulative partial receipts are checked. No HA-wide atomic
-  compare-and-swap guarantee is claimed.
-- Visible setup steps lead to the existing editors. Verified stable members can
-  prefill empty existing bindings, never overwrite drafts. Explicit save replaces
-  generic extra confirmation. Own publication effects/target are shown inline.
-- Configurable live light comparison consumes the primary zone presence and the
-  existing lighting policy in the same tick/operational store. Outdoor-lux origin,
-  supported capabilities, brightness bounds and manual-change holds are explicit.
-  Restart retains cooldown but reacquires stability. Identity conflicts remain
-  suspended until explicit review. Pure color/effect changes also trigger holds.
-- Group/member overlap, missing members and cycles are rejected. Known group members
-  are observed for availability/manual holds without becoming independent presence
-  inputs or output targets. Member identity/topology changes suspend only lighting.
-- Legacy partial savepoints cannot silently erase newer zone/presence/light module
-  settings or owned bindings. Preview and transactional restore reject unsupported
-  scope. Native app backup is still the complete recovery path; no ownership replay.
+## Installed capability
 
-Validation: 719 Python tests, 78 JS tests and 68 API contracts pass. All eleven
-browser suites passed; the maintenance suite passed again after the restore guard.
-Seven actual HA 2026.9.3 protocol scenarios pass in a disposable local instance.
-Final Python resource audit: 719 tests, subsequent garbage collection, zero ResourceWarnings.
-Red/green cases cover label/anchor races, helper metadata drift, disabled anchors,
-restart cooldown, sticky identity conflicts, six color/effect forms and omitted
-savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
-selected synthetic images are in docs/screenshots/habitus-setup-alpha72/.
-Skills home-assistant-struktur and pilotsuite-quality-release are maintained locally.
-Candidate 351283e passed all five CI jobs in run 36665786791, including saved-output
-feedback protection and all eleven browsers/seven native HA cases. The source guard
-covers saved structure anchors, organization outputs and owned package identities,
-including unresolved or renamed identities. Defaults omit them; explicit configuration
-and runtime reject feedback. Read-only comparison remains possible. Legacy source
-configurations stay visible for explicit correction, never silently rewritten.
+- One zone editor combines physical HA areas, additional entities and existing
+  device/entity labels or a planned new label. Membership, stable identities,
+  roles and analysis relevance save together in the existing store.
+- New labels and member metadata use one concrete existing plan with fresh conflict
+  checks, durable receipts, independent readback and bounded rollback. Physical
+  locations and foreign metadata remain protected.
+- Own presence output packages include readable names/autolabeling and join the
+  zone structure. Existing anchors, disabled identities and competing roles are
+  checked. Failed readback does not authorize duplicate creation.
+- Setup steps lead to existing editors; verified suggestions fill only empty
+  bindings. Whole-zone/module pause and publication effects are explicit.
+  Missing saved sources remain visible until deliberate correction; cancel
+  preserves them. Empty/support-only source sets explain missing direct coverage.
+- Light comparison uses the primary presence and existing policy/store. It has
+  explicit outdoor-lux provenance, bounded proposals, group coverage checks,
+  durable manual holds and restart cooldown. Named blockers and daylight validity
+  are explained. Identity conflicts require review.
+- Older partial savepoints cannot erase newer zone/presence/light settings or
+  owned bindings. Native app backup remains the complete recovery path.
 
-Label-guidance candidate b9b2772 passed all five jobs in run 36666545782. Fixed
-bindings, missing label identities, pending imports and actual conflict causes are
-visible while drafts remain intact. The next review adds a read-only identity view
-to the existing structure API, using Organization's resolver. Renamed, disabled or
-unresolved saved members are explained in the same editor, without rebinding or
-replacement. Structure and relevance load from the canonical store when opening;
-mismatched revisions reject the draft. Identity matching describes the cached HA
-registry, not current device state. Six API cases reproduced missing diagnostics;
-718 Python tests, 78 JS tests, 68 contracts and both affected browsers pass. Actual
-mobile/desktop screenshots inspected. New exact CI closure belongs in PR #153.
+Validation: 719 Python tests, 78 JS tests, 68 API contracts, eleven browser suites,
+seven native HA 2026.9.3 protocol scenarios and amd64 build. Relevant errors were
+reproduced before fixes; actual mobile/desktop light/dark screenshots inspected.
+Local final Python garbage collection had zero ResourceWarnings. Both project
+skills are maintained and validated. Exact completion receipts are in PR #153.
 
-Member-identity candidate 5b59d4c passed all five CI jobs (36667558353). The light
-comparison now explains each existing daylight validity gate and names configured
-manual blockers with their actual state. No policy, store or write authority changes.
-Nine initially failing diagnostic cases pass; 719 Python/78 JS tests, 68 contracts
-and the extended zone browser pass. Open details and keyboard focus survive passive
-refresh. Missing values withhold proposals; recovery reacquires stability. Actual
-390/1440 screenshots inspected in /private/tmp/habitus-light-diagnostics-ui/.
-Final Python garbage collection emitted no ResourceWarnings. Light-diagnostic
-candidate 8a48e8d passed all five jobs in run 36668689077; the exact receipt is in
-PR #153. Local 1520ce9 and remote 8a48e8d have identical source trees.
+## Remaining acceptance and next step
 
-The manually requested continuation fixes incomplete presence editors. Saved inputs
-missing from the selectable catalog remain visible and selected, block saving and
-require explicit removal or correction of membership/relevance/registry state.
-Cancel preserves the full saved spec. Empty or support-only selection explains the
-required direct source before saving. These are UI checks of existing server rules;
-no source, mode, helper or HA control is changed by opening the editor.
-Both failures were reproduced in the existing browser suite; the extended full
-zone flow, 78 JS tests and 68 contracts pass. Actual 390/1440 screenshots inspected
-in /private/tmp/habitus-incomplete-presence-ui/. Python code is unchanged from the
-719-test candidate. New exact CI remains required. Both local skills were updated
-and validated; the expired automation is confirmed PAUSED.
+No authenticated household Ingress session was available. Real saved bindings
+and preservation of all four household zones remain to be observed there; runtime
+readiness and synthetic UI tests do not prove that acceptance. Existing HA-chain
+inspection found coupled status/timer/light logic and unevaluated template limits.
+Private evidence is in ignored pilot_data/reviews, not public documentation.
 
-## Release boundary and actual backup finding
+Next: read-only Erdkellerbereich and one unlike zone in authenticated Ingress;
+compare areas/tags, independent sources and existing status/timer/automation
+bindings before household import/apply. Then review genuinely missing helpers.
+No household helpers/labels/bindings, automations or learning grants were changed.
+Active light actuation and automation takeover remain unimplemented. Climate,
+media and pattern recognition follow a household-accepted foundation.
 
-Alpha.72 version markers and both changelogs are prepared. No merge to main, Store
-refresh, update, household helper/label apply, binding or control change occurred.
-The installed/offered app is Alpha.71, started, auto_update=true. Its four option
-values compare unchanged after backup; fresh logs show ready, connected, fresh and
-zone-resolved. Log timestamps are copied as emitted, not independently attested.
-
-Fresh partial backup 63f11346 was created 30 Sep 02:05:15 UTC. Native list/details
-confirm only PilotSuite Alpha.71, 54,528,000 bytes on hassio.local, unprotected,
-no HA/database/folders, and no failed addons/agents/folders. However backup/details
-also reports listing failures for two unrelated Synology agents. The runbook's
-explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup,
-NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
-Native app recovery is available in principle; no extraction or restore drill done.
-
-Next: finish the incomplete-presence editor correction and its exact CI; obtain clean
-native backup confirmation or the pending explicit user decision on the narrow
-local-backup exception. The question was asked; no answer has arrived yet.
-Only then may release/main CI, Store/source matching and targeted installation
-proceed under a current release authorization. Update the release receipt only after
-actual verified delivery. Prior Alpha.71 receipt remains in RELEASE_STATE.json.
-
-## Boundaries and remaining work
-
-Active light actuation and automation takeover are not implemented by the new
-comparison module. No second presence engine, new actor executor, learning grant,
-auth/Ingress weakening or household test switching. Existing HA automations remain
-responsible. Relevant means analysis, not control.
-
-No authenticated household Ingress session is available. Four-zone preservation
-and changed flows are synthetically tested, not household-accepted. Actual zone
-assignments must be read and verified before live import/apply. Erdkellerbereich's
-existing chain and an unlike zone are the concrete next acceptance cases; previously
-observed off/idle states and transition-free history do not prove physical vacancy,
-correct timer expiry or a safe control handover.
-
-Historical release and performance evidence: RELEASE_STATE.json, IMPLEMENTATION_STATUS.md
-and ROADMAP.md. Alpha.71 was delivered through PR #151; main e3e5dc2 includes the
-subsequent receipt PR #152. Do not repeat that installation or revive older paused runs.
+The overnight deadline ended. Its heartbeat is confirmed PAUSED; no new timed
+loop or task. Preserve untracked AGENTS.md and the original local feature commits.
+The documentation receipt uses docs/alpha72-release-receipt from release main;
+no further feature package or household changes are part of this closure.

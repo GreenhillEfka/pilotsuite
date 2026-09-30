@@ -1,9 +1,22 @@
-# PilotSuite capability ledger — Alpha.71 installed
+# PilotSuite capability ledger — Alpha.72 installed
 
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
-Unreleased work on `feat/habitus-zone-setup`, 30.09.2026: zone-label import with
+Alpha.72 installed on 30.09.2026 after PR #153, exact candidate/main CI
+(36687732779 / 36690038477), fresh scoped backup e636bd76 and one targeted update.
+Four options and presence_adoption_review unchanged; started/ready/stream/fresh/
+resolved confirmed. The receipt records the narrowly accepted Synology listing
+exception without claiming those agents healthy. No household import/apply,
+actuation or takeover. Authenticated household Ingress acceptance remains open.
+719 Python/78 JS tests, 68 API contracts, eleven browsers and seven native HA
+scenarios passed; full details in RELEASE_STATE.json and CURRENT_STATE.md.
+
+Historical development evidence for the now delivered `feat/habitus-zone-setup`
+package follows. “Local”, “unreleased” and pending-CI statements below describe
+their respective checkpoints, superseded by the delivery receipt above.
+
+Development on `feat/habitus-zone-setup`, 30.09.2026: zone-label import with
 device inheritance, one-save structure/relevance, role editor and explicit batch
 label synchronization through the existing metadata plans. Connected own helper
 packages include readable names/autolabeling with durable readback and cumulative

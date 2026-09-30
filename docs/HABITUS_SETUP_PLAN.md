@@ -12,6 +12,17 @@ Die folgenden Zeitgrenzen dokumentieren den beendeten Nachtauftrag. Bestehende
 Haushalts- und Release-Grenzen gelten weiter; die offene Backup-Ausnahme ist nicht
 beantwortet. Aktueller Arbeitsstand: CURRENT_STATE.md, exakte CI-Belege in PR #153.
 
+## Auslieferungsabschluss
+
+Mit „Bitte abschließen“ beauftragte der Nutzer den Abschluss nach Benennung der
+lokalen Backup-Ausnahme. PR #153 ist gemergt, Alpha.72 installiert und gesund.
+Exakte Kandidaten-/Main-CI: 36687732779 / 36690038477, alle fünf Jobs grün.
+Frische PilotSuite-only-Sicherung e636bd76; Synology-Listenfehler ausdrücklich als
+enge Ausnahme dokumentiert, ohne NAS-Konfigurationsänderung. Ein Store-Refresh,
+ein gezieltes Update, vier Optionen/Betriebsmodus unverändert. Verbindlicher Beleg:
+[RELEASE_STATE.json](RELEASE_STATE.json). Die folgende Chronik bewahrt frühere
+Zwischenstände; fehlende Haushaltsabnahme und aktive Lichtausführung bleiben offen.
+
 ## Ziel und Reihenfolge
 
 1. Zonenerstellung aus physischen HA-Bereichen und vorhandenen Zonenlabels in
@@ -215,9 +226,9 @@ Beide Skills gepflegt/validiert. Exakte Folge-CI im PR; keine Auslieferung behau
 
 ## Übergabepunkte für die Fortsetzung
 
-- Aktueller Kandidat und exakte CI: bestehender PR #153 und CURRENT_STATE.md.
+- Ausgelieferter Stand und exakte CI: PR #153, RELEASE_STATE.json und CURRENT_STATE.md.
   Lokale/Connector-Commit-IDs unterscheiden sich bei gleichem geprüftem Quellbaum.
-  Alpha.72 ist vorbereitet; Alpha.71 bleibt installiert. AGENTS.md unverändert lassen.
+  Alpha.72 ist installiert; nicht erneut updaten. AGENTS.md unverändert lassen.
 - Python: `/private/tmp/pilotsuite-test-env.saaFlP/bin/python`, `PYTHONPATH=pilotsuite`.
   Browserbibliothek: `/Users/andreas/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright`.
   `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/pilotsuite-browsers`; `PYTHON` wie oben.

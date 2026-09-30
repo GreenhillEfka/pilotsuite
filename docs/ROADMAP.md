@@ -5,17 +5,17 @@
 Der befristete Auftrag endete um 08:00 Europe/Berlin. Der Nutzer hat danach mit
 „weiter“ die direkte Fortsetzung beauftragt; der alte Heartbeat ist pausiert. Zuerst Zone/Tags mit
 einem gemeinsamen Einrichtungsweg; dann Präsenz und Helfer/Sensoren mit Autolabeling;
-darauf Licht. Klima, Multimedia und Mustererkennung sind nachgelagert. Der aktive
-Branch ist `feat/habitus-zone-setup`; [Umsetzungsplan](HABITUS_SETUP_PLAN.md) und
+darauf Licht. Klima, Multimedia und Mustererkennung sind nachgelagert. Das Paket
+`feat/habitus-zone-setup` ist über PR #153 als Alpha.72 ausgeliefert; [Umsetzungsplan](HABITUS_SETUP_PLAN.md) und
 CURRENT_STATE.md haben für dieses Paket Vorrang vor den abgeschlossenen Fenstern
 der folgenden Chronik. Die alte Beschränkung auf einen rein lesenden nächsten
 Entwicklungsschritt gilt nicht für den jetzt beauftragten Implementierungsumfang.
 Prüfung/Installation und konkrete Haushalts-Steuerungsübernahme bleiben getrennt.
-Lokal umgesetzt sind Zonen-/Labelimport und Abgleich, neue Labelanlage samt
+Installiert sind Zonen-/Labelimport und Abgleich, neue Labelanlage samt
 Mitgliedslabels, Autolabeling eigener Helfer sowie der geführte Präsenzanschluss.
 Das Lichtmodul muss dieselbe primäre Präsenz und vorhandene Lichtpolicy verwenden;
 der ältere Schattenvergleich darf dafür keine zweite Präsenzsitzung starten.
-Dieser Vergleich ist jetzt lokal angeschlossen, einschließlich Gruppenabdeckung,
+Dieser Vergleich ist jetzt in Alpha.72 angeschlossen, einschließlich Gruppenabdeckung,
 Mitgliedsänderungen und Bedienpausen. Aktive Ausführung bleibt ein weiterer Schritt
 mit geklärter Steuerungsverantwortung; kein zweiter Präsenz- oder Ausführungskern.
 

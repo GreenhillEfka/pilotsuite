@@ -29,25 +29,19 @@ edit/enable/disable automations, activate outputs, transfer control or grant lea
 
 ## Current continuation
 
-The 30.09.2026 timed Habitus setup assignment ended at 08:00 Europe/Berlin.
-The user subsequently requested “weiter”: continue the existing implementation
-package directly in this thread. The expired heartbeat is PAUSED; do not revive
-it or create another timed loop, chat, agent or checkout.
-Use `feat/habitus-zone-setup` / draft PR #153 and `docs/HABITUS_SETUP_PLAN.md`.
-Keep progressing through zone/tag setup, presence/helper autolabeling and then
-lighting. Climate, multimedia and pattern recognition follow the foundation.
-CURRENT_STATE.md owns current progress; PR #153 holds exact candidate CI receipts.
-Alpha.72 is developed/tested, while Alpha.71 remains installed. The latest “weiter”
-is not the pending narrow backup-agent exception or a household-control handover.
-Existing zones, identities and HA control remain intact during development.
+Alpha.72 from PR #153 is installed and healthy, after exact candidate/main CI,
+fresh PilotSuite-only backup and one targeted update. CURRENT_STATE.md and
+RELEASE_STATE.json own the actual receipt and the narrow backup-list exception.
+The user requested “Bitte abschließen”; delivery closure changes no household
+bindings, control or learning permissions. The night heartbeat is PAUSED.
 
-Alpha.70 followed PR #149; PR #150 recorded its delivery. PR #151 delivered
-Alpha.71 single Boolean/timer creation through existing transactions, without
-assignment or automation wiring. Exact candidate/main CI, scoped backup, installation
-and runtime are verified. CURRENT_STATE.md owns fresh progress; the receipt
-plus live HA metadata owns installation, never a version marker or old narrative.
+The implemented flow covers areas/tags, stable members and roles, explicit metadata
+plans, presence/helper autolabeling and the primary-presence light comparison.
+Active light actuation, automation takeover and household Ingress acceptance remain
+open. Prior version receipts and implementation history remain in Git/ledger.
 
-Next household acceptance is read-only authenticated Ingress for Erdkellerbereich
-and an unlike zone. No authorized browser is currently available. Prior HA-MCP
-states/history did not show a transition and do not prove wiring or safe takeover.
-Legacy APIs/settings remain readable; require tested migration before removal.
+Next is authenticated read-only Ingress acceptance of Erdkellerbereich and one
+unlike zone. No authenticated browser session was available for the release.
+Verify actual saved bindings before household import/apply. Synthetic tests and
+runtime readiness are not proof of household wiring or safe control handover.
+Do not reinstall Alpha.72, reactivate the heartbeat or create extra agents/tasks.
