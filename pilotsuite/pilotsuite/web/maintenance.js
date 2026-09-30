@@ -99,7 +99,7 @@
     clearPreview(); lock(true);
     try {
       await api('api/v1/maintenance/savepoints',{label:byId('savepoint-label').value});
-      lock(false); await refresh(); show('Konfigurations-Speicherpunkt angelegt und geprüft. Kein vollständiges HA-Backup.');
+      lock(false); await refresh(); show('Konfigurations-Speicherpunkt angelegt und geprüft. Enthält Auswahl und ältere Rollen, keine vollständigen Zonenlabel-/Präsenz-/Lichtmodule. Für diese die native PilotSuite-App-Sicherung verwenden.');
     } catch (error) { show(error.message); lock(false); }
   });
   byId('restore-confirm').addEventListener('change',()=>lock(busy));

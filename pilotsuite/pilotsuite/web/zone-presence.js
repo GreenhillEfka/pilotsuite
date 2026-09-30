@@ -50,6 +50,7 @@
      const configure=B('PilotSuite-Bewertung konfigurieren',openEditor);configure.id='ps-zone-configure';
      const refresh=B('Aktualisieren',()=>read());refresh.id='ps-zone-refresh';
      tools.append(configure,refresh,B('Sensordaten & Verläufe',openHistory),B('Entitäten → Ontologie',openOntology));
+     const sync=B('Zonenlabels abgleichen',prepareStructure);sync.id='ps-structure-sync';tools.append(sync);
      const helperOptions=E('details');helperOptions.id='ps-helper-options';helperOptions.append(E('summary','Fehlende Helfer · Möglichkeiten prüfen'));
      helperOptions.append(E('p','Zuerst vorhandenen Boolean, Timer und Präsenzsensor verbinden. Ein fehlender oder nicht erreichbarer zugeordneter Helfer wird nicht automatisch ersetzt.'));
      const single=B('Einzelnen fehlenden Helfer vorbereiten',prepareMissingHelper);single.id='ps-helper-single';helperOptions.append(single);
@@ -57,10 +58,12 @@
      const prepare=B('Eigenen Anwesenheitssensor vorbereiten',preparePackage);prepare.id='ps-zone-prepare';helperOptions.append(prepare);tools.append(helperOptions);
    }
    tools.querySelector('#ps-zone-prepare').hidden=!!data.package;
+   tools.querySelector('#ps-structure-sync').hidden=!contextData?.config?.zone_structure;
    tools.querySelector('#ps-helper-options').hidden=!!data.package;
    const horizontal=output.querySelector('.ps-zone-scroll')?.scrollLeft||0;
    const openSources=output.querySelector('[data-ps-live=sources]')?.open||false;
    const openTrace=output.querySelector('[data-ps-live=trace]')?.open||false;
+   const openLightInputs=output.querySelector('[data-ps-live=lighting-inputs]')?.open;
    const openReview=output.querySelector('[data-ps-live=existing-review]')?.open??true;
    const openCalculation=output.querySelector('[data-ps-live=calculation]')?.open||false;
    const focusedLive=output.contains(document.activeElement)?document.activeElement.closest('[data-ps-live]')?.dataset.psLive:null;
@@ -91,6 +94,7 @@
      comparison.append(E('summary','PilotSuite-Vergleich & eigenes Ausgangspaket'),E('p','Unabhängige Bewertung, kein Ersatz für die Bestandsmeldung. Diese Zeiten verändern den HA-Nachlauf nicht.','ps-muted'));
      const values=E('div','','ps-presence-summary');addCalculation(values);comparison.append(values);output.append(comparison);
    }
+   renderLighting(openLightInputs);
    const missing=d?.sources?.filter(s=>s.required&&!s.usable)||[];
    if(missing.length)output.append(E('p',`${missing.length} erforderliche Quelle(n) derzeit nicht nutzbar. Eine Datenlücke ist kein Freibeleg. Die PilotSuite-Bewertung berücksichtigt diese Quellenkombination; sie erklärt nicht automatisch die HA-Bestandslogik.`,'ps-warning'));
    if(d){const table=E('table','','ps-zone-source-table');const header=E('tr');for(const text of ['Quelle','Signaltyp','Zustand','Meldealter','Indirekte Frist'])header.append(E('th',text));table.append(header);
@@ -106,6 +110,73 @@
       if(focusedLive)output.querySelector(`[data-ps-live="${focusedLive}"] summary`)?.focus({preventScroll:true});
    }
    note(summary.state==='Pausiert'?'PilotSuite-Bewertung pausiert. Eine vorhandene HA-Steuerung läuft davon unabhängig.':'Relevant erlaubt Live- und verfügbare Historienauswertung. Änderungen in Home Assistant brauchen eine eigene Bestätigung.');
+ }
+ function renderLighting(openInputs){
+   const light=data.lighting;if(!light)return;
+   const section=E('section');section.id='ps-zone-lighting';section.append(E('h3','Licht · laufender Vergleich'));
+   const labels={not_configured:'Noch nicht eingerichtet',paused:'Pausiert',basis_changed:'Zuordnung geändert · erneut prüfen',configuration_required:'Konfiguration prüfen',current:'Vergleich eingerichtet'};
+   section.append(E('p',labels[light.status]||'Unklar'),E('p','Nutzt dieselbe PilotSuite-Präsenz. Bestehende Lichtautomationen bleiben zuständig; hier wird keine Leuchte geschaltet.','ps-muted'));
+   const configure=B('Lichtvergleich konfigurieren',openLightingEditor);configure.id='ps-lighting-configure';configure.disabled=busy;section.append(configure);
+   if(light.current){
+     const d=light.current,manual=d.manual_sources||[],blocked=manual.filter(row=>row.state!=='off');
+     const known=id=>data.catalog.find(row=>row.entity_id===id)?.name||id;
+     const daylightReasons={valid:'Bestätigte Außenmessung',not_configured:'Keine Tageslichtquelle gewählt',
+       provenance_unconfirmed:'Herkunft der Luxmessung noch ungeklärt',connection_unconfirmed:'HA-Verbindung nicht bestätigt',
+       time_unknown:'Zeitbezug der Luxmessung unklar',stale:'Luxmessung zu alt',unit_invalid:'Einheit der Luxmessung ungültig',
+       value_invalid:'Luxwert fehlt oder ist ungültig'};
+     section.append(E('p',`Präsenz: ${state(d.presence_state)} · Tageslicht: ${d.daylight.status==='valid'?fmt(d.daylight.value)+' lx':'unklar'}`+
+       (blocked.length?` · ${blocked.length} manuelle Sperre(n) aktiv oder ungeklärt`:'')),E('small','Bewertet: '+date(d.observed_at)));
+     const inputs=E('details');inputs.id='ps-lighting-inputs';inputs.dataset.psLive='lighting-inputs';
+     inputs.open=openInputs??(d.daylight.status!=='valid'||blocked.length>0);
+     inputs.append(E('summary','Tageslicht & manuelle Sperren'),
+       E('p','Luxquelle: '+(known(d.daylight.entity_id)||'keine gewählt')),
+       E('p',(daylightReasons[d.daylight.status]||'Tageslicht nicht beurteilbar')+` · Meldealter: ${fmt(d.daylight.age_seconds)} s · Grenze: ${fmt(light.spec.max_age_seconds)} s`));
+     if(manual.length){const list=E('ul');for(const row of manual)list.append(E('li',`${known(row.entity_id)}: ${state(row.state)} · `+
+       (row.state==='off'?'keine Sperre':row.state==='on'?'Vergleich gesperrt':'Status ungeklärt; Vergleich bleibt gesperrt')));inputs.append(list);}
+     else inputs.append(E('p','Keine zusätzliche manuelle Sperrquelle zugeordnet. Lichtänderungen lösen weiterhin die Bedienpause aus.','ps-muted'));
+     section.append(inputs);
+
+     for(const row of d.lights){
+       const card=E('article','','ps-zone-source-edit');card.append(E('h4',data.catalog.find(r=>r.entity_id===row.entity_id)?.name||row.entity_id),E('p',row.reason));
+       if(row.manual_until)card.append(E('p','Bedienung oder fremde Lichtänderung · Pause bis '+date(row.manual_until)));
+       const s=row.settings||{};
+       if(Object.keys(s).length)card.append(E('strong','Vorschlag: '+(s.on===false?'Ausschalten':'Einschalten')+(typeof s.brightness_pct==='number'?' · '+fmt(s.brightness_pct)+' %':'')+(s.color_temp_kelvin?' · '+s.color_temp_kelvin+' K':'')));
+       section.append(card);
+     }
+   }else if(light.mode==='compare')section.append(E('p','Noch keine aktuelle belastbare Lichtbewertung. Eine Datenlücke bedeutet weder dunkel noch frei.','ps-warning'));
+   output.append(section);
+ }
+ function openLightingEditor(){
+   if(!data?.lighting||busy||editing)return;startEditor('Licht auf der Zonenpräsenz aufbauen');
+   const form=E('form');form.id='ps-zone-lighting-form';const values=data.lighting.spec,candidates=data.lighting.candidates;
+   const known=id=>data.catalog.find(r=>r.entity_id===id)?.name||id;
+   const missing=new Set([...values.lights,...values.manual_entities,...(values.daylight_source?[values.daylight_source]:[])].filter(id=>!data.catalog.some(r=>r.entity_id===id)));
+   if(missing.size)form.append(E('p','Gespeicherte Quellen fehlen: '+[...missing].join(', ')+'. Auswahl ausdrücklich korrigieren.','ps-warning'));
+   form.append(E('p','Speichern richtet ausschließlich den laufenden Vergleich ein. Vor aktiver Lichtsteuerung müssen vorhandene Schreiber und die Übernahme konkret geprüft werden.','ps-muted'));
+   const mode=select([['compare','Laufend vergleichen'],['paused','Lichtvergleich pausieren']],data.lighting.mode==='paused'?'paused':'compare');
+   form.append(labelled('Lichtmodus',mode));
+   const choices=(title,ids,selected,parent=form)=>{const set=new Set(selected),box=E('fieldset'),items=E('div','','ps-zone-data-choices'),inputs=[];box.append(E('legend',title),items);
+     for(const id of [...new Set([...ids,...selected])]){const input=E('input');input.type='checkbox';input.value=id;input.checked=set.has(id);inputs.push(input);const label=E('label');label.append(input,document.createTextNode(known(id)+(ids.includes(id)?'':' · nicht mehr verfügbar')));items.append(label);}
+     parent.append(box);return inputs;};
+   const lights=choices('Leuchten · höchstens 20',candidates.lights,values.lights.length?values.lights:(contextData?.config?.roles?.light||[]).filter(id=>candidates.lights.includes(id)));
+   form.append(E('p','Gruppen oder einzelne Leuchten wählen, ohne Überschneidung. Bei Gruppen werden bekannte Mitglieder mitbeobachtet: ihre Änderungen lösen die Bedienpause aus, unklare Mitglieder halten den Vergleich an.','ps-muted'));
+   const daylight=select([['','Keine bestätigte Tageslichtquelle'],...[...new Set([...candidates.daylight,...(values.daylight_source?[values.daylight_source]:[])])].map(id=>[id,known(id)+(candidates.daylight.includes(id)?'':' · nicht mehr verfügbar')])],values.daylight_source||'');
+   const provenance=select([['unconfirmed','Herkunft noch ungeklärt'],['outdoor','Außenlicht ohne Eigenlicht der Leuchten']],values.daylight_provenance);
+   form.append(labelled('Tageslichtquelle',daylight),labelled('Herkunft der Luxmessung',provenance),E('p','Innen-Lux ist durch Eigenlicht beeinflusst. Nur eine tatsächlich geeignete Außenmessung bestätigen; unklare Herkunft liefert keine Helligkeitsvorschläge.','ps-muted'));
+   const manualOptions=E('details');manualOptions.open=values.manual_entities.length>0;manualOptions.append(E('summary','Zusätzliche manuelle Sperren · optional'));form.append(manualOptions);
+   const manual=choices('An oder unklar hält den Vergleich an',candidates.manual,values.manual_entities,manualOptions);
+   const atmosphere=select([['neutral','Neutral'],['focus','Konzentriert'],['relax','Entspannt'],['social','Gesellig'],['movie','Film']],values.atmosphere);
+   const off=E('input');off.type='checkbox';off.checked=values.off_when_vacant;
+   form.append(labelled('Lichtstimmung',atmosphere),labelled('Bei bestätigter freier Zone Ausschalten vorschlagen',off));
+   const fields={};const grid=E('div','','ps-zone-form-grid'),fine=E('details'),fineGrid=E('div','','ps-zone-form-grid');fine.append(E('summary','Feinabstimmung · Stabilität und Messalter'),fineGrid);
+   for(const [key,title,min,max] of [['minimum_pct','Minimale Helligkeit (%)',0,100],['maximum_pct','Maximale Helligkeit (%)',0,100],['manual_hold_seconds','Pause nach Lichtänderung (s)',30,86400],['max_age_seconds','Maximales Lux-Meldealter (s)',30,86400],['stable_seconds','Helligkeit stabil für (s)',1,3600],['minimum_interval','Abstand zwischen Vorschlägen (s)',1,3600],['deadband','Mindestabweichung (%-Punkte)',1,100],['maximum_step','Maximaler Helligkeitsschritt (%-Punkte)',1,100]]){
+     const input=number(values[key],min,max);fields[key]=input;(['minimum_pct','maximum_pct','manual_hold_seconds'].includes(key)?grid:fineGrid).append(labelled(title,input));
+   }form.append(grid,fine,E('p','Bedienung und fremde Automation sind anhand einer Lichtänderung nicht immer unterscheidbar. Beide lösen die eingestellte Pause aus. Unklarer Status erzeugt keinen Ausschaltvorschlag.','ps-muted'));
+   const submit=E('button','Lichtvergleich speichern');submit.type='submit';form.append(submit,B('Verwerfen',cancel));
+   form.addEventListener('submit',event=>{event.preventDefault();save(async()=>{
+     const spec={...Object.fromEntries(Object.entries(fields).map(([key,input])=>[key,Number(input.value)])),lights:lights.filter(i=>i.checked).map(i=>i.value),manual_entities:manual.filter(i=>i.checked).map(i=>i.value),daylight_source:daylight.value||null,daylight_provenance:provenance.value,atmosphere:atmosphere.value,off_when_vacant:off.checked};
+     const next=await api('lighting','PUT',{revision,spec,mode:mode.value});editing=false;data=next;revision=next.revision;editor.replaceChildren();render();
+   });});editor.append(form);mode.focus();form.scrollIntoView({block:'start'});editingChanged();
  }
  function renderExisting(openReview){
    const existing=data.existing,labels=window.PilotSuiteZonePresenceModel.existing(existing);
@@ -185,7 +256,10 @@
    controls.append(labelled('Nachlauf (s)',grace),labelled('Stabile Freiphase (s)',clear),labelled('Maximale Nutzungsstützung (s)',support),labelled('Betriebsmodus',mode),labelled('Zusätzlicher Vergleichsstatus (nur lesen)',comparison));form.append(controls);
    form.append(E('p','Die Zeiten hier gelten nur für die eigene PilotSuite-Bewertung. Bestehende Automationen und deren Timer werden dadurch nicht verändert. Für Boolean, Timer und öffentlichen Sensor „Vorhandenen Bestand verbinden“ nutzen.','ps-muted'));
    form.append(E('p','Ein ausgeschalteter Ereignissensor ist nicht allein wegen fehlender Zustandswechsel veraltet. Meldealter 0 nutzt seinen gültigen HA-Zustand; periodische Quellen können eine Altersgrenze erhalten.','ps-muted'));
-   const selected=new Map(values.sources.map(s=>[s.entity_id,s]));const candidates=data.catalog.filter(e=>selected.has(e.entity_id)||e.entity_id.startsWith('binary_sensor.')||e.entity_id.startsWith('media_player.'));
+   const selected=new Map(values.sources.map(s=>[s.entity_id,s]));const candidates=data.catalog.filter(e=>selected.has(e.entity_id)||!e.presence_input_excluded&&(e.entity_id.startsWith('binary_sensor.')||e.entity_id.startsWith('media_player.')));
+   for(const eid of selected.keys())if(!candidates.some(e=>e.entity_id===eid))candidates.push({entity_id:eid,name:eid,presence_input_missing:true});
+   const excluded=data.catalog.filter(e=>e.presence_input_excluded);
+   if(excluded.length)form.append(E('p','Bekannte Ausgänge sind keine Präsenzquellen: '+excluded.map(e=>e.name||e.entity_id).join(', ')+'. Ein zusätzlicher Vergleich liest nur den Status.','ps-muted'));
    const inputs=[];const filter=E('input');filter.type='search';filter.placeholder='Quellen suchen';filter.setAttribute('aria-label','Präsenzquellen suchen');form.append(filter);
    const list=E('div','','ps-zone-source-editor');
    for(const e of candidates){
@@ -198,14 +272,36 @@
       const age=number(v.max_age,0,86400),group=E('input');group.value=v.group;group.maxLength=80;
       const active=E('input');active.value=v.active_states.join(', ');active.maxLength=200;
       const fields=E('div','','ps-zone-form-grid');fields.append(labelled('Typ',kind),labelled('Meldealter (s; 0 = ereignisbasiert)',age),labelled('Gemeinsame Indiz-/Abdeckungsgruppe',group),labelled('Aktivzustände, kommasepariert',active),labelled('Für Freigabe erforderliche Abdeckung',required),labelled('Darf Aufenthalt beginnen',begin));row.append(fields);list.append(row);
+      if(e.presence_input_excluded||e.presence_input_missing){
+        const warning=E('p',e.presence_input_missing?'Gespeicherte Quelle derzeit nicht wählbar: Mitgliedschaft, Relevanz und Registerstatus prüfen. Zur bewussten Entfernung den Haken lösen; Verwerfen erhält die Zuordnung.':'Gespeicherter Ausgang als Quelle: Haken entfernen und die verbleibenden unabhängigen Quellen prüfen.','ps-warning');row.append(warning);
+        for(const field of [kind,required,begin,age,group,active])field.disabled=true;
+        if(e.presence_input_missing)fields.hidden=true;
+        enabled.addEventListener('change',()=>{if(!enabled.checked){enabled.disabled=true;warning.textContent=(e.presence_input_missing?'Quelle':'Ausgang')+' im Entwurf entfernt. Erst Speichern übernimmt die korrigierte Quellenwahl.';}});
+      }
       kind.addEventListener('change',()=>{if(kind.value==='support')required.checked=false;});
       inputs.push({e,row,enabled,kind,required,begin,age,group,active});
    }form.append(list);filter.addEventListener('input',()=>{const q=filter.value.toLowerCase();for(const i of inputs)i.row.hidden=!(i.e.name+' '+i.e.entity_id).toLowerCase().includes(q);});
+   const effect=E('section','','ps-zone-source-edit');effect.id='ps-presence-config-effect';form.append(effect);
    const submit=E('button','Konfiguration speichern');submit.type='submit';form.append(submit,B('Verwerfen',cancel));
+   const updateEffect=()=>{
+     effect.replaceChildren(E('h4','Wirkung beim Speichern'));
+     const chosen=inputs.filter(i=>i.enabled.checked),unresolved=chosen.some(i=>i.e.presence_input_excluded||i.e.presence_input_missing);
+     const direct=chosen.some(i=>!i.e.presence_input_excluded&&!i.e.presence_input_missing&&!i.e.derived&&i.e.entity_id.startsWith('binary_sensor.')&&i.kind.value!=='support');
+     effect.append(E('p',`${chosen.length} Präsenzquellen · Nachlauf ${grace.value} s · stabile Freiphase ${clear.value} s.`));
+     submit.disabled=mode.value==='publish'&&!data.package||unresolved||!direct;
+     if(unresolved)effect.append(E('p','Nicht nutzbare gespeicherte Quellen oben ausdrücklich korrigieren oder den Entwurf verwerfen.','ps-warning'));
+     if(!direct)effect.append(E('p','Mindestens eine direkte Präsenz- oder Bewegungsquelle auswählen. Nutzungsindizien allein reichen nicht. Fehlt eine passende Quelle, den Entwurf verwerfen und unter „Quellen wählen“ Mitgliedschaft und Relevanz prüfen.','ps-warning'));
+     if(mode.value==='publish'){
+       effect.append(E('p',data.package?'Das gespeicherte eigene Paket veröffentlicht die PilotSuite-Entscheidung an diesen öffentlichen Sensor:':'Zuerst ein eigenes Helfer-/Sensorpaket prüfen und anlegen. Ein Bestandsstatus wird nicht übernommen.','ps-warning'));
+       if(data.package)effect.append(E('code',data.package.entities.sensor),E('p','PilotSuite aktualisiert nur die eigenen Status-, Gültigkeits- und Timerhelfer. Verknüpfte HA-Automationen können auf den öffentlichen Sensor reagieren. Unklare Quellen werden nicht als frei veröffentlicht.'));
+     }else effect.append(E('p',mode.value==='paused'?'Die eigene Bewertung wird pausiert.':'Die eigene Bewertung läuft zum Vergleich; es wird kein eigener Anwesenheitszustand veröffentlicht.'));
+     if(data.package)effect.append(E('p','Bei geänderten Einstellungen verliert der eigene Ausgang zunächst seine Gültigkeit. Im Veröffentlichungsmodus wird erst nach neuer bestätigter Auswertung wieder gemeldet. Identisches Speichern erhält den bisherigen Lauf.','ps-muted'));
+   };
+   form.addEventListener('input',updateEffect);form.addEventListener('change',updateEffect);updateEffect();
    form.addEventListener('submit',event=>{event.preventDefault();save(async()=>{
       const spec={grace_seconds:Number(grace.value),clear_seconds:Number(clear.value),support_limit_seconds:Number(support.value),comparison_entity:comparison.value||null,
         sources:inputs.filter(i=>i.enabled.checked).map(i=>({entity_id:i.e.entity_id,kind:i.kind.value,required:i.required.checked,max_age:Number(i.age.value),group:i.group.value,can_start:i.begin.checked,active_states:i.active.value.split(',').map(x=>x.trim()).filter(Boolean)}))};
-      if(mode.value==='publish'&&!window.confirm('Nur das verifizierte eigene Ausgangspaket dieser Zone veröffentlichen? Bestehende Automationen werden nicht übernommen.'))return;
+      // The visible effect preview and chosen mode are confirmed by the explicit save.
       const next=await api('presence','PUT',{revision,spec,mode:mode.value});
       editing=false;data=next;revision=next.revision;editor.replaceChildren();render();
    });});editor.append(form);grace.focus();grace.scrollIntoView({block:'center'});
@@ -261,31 +357,39 @@
  }
  function renderPlan(path){
    editor.replaceChildren(E('h3','Änderungsvorschau'));
+   if(plan.state==='unchanged'){editor.append(E('p',plan.message),B('Schließen',cancel));return;}
    if(plan.state==='migration_required'){editor.append(E('p',plan.reason,'ps-warning'),B('Schließen',cancel));return;}
    if(plan.kind==='presence_helper'){
      const op=plan.operations[0];editor.append(E('p','Ein neuer, noch nicht angeschlossener Helfer für: '+op.suggested_display_name),E('pre',op.entity_id,'ps-zone-plan'));
      if(plan.details.duration_seconds!==null)editor.append(E('p','Vorgesehene Timerdauer: '+plan.details.duration_seconds+' Sekunden. Keine Änderung einer bestehenden HA-Nachlaufregel.'));
-     editor.append(E('p','Zuordnung, Automationen und Steuerungsverantwortung bleiben unverändert. Der Anfangszustand belegt keine Anwesenheit oder Abwesenheit. Anzeigename und Habitus-Rollen können später separat geprüft werden.','ps-warning'),
+     if(op.metadata)editor.append(E('p',`Anzeigename: ${op.metadata.name} · Rollen: ${op.habitus_roles.join(', ')}. Das verbundene Zonenlabel wird zugewiesen.`));
+     editor.append(E('p','Zuordnung, Automationen und Steuerungsverantwortung bleiben unverändert. Der Anfangszustand belegt keine Anwesenheit oder Abwesenheit.'+(op.metadata?' Beschriftung und Rollen sind Teil dieses Plans.':' Anzeigename und Habitus-Rollen können später separat geprüft werden.'),'ps-warning'),
        E('p','Rückweg: keine automatische Löschung. Vor Entfernen des neu angelegten Helfers seine Verbraucher prüfen.'),
        B('Diesen einzelnen Helfer anlegen',()=>save(async()=>{
-         if(!window.confirm('Genau diesen neuen Helfer in Home Assistant anlegen, ohne Zuordnung oder Automationsänderung?'))return;
          const result=await api(`presence/package/${plan.id}/apply`,'POST',{sha256:plan.sha256,confirm:true});
          editor.replaceChildren(E('h3',result.state==='verified'?'Helferanlage bestätigt · Anschluss noch offen':'Helferanlage nicht vollständig bestätigt'),
            E('pre',op.entity_id,'ps-zone-plan'),E('p',result.state==='verified'?'Bestand aktualisieren und den Helfer ausdrücklich zuordnen. Die verantwortliche Automation und die Gültigkeit des öffentlichen Sensors müssen separat geprüft werden.':'Nicht blind erneut anlegen. Den gespeicherten Plan unter Automationen prüfen.'),B('Schließen',cancel));
        })),B('Schließen',cancel));return;
    }
    editor.append(E('p',path==='ontology'?'Anzeigename und Rollenlabels. Technische ID und physische Bereiche bleiben erhalten.':'Neue interne Helfer und ein Template-Anwesenheitssensor. Keine bestehende Automation wird verändert; Veröffentlichung bleibt zunächst aus.'));
+   if(plan.kind==='structure_labels'){
+     editor.append(E('p',`${plan.operations.filter(op=>op.entity_id).length} Entitäten erhalten die angezeigten Zonen- und Rollenlabels. Namen, physische Bereiche und sonstige Labels bleiben erhalten.`));
+     const names=plan.details.label_names||{},list=E('ul');
+     for(const op of plan.operations){if(op.effect==='create_zone_label'){list.append(E('li',`Neues HA-Zonenlabel anlegen: ${op.name}. Keine automatische Löschung bei Rücknahme.`));continue;}const item=E('li'),added=op.after.labels.filter(id=>!op.before.labels.includes(id)),removed=op.before.labels.filter(id=>!op.after.labels.includes(id));
+       item.append(E('strong',op.entity_id),E('p',`Hinzufügen: ${added.map(id=>names[id]||id).join(', ')||'keine'} · Entfernen: ${removed.map(id=>names[id]||id).join(', ')||'keine'}`));list.append(item);}
+     editor.append(list);for(const limit of plan.details.limits||[])editor.append(E('p',limit,'ps-muted'));
+   }
    if(path==='presence/package'){
      editor.append(E('p','Bestehende Zuordnung bleibt erhalten. Dieses zusätzliche Paket steuert keine vorhandene Automation und veröffentlicht zunächst nichts.','ps-warning'));
      const meanings={anwesenheit_intern:['Interner Anwesenheitsstatus','Boolean als eigener Zustandsspeicher.'],entscheidung_gueltig:['Gültigkeit der Entscheidung','Trennt eine gültige Entscheidung von unbekannten Daten.'],gueltig_bis:['Ablauffrist der Gültigkeit','Begrenzt die Gültigkeit ohne frische Bestätigung.'],nachlauf:['Eigener Nachlauftimer','Bildet den PilotSuite-Nachlauf ab; ersetzt keinen Bestands-Timer.'],sensor:['Öffentlicher Anwesenheitssensor','Meldet den eigenen Zustand mit Gültigkeitsprüfung.']};
-     const list=E('ol');for(const operation of plan.operations){const [title,description]=meanings[operation.role]||['Weitere geplante Änderung','Technische Details vor der Bestätigung prüfen.'];const item=E('li','','ps-package-change');item.append(E('strong',title),E('p',description),E('code',operation.entity_id));list.append(item);}editor.append(list);
+     const list=E('ol');for(const operation of plan.operations){const [title,description]=meanings[operation.role]||['Weitere geplante Änderung','Technische Details vor der Bestätigung prüfen.'];const item=E('li','','ps-package-change');item.append(E('strong',operation.metadata?.name||title),E('p',description),E('code',operation.entity_id));if(operation.metadata)item.append(E('p','Zonenlabel und Rollen: '+operation.habitus_roles.join(', ')));list.append(item);}editor.append(list);
      editor.append(E('p','Rückweg: Veröffentlichung ausgeschaltet lassen. Angelegte Helfer werden hier nicht automatisch gelöscht; eine spätere Entfernung braucht eine eigene Prüfung ihrer Verbraucher.','ps-muted'));
    }
    const details=E('details');details.append(E('summary','Technische Änderungsdetails'));const raw=E('pre',JSON.stringify(plan.operations,null,2));raw.className='ps-zone-plan';details.append(raw);editor.append(details);
    const apply=B('Genau diesen Plan anwenden',()=>save(async()=>{
-     if(!window.confirm('Angezeigte Änderungen jetzt in Home Assistant ausführen?'))return;
      const result=await api(`${path}/${plan.id}/apply`,'POST',{sha256:plan.sha256,confirm:true});
      editor.append(E('p','Planstatus: '+result.state,'ps-notice'));apply.disabled=true;
+     if(result.binding)revision=result.binding.revision;
      if(result.state==='verified'&&path==='ontology')editor.append(B('Rücknahme prüfen',()=>save(async()=>{plan=await api(`ontology/${result.id}/restore-preview`,'POST',{revision});renderPlan('ontology');})));
      if(result.state!=='verified')note('Nicht vollständig bestätigt. Nicht wiederholen; vorhandenen Planstatus prüfen.');
    }));editor.append(apply,B('Schließen',cancel));
@@ -305,6 +409,10 @@
        E('p','Verbindliche Rollen aus „Habituszonen“. Vorhandene andere Labels und physische Bereiche bleiben erhalten. Label-/namenbasierte Automationen können auf eine Änderung reagieren.','ps-warning'),
        B('Änderungsplan prüfen',()=>save(async()=>{plan=await api('ontology','POST',{revision,entity_id:entities.value,name:name.value,zone_label:zoneLabel.value,roles:roleInputs.filter(i=>i.checked).map(i=>i.value),target_entity_id:target.value});renderPlan('ontology');})),B('Verwerfen',cancel));
    });
+ }
+ async function prepareStructure(){
+   if(!data||busy)return;startEditor('Zonenlabels abgleichen');
+   await save(async()=>{plan=await api('structure/preview','POST',{revision});renderPlan('ontology');});
  }
  const poll=window.setInterval(()=>{if(eligible()&&!document.hidden&&!editing&&!busy&&Date.now()-last>5000)read({background:true});},5000);
  window.addEventListener('pagehide',()=>window.clearInterval(poll),{once:true});

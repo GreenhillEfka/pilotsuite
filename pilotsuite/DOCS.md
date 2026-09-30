@@ -1,8 +1,45 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.71. Read
+> Documentation for app version 0.1.0-alpha.72. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
+
+## Habituszonen einrichten (Alpha.72)
+
+In **Zone → Einrichtung** Name und physische Bereiche wählen. Vorhandene manuelle
+Zonenlabels können samt Geräte-/Entitätsmitgliedern importiert werden; alternativ
+ein neues Label zunächst planen. Rollen und relevante Analysequellen in derselben
+Ansicht prüfen und einmal speichern. Mitgliedschaft allein aktiviert keine Analyse
+und keine Steuerung. Physische Bereiche und fremde Labels bleiben erhalten.
+
+Beim erneuten Öffnen zeigt der Mitgliederbestand umbenannte, deaktivierte oder
+nicht eindeutig aufgelöste Identitäten. Eine Umbenennung zeigt die neue technische
+ID, behält aber die gespeicherte Zuordnung. Solche Einträge zuerst prüfen; es wird
+kein Ersatz angelegt und keine Bindung automatisch umgestellt. Die Angaben stammen
+aus dem geladenen HA-Register und sagen nichts über aktuelle Anwesenheit aus.
+
+**Zonenlabels abgleichen** zeigt den konkreten HA-Änderungsplan. Ein neues Label und
+seine Mitglieder werden gemeinsam bestätigt. Erst bestätigte Anlage und Rücklesen
+binden die tatsächliche HA-ID. Bei unklarem Ergebnis den gespeicherten Plan prüfen;
+nicht durch einen zweiten Auftrag oder gleichnamigen Ersatz umgehen.
+
+Die **Einrichtungsschritte** führen anschließend zu Präsenzquellen/Nachlauf und
+zum bestehenden HA-Status. Eindeutige Quellen können in leere Bestandszuordnungen
+vorbefüllt werden; erst Speichern übernimmt sie. Bestehende Automationen bleiben
+zuständig. Fehlende eigene Ausgangshelfer samt passenden Labels lassen sich im
+vorhandenen Paketplan prüfen. Anlage und Veröffentlichung sind getrennte Schritte.
+
+**Lichtvergleich konfigurieren** verwendet dieselbe eigene Zonenpräsenz. Leuchten,
+geeignete Außen-Luxquelle, gewünschte Stimmung, Grenzen und Bedienpause festlegen;
+Feinparameter sind aufklappbar. Fehlende oder unklare Quellen ergeben keine
+Abschaltfreigabe. Die Vorschläge schalten nichts; aktive Lichtsteuerung und die
+Übernahme vorhandener Automationen sind noch nicht Bestandteil dieses Moduls.
+Der ältere Schattenvergleich ist dafür nicht erforderlich.
+Lichtgruppen und einzelne Mitglieder dürfen sich nicht überschneiden. Eine gewählte
+Gruppe umfasst die Beobachtung ihrer bekannten Mitglieder, nicht zusätzliche
+Präsenzquellen oder Schaltziele. Auch eine Änderung nur eines Mitglieds startet die
+Bedienpause. Unklare Mitglieder verhindern Vorschläge; geänderte Mitgliedschaft oder
+Identität erfordert erneute Prüfung. Unaufgelöste Gruppen werden begründet abgelehnt.
 
 ## Zoneninstanz: Präsenz, Daten & Ordnung
 
@@ -125,7 +162,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.71`
+- Release: `0.1.0-alpha.72`
 
 ## Habitus zones and entity selection
 
@@ -212,6 +249,11 @@ nativen Installation. Die Installationsbestätigung erfolgt in Home Assistant; v
 einem Update ist weiter eine frische geprüfte PilotSuite-only-App-Sicherung nötig.
 
 **Speicherpunkt erstellen** sichert Zonen, Auswahl, Rollen und Lernparameter lokal.
+Diese älteren Teil-Speicherpunkte enthalten Zonenlabel-Verbindung und die neueren
+Präsenz-/Lichtmodule nicht vollständig. Sobald eine betroffene Zone solche Module
+besitzt, wird ihre Teil-Wiederherstellung abgelehnt, damit Einstellungen und eigene
+Ausgangsbindungen erhalten bleiben. Dafür die native PilotSuite-App-Sicherung
+verwenden; sie umfasst App, Daten und Optionen.
 **Wiederherstellung prüfen** zeigt den Umfang. Erst nach Bestätigung werden die
 gespeicherten Zonen zurückgesetzt und pausiert; Lernfreigaben werden nicht
 zurückgespielt. Vorher entsteht automatisch ein weiterer Speicherpunkt. Neuere

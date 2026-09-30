@@ -89,7 +89,8 @@ class ReleaseClosureTests(unittest.TestCase):
     def test_empty_setup_and_registry_absence_never_mean_ready(self):
         journey=setup_journey({})
         self.assertEqual('attention',journey['steps'][0]['state'])
-        self.assertEqual('unverified',journey['steps'][1]['state'])
+        self.assertEqual('attention',journey['steps'][1]['state'])
+        self.assertEqual('unverified',journey['steps'][2]['state'])
         foundation={'zone_id':'z','revision':1,'helper_plan':[{'domain':'timer','key':'pilotsuite_z_timer'}]}
         for catalog in ([],[{'entity_id':'timer.pilotsuite_z_timer'}]):
             result=reconcile_helpers(foundation,catalog)

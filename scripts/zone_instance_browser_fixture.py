@@ -16,12 +16,20 @@ async def main():
  logging.basicConfig(level=logging.CRITICAL,stream=sys.stderr)
  tmp=tempfile.TemporaryDirectory();p=Path(tmp.name);now=NOW
  clock=patch('time.time',side_effect=lambda:now);clock.start()
+ class FixtureDatetime(datetime):
+  @classmethod
+  def now(cls,tz=None):return datetime.fromtimestamp(now,tz)
+ status_clock=patch('pilotsuite.service.datetime',FixtureDatetime);status_clock.start()
  app=create_app(Settings(p,p/'options.json',golden_zone_area_ids=('room','z_empty','z_paused','z_other'),supervisor_token='',
    refresh_interval_seconds=3600,ingress_allowed_peers=('127.0.0.1',)))
  http=TestClient(TestServer(app));await http.start_server();s=app[SERVICE_KEY]
  for t in s._tasks:t.cancel()
  await asyncio.gather(*s._tasks,return_exceptions=True);s._tasks=[]
  world=await seed_shadow(s,now)
+ for row in world['entities']:
+  if row['entity_id']==SOURCE:row['labels']=['setup_demo','1']
+  if row['entity_id']=='light.demo':row['device_id']='demo_device'
+ world['devices'].append({'id':'demo_device','area_id':'room','labels':['setup_demo']})
  for eid,platform,uid,value,attrs in [
    ('input_boolean.existing_presence','input_boolean','existing-owner','on',{}),
    ('timer.existing_presence','timer','existing-timer','active',{'finishes_at':datetime.fromtimestamp(now+120,UTC).isoformat()}),
@@ -43,6 +51,7 @@ async def main():
   world['areas'].append({'area_id':zid,'name':title})
   old=next(z for z in await s.zones.list() if z['zone_id']==zid)
   await s.zones.save({'name':title,'area_ids':[zid],'extra_entity_ids':[],'enabled':zid!='z_paused','profile':'observe'},zid,old['revision'])
+ source_registration=deepcopy(next(row for row in world['entities'] if row['entity_id']==SOURCE))
  s.client.snapshot=AsyncMock(side_effect=lambda:deepcopy(world))
  registry=[{'entity_id':e['entity_id'],'unique_id':e['unique_id'],'platform':e['platform'],
    'name':e['name'],'labels':[],'disabled_by':None} for e in world['entities']]
@@ -69,11 +78,18 @@ async def main():
  async def metadata(eid,**fields):next(r for r in registry if r['entity_id']==eid).update(fields)
  public_id=None;template_inputs=None
  s.client.zone_output_registry=AsyncMock(side_effect=lambda:deepcopy(registry))
+ s.client.zone_registry_entry=AsyncMock(side_effect=lambda eid:deepcopy(next(r for r in registry if r['entity_id']==eid)))
  s.client.zone_output_states=AsyncMock(side_effect=lambda:deepcopy(states))
  s.client.zone_output_service=AsyncMock(side_effect=service_call)
  s.client.zone_create_storage_helper=AsyncMock(side_effect=create_helper)
  s.client.zone_create_binary_sensor=AsyncMock(side_effect=create_sensor)
- s.client.zone_labels=AsyncMock(return_value=[{'label_id':str(i),'name':r} for i,r in enumerate(ROLES)]+[{'label_id':'zone','name':'room'}])
+ s.client.zone_label_devices=AsyncMock(return_value={})
+ labels=[{'label_id':str(i),'name':r} for i,r in enumerate(ROLES)]+[{'label_id':'zone','name':'room'},{'label_id':'setup_demo','name':'Habitus Demobereich'}]
+ s.client.zone_labels=AsyncMock(side_effect=lambda:deepcopy(labels))
+ async def create_label(name):
+  from pilotsuite.core.zone_ontology import slug
+  row={'label_id':slug(name),'name':name};labels.append(row);return deepcopy(row)
+ s.client.zone_create_label=AsyncMock(side_effect=create_label)
  s.client.zone_set_metadata=AsyncMock(side_effect=metadata)
  s.client.history=AsyncMock(return_value={'records':{SOURCE:[{'lu':NOW-3600,'s':'off'},{'lu':NOW-300,'s':'on'}]},'metadata':{}})
  async def tick(delta=1,values=None):
@@ -90,13 +106,46 @@ async def main():
    cmd=json.loads(line)
    if cmd['action']=='tick':await tick(cmd.get('seconds',1),cmd.get('values',{}))
    elif cmd['action']=='publish':await s._zone_publish_all() # Only the mocked client above.
+   elif cmd['action']=='legacy_anchor_role':
+    from pilotsuite.core.organization import identity
+    zone=next(row for row in await s.zones.list() if row['zone_id']=='room')
+    definition={k:zone[k] for k in ('name','area_ids','extra_entity_ids','enabled','profile')}
+    catalog=await s.world.organization_catalog();inv=await s.selection_inventory('room')
+    profile={'schema':'pilotsuite-zone-structure-v1','label_id':'fixture_anchor','members':{
+      SOURCE:{'identity':identity(next(row for row in catalog if row['entity_id']==SOURCE)),'roles':['Habitus Zone']}}}
+    await s.zones.save(definition,'room',zone['revision'],setup=profile,
+      relevant=[row['entity_id'] for row in inv['items'] if row['decision']=='relevant'])
+    await tick()
+   elif cmd['action']=='member_identity':
+    world['entities']=[row for row in world['entities'] if row['entity_id'] not in (SOURCE,'binary_sensor.demo_renamed','binary_sensor.demo_duplicate')]
+    row=deepcopy(source_registration)
+    if cmd['variant']=='renamed':row['entity_id']='binary_sensor.demo_renamed'
+    elif cmd['variant']=='disabled':row['disabled_by']='user'
+    if cmd['variant']!='missing':world['entities'].append(row)
+    if cmd['variant']=='ambiguous':world['entities'].append({**row,'entity_id':'binary_sensor.demo_duplicate'})
+    await s.world.replace(deepcopy(world))
+   elif cmd['action']=='tag_membership_change':
+    changed=cmd['changed']
+    for row in world['entities']:
+     if row['entity_id']==SOURCE:row['labels']=['1'] if changed else ['setup_demo','1']
+     elif row['entity_id']==MOTION:row['labels']=['setup_demo'] if changed else []
+     elif row['entity_id']=='light.demo':row['labels']=['3'] if changed else []
+    await s.world.replace(deepcopy(world))
+   elif cmd['action']=='light_group':
+    eid='light.demo_group'
+    world['entities'].append({'entity_id':eid,'name':'Lichtgruppe Demo','platform':'group',
+      'unique_id':eid,'area_id':'room','disabled_by':None})
+    world['states'].append(state(eid,'off',now,{'entity_id':['light.demo'],'supported_color_modes':['brightness']}))
+    inv=await s.selection_inventory('room')
+    await s.selections.patch('room',inv['revision'],{eid:'relevant'})
+    await tick()
    elif cmd['action']!='snapshot':raise ValueError('Invalid fixture command')
    cfg=await s.context.get('room')
    print(json.dumps({'view':await s.zone_presence_view('room'),'zones':[{k:v for k,v in z.items() if k!='revision'} for z in await s.zones.list()],'mode':(cfg.get(KEY)or{}).get('mode'),
     'learning':cfg['learning'],'roles':cfg['roles'],'history_reads':s.client.history.await_count,
     'automation_reads':s.client.automation_config.await_count,'organization':cfg.get('organization'),
     'helper_creates':s.client.zone_create_storage_helper.await_count+s.client.zone_create_binary_sensor.await_count,
-    'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)
+    'label_creates':s.client.zone_create_label.await_count,'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)
  finally:
-  await http.close();clock.stop();tmp.cleanup()
+  await http.close();status_clock.stop();clock.stop();tmp.cleanup()
 if __name__=='__main__':asyncio.run(main())

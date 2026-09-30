@@ -10,7 +10,8 @@ from aiohttp.test_utils import TestClient, TestServer
 from pilotsuite.app import create_app, SERVICE_KEY
 from pilotsuite.core.context import ContextStore
 from pilotsuite.core.organization import bind_request
-from pilotsuite.core.presence_adoption import existing_presence_view
+from pilotsuite.core.presence_adoption import existing_presence_view, validate_existing_inputs
+from pilotsuite.core.organization import identity
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.core.settings import Settings
 from pilotsuite.core.zone_presence_store import KEY
@@ -92,6 +93,29 @@ class ExistingPresenceProjectionTests(unittest.TestCase):
         self.catalog[-1]['device_class'] = 'door'
         self.assertEqual('unknown', self.view()['sensor']['state'])
         self.assertEqual('unassessable', self.view()['comparison'])
+
+    def test_zone_anchor_is_not_input_before_binding_after_rename_or_when_ambiguous(self):
+        row=deepcopy(self.catalog[-1])
+        cfg={'zone_structure':{'label_id':'room','members':{SENSOR:{'identity':identity(row),'roles':['Habitus Zone']}}}}
+        for kind in ('continuous','support'):
+            for variant in ('original','renamed','duplicate','replaced'):
+                with self.subTest(kind=kind,variant=variant):
+                    catalog=[deepcopy(row)]
+                    if variant in ('renamed','duplicate'):catalog[0]['entity_id']='binary_sensor.renamed'
+                    if variant=='duplicate':catalog.append({**row,'entity_id':'binary_sensor.duplicate'})
+                    if variant=='replaced':catalog[0]['unique_id']='replacement'
+                    before=deepcopy(cfg)
+                    for candidate in catalog:
+                        with self.assertRaises(InvalidSelection):
+                            validate_existing_inputs(cfg,catalog,{'sources':[{'entity_id':candidate['entity_id'],'kind':kind}]})
+                    self.assertEqual(before,cfg)
+
+    def test_non_anchor_role_and_read_only_comparison_remain_allowed(self):
+        row=self.catalog[-1]
+        cfg={'zone_structure':{'label_id':'room','members':{SENSOR:{'identity':identity(row),'roles':['Habitus Status']}}}}
+        validate_existing_inputs(cfg,self.catalog,{'sources':[{'entity_id':SENSOR}]})
+        cfg['zone_structure']['members'][SENSOR]['roles']=['Habitus Zone']
+        validate_existing_inputs(cfg,self.catalog,{'sources':[{'entity_id':SOURCE}],'comparison_entity':SENSOR})
 
 
 class ExistingPresenceIntegrationTests(unittest.IsolatedAsyncioTestCase):

@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.1.0-alpha.72] - 2026-09-30
+
+- Keep saved presence sources visible when they become unselectable; require explicit
+  correction and preserve them on cancel. Explain missing direct coverage before save.
+
+- Explain daylight validity and named manual blockers in the live light comparison;
+  retain open diagnostics and keyboard focus on refresh without changing the policy.
+
+- Saved zone members explain renamed, disabled and unresolved identities using the
+  existing resolver. Opening loads canonical structure/relevance with matching
+  revisions, without automatic rebinding or replacement.
+- Bound and missing zone labels remain explicit in the editor; imports hold their
+  selection and save conflicts preserve the actual reason and all draft inputs.
+
+- Create Habitus zones from HA areas, additional entities and existing/manual labels
+  in one editor. Save membership, stable identities, role labels and relevance together.
+  Zone labels beginning with "Habitus" remain selectable; only exact role labels are excluded.
+- Plan new zone labels and member metadata as one reviewed change, with actual HA ID
+  binding, independent readback, partial-result recovery and metadata rollback.
+- Include readable helper names and autolabeling in the existing owned-output package.
+  Preserve physical locations, foreign labels, existing anchors and shared-zone roles.
+- Exclude known zone anchors and output identities from presence evidence even
+  through legacy relevance paths; keep read-only comparison and explicit correction.
+- Keep explicit exclusions and draft roles on repeated tag/area imports; expose
+  missing tag memberships and HA/draft role differences without auto-enabling sources.
+- Distinguish a whole-zone pause from a paused presence module and lead to the
+  existing start control without activating it; retain and explain publication mode.
+- Guide setup through the existing presence and binding editors; prefill verified
+  empty mappings and replace repeated generic prompts with visible concrete effects.
+- Add a configurable live light comparison using the primary zone presence and
+  existing light policy. Bound proposals, confirm daylight provenance and preserve
+  manual-change holds/cooldowns; identity conflicts require explicit review.
+- Reject overlapping light groups/members and unknown group topology. Observe known
+  members for manual holds and availability; membership/identity changes suspend comparison.
+- No new household control, light actuator path or automation takeover. Installation
+  does not import household assignments, create helpers or enable publication/learning.
+- Refuse legacy partial-savepoint restores that would discard newer zone, presence
+  or lighting configuration. Native app backup remains the full recovery path.
+
 ## [0.1.0-alpha.71] - 2026-09-29
 
 - Prepare one missing Boolean or timer through the existing zone helper transaction,

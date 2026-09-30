@@ -142,6 +142,26 @@ auf eine ausgeblendete andere Rolle lenken. Automatische Aktualisierung öffnet
 keinen Editor und verschiebt keinen Fokus. Der Hauptsensor-Link führt in die
 Konfiguration, nicht in die Lernwerkbank.
 
+Eine pausierte Gesamtzone führt zur vorhandenen Startaktion, ein separat pausiertes
+Präsenzmodul in dessen Editor. Das Öffnen des Schritts startet weder Auswertung noch
+Veröffentlichung. Die gespeicherte Betriebsart bleibt erhalten; gewählte Publikation
+wird vor dem Start benannt. Eine Pause von PilotSuite stoppt keine HA-Bestandsautomation.
+
+Erneutes Einlesen von Tags oder Bereichskandidaten erhält auch ausdrückliche
+Abwahlen und geänderte Rollen im offenen Entwurf. Neue Mitglieder sind Vorschläge,
+keine Analysefreigabe. Der Editor unterscheidet eingelesene HA-Rollen von abweichenden
+Entwurfsrollen und nennt Mitgliedschaften, die beim letzten Label-Einlesen fehlen.
+Das beschreibt den ausdrücklich eingelesenen Bestand, keine kontinuierliche HA-Überwachung.
+Ein Lesefehler entfernt keine Eingaben; der nachfolgende HA-Abgleich behält seine
+frischen Vorbedingungen und konkrete Änderungsbestätigung.
+
+Bekannte Ausgänge einschließlich gespeicherter Habitus-Zonenanker sind keine
+unabhängigen Quellen, auch wenn sie über eine ältere Auswahl als relevant markiert
+wurden. Ein rein lesender Vergleich darf sie weiterhin verwenden. Der Editor nennt
+diese Grenze; bereits gespeicherte Fehlzuordnungen bleiben zur bewussten Korrektur
+sichtbar. Ohne deren Abwahl ist Speichern gesperrt. Die Laufzeit prüft dieselbe
+Grenze unabhängig von der Oberfläche und erfindet bei Konflikten keinen Zustand.
+
 ## Diagnose ohne konkurrierende Wahrheiten
 
 Synthetisches Replay, alter expliziter Schattenvergleich und technische IDs gehören
@@ -214,3 +234,31 @@ Synthetische Screenshots belegen Gestaltung im Testsystem. Erst die angemeldete,
 zunächst ausschließlich lesende Ingress-Prüfung belegt den Haushalt-Nutzerweg.
 Bedienzeiten und Verständnis dort messen; keine pauschale Barrierefreiheits-
 oder Komfortverbesserungsbehauptung allein aus grünen Tests.
+
+Labelbindung im Zoneneditor: Ein bereits gespeichertes Zonenlabel ist fest zugeordnet,
+wie im bestehenden Speicher. Erneutes Einlesen aktualisiert die Kandidaten; es ist
+keine Labelmigration. Fehlt das HA-Label, bleiben ID und Entwurf sichtbar, bis der
+Bestand erneut geprüft wird. Während einer laufenden Mitgliedsabfrage bleibt die
+Labelauswahl gesperrt. Bei Speicherkonflikten wird der konkrete Servergrund als Text
+gezeigt; Abbrechen und erneutes Öffnen bleiben bewusste Entscheidungen.
+
+Gespeicherte Mitglieder verwenden beim Öffnen des Zoneneditors den bestehenden
+Identitätsresolver. Umbenennung zeigt das neue Ziel bei unveränderter gespeicherter
+ID; deaktivierte und ungeklärte Mitglieder bleiben sichtbar. Ihre Rollen/Analysewahl
+werden erst nach geklärtem Bestand geändert. Die Anzeige ist ein Registerabzug,
+kein Live-Zustandsbeleg. Struktur und Relevanz stammen vom selben vorhandenen
+Leseendpunkt; widersprüchliche Definition-/Strukturrevisionen öffnen keinen Entwurf.
+
+Der laufende Lichtvergleich erklärt Tageslicht und zusätzliche manuelle Sperren in
+einem aufklappbaren Detailbereich. Quellenname, konkreter Gültigkeitsgrund,
+Meldealter und konfigurierte Altersgrenze stehen zusammen. Ein unbekannter
+Sperrsensor wird nicht als bestätigte manuelle Bedienung dargestellt. Details und
+Tastaturfokus bleiben bei passiver Aktualisierung erhalten; dies verändert keine
+Schaltrechte oder Vorschlagsregeln.
+
+Im Präsenzeditor bleiben gespeicherte Quellen sichtbar, wenn sie nicht mehr zum
+wählbaren Bestand gehören. Sie verschwinden nicht durch normales Speichern:
+Mitgliedschaft, Relevanz oder Registry klären, alternativ bewusst abwählen.
+Abbrechen erhält die gespeicherte Konfiguration. Ein unbekannter Live-Zustand ist
+kein solcher Auswahlverlust. Ohne direkte Quelle erklärt das Formular die Lücke
+vor dem Speichern; Nutzungsindizien allein genügen nicht zur Raumabdeckung.

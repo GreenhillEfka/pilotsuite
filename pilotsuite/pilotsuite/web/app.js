@@ -194,6 +194,7 @@ let contextEditing = false;
 let contextData = null;
 let contextGeneration = 0;
 let zoneExtraSelection = new Set();
+let zoneSetupDraft = null, zoneSetupRows = [], zoneRoleChoices = [], zoneLabelBusy = false, zoneSetupEpoch = 0, zoneBoundLabel = null;
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
 function selectionControls() {
@@ -213,6 +214,7 @@ function selectionControls() {
 }
 
 function renderSelection() {
+  document.body.classList.toggle('ps-zone-editing', zoneFormOpen);
   selectionControls();
   const root = byId('selection-rows');
   root.replaceChildren();
@@ -352,11 +354,32 @@ function renderExtraChoices() {
 async function openZoneEditor(existing) {
   if (selectionBusy || selectionDraft?.dirty || zoneFormOpen || contextEditing) return;
   zoneFormOpen = true; byId('zone-editor').open = true; renderSelection();
+  zoneSetupEpoch++;
   try {
-    const [areas, catalog, zones] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones')]);
+    const [areas, catalog, zones, savedStructure] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones'),
+      existing ? json('api/v1/zones/'+encodeURIComponent(selectionZone)+'/structure') : null]);
     zoneEditing = existing ? zones.items.find(z => z.zone_id === selectionZone) : null;
     if (existing && !zoneEditing) throw new Error('Zone nicht mehr vorhanden. Neu laden.');
     const zone = zoneEditing || {name: '', area_ids: [], extra_entity_ids: [], enabled: false, profile: 'observe'};
+    if(existing && savedStructure.revision!==zoneEditing.revision)throw new Error('Zone während des Öffnens geändert. Bitte erneut öffnen.');
+    const structure = savedStructure?.profile;
+    const memberIdentities = new Map((savedStructure?.member_identities||[]).map(row=>[row.saved_entity_id,row]));
+    zoneBoundLabel = structure?.label_id || null;
+    zoneSetupDraft = structure ? {label_id: structure.label_id, ...(!structure.label_id?{label_name:structure.label_name}:{}), entity_ids: Object.keys(structure.members),
+      relevant_entity_ids: Object.entries(savedStructure.decisions).filter(([id,decision])=>decision==='relevant'&&structure.members[id]).map(([id])=>id),
+      roles:Object.fromEntries(Object.entries(structure.members).map(([id,row])=>[id,[...row.roles]]))} : null;
+    zoneSetupRows = structure ? Object.entries(structure.members).map(([entity_id,row])=>{
+      const current=memberIdentities.get(entity_id);
+      return {entity_id,name:current?.name||entity_id,habitus_roles:row.roles,identity_status:current?.status,
+        resolved_entity_id:current?.entity_id,disabled:!!current&&current.status!=='bound'};
+    }) : [];
+    byId('zone-label-name').value = structure?.label_name || zone.name;
+    byId('zone-label-name').disabled = !!zoneBoundLabel;
+    byId('zone-label-new').disabled = !!structure?.label_id;
+    byId('zone-label-select').replaceChildren(new Option(structure?.label_id || 'Noch nicht verbunden', structure?.label_id || ''));
+    byId('zone-label-select').disabled = true; byId('zone-label-import').disabled = true;
+    byId('zone-member-search').value = ''; renderZoneMembers();
+    text('zone-label-message', structure?.label_name ? `Neues Label „${structure.label_name}“ geplant; Anlage folgt im Änderungsplan.` : structure ? 'Zonenlabel verbunden. Gespeicherte Mitglieder bleiben erhalten; HA-Labels einlesen zeigt den aktuellen Bestand.' : 'Vorhandenes Label wählen oder ein neues Label planen.');
     byId('zone-name').value = zone.name; byId('zone-profile').value = zone.profile;
     const allAreas = new Map(areas.items.map(a => [a.area_id, a.name || a.area_id]));
     for (const id of zone.area_ids) if (!allAreas.has(id)) allAreas.set(id, `${id} (nicht verfügbar)`);
@@ -383,22 +406,157 @@ byId('zone-extras').addEventListener('change', () => {
     if (option.selected) zoneExtraSelection.add(option.value); else zoneExtraSelection.delete(option.value);
   }
 });
+
+function renderZoneMembers() {
+  const host=byId('zone-label-members'), filter=byId('zone-member-search').value.trim().toLocaleLowerCase();
+  host.replaceChildren();
+  if(!zoneSetupDraft) return;
+  for(const row of zoneSetupRows.filter(r=>`${r.name} ${r.entity_id}`.toLocaleLowerCase().includes(filter))) {
+    const line=document.createElement('div');line.className='zone-member';
+    const unavailable=!!row.disabled || !!row.identity_status&&row.identity_status!=='bound';
+    const memberLabel=document.createElement('label'),member=document.createElement('input');member.type='checkbox';
+    member.checked=zoneSetupDraft.entity_ids.includes(row.entity_id);member.disabled=unavailable && !member.checked;
+    memberLabel.append(member,document.createTextNode(row.name || row.entity_id));
+    const detail=document.createElement('small');
+    const updateDetail=()=>{
+      const current=[...(row.habitus_roles||[])].sort(),draft=[...(zoneSetupDraft.roles[row.entity_id]||[])].sort();
+      let note=row.label_observation==='missing'
+        ? 'Beim letzten Label-Einlesen nicht enthalten; Mitgliedschaft im Entwurf prüfen.'
+        : `${row.membership_source?'Eingelesene HA-Rollen':'Gespeicherte Rollen'}: ${current.join(', ')||'keine'}`;
+      if(row.membership_source&&row.label_observation!=='missing'&&JSON.stringify(current)!==JSON.stringify(draft))
+        note+=` · Entwurf weicht ab: ${draft.join(', ')||'keine Rollen'}. Vor dem Abgleich prüfen.`;
+      const identityNote={renamed:`Umbenannt zu ${row.resolved_entity_id}; gespeicherte Zuordnung unverändert.`,
+        disabled:'Gespeicherte Entität deaktiviert; keinen Ersatz anlegen.',
+        identity_unresolved:'Gespeicherte Identität fehlt oder ist uneindeutig; Bestand prüfen.'}[row.identity_status];
+      if(identityNote)note+=` · Zuordnung beim Öffnen: ${identityNote}`;
+      detail.textContent=`${row.entity_id} · ${note}${row.membership_source==='device'?' · vom Gerät':''}${unavailable?' · nicht auswählbar':''}`;
+    };updateDetail();
+    const relevantLabel=document.createElement('label'),relevant=document.createElement('input');relevant.type='checkbox';
+    const isAnchor=()=>!!zoneSetupDraft.roles[row.entity_id]?.includes('Habitus Zone'),anchor=isAnchor();
+    relevant.checked=zoneSetupDraft.relevant_entity_ids.includes(row.entity_id);relevant.disabled=!member.checked || anchor || unavailable;
+    relevantLabel.append(relevant,document.createTextNode(anchor?'Zonenstatus (Ausgang)':'Für Auswertung verwenden'));
+    member.addEventListener('change',()=>{
+      zoneSetupDraft.entity_ids=zoneSetupDraft.entity_ids.filter(id=>id!==row.entity_id);
+      if(member.checked) zoneSetupDraft.entity_ids.push(row.entity_id);
+      else {zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);relevant.checked=false;}
+      relevant.disabled=!member.checked || isAnchor() || unavailable;
+    });
+    relevant.addEventListener('change',()=>{zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);if(relevant.checked)zoneSetupDraft.relevant_entity_ids.push(row.entity_id);});
+    line.append(memberLabel,detail,relevantLabel);
+    if(zoneRoleChoices.length){
+      const roles=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Darstellung im Habitus-Dashboard';roles.append(summary);
+      for(const role of zoneRoleChoices){
+        const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';
+        input.checked=(zoneSetupDraft.roles[row.entity_id]||[]).includes(role);input.disabled=!!row.identity_status&&row.identity_status!=='bound';label.append(input,document.createTextNode(role));
+        input.addEventListener('change',()=>{
+          const selected=new Set(zoneSetupDraft.roles[row.entity_id]||[]);if(input.checked)selected.add(role);else selected.delete(role);
+          zoneSetupDraft.roles[row.entity_id]=[...selected];
+          updateDetail();
+          if(role==='Habitus Zone'){
+            relevant.disabled=input.checked || !member.checked;
+            if(input.checked){relevant.checked=false;zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);}
+          }
+        });roles.append(label);
+      }
+      line.append(roles);
+    }
+    host.append(line);
+  }
+}
+byId('zone-member-search').addEventListener('input',renderZoneMembers);
+byId('zone-label-load').addEventListener('click',async()=>{
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-load').disabled=true;
+  const epoch=zoneSetupEpoch;
+  try {
+    const result=await json('api/v1/zone-labels');
+    if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
+    zoneRoleChoices=result.roles||[];renderZoneMembers();
+    const select=byId('zone-label-select'), labels=result.items.filter(r=>!zoneRoleChoices.includes(r.name));
+    if(zoneBoundLabel){
+      const bound=labels.find(row=>row.label_id===zoneBoundLabel);
+      select.replaceChildren(new Option(bound?`${bound.name} (${bound.member_count})`:`${zoneBoundLabel} (fehlt in Home Assistant)`,zoneBoundLabel));
+      select.disabled=true;byId('zone-label-import').disabled=!bound;
+      text('zone-label-message',bound
+        ? `Mit „${bound.name}“ fest verbunden. Mitglieder erneut einlesen und Änderungen prüfen. Ein anderes Label erfordert eine gesonderte Umstellung.`
+        : `Das verbundene Label „${zoneBoundLabel}“ fehlt in Home Assistant. Gespeicherte Zuordnung und Entwurf bleiben erhalten. Labelbestand prüfen und erneut laden.`);
+    }else{
+      select.replaceChildren(new Option('Zonenlabel wählen',''),...labels.map(r=>new Option(`${r.name} (${r.member_count})`,r.label_id)));
+      select.value=zoneSetupDraft?.label_id || '';select.disabled=false;byId('zone-label-import').disabled=!select.value;
+      text('zone-label-message','Label wählen und Mitglieder prüfen. Bestehende Eingaben bleiben bis zur Übernahme erhalten.');
+    }
+  } catch(error){text('zone-label-message',error.message);}
+  finally {zoneLabelBusy=false;byId('zone-label-load').disabled=false;}
+});
+byId('zone-label-select').addEventListener('change',()=>{byId('zone-label-import').disabled=!byId('zone-label-select').value;});
+byId('zone-label-import').addEventListener('click',async()=>{
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-import').disabled=true;
+  const epoch=zoneSetupEpoch,select=byId('zone-label-select'),selectionWasDisabled=select.disabled;
+  select.disabled=true;
+  try {
+    const chosen=select.value,result=await json('api/v1/zone-labels/'+encodeURIComponent(chosen));
+    if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
+    const old=zoneSetupDraft&&(zoneSetupDraft.label_id===chosen||zoneSetupDraft.label_id===null)?zoneSetupDraft:null;
+    const rows=new Map((old?zoneSetupRows:[]).map(r=>[r.entity_id,{...r,label_observation:'missing'}]));
+    const known=new Set(rows.keys());
+    for(const row of result.members)rows.set(row.entity_id,{...rows.get(row.entity_id),...row,label_observation:'present',disabled:row.disabled || !row.unique_id || !row.platform});
+    zoneSetupRows=[...rows.values()];
+    zoneSetupDraft={label_id:chosen,entity_ids:[...new Set([...(old?.entity_ids||[]),...result.members.filter(r=>!known.has(r.entity_id)&&!r.disabled && r.unique_id && r.platform).map(r=>r.entity_id)])],relevant_entity_ids:old?.relevant_entity_ids||[],
+      roles:Object.fromEntries(zoneSetupRows.map(row=>[row.entity_id,[...(old?.roles?.[row.entity_id]||row.habitus_roles||[])]]))};
+    if(!byId('zone-name').value.trim())byId('zone-name').value=result.name;
+    renderZoneMembers();
+    text('zone-label-message',`${result.members.length} Mitglieder eingelesen. Bisherige Auswahl und Rollen bleiben erhalten; neue Mitglieder werden nur vorgeschlagen. Abweichungen stehen an den Einträgen. Quellen für die Auswertung gezielt anhaken. Speichern ändert keine HA-Labels.`);
+  } catch(error){text('zone-label-message',error.message);}
+  finally {zoneLabelBusy=false;if(epoch===zoneSetupEpoch){select.disabled=selectionWasDisabled;byId('zone-label-import').disabled=!select.value;}}
+});
+byId('zone-label-new').addEventListener('click',()=>{
+  if(zoneLabelBusy || zoneSaving)return;
+  const name=byId('zone-label-name').value.trim();
+  if(!name){text('zone-label-message','Bitte einen Namen für das neue Zonenlabel angeben.');byId('zone-label-name').focus();return;}
+  zoneSetupDraft={label_id:null,label_name:name,entity_ids:zoneSetupDraft?.entity_ids||[],
+    relevant_entity_ids:zoneSetupDraft?.relevant_entity_ids||[],roles:zoneSetupDraft?.roles||{}};
+  if(!byId('zone-name').value.trim())byId('zone-name').value=name;
+  byId('zone-label-select').value='';byId('zone-label-import').disabled=true;
+  text('zone-label-message',`Neues Label „${name}“ geplant. Unten Bereiche und Zusatzentitäten wählen und als Mitglieder prüfen. Speichern allein schreibt keine HA-Labels.`);
+  renderZoneMembers();
+});
+byId('zone-candidates-import').addEventListener('click',async()=>{
+  if(zoneLabelBusy || zoneSaving)return;
+  if(!zoneSetupDraft){text('zone-label-message','Zuerst ein bestehendes Zonenlabel übernehmen oder ein neues Label planen.');return;}
+  zoneLabelBusy=true;byId('zone-candidates-import').disabled=true;
+  const epoch=zoneSetupEpoch;
+  try {
+    const result=await json('api/v1/zone-candidates',{method:'POST',body:JSON.stringify({
+      area_ids:[...byId('zone-areas').querySelectorAll('input:checked')].map(i=>i.value),entity_ids:[...zoneExtraSelection]})});
+    if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
+    zoneRoleChoices=result.roles;
+    const rows=new Map(zoneSetupRows.map(r=>[r.entity_id,r]));
+    const known=new Set(rows.keys());
+    for(const row of result.members)rows.set(row.entity_id,{...rows.get(row.entity_id),...row,disabled:row.disabled || !row.unique_id || !row.platform});
+    zoneSetupRows=[...rows.values()];
+    zoneSetupDraft.entity_ids=[...new Set([...zoneSetupDraft.entity_ids,...result.members.filter(r=>!known.has(r.entity_id)&&!r.disabled&&r.unique_id&&r.platform).map(r=>r.entity_id)])];
+    for(const row of result.members)if(!zoneSetupDraft.roles[row.entity_id])zoneSetupDraft.roles[row.entity_id]=row.habitus_roles||[];
+    renderZoneMembers();text('zone-label-message',`${result.members.length} Kandidaten eingelesen. Bisherige Auswahl, Abwahl und Rollen bleiben erhalten. Neue Quellen werden nicht automatisch für die Auswertung aktiviert.`);
+  }catch(error){text('zone-label-message',error.message);}
+  finally{zoneLabelBusy=false;byId('zone-candidates-import').disabled=false;}
+});
 byId('zone-cancel').addEventListener('click', () => {
   if (zoneSaving) return;
+  zoneSetupEpoch++;
   zoneFormOpen = false; byId('zone-form').hidden = true; renderSelection();
 });
 byId('zone-form').addEventListener('submit', async event => {
-  event.preventDefault(); if (zoneSaving) return;
+  event.preventDefault(); if (zoneSaving || zoneLabelBusy) return;
   const definition = {name: byId('zone-name').value, profile: byId('zone-profile').value,
     enabled: zoneEditing?.enabled ?? false, area_ids: [...byId('zone-areas').querySelectorAll('input:checked')].map(o => o.value), extra_entity_ids: [...zoneExtraSelection]};
   zoneSaving = true; byId('zone-fields').disabled = true;
   try {
     const payload = {definition}; if (zoneEditing) payload.revision = zoneEditing.revision;
+    if(zoneSetupDraft)payload.setup={...zoneSetupDraft,roles:Object.fromEntries(Object.entries(zoneSetupDraft.roles).filter(([id])=>zoneSetupDraft.entity_ids.includes(id)))};
     const saved = await json(`api/v1/zones${zoneEditing ? '/' + encodeURIComponent(zoneEditing.zone_id) : ''}`, {method: zoneEditing ? 'PATCH' : 'POST', body: JSON.stringify(payload)});
     zoneFormOpen = false; byId('zone-form').hidden = true;
-    text('zone-message', 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
+    text('zone-message', zoneSetupDraft ? 'Zone, Tag-Verbindung und Quellen gespeichert. Zonenlabels abgleichen, dann die Präsenz einrichten.' : 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
     await reloadZones(saved.zone_id); await load();
-  } catch (error) { text('zone-message', error.status === 409 ? 'Zone oder Entitätenauswahl zwischenzeitlich geändert. Entwurf bleibt erhalten. Abbrechen und erneut öffnen, um den aktuellen Stand zu laden.' : error.message); }
+  } catch (error) { text('zone-message', error.status === 409 ? `${error.message} · Entwurf bleibt erhalten. Aktuellen Bestand prüfen, bevor du erneut speicherst.` : error.message); }
   finally { zoneSaving = false; byId('zone-fields').disabled = false; renderSelection(); }
 });
 
@@ -616,7 +774,7 @@ function renderFoundationJourney() {
   root.replaceChildren(); detail.replaceChildren();
   if (!journey) { root.textContent='Zonenbasis derzeit nicht verfügbar.'; return; }
   const labels={ready:'Quellen zugeordnet', attention:'Prüfen', unverified:'Ungeprüft', optional:'Optional',
-    planned:'Vorbereitet', locked:'Gesperrt', needs_sources:'Quellen fehlen'};
+    planned:'Nächste Stufe', configured:'Gespeichert', paused:'Pausiert', locked:'Gesperrt', needs_sources:'Quellen fehlen'};
   const modules={presence:'Anwesenheit',lighting:'Beleuchtung',media:'Musik',climate:'Raumklima'};
   const roles={presence:'Anwesenheit',light:'Leuchten',climate:'Klimaregler',temperature:'Temperatur',
     'one_of:illuminance/daylight_binary':'Lux oder Helligkeitsindikator'};
@@ -625,10 +783,13 @@ function renderFoundationJourney() {
     const title=document.createElement('strong'); title.textContent=step.title;
     const state=document.createElement('span'); state.className='tag'; state.textContent=labels[step.state]||'Ungeprüft';
     const p=document.createElement('small'); p.textContent=step.summary;
-    card.append(title,state,p); root.append(card);
+    card.append(title,state,p);
+    const actions={zone:'Zone und Tags bearbeiten',labels:'Zonenlabels abgleichen',presence:'Präsenz einrichten',evaluation:'Start der Auswertung prüfen',entities:'Quellen wählen',existing:'Bestandsstatus verbinden',lighting:'Lichtquellen wählen',lightmodule:'Lichtvergleich einrichten'};
+    if(actions[step.action]){const button=document.createElement('button');button.type='button';button.textContent=actions[step.action];button.dataset.setupAction=step.action;button.addEventListener('click',()=>window.PilotSuiteOpenSetup?.(step.action));card.append(button);}
+    root.append(card);
   }
   const note=document.createElement('p');
-  note.textContent='Planungsansicht. Ausschließlich der geplante Anwesenheits-Nachlauftimer kann nach ausdrücklicher Bestätigung geprüft angelegt werden; Automationsübernahme und Geräteaktionen bleiben gesperrt.';
+  note.textContent='Einrichtungsstand aus gespeicherten Zuordnungen. Label- und Helferanlagen besitzen konkrete gemeinsame Änderungspläne. Laufender Zustand, Veröffentlichung und Haushaltssteuerung werden separat geprüft.';
   detail.append(note);
   const provision=byId('helper-provisioning'), button=byId('helper-provision');
   const action=(f.provisioning?.execution?.actions||[]).find(a=>a.domain==='timer');

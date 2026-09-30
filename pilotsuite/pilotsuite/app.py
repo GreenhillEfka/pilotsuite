@@ -16,6 +16,7 @@ from pilotsuite.core.plans import InvalidPlan, ReadOnlyRelease, TARGET_DOMAINS
 from pilotsuite.core.settings import Settings
 from pilotsuite.core.selections import InvalidSelection, SelectionConflict
 from pilotsuite.service import PilotSuiteService
+from pilotsuite.ha.client import HomeAssistantError
 from pilotsuite.review_notes_api import register_review_notes
 from pilotsuite.maintenance_api import register_maintenance
 from pilotsuite.zone_presence_api import register_zone_presence
@@ -86,6 +87,8 @@ async def request_context(
             },
             status=409,
         )
+    except HomeAssistantError:
+        response = web.json_response({'error':'ha_unavailable', 'message':'HA-Bestand derzeit nicht lesbar; Eingaben bleiben erhalten.', 'request_id':request_id}, status=503)
     except Exception:
         LOGGER.exception("Unhandled request failure request_id=%s", request_id)
         response = web.json_response(
@@ -134,6 +137,10 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post('/api/v1/zones', _save_zone)
     app.router.add_patch('/api/v1/zones/{zone_id}', _save_zone)
     app.router.add_get('/api/v1/entity-catalog', _entity_catalog)
+    app.router.add_get('/api/v1/zone-labels', _zone_labels)
+    app.router.add_post('/api/v1/zone-candidates', _zone_candidates)
+    app.router.add_get('/api/v1/zone-labels/{label_id}', _zone_labels)
+    app.router.add_get('/api/v1/zones/{zone_id}/structure', _zone_structure)
     app.router.add_post('/api/v1/zones/{zone_id}/history', _history_view)
     app.router.add_post('/api/v1/zones/{zone_id}/history/import', _history_import)
     app.router.add_get('/api/v1/zones/{zone_id}/context', _context_get)
@@ -187,6 +194,56 @@ async def _entity_catalog(request: web.Request) -> web.Response:
     return web.json_response({'items': await request.app[SERVICE_KEY].world.catalog()})
 
 
+async def _zone_labels(request: web.Request) -> web.Response:
+    from .core.zone_structure import label_catalog, label_members
+    from .core.zone_ontology import ROLES
+    service = request.app[SERVICE_KEY]
+    labels = await service.client.zone_labels()
+    catalog = await service.world.organization_catalog()
+    label_id = request.match_info.get('label_id')
+    result = label_members(label_id, labels, catalog) if label_id else {'items': label_catalog(labels, catalog), 'roles': list(ROLES)}
+    return web.json_response(result, headers={'Cache-Control': 'no-store'})
+
+
+async def _zone_candidates(request: web.Request) -> web.Response:
+    from .core.zone_ontology import ROLES
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise InvalidSelection('Ungültiges JSON') from exc
+    if not isinstance(payload, dict) or set(payload) != {'area_ids', 'entity_ids'}:
+        raise InvalidSelection('Bereiche und zusätzliche Entitäten erforderlich')
+    for key, maximum in (('area_ids', 100), ('entity_ids', 500)):
+        values = payload[key]
+        if not isinstance(values, list) or len(values) > maximum or any(not isinstance(v,str) or not v or len(v)>255 for v in values):
+            raise InvalidSelection('Ungültige oder zu große Kandidatenauswahl')
+    service = request.app[SERVICE_KEY]
+    labels = await service.client.zone_labels()
+    roles = {row['label_id']:row['name'] for row in labels if row['name'] in ROLES}
+    members = [{**row, 'habitus_roles':sorted({roles[key] for key in row['labels'] if key in roles}),
+                'membership_source':'area' if row['area_id'] in payload['area_ids'] else 'explicit'}
+               for row in await service.world.organization_catalog()
+               if row['area_id'] in payload['area_ids'] or row['entity_id'] in payload['entity_ids']]
+    if len(members) > 500:
+        raise InvalidSelection('Mehr als 500 Kandidaten; Bereiche oder Zusatzentitäten eingrenzen')
+    return web.json_response({'members':members, 'roles':list(ROLES)}, headers={'Cache-Control':'no-store'})
+
+
+async def _zone_structure(request: web.Request) -> web.Response:
+    from .core.zone_structure import KEY, member_identities
+    service = request.app[SERVICE_KEY]
+    zid = request.match_info['zone_id']
+    async with service._projection_lock:
+        inventory = await service.selection_inventory(zid)
+        config = await service.context.get(zid)
+        decisions = (await service.selections.get(zid))['decisions']
+        identities = member_identities(config.get(KEY), await service.world.organization_catalog())
+    return web.json_response({'zone_id': zid, 'revision': inventory['revision'],
+                              'profile': config.get(KEY), 'decisions': decisions,
+                              'member_identities': identities, 'identity_basis':'cached_registry_not_live_state'},
+                             headers={'Cache-Control': 'no-store'})
+
+
 async def _zone_export(request: web.Request) -> web.Response:
     service = request.app[SERVICE_KEY]
     async with service._projection_lock:
@@ -203,16 +260,25 @@ async def _save_zone(request: web.Request) -> web.Response:
         raise InvalidSelection('invalid JSON') from exc
     zone_id = request.match_info.get('zone_id')
     expected = {'definition', 'revision'} if zone_id else {'definition'}
-    if not isinstance(payload, dict) or set(payload) != expected:
+    if not isinstance(payload, dict) or set(payload) not in (expected, expected | {'setup'}):
         raise InvalidSelection('invalid zone request fields')
     definition = service.zones.validate(payload['definition'])
+    labels = await service.client.zone_labels() if 'setup' in payload else None
     async with service._projection_lock:
         previous = next((z for z in await service.zones.list() if z['zone_id'] == zone_id), {})
         areas = {a['area_id'] for a in await service.world.areas()} | set(previous.get('area_ids', []))
         entities = {e['entity_id'] for e in await service.world.catalog() if not e['disabled']} | set(previous.get('extra_entity_ids', []))
         if not set(definition['area_ids']) <= areas or not set(definition['extra_entity_ids']) <= entities:
             raise InvalidSelection('unknown area or unavailable extra entity; reload the inventory')
-        saved = await service.zones.save(definition, zone_id, payload.get('revision'))
+        setup = None
+        if 'setup' in payload:
+            from .core.zone_structure import KEY as STRUCTURE, setup_profile
+            old_structure = (await service.context.get(zone_id)).get(STRUCTURE) if zone_id else None
+            setup = setup_profile(payload['setup'], labels, await service.world.organization_catalog(), old_structure)
+            definition = service.zones.validate({**definition, 'extra_entity_ids':
+                sorted(set(definition['extra_entity_ids']) | set(setup['members']))})
+        saved = await service.zones.save(definition, zone_id, payload.get('revision'), setup=setup,
+                                         relevant=payload.get('setup', {}).get('relevant_entity_ids'))
         await service._derive()
         return web.json_response(saved, status=200 if zone_id else 201)
 
@@ -405,7 +471,7 @@ async def _context_payload(service, zone_id, export=False):
     from pilotsuite.core.helper_reconciliation import reconcile_helpers
     report['foundation']['helper_reconciliation'] = reconcile_helpers(report['foundation'], await service.world.catalog())
     from pilotsuite.core.setup_journey import setup_journey
-    report['foundation']['setup_journey'] = setup_journey(report['foundation'])
+    report['foundation']['setup_journey'] = setup_journey(report['foundation'], config=report['config'], inventory=inventory)
     from pilotsuite.core.capabilities import capability_matrix
     report['foundation']['capability_matrix'] = capability_matrix(report['foundation']['validated_roles'])
     from pilotsuite.core.guide import zone_guide

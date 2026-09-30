@@ -33,6 +33,11 @@ it appears in this inventory.
 | `PATCH` | `/api/v1/zones/{zone_id}` | Replace a zone definition with revision checking. |
 | `GET` | `/api/v1/zones/export` | Export zone definitions and selections. |
 | `GET` | `/api/v1/entity-catalog` | Read the bounded entity catalog used by zone configuration. |
+| `POST` | `/api/v1/zone-candidates` | Read-only bounded member proposal from selected area_ids/entity_ids, including stable identities and existing roles. No selection or HA writes. |
+| `GET` | `/api/v1/zone-labels` | Explicit HA label read plus counts including device membership and the canonical Habitus role vocabulary. No write. |
+| `GET` | `/api/v1/zone-labels/{label_id}` | Propose up to 500 direct/device-inherited members with roles, identity and disabled status. Never starts analysis or control. |
+| `GET` | `/api/v1/zones/{zone_id}/structure` | Read saved zone-label/member/role connection and explicit relevance decisions from existing stores. |
+| `POST` | `/api/v1/zones/{zone_id}/structure/preview` | Preview the saved desired labels against the current registry. Durable `structure_labels` plan; apply and restore use the existing ontology endpoints. |
 | `GET` | `/api/v1/selections/{area_id}` | Read an entity-selection inventory. The parameter is the historical selection scope and is normally a zone ID. |
 | `PATCH` | `/api/v1/selections/{area_id}` | Save explicit entity decisions with revision checking. |
 | `GET` | `/api/v1/zones/{zone_id}/context` | Read roles, learning configuration, evidence summaries, patterns and drafts. |
@@ -43,6 +48,37 @@ it appears in this inventory.
 | `POST` | `/api/v1/zones/{zone_id}/history/import` | Import explicitly selected historical observations into the owned learning store. |
 
 ## Live shadow comparison
+
+Zone create/update optionally accepts `setup: {label_id, entity_ids,
+relevant_entity_ids, roles?}`. `roles` maps selected entity IDs to Habitus role names.
+The definition, stable member identities, roles and explicit relevance decisions
+commit together under one zone revision in the existing SQLite transaction.
+Omitting setup preserves older clients and stored structure. Identical saves are
+no-ops. Duplicate zone-label ownership, replaced identities, disabled members,
+multiple anchors and an anchor selected as its own evidence are rejected.
+This save does not write HA, change learning, create helpers or enable a module.
+The existing structure GET additionally returns `member_identities`, each with
+`saved_entity_id`, currently resolved `entity_id` (or null), `name` and `status`.
+Statuses reuse Organization's resolver (`bound`, `renamed`, `identity_unresolved`)
+plus explicit `disabled`. `identity_basis: cached_registry_not_live_state` separates
+registry identity from runtime state/freshness. Profile and relevance remain the
+saved canonical values; this projection performs no HA network read or migration.
+The editor opens definition/structure only with matching revisions.
+
+Metadata synchronization preserves unrelated labels, names and physical location.
+Removing a member stops its selected analysis but does not delete HA labels blindly.
+One concrete preview/apply covers the selected changes. HA and SQLite are not an
+atomic system; operation readback and conflict/unknown outcomes remain visible.
+
+When a zone has saved structure, the existing presence-package/single-helper
+preview includes readable names and the zone/Habitus labels for its newly created
+objects. Creation, stable-identity receipt, metadata before/after and readback use
+the same durable plan. A lost metadata response requires independent readback,
+never duplicate helper creation. Manual metadata changes block recovery rather
+than being overwritten. Full-package binding includes its five own members in
+the zone structure and scope in the existing configuration transaction, with
+publication still in comparison mode. Historical callers without a label
+connection retain their separate explicit ontology workflow.
 
 | Method | Path | Purpose |
 |---|---|---|
@@ -59,8 +95,16 @@ it appears in this inventory.
 | `PATCH` | `/api/v1/zones/{zone_id}/presence-runtime` | Save presence runtime configuration with the endpoint's consent and revision checks. |
 | `POST` | `/api/v1/zones/{zone_id}/presence-runtime/replay` | Replay one allowlisted synthetic presence scenario without reading or changing HA, consent or stored runtime state. |
 | `POST` | `/api/v1/zones/{zone_id}/lighting-preview` | Preview one allowlisted synthetic daylight/mood scenario without reading or changing HA, consent or stored state. `zone_inputs` separates configured/currently usable lights, indoor illuminance and binary brightness; `daylight_basis` states that scenario lux is synthetic and no configured signal is thereby confirmed as an outdoor daylight reference. The legacy aggregate `configured_reference_count` is only a configured-signal count, not provenance evidence. |
+| `PUT` | `/api/v1/zones/{zone_id}/lighting` | Save revision-bound light comparison settings in the existing ContextStore. Requires configured primary zone presence and stable relevant targets/sources. Compare or pause only; no actuator calls. Current proposals are part of the existing presence GET. |
 | `POST` | `/api/v1/zones/{zone_id}/lighting-decision` | Explicit transient check of the current canonical zone roles, cached observations and freshly read related automation structures. Returns exactly one next step, never treats indoor lux as confirmed outdoor daylight, never infers physical measurement freshness from transport freshness, persists nothing and cannot execute. |
 | `POST` | `/api/v1/zones/{zone_id}/presence-adoption/review` | Explicit read-only structural review. Saved organization bindings select existing-control mode; otherwise the legacy review remains compatible. No execution. |
+
+The existing zone-presence GET includes `lighting.current.daylight.status` when a
+comparison is available: `valid`, `not_configured`, `connection_unconfirmed`,
+`provenance_unconfirmed`, `time_unknown`, `stale`, `unit_invalid` or `value_invalid`.
+This explains the first failing existing gate; only `valid` accompanies a numeric
+lux value. `manual_sources` retains the observed state per configured entity.
+Diagnosis is read-only and does not relax proposal gates or authorize execution.
 
 ## Routine drafts, comparisons and review notes
 
@@ -202,3 +246,30 @@ and registry collisions block creation. It does not require a PilotSuite presenc
 configuration and does not alter assignments, automations or publication. Durable
 identity receipts are historical creation evidence, not current functionality;
 lost responses never authorize blind replay or ownership inferred from a name.
+
+
+### Unreleased connected zone setup
+
+The optional zone `setup` accepts an existing `label_id`, or `label_id: null` plus
+`label_name` (1–80 characters) to plan a new zone label. This saves intent only.
+`entity_ids`, `relevant_entity_ids` and optional per-member `roles` are validated
+against stable registry identities. Areas/extra candidates are read-only proposals.
+Pending names cannot duplicate another planned zone or an existing HA label.
+An unbound pending label can be explicitly replaced with an existing label after
+an unresolved creation; name equality never silently establishes ownership.
+
+`structure/preview` includes new label creation and all member metadata in the
+same durable `structure_labels` plan (maximum 500 members plus one label). Native
+create response, independent readback and final SQLite binding are separate proofs.
+The immutable proposal uses an internal label reference; only the actual returned
+label ID is sent with member metadata. Apply may resume confirmed pending steps;
+uncertain metadata is read back only, never repeated. A lost creation response
+without a durable receipt remains unknown. `binding` records the resulting zone
+revision. Reverse metadata plans preserve the created label and its zone binding;
+there is no automatic deletion of an object that other HA consumers may now use.
+
+Fresh labels, device membership, anchors and shared roles are checked before
+application, sensitive anchor edits and completion. Each changed entity retains
+an exact before/after image; final readback detects intervening edits. HA registry
+writes and SQLite are not an atomic distributed transaction. Unresolved/partial
+outcomes remain inspectable in the existing organization plan history.

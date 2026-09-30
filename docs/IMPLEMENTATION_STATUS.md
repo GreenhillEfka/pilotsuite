@@ -3,6 +3,81 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Unreleased work on `feat/habitus-zone-setup`, 30.09.2026: zone-label import with
+device inheritance, one-save structure/relevance, role editor and explicit batch
+label synchronization through the existing metadata plans. Connected own helper
+packages include readable names/autolabeling with durable readback and cumulative
+recovery receipts. New labels plus member metadata now share a reviewed plan and
+atomic canonical ID binding; area/extra candidate selection is in the same editor.
+Fresh anchor/device/shared-role guards and final readback protect manual changes.
+679 Python, 78 JS tests, 67 route contracts, all eleven existing browsers and seven
+native disposable-HA scenarios passed locally. Existing installation remains
+Alpha.71. Presence setup now leads through existing editors and suggests only
+verified stable members into empty existing bindings. Inline publication effects
+replace generic extra confirmation; disabled anchors block replacement. 685 Python,
+78 JS, 67 contracts and four affected browsers pass; new screenshots inspected.
+Light comparison is integrated into the primary presence tick/store, with explicit
+outdoor-lux provenance, bounded proposals and external-change holds. Restart
+cooldown and sticky identity conflicts have red/green regressions. Pure color/effect
+changes also receive a manual hold after a further six-case red/green check. Legacy
+partial savepoints cannot erase the newer module settings; preview and transactional
+restore reject unsupported scope. Three omitted-module cases reproduced red. 704 Python,
+78 JS and 68 contracts pass; extended zone browser and seven native HA cases pass.
+Follow-up: group/member overlaps and unresolved light topology are rejected. Known
+group-member events trigger the existing hold even when aggregate state is unchanged;
+unknown members withhold proposals, identity changes suspend only lighting. Eight
+initial failing group cases, then 711 Python/78 JS tests and 68 contracts pass; the
+complete zone browser covers overlap errors and preserved drafts. No ResourceWarnings
+after the full Python suite and garbage collection. New exact candidate CI is required.
+Group candidate 7869be3 passed all five CI jobs (36662483135). The following setup
+correction distinguishes whole-zone and module pause and focuses the existing start
+control without starting evaluation. Saved publication is explained and preserved.
+Four unit cases reproduced red; 713 Python/78 JS tests and 68 contracts pass, with
+keyboard/no-write navigation in the extended synthetic browser. New exact CI remains
+required for this follow-up.
+Pause-navigation candidate a653cc3 passed all five jobs (36663683536). A subsequent
+browser review reproduced repeated label/area imports resetting exclusions. The
+editor now retains those decisions and draft roles, shows missing label membership
+and current-read/draft role differences, and never auto-approves new analysis inputs.
+The extended browser verifies changed tags, read-only import and preserved draft
+on read errors; full 713 Python/78 JS tests and 68 contracts remain green. Latest
+candidate CI is required after this correction.
+Import candidate 6ed081f passed all five jobs (36664522982). The subsequent
+source-feedback guard also applies saved Habitus anchors to default suggestions,
+explicit configuration and ongoing runtime. Stable renames, ambiguous/replaced
+identities and owned/assigned outputs remain excluded as evidence. Read-only status
+comparison is retained. Existing invalid selections require explicit correction;
+no stored source is silently removed, and restart cannot fabricate presence/light.
+Nine initially failing unit/API cases, then 717 Python/78 JS tests and 68 contracts
+pass. The extended browser checks the visible correction and unchanged data on cancel.
+Active lighting/automation takeover and release/household acceptance remain open.
+The following label-editor refinement keeps durable bindings fixed, shows missing
+HA label identities without discarding the draft and preserves actual save-conflict
+causes. Pending imports lock label selection. Six actual-browser failures reproduced
+first; recovery/cancel checks verify no configuration or HA-write side effect. This
+is a UI correction using existing API/storage semantics, not a label migration.
+Label-guidance candidate b9b2772 passed all five jobs (36666545782). The existing
+structure GET now explains saved member identities through Organization's resolver.
+The editor loads canonical structure/relevance and rejects mixed opening revisions.
+Renamed/disabled/unresolved members stay visible and never auto-rebind. Six initially
+failing diagnostic API cases, then 718 Python/78 JS tests, 68 contracts and both
+selection/zone browsers passed. Screenshots inspected; exact new CI remains required.
+Member-identity candidate 5b59d4c passed all five jobs (36667558353). Light diagnosis
+now reports the existing validity gates for lux and named manual blockers without
+altering the decision policy. Nine red/green cases plus the extended browser cover
+unavailable inputs, recovery stability, retained open/focus state and zero writes.
+719 Python/78 JS tests and 68 contracts pass; mobile/desktop screenshots inspected.
+Final full-suite garbage collection reports no resource warnings. Latest exact CI
+must be verified after this change.
+Light-diagnostic candidate 8a48e8d passed all five jobs (36668689077). After the
+expired overnight run, the user explicitly requested continuation in this chat;
+the heartbeat was paused. The next UI correction preserves saved presence sources
+that disappear from the selectable catalog until an explicit removal. Cancel keeps
+the original spec; empty/support-only input explains the missing direct source.
+Both failures reproduced in the existing browser; full extended zone flow, 78 JS
+tests and 68 contracts pass. Actual screenshots inspected; new exact CI required.
+See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
+
 Alpha.71 installed after PR #151: targeted single Boolean/timer creation through the
 existing plan/store/transaction, explicit duration, collision/binding guards,
 restart-safe cumulative receipts and separate plan-history projection. Creation

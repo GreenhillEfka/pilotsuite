@@ -87,15 +87,29 @@ def validate_automation_ids(ids):
     return sorted(set(ids))
 
 
+def presence_input_exclusions(config, catalog):
+    """Known output identities stay outputs, even before explicit chain binding."""
+    from .organization import same_identity
+    assignments = config.get('organization', {}).get('assignments', {})
+    saved = [row for role in ('presence_status', 'presence_output') for row in assignments.get(role, [])]
+    saved += [member['identity'] for member in (config.get('zone_structure') or {}).get('members', {}).values()
+              if 'Habitus Zone' in member.get('roles', [])]
+    package = (config.get('zone_presence_v2') or {}).get('package') or {}
+    saved += list(package.get('identities', {}).values())
+    outputs = set(package.get('entities', {}).values())
+    for output in saved:
+        # Do not turn an unresolved replacement or ambiguous rename into an input.
+        outputs.add(output['entity_id'])
+        outputs.update(row['entity_id'] for row in catalog if same_identity(output, row))
+    return outputs
+
+
 def validate_existing_inputs(config, catalog, spec):
     """A comparison output cannot confirm its own independent assessment."""
-    from .organization import binding_view
     from .selections import InvalidSelection
-    bindings = binding_view(config, catalog)['assignments']
-    outputs = {row.get('entity_id') for role in ('presence_status', 'presence_output')
-               for row in bindings.get(role, [])}
+    outputs = presence_input_exclusions(config, catalog)
     if outputs & {row['entity_id'] for row in spec['sources']}:
-        raise InvalidSelection('Bestandsausgang darf nicht zugleich Eingang der unabhängigen Präsenzbewertung sein')
+        raise InvalidSelection('Zonenstatus oder Bestandsausgang darf nicht zugleich Eingang der unabhängigen Präsenzbewertung sein')
 
 
 def existing_presence_view(config, catalog, observations, current, *, fresh, now, owned=()):

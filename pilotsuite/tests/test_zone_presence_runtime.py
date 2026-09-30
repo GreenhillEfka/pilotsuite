@@ -56,6 +56,58 @@ class ZonePresenceRuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.clock.stop()
         self.temp.cleanup()
 
+    async def test_relevant_zone_anchor_is_excluded_from_defaults_and_explicit_inputs(self):
+        self.service.client.zone_labels=AsyncMock(return_value=[{'label_id':'room','name':'Room'},
+            {'label_id':'anchor','name':'Habitus Zone'}])
+        response=await self.http.post('/api/v1/zones',json={'definition':{'name':'Anchor check','area_ids':['room'],
+            'extra_entity_ids':[],'enabled':True,'profile':'observe'},'setup':{'label_id':'room',
+            'entity_ids':[SOURCE,MOTION],'relevant_entity_ids':[MOTION],'roles':{SOURCE:['Habitus Zone'],MOTION:[]}}})
+        self.assertEqual(201,response.status,await response.text())
+        zid=(await response.json())['zone_id']
+        # The older selection path may mark a status relevant for read-only history.
+        response=await self.http.patch('/api/v1/selections/'+zid,json={'revision':1,'changes':{SOURCE:'relevant'}})
+        self.assertEqual(200,response.status,await response.text())
+        await self.tick(1,{SOURCE:'on'})
+        view=await self.service.zone_presence_view(zid)
+        self.assertNotIn(SOURCE,{row['entity_id'] for row in view['spec']['sources']})
+        self.assertEqual('unknown',view['current']['state'],'output on cannot establish an occupied or vacant zone')
+        self.assertTrue(next(row for row in view['catalog'] if row['entity_id']==SOURCE)['presence_input_excluded'])
+        before=await self.service.context.get(zid)
+        response=await self.http.put('/api/v1/zones/'+zid+'/presence',json={
+            'revision':view['revision'],'spec':self.spec,'mode':'compare'})
+        self.assertEqual(400,response.status,await response.text())
+        self.assertEqual(before,await self.service.context.get(zid))
+        safe=deepcopy(self.spec);safe['sources']=[row for row in safe['sources'] if row['entity_id']!=SOURCE]
+        safe['comparison_entity']=SOURCE
+        response=await self.http.put('/api/v1/zones/'+zid+'/presence',json={
+            'revision':view['revision'],'spec':safe,'mode':'compare'})
+        self.assertEqual(200,response.status,await response.text())
+        self.assertEqual(SOURCE,(await response.json())['spec']['comparison_entity'])
+        self.service.client.zone_output_service.assert_not_awaited()
+
+    async def test_runtime_rechecks_anchor_role_in_an_existing_legacy_source_config(self):
+        from pilotsuite.core.organization import identity
+        await self.tick(1,{SOURCE:'on'})
+        self.assertEqual('occupied',(await self.service.zone_presence_view('room'))['current']['state'])
+        zone=next(row for row in await self.service.zones.list() if row['zone_id']=='room')
+        definition={k:zone[k] for k in ('name','area_ids','extra_entity_ids','enabled','profile')}
+        catalog=await self.service.world.organization_catalog()
+        # A persisted legacy selection may predate the editor's anchor guard.
+        profile={'schema':'pilotsuite-zone-structure-v1','label_id':'legacy_fixture',
+            'members':{SOURCE:{'identity':identity(next(row for row in catalog if row['entity_id']==SOURCE)),
+                               'roles':['Habitus Zone']}}}
+        await self.service.zones.save(definition,'room',zone['revision'],setup=profile,relevant=[SOURCE])
+        for restarted in (False,True):
+            if restarted:
+                self.service.context=ContextStore(self.service.selections)
+                self.service._zone_views.clear()
+            await self.tick(1)
+            view=await self.service.zone_presence_view('room')
+            self.assertIsNone(view['current'])
+            self.assertEqual('configuration_required',view['status'])
+            self.assertIsNone(view['lighting']['current'])
+        self.service.client.zone_output_service.assert_not_awaited()
+
     async def tick(self, seconds=0, values=None):
         self.now += seconds
         for eid, value in (values or {}).items():
