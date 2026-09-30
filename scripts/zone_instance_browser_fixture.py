@@ -105,6 +105,16 @@ async def main():
    cmd=json.loads(line)
    if cmd['action']=='tick':await tick(cmd.get('seconds',1),cmd.get('values',{}))
    elif cmd['action']=='publish':await s._zone_publish_all() # Only the mocked client above.
+   elif cmd['action']=='legacy_anchor_role':
+    from pilotsuite.core.organization import identity
+    zone=next(row for row in await s.zones.list() if row['zone_id']=='room')
+    definition={k:zone[k] for k in ('name','area_ids','extra_entity_ids','enabled','profile')}
+    catalog=await s.world.organization_catalog();inv=await s.selection_inventory('room')
+    profile={'schema':'pilotsuite-zone-structure-v1','label_id':'fixture_anchor','members':{
+      SOURCE:{'identity':identity(next(row for row in catalog if row['entity_id']==SOURCE)),'roles':['Habitus Zone']}}}
+    await s.zones.save(definition,'room',zone['revision'],setup=profile,
+      relevant=[row['entity_id'] for row in inv['items'] if row['decision']=='relevant'])
+    await tick()
    elif cmd['action']=='tag_membership_change':
     changed=cmd['changed']
     for row in world['entities']:

@@ -9,6 +9,8 @@
   binding, independent readback, partial-result recovery and metadata rollback.
 - Include readable helper names and autolabeling in the existing owned-output package.
   Preserve physical locations, foreign labels, existing anchors and shared-zone roles.
+- Exclude known zone anchors and output identities from presence evidence even
+  through legacy relevance paths; keep read-only comparison and explicit correction.
 - Keep explicit exclusions and draft roles on repeated tag/area imports; expose
   missing tag memberships and HA/draft role differences without auto-enabling sources.
 - Distinguish a whole-zone pause from a paused presence module and lead to the

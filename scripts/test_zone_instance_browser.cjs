@@ -584,7 +584,28 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   if(out)await page.locator('#ps-zone-lighting').screenshot({path:path.join(out,'zone-lighting-comparison.png')});
   assert.deepEqual(errors,[]);
   console.log('ok 10 - live light comparison shares primary presence; bounded settings, drafts/errors and no actuator calls');
-
+  await command({action:'legacy_anchor_role'});await page.evaluate(()=>loadSelection('room'));await refreshPresence();
+  const beforeAnchorEdit=await command({action:'snapshot'});
+  assert.equal(beforeAnchorEdit.view.current,null,'a legacy source later marked as zone output cannot self-confirm');
+  assert.equal(beforeAnchorEdit.view.lighting.current,null,'lighting receives no fabricated presence');
+  await page.locator('#ps-zone-configure').click();
+  await page.getByText(/Bekannte Ausgänge sind keine Präsenzquellen:/).waitFor();
+  const forbiddenSource=page.locator('#ps-zone-form fieldset.ps-zone-source-edit').filter({hasText:'binary_sensor.demo_presence'});
+  await forbiddenSource.getByText('Gespeicherter Ausgang als Quelle: Haken entfernen und die verbleibenden unabhängigen Quellen prüfen.',{exact:true}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).isDisabled(),true);
+  await forbiddenSource.locator('legend input').uncheck();
+  assert.match(await forbiddenSource.innerText(),/Ausgang im Entwurf entfernt/);
+  assert.equal(await page.getByRole('button',{name:'Konfiguration speichern',exact:true}).isDisabled(),false);
+  assert.equal(await forbiddenSource.locator('legend input').isDisabled(),true);
+  assert.equal(await forbiddenSource.locator('select').isDisabled(),true);
+  assert.equal(await page.getByLabel('Zusätzlicher Vergleichsstatus (nur lesen)',{exact:true}).locator('option[value="binary_sensor.demo_presence"]').count(),1);
+  if(out)for(const width of [390,1440]){await page.setViewportSize({width,height:1100});await page.locator('#ps-zone-form').screenshot({path:path.join(out,`zone-anchor-input-${width}.png`)});}
+  await page.getByRole('button',{name:'Verwerfen',exact:true}).click();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
+  const afterAnchorEdit=await command({action:'snapshot'});
+  for(const key of ['zones','mode','roles','learning','output_calls','metadata_calls','helper_creates','organization'])assert.deepEqual(afterAnchorEdit[key],beforeAnchorEdit[key]);
+  assert.deepEqual(errors,[]);
+  console.log('ok 11 - known zone output cannot feed presence/light; legacy source remains visible for explicit correction, cancel writes nothing');
 
  }finally{if(browser)await browser.close();proc.stdin.end();proc.kill('SIGTERM');}
 })().catch(e=>{console.error(e);process.exitCode=1;});

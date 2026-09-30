@@ -43,24 +43,27 @@ commits although trees match. Check fresh PR head/CI rather than reusing an old 
   settings or owned bindings. Preview and transactional restore reject unsupported
   scope. Native app backup is still the complete recovery path; no ownership replay.
 
-Validation: 713 Python tests, 78 JS tests and 68 API contracts pass. All eleven
+Validation: 717 Python tests, 78 JS tests and 68 API contracts pass. All eleven
 browser suites passed; the maintenance suite passed again after the restore guard.
 Seven actual HA 2026.9.3 protocol scenarios pass in a disposable local instance.
-Final Python resource audit: 713 tests, subsequent garbage collection, zero ResourceWarnings.
+Final Python resource audit: 717 tests, subsequent garbage collection, zero ResourceWarnings.
 Red/green cases cover label/anchor races, helper metadata drift, disabled anchors,
 restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
 selected synthetic images are in docs/screenshots/habitus-setup-alpha72/.
 Skills home-assistant-struktur and pilotsuite-quality-release are maintained locally.
-Candidate a653cc3 passed all five CI jobs in run 36663683536, including the
-whole-zone/module pause navigation, all eleven browsers and seven native HA cases.
-The next review reproduced two lost-exclusion bugs on repeated label/area imports.
-The editor now preserves existing selections/exclusions and roles while refreshing
-observed rows. New candidates stay unapproved for analysis; missing label membership
-and differing HA/draft roles are visible. Read failure preserves the complete draft.
-The extended actual-app browser covers these paths plus existing flows at mobile/
-desktop widths. Local 713 Python/78 JS tests and 68 contracts pass. New exact CI for
-this import correction is required; exact closure receipts belong in PR #153.
+Candidate 6ed081f passed all five CI jobs in run 36664522982, including import
+refresh/draft preservation and all eleven browsers/seven native HA cases. The next
+review found the older relevant-selection path could reintroduce a saved zone anchor
+as an independent input. Existing output validation now covers saved structure
+anchors, organization outputs and owned package identities, including unresolved
+or renamed identities. Defaults omit them; explicit configuration and runtime reject
+feedback. Read-only comparison remains possible. Legacy source configurations stay
+visible for explicit correction, never silently rewritten. Presence and lighting
+remain unknown until the configuration is corrected; restart does not bypass it.
+Nine failing unit/API cases reproduced first; 717 Python/78 JS tests and 68 API
+contracts pass. The extended actual-app browser checks correction/cancel and no
+household calls. Latest exact CI is required; closure evidence belongs in PR #153.
 
 ## Release boundary and actual backup finding
 
@@ -78,7 +81,7 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish import-refresh correction review and new exact latest PR CI; obtain clean
+Next: finish source-feedback correction review and new exact latest PR CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation

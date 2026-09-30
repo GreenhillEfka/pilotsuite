@@ -18,7 +18,7 @@ from .core.zone_presence_store import KEY
 from .core.zone_ontology import ROLES as ONTOLOGY_ROLES,metadata_operation,metadata_matches,slug
 from .core.zone_data import series_for,validate_window
 from .core.organization import identity,same_identity,fingerprint
-from .core.presence_adoption import validate_existing_inputs
+from .core.presence_adoption import validate_existing_inputs, presence_input_exclusions
 from .core.selections import InvalidSelection,SelectionConflict
 from .ha.client import HomeAssistantError
 
@@ -43,7 +43,8 @@ class ZonePresenceServiceMixin:
         async with self._projection_lock:
             inv,cfg,catalog,relevant=await self._zone_basis(zid)
             config=cfg.get(KEY) or {}
-            spec=config.get('spec') or {**deepcopy(kernel.DEFAULTS),'sources':kernel.suggested_sources(catalog,relevant)}
+            excluded=presence_input_exclusions(cfg,catalog)
+            spec=config.get('spec') or {**deepcopy(kernel.DEFAULTS),'sources':kernel.suggested_sources(catalog,relevant-excluded)}
             cached=self._zone_views.get(zid,{})
             current=cached.get('current');now=time.time()
             if not (current and cached.get('revision')==inv['revision'] and self._presence_inputs_fresh(now) and
@@ -82,7 +83,7 @@ class ZonePresenceServiceMixin:
             return {'schema':kernel.SCHEMA,'zone_id':zid,'revision':inv['revision'],
                     'analysis_policy':'relevant_means_live_and_available_history','analysis_enabled':bool(inv['enabled']),
                     'spec':spec,'mode':config.get('mode','compare'),'package':config.get('package'),
-                    'catalog':[r for r in catalog if r['entity_id'] in relevant],
+                    'catalog':[{**r,'presence_input_excluded':r['entity_id'] in excluded} for r in catalog if r['entity_id'] in relevant],
                     'current':current,'status':cached.get('status','waiting'),'existing':existing,
                     'publication':publication,'publication_checked_at':checked_at if confirmed else None,
                     'trace':list(self._zone_traces.get(zid,[]))[-128:] if current else [],
@@ -261,7 +262,7 @@ class ZonePresenceServiceMixin:
                     if not any(event.get('entity_id') in group for group in groups.values()):continue
                 if not inv['enabled'] or record.get('mode')=='paused':
                     self._zone_views[zid]={'revision':inv['revision'],'status':'paused','current':None};continue
-                spec=record.get('spec') or {**deepcopy(kernel.DEFAULTS),'sources':kernel.suggested_sources(catalog,relevant)}
+                spec=record.get('spec') or {**deepcopy(kernel.DEFAULTS),'sources':kernel.suggested_sources(catalog,relevant-presence_input_exclusions(cfg,catalog))}
                 spec=kernel.validate_spec(spec,relevant,catalog)
                 validate_existing_inputs(cfg,catalog,spec)
                 basis=kernel.source_basis(spec,catalog);state=await self.context.zone_operational(zid)

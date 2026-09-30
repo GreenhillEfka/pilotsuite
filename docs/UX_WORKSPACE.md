@@ -155,6 +155,13 @@ Das beschreibt den ausdrücklich eingelesenen Bestand, keine kontinuierliche HA-
 Ein Lesefehler entfernt keine Eingaben; der nachfolgende HA-Abgleich behält seine
 frischen Vorbedingungen und konkrete Änderungsbestätigung.
 
+Bekannte Ausgänge einschließlich gespeicherter Habitus-Zonenanker sind keine
+unabhängigen Quellen, auch wenn sie über eine ältere Auswahl als relevant markiert
+wurden. Ein rein lesender Vergleich darf sie weiterhin verwenden. Der Editor nennt
+diese Grenze; bereits gespeicherte Fehlzuordnungen bleiben zur bewussten Korrektur
+sichtbar. Ohne deren Abwahl ist Speichern gesperrt. Die Laufzeit prüft dieselbe
+Grenze unabhängig von der Oberfläche und erfindet bei Konflikten keinen Zustand.
+
 ## Diagnose ohne konkurrierende Wahrheiten
 
 Synthetisches Replay, alter expliziter Schattenvergleich und technische IDs gehören

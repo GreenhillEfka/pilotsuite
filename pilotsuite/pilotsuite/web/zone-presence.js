@@ -238,7 +238,9 @@
    controls.append(labelled('Nachlauf (s)',grace),labelled('Stabile Freiphase (s)',clear),labelled('Maximale Nutzungsstützung (s)',support),labelled('Betriebsmodus',mode),labelled('Zusätzlicher Vergleichsstatus (nur lesen)',comparison));form.append(controls);
    form.append(E('p','Die Zeiten hier gelten nur für die eigene PilotSuite-Bewertung. Bestehende Automationen und deren Timer werden dadurch nicht verändert. Für Boolean, Timer und öffentlichen Sensor „Vorhandenen Bestand verbinden“ nutzen.','ps-muted'));
    form.append(E('p','Ein ausgeschalteter Ereignissensor ist nicht allein wegen fehlender Zustandswechsel veraltet. Meldealter 0 nutzt seinen gültigen HA-Zustand; periodische Quellen können eine Altersgrenze erhalten.','ps-muted'));
-   const selected=new Map(values.sources.map(s=>[s.entity_id,s]));const candidates=data.catalog.filter(e=>selected.has(e.entity_id)||e.entity_id.startsWith('binary_sensor.')||e.entity_id.startsWith('media_player.'));
+   const selected=new Map(values.sources.map(s=>[s.entity_id,s]));const candidates=data.catalog.filter(e=>selected.has(e.entity_id)||!e.presence_input_excluded&&(e.entity_id.startsWith('binary_sensor.')||e.entity_id.startsWith('media_player.')));
+   const excluded=data.catalog.filter(e=>e.presence_input_excluded);
+   if(excluded.length)form.append(E('p','Bekannte Ausgänge sind keine Präsenzquellen: '+excluded.map(e=>e.name||e.entity_id).join(', ')+'. Ein zusätzlicher Vergleich liest nur den Status.','ps-muted'));
    const inputs=[];const filter=E('input');filter.type='search';filter.placeholder='Quellen suchen';filter.setAttribute('aria-label','Präsenzquellen suchen');form.append(filter);
    const list=E('div','','ps-zone-source-editor');
    for(const e of candidates){
@@ -251,6 +253,11 @@
       const age=number(v.max_age,0,86400),group=E('input');group.value=v.group;group.maxLength=80;
       const active=E('input');active.value=v.active_states.join(', ');active.maxLength=200;
       const fields=E('div','','ps-zone-form-grid');fields.append(labelled('Typ',kind),labelled('Meldealter (s; 0 = ereignisbasiert)',age),labelled('Gemeinsame Indiz-/Abdeckungsgruppe',group),labelled('Aktivzustände, kommasepariert',active),labelled('Für Freigabe erforderliche Abdeckung',required),labelled('Darf Aufenthalt beginnen',begin));row.append(fields);list.append(row);
+      if(e.presence_input_excluded){
+        const warning=E('p','Gespeicherter Ausgang als Quelle: Haken entfernen und die verbleibenden unabhängigen Quellen prüfen.','ps-warning');row.append(warning);
+        for(const field of [kind,required,begin,age,group,active])field.disabled=true;
+        enabled.addEventListener('change',()=>{if(!enabled.checked){enabled.disabled=true;warning.textContent='Ausgang im Entwurf entfernt. Erst Speichern übernimmt die korrigierte Quellenwahl.';}});
+      }
       kind.addEventListener('change',()=>{if(kind.value==='support')required.checked=false;});
       inputs.push({e,row,enabled,kind,required,begin,age,group,active});
    }form.append(list);filter.addEventListener('input',()=>{const q=filter.value.toLowerCase();for(const i of inputs)i.row.hidden=!(i.e.name+' '+i.e.entity_id).toLowerCase().includes(q);});
@@ -259,7 +266,7 @@
    const updateEffect=()=>{
      effect.replaceChildren(E('h4','Wirkung beim Speichern'));
      effect.append(E('p',`${inputs.filter(i=>i.enabled.checked).length} Präsenzquellen · Nachlauf ${grace.value} s · stabile Freiphase ${clear.value} s.`));
-     submit.disabled=mode.value==='publish'&&!data.package;
+     submit.disabled=mode.value==='publish'&&!data.package||inputs.some(i=>i.enabled.checked&&i.e.presence_input_excluded);
      if(mode.value==='publish'){
        effect.append(E('p',data.package?'Das gespeicherte eigene Paket veröffentlicht die PilotSuite-Entscheidung an diesen öffentlichen Sensor:':'Zuerst ein eigenes Helfer-/Sensorpaket prüfen und anlegen. Ein Bestandsstatus wird nicht übernommen.','ps-warning'));
        if(data.package)effect.append(E('code',data.package.entities.sensor),E('p','PilotSuite aktualisiert nur die eigenen Status-, Gültigkeits- und Timerhelfer. Verknüpfte HA-Automationen können auf den öffentlichen Sensor reagieren. Unklare Quellen werden nicht als frei veröffentlicht.'));

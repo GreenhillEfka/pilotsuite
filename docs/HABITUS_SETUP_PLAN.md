@@ -141,6 +141,17 @@ mobil/dunkel und Desktop angesehen. Logs: `/private/tmp/habitus-tag-refresh-*`.
 Kein neuer Speicher, automatischer HA-Scan oder Metadaten-Schreibpfad. Exakte neue
 CI folgt im bestehenden PR; keine Auslieferung oder Haushaltsänderung.
 
+Weitere Fortsetzung: Import-Kandidat `6ed081f` mit fünf grünen CI-Jobs
+(`36664522982`). Der ältere Relevanzweg konnte danach einen gespeicherten Anker als
+Präsenzquelle wieder einführen. Neun Unit-/API-Fälle zunächst rot: Zonenanker vor
+Bestandsbindung, Umbenennung, Mehrdeutigkeit/Ersetzung, direktes und unterstützendes
+Signal sowie automatischer Quellenvorschlag. Die bestehende Eingangsvalidierung
+bezieht nun alle bekannten Ausgänge ein. Laufzeit und Wiederanlauf bleiben bei
+Altfehlern unklar; nur der Statusvergleich ist weiterhin erlaubt. Der Editor erklärt
+die konkrete Quellenkorrektur und bewahrt die gespeicherte Konfiguration bei Abbruch.
+717 Python-/78 JS-Tests/68 Verträge und erweiterter Zonenbrowser grün; Handy-/Desktop-
+Screenshots angesehen. Logs `/private/tmp/habitus-anchor-*`. Neue exakte CI folgt.
+
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),
 [Einrichtung](screenshots/habitus-setup-alpha72/foundation-390.png),
 [Lichteditor](screenshots/habitus-setup-alpha72/zone-lighting-editor-390.png),

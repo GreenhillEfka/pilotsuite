@@ -42,6 +42,14 @@ and current-read/draft role differences, and never auto-approves new analysis in
 The extended browser verifies changed tags, read-only import and preserved draft
 on read errors; full 713 Python/78 JS tests and 68 contracts remain green. Latest
 candidate CI is required after this correction.
+Import candidate 6ed081f passed all five jobs (36664522982). The subsequent
+source-feedback guard also applies saved Habitus anchors to default suggestions,
+explicit configuration and ongoing runtime. Stable renames, ambiguous/replaced
+identities and owned/assigned outputs remain excluded as evidence. Read-only status
+comparison is retained. Existing invalid selections require explicit correction;
+no stored source is silently removed, and restart cannot fabricate presence/light.
+Nine initially failing unit/API cases, then 717 Python/78 JS tests and 68 contracts
+pass. The extended browser checks the visible correction and unchanged data on cancel.
 Active lighting/automation takeover and release/household acceptance remain open.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 
