@@ -103,6 +103,13 @@ die konkrete Übernahme einer Haushaltssteuerung sind getrennte Schritte.
   Entwurfs-PR #153 ist gesichert; GitHub-Connector statt nicht angemeldetem CLI-Push.
   Lokale Commits bleiben erhalten, der gefetchte Kandidatenbaum wurde identisch
   geprüft. CI immer auf den neuesten Connector-Kandidaten beziehen; Main unverändert.
+- Fortsetzung: Kandidat `4fc9808` bestand alle fünf CI-Jobs; finaler Python-
+  Ressourcencheck mit 704 Tests und Garbage Collection ohne ResourceWarnings.
+  Der weitere Bedienreview fand einen zu breiten Label-Filter: Namen wie
+  „Habitus Demobereich“ dürfen nicht zusammen mit den sechs Rollen ausgeblendet
+  werden. Im bestehenden Browserablauf rot reproduziert; Filter auf exakte
+  Rollenmitgliedschaft begrenzt. Vollständiger Zonenbrowser und 68 Verträge grün,
+  tatsächlicher Handy-Screenshot geprüft. Neue Kandidaten-CI bleibt erforderlich.
 
 Synthetische UI-Belege, keine Haushaltsbilder:
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),

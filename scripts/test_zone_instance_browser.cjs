@@ -355,10 +355,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('#zone-new').click();
   await page.locator('#zone-label-load').click();
   await page.locator('#zone-label-select:not([disabled])').waitFor();
+  assert.equal(await page.locator('#zone-label-select option').filter({hasText:'Habitus Demobereich'}).count(),1,'ordinary zone labels may begin with Habitus');
+  for(const role of ['Habitus Zone','Habitus Übersicht','Habitus Bedienung','Habitus Status','Habitus Konfiguration','Habitus Diagnose']){
+   assert.equal(await page.locator('#zone-label-select option').evaluateAll((options,name)=>options.filter(option=>option.textContent.startsWith(name+' (')).length,role),0,'canonical role is not a zone label: '+role);
+  }
   await page.locator('#zone-label-select').selectOption('setup_demo');
   await page.locator('#zone-label-import').click();
   await page.locator('.zone-member').first().waitFor();
-  assert.equal(await page.locator('#zone-name').inputValue(),'Demo Zonenlabel');
+  assert.equal(await page.locator('#zone-name').inputValue(),'Habitus Demobereich');
   const members=page.locator('.zone-member');assert.equal(await members.count(),2);
   const presence=members.filter({hasText:'binary_sensor.demo_presence'});
   await presence.getByLabel('Für Auswertung verwenden',{exact:true}).check();

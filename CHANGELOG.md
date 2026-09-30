@@ -4,6 +4,7 @@
 
 - Create Habitus zones from HA areas, additional entities and existing/manual labels
   in one editor. Save membership, stable identities, role labels and relevance together.
+  Zone labels beginning with "Habitus" remain selectable; only exact role labels are excluded.
 - Plan new zone labels and member metadata as one reviewed change, with actual HA ID
   binding, independent readback, partial-result recovery and metadata rollback.
 - Include readable helper names and autolabeling in the existing owned-output package.

@@ -83,7 +83,7 @@ async def main():
  s.client.zone_create_storage_helper=AsyncMock(side_effect=create_helper)
  s.client.zone_create_binary_sensor=AsyncMock(side_effect=create_sensor)
  s.client.zone_label_devices=AsyncMock(return_value={})
- labels=[{'label_id':str(i),'name':r} for i,r in enumerate(ROLES)]+[{'label_id':'zone','name':'room'},{'label_id':'setup_demo','name':'Demo Zonenlabel'}]
+ labels=[{'label_id':str(i),'name':r} for i,r in enumerate(ROLES)]+[{'label_id':'zone','name':'room'},{'label_id':'setup_demo','name':'Habitus Demobereich'}]
  s.client.zone_labels=AsyncMock(side_effect=lambda:deepcopy(labels))
  async def create_label(name):
   from pilotsuite.core.zone_ontology import slug

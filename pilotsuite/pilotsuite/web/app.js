@@ -447,7 +447,7 @@ byId('zone-label-load').addEventListener('click',async()=>{
     const result=await json('api/v1/zone-labels');
     if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
     zoneRoleChoices=result.roles||[];renderZoneMembers();
-    const select=byId('zone-label-select');select.replaceChildren(new Option('Zonenlabel wählen',''),...result.items.filter(r=>!r.name.startsWith('Habitus ')).map(r=>new Option(`${r.name} (${r.member_count})`,r.label_id)));
+    const select=byId('zone-label-select');select.replaceChildren(new Option('Zonenlabel wählen',''),...result.items.filter(r=>!zoneRoleChoices.includes(r.name)).map(r=>new Option(`${r.name} (${r.member_count})`,r.label_id)));
     select.value=zoneSetupDraft?.label_id || '';select.disabled=false;byId('zone-label-import').disabled=!select.value;
     text('zone-label-message','Label wählen und Mitglieder prüfen. Bestehende Eingaben bleiben bis zur Übernahme erhalten.');
   } catch(error){text('zone-label-message',error.message);}

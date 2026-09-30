@@ -43,13 +43,17 @@ commits although trees match. Check fresh PR head/CI rather than reusing an old 
 Validation: 704 Python tests, 78 JS tests and 68 API contracts pass. All eleven
 browser suites passed; the maintenance suite passed again after the restore guard.
 Seven actual HA 2026.9.3 protocol scenarios pass in a disposable local instance.
-Resource audit before the last narrow fixes: 701 tests, zero ResourceWarnings.
+Final Python resource audit: 704 tests, subsequent garbage collection, zero ResourceWarnings.
 Red/green cases cover label/anchor races, helper metadata drift, disabled anchors,
 restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
 selected synthetic images are in docs/screenshots/habitus-setup-alpha72/.
 Skills home-assistant-struktur and pilotsuite-quality-release are maintained locally.
-Exhaustive exact-head CI is required after the final candidate update.
+Candidate 4fc9808 passed all five CI jobs in run 36659360740; its receipt is in PR #153.
+Continuation fixes one browser-only label filter: ordinary names beginning with
+"Habitus" remain selectable; only the six canonical roles are excluded. Reproduced
+red in the existing zone browser; complete zone browser and contracts passed after
+the fix. Actual mobile screenshot inspected. A new exact-head CI is required.
 
 ## Release boundary and actual backup finding
 
@@ -67,8 +71,9 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish exact latest PR CI and source review; obtain clean native backup
-confirmation or an explicit user decision on this narrow local-backup exception.
+Next: verify the label-filter correction and new exact latest PR CI; obtain clean
+native backup confirmation or the pending explicit user decision on the narrow
+local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation
 proceed within the authorized time window. Update the release receipt only after
 actual verified delivery. Prior Alpha.71 receipt remains in RELEASE_STATE.json.
