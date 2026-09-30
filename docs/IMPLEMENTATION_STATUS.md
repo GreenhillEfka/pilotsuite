@@ -51,6 +51,11 @@ no stored source is silently removed, and restart cannot fabricate presence/ligh
 Nine initially failing unit/API cases, then 717 Python/78 JS tests and 68 contracts
 pass. The extended browser checks the visible correction and unchanged data on cancel.
 Active lighting/automation takeover and release/household acceptance remain open.
+The following label-editor refinement keeps durable bindings fixed, shows missing
+HA label identities without discarding the draft and preserves actual save-conflict
+causes. Pending imports lock label selection. Six actual-browser failures reproduced
+first; recovery/cancel checks verify no configuration or HA-write side effect. This
+is a UI correction using existing API/storage semantics, not a label migration.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 
 Alpha.71 installed after PR #151: targeted single Boolean/timer creation through the

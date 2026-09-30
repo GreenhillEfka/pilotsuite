@@ -194,7 +194,7 @@ let contextEditing = false;
 let contextData = null;
 let contextGeneration = 0;
 let zoneExtraSelection = new Set();
-let zoneSetupDraft = null, zoneSetupRows = [], zoneRoleChoices = [], zoneLabelBusy = false, zoneSetupEpoch = 0;
+let zoneSetupDraft = null, zoneSetupRows = [], zoneRoleChoices = [], zoneLabelBusy = false, zoneSetupEpoch = 0, zoneBoundLabel = null;
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
 function selectionControls() {
@@ -361,11 +361,13 @@ async function openZoneEditor(existing) {
     if (existing && !zoneEditing) throw new Error('Zone nicht mehr vorhanden. Neu laden.');
     const zone = zoneEditing || {name: '', area_ids: [], extra_entity_ids: [], enabled: false, profile: 'observe'};
     const structure = existing ? contextData?.config?.zone_structure : null;
+    zoneBoundLabel = structure?.label_id || null;
     zoneSetupDraft = structure ? {label_id: structure.label_id, ...(!structure.label_id?{label_name:structure.label_name}:{}), entity_ids: Object.keys(structure.members),
       relevant_entity_ids: [...(selectionDraft?.inventory?.items || []),...(selectionDraft?.inventory?.missing || [])].filter(r=>r.decision==='relevant' && structure.members[r.entity_id]).map(r=>r.entity_id),
       roles:Object.fromEntries(Object.entries(structure.members).map(([id,row])=>[id,[...row.roles]]))} : null;
     zoneSetupRows = structure ? Object.entries(structure.members).map(([entity_id,row])=>({entity_id,name:entity_id,habitus_roles:row.roles})) : [];
     byId('zone-label-name').value = structure?.label_name || zone.name;
+    byId('zone-label-name').disabled = !!zoneBoundLabel;
     byId('zone-label-new').disabled = !!structure?.label_id;
     byId('zone-label-select').replaceChildren(new Option(structure?.label_id || 'Noch nicht verbunden', structure?.label_id || ''));
     byId('zone-label-select').disabled = true; byId('zone-label-import').disabled = true;
@@ -457,18 +459,29 @@ byId('zone-label-load').addEventListener('click',async()=>{
     const result=await json('api/v1/zone-labels');
     if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
     zoneRoleChoices=result.roles||[];renderZoneMembers();
-    const select=byId('zone-label-select');select.replaceChildren(new Option('Zonenlabel wählen',''),...result.items.filter(r=>!zoneRoleChoices.includes(r.name)).map(r=>new Option(`${r.name} (${r.member_count})`,r.label_id)));
-    select.value=zoneSetupDraft?.label_id || '';select.disabled=false;byId('zone-label-import').disabled=!select.value;
-    text('zone-label-message','Label wählen und Mitglieder prüfen. Bestehende Eingaben bleiben bis zur Übernahme erhalten.');
+    const select=byId('zone-label-select'), labels=result.items.filter(r=>!zoneRoleChoices.includes(r.name));
+    if(zoneBoundLabel){
+      const bound=labels.find(row=>row.label_id===zoneBoundLabel);
+      select.replaceChildren(new Option(bound?`${bound.name} (${bound.member_count})`:`${zoneBoundLabel} (fehlt in Home Assistant)`,zoneBoundLabel));
+      select.disabled=true;byId('zone-label-import').disabled=!bound;
+      text('zone-label-message',bound
+        ? `Mit „${bound.name}“ fest verbunden. Mitglieder erneut einlesen und Änderungen prüfen. Ein anderes Label erfordert eine gesonderte Umstellung.`
+        : `Das verbundene Label „${zoneBoundLabel}“ fehlt in Home Assistant. Gespeicherte Zuordnung und Entwurf bleiben erhalten. Labelbestand prüfen und erneut laden.`);
+    }else{
+      select.replaceChildren(new Option('Zonenlabel wählen',''),...labels.map(r=>new Option(`${r.name} (${r.member_count})`,r.label_id)));
+      select.value=zoneSetupDraft?.label_id || '';select.disabled=false;byId('zone-label-import').disabled=!select.value;
+      text('zone-label-message','Label wählen und Mitglieder prüfen. Bestehende Eingaben bleiben bis zur Übernahme erhalten.');
+    }
   } catch(error){text('zone-label-message',error.message);}
   finally {zoneLabelBusy=false;byId('zone-label-load').disabled=false;}
 });
 byId('zone-label-select').addEventListener('change',()=>{byId('zone-label-import').disabled=!byId('zone-label-select').value;});
 byId('zone-label-import').addEventListener('click',async()=>{
   if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-import').disabled=true;
-  const epoch=zoneSetupEpoch;
+  const epoch=zoneSetupEpoch,select=byId('zone-label-select'),selectionWasDisabled=select.disabled;
+  select.disabled=true;
   try {
-    const chosen=byId('zone-label-select').value,result=await json('api/v1/zone-labels/'+encodeURIComponent(chosen));
+    const chosen=select.value,result=await json('api/v1/zone-labels/'+encodeURIComponent(chosen));
     if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
     const old=zoneSetupDraft&&(zoneSetupDraft.label_id===chosen||zoneSetupDraft.label_id===null)?zoneSetupDraft:null;
     const rows=new Map((old?zoneSetupRows:[]).map(r=>[r.entity_id,{...r,label_observation:'missing'}]));
@@ -481,7 +494,7 @@ byId('zone-label-import').addEventListener('click',async()=>{
     renderZoneMembers();
     text('zone-label-message',`${result.members.length} Mitglieder eingelesen. Bisherige Auswahl und Rollen bleiben erhalten; neue Mitglieder werden nur vorgeschlagen. Abweichungen stehen an den Einträgen. Quellen für die Auswertung gezielt anhaken. Speichern ändert keine HA-Labels.`);
   } catch(error){text('zone-label-message',error.message);}
-  finally {zoneLabelBusy=false;byId('zone-label-import').disabled=!byId('zone-label-select').value;}
+  finally {zoneLabelBusy=false;if(epoch===zoneSetupEpoch){select.disabled=selectionWasDisabled;byId('zone-label-import').disabled=!select.value;}}
 });
 byId('zone-label-new').addEventListener('click',()=>{
   if(zoneLabelBusy || zoneSaving)return;
@@ -531,7 +544,7 @@ byId('zone-form').addEventListener('submit', async event => {
     zoneFormOpen = false; byId('zone-form').hidden = true;
     text('zone-message', zoneSetupDraft ? 'Zone, Tag-Verbindung und Quellen gespeichert. Zonenlabels abgleichen, dann die Präsenz einrichten.' : 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
     await reloadZones(saved.zone_id); await load();
-  } catch (error) { text('zone-message', error.status === 409 ? 'Zone oder Entitätenauswahl zwischenzeitlich geändert. Entwurf bleibt erhalten. Abbrechen und erneut öffnen, um den aktuellen Stand zu laden.' : error.message); }
+  } catch (error) { text('zone-message', error.status === 409 ? `${error.message} · Entwurf bleibt erhalten. Aktuellen Bestand prüfen, bevor du erneut speicherst.` : error.message); }
   finally { zoneSaving = false; byId('zone-fields').disabled = false; renderSelection(); }
 });
 

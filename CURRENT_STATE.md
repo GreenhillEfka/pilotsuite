@@ -52,18 +52,20 @@ restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
 selected synthetic images are in docs/screenshots/habitus-setup-alpha72/.
 Skills home-assistant-struktur and pilotsuite-quality-release are maintained locally.
-Candidate 6ed081f passed all five CI jobs in run 36664522982, including import
-refresh/draft preservation and all eleven browsers/seven native HA cases. The next
-review found the older relevant-selection path could reintroduce a saved zone anchor
-as an independent input. Existing output validation now covers saved structure
-anchors, organization outputs and owned package identities, including unresolved
-or renamed identities. Defaults omit them; explicit configuration and runtime reject
-feedback. Read-only comparison remains possible. Legacy source configurations stay
-visible for explicit correction, never silently rewritten. Presence and lighting
-remain unknown until the configuration is corrected; restart does not bypass it.
-Nine failing unit/API cases reproduced first; 717 Python/78 JS tests and 68 API
-contracts pass. The extended actual-app browser checks correction/cancel and no
-household calls. Latest exact CI is required; closure evidence belongs in PR #153.
+Candidate 351283e passed all five CI jobs in run 36665786791, including saved-output
+feedback protection and all eleven browsers/seven native HA cases. The source guard
+covers saved structure anchors, organization outputs and owned package identities,
+including unresolved or renamed identities. Defaults omit them; explicit configuration
+and runtime reject feedback. Read-only comparison remains possible. Legacy source
+configurations stay visible for explicit correction, never silently rewritten.
+
+The following UI review reproduced six label-guidance failures in the actual-app
+browser. Existing label bindings now remain fixed in the editor; missing HA labels
+retain their identity and saved draft with an explicit explanation. Loading a label
+locks the selection until the response finishes. Save conflicts show their real
+cause without discarding inputs. Missing-label recovery, cancellation and unchanged
+HA calls are checked. New exact CI for this UI refinement is required; closure
+evidence belongs in PR #153.
 
 ## Release boundary and actual backup finding
 
@@ -81,7 +83,7 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish source-feedback correction review and new exact latest PR CI; obtain clean
+Next: finish label-guidance review and new exact latest PR CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation

@@ -387,7 +387,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
    assert.equal(await page.locator('#zone-label-select option').evaluateAll((options,name)=>options.filter(option=>option.textContent.startsWith(name+' (')).length,role),0,'canonical role is not a zone label: '+role);
   }
   await page.locator('#zone-label-select').selectOption('setup_demo');
-  await page.locator('#zone-label-import').click();
+  const labelImportGate=await holdRequest('**/api/v1/zone-labels/setup_demo','GET');
+  await page.locator('#zone-label-import').click();await labelImportGate.received;
+  const labelChecks={pendingSelectionLocked:await page.locator('#zone-label-select').isDisabled()};
+  labelImportGate.resume();
   await page.locator('.zone-member').first().waitFor();
   assert.equal(await page.locator('#zone-name').inputValue(),'Habitus Demobereich');
   const members=page.locator('.zone-member');assert.equal(await members.count(),2);
@@ -447,6 +450,36 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   for(const key of ['helper_creates','output_calls','metadata_calls','learning','roles','mode'])assert.deepEqual(afterSetup[key],beforeSetup[key]);
   assert.equal(afterSetup.zones.length,beforeSetup.zones.length+1);
   for(const z of beforeSetup.zones)assert.deepEqual(afterSetup.zones.find(r=>r.zone_id===z.zone_id),z);
+  await page.locator('#zone-edit').click();await page.locator('#zone-form').waitFor();
+  await page.locator('#zone-name').fill('Offener Label-Entwurf');
+  await page.locator('#zone-label-load').click();await page.waitForFunction(()=>!zoneLabelBusy);
+  labelChecks.boundSelectionLocked=await page.locator('#zone-label-select').isDisabled();
+  assert.equal(await page.locator('#zone-label-name').isDisabled(),true,'new-label name is not a rename field for an existing binding');
+  labelChecks.boundExplained=/fest verbunden/.test(await page.locator('#zone-label-message').innerText());
+  const boundDraft=await page.evaluate(()=>JSON.stringify(zoneSetupDraft));
+  await page.route('**/api/v1/zone-labels',async route=>{
+   const response=await route.fetch(),data=await response.json();data.items=data.items.filter(row=>row.label_id!=='setup_demo');
+   await route.fulfill({response,json:data});
+  },{times:1});
+  await page.locator('#zone-label-load').click();await page.waitForFunction(()=>!zoneLabelBusy);
+  labelChecks.missingIdentityVisible=await page.locator('#zone-label-select').inputValue()==='setup_demo';
+  labelChecks.missingImportBlocked=await page.locator('#zone-label-import').isDisabled();
+  labelChecks.missingExplained=/fehlt in Home Assistant/.test(await page.locator('#zone-label-message').innerText());
+  assert.equal(await page.evaluate(()=>JSON.stringify(zoneSetupDraft)),boundDraft,'missing label cannot erase saved membership or roles');
+  assert.equal(await page.locator('#zone-name').inputValue(),'Offener Label-Entwurf');
+  if(out)for(const width of [390,1440]){await page.setViewportSize({width,height:1100});await page.locator('#zone-form').screenshot({path:path.join(out,`zone-label-missing-${width}.png`)});}
+  await page.locator('#zone-label-load').click();await page.waitForFunction(()=>!zoneLabelBusy);
+  assert.equal(await page.locator('#zone-label-import').isDisabled(),false,'fresh recovered label allows reading members again');
+  await page.route('**/api/v1/zones/hz_*',route=>route.request().method()==='PATCH'
+   ?route.fulfill({status:409,json:{message:'Mitglied wurde ersetzt; Identität vor erneuter Zuordnung klären: light.demo'}}):route.continue(),{times:1});
+  await page.locator('#zone-form').getByRole('button',{name:'Zone speichern',exact:true}).click();await page.waitForFunction(()=>!zoneSaving);
+  labelChecks.conflictCauseVisible=/Mitglied wurde ersetzt/.test(await page.locator('#zone-message').innerText());
+  assert.equal(await page.locator('#zone-name').inputValue(),'Offener Label-Entwurf');
+  assert.equal(await page.evaluate(()=>JSON.stringify(zoneSetupDraft)),boundDraft);
+  await page.locator('#zone-cancel').click();
+  const afterLabelReview=await command({action:'snapshot'});
+  for(const key of ['zones','mode','roles','learning','output_calls','metadata_calls','helper_creates','organization'])assert.deepEqual(afterLabelReview[key],afterSetup[key]);
+  assert.deepEqual(labelChecks,Object.fromEntries(Object.keys(labelChecks).map(key=>[key,true])), 'pending/bound/missing labels and identity conflict must be explained without changing the draft');
   await page.locator('#ps-structure-sync:not([disabled])').waitFor();
   await page.locator('#ps-structure-sync').click();
   await page.getByRole('button',{name:'Genau diesen Plan anwenden',exact:true}).waitFor();
@@ -481,9 +514,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'new label form overflow '+width);
    if(out)await page.screenshot({path:path.join(out,`zone-new-label-${theme}-${width}.png`),fullPage:true});
   }}
-  const beforeNew=await command({action:'snapshot'});
+  const beforeNew=await command({action:'snapshot'}),previousNewZone=await page.evaluate(()=>selectionZone);
   await page.locator('#zone-form').getByRole('button',{name:'Zone speichern',exact:true}).click();
-  await page.waitForFunction(()=>!zoneFormOpen&&!selectionBusy&&selectionZone.startsWith('hz_'));
+  await page.waitForFunction(previous=>!zoneFormOpen&&!selectionBusy&&selectionZone.startsWith('hz_')&&selectionZone!==previous,previousNewZone);
   const pending=await page.evaluate(()=>json('api/v1/zones/'+encodeURIComponent(selectionZone)+'/structure'));
   assert.equal(pending.profile.label_id,null);assert.equal(pending.profile.label_name,'Demo neuer Bereich');
   await page.locator('#ps-structure-sync:not([disabled])').click();

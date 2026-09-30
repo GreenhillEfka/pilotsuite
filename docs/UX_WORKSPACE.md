@@ -234,3 +234,10 @@ Synthetische Screenshots belegen Gestaltung im Testsystem. Erst die angemeldete,
 zunächst ausschließlich lesende Ingress-Prüfung belegt den Haushalt-Nutzerweg.
 Bedienzeiten und Verständnis dort messen; keine pauschale Barrierefreiheits-
 oder Komfortverbesserungsbehauptung allein aus grünen Tests.
+
+Labelbindung im Zoneneditor: Ein bereits gespeichertes Zonenlabel ist fest zugeordnet,
+wie im bestehenden Speicher. Erneutes Einlesen aktualisiert die Kandidaten; es ist
+keine Labelmigration. Fehlt das HA-Label, bleiben ID und Entwurf sichtbar, bis der
+Bestand erneut geprüft wird. Während einer laufenden Mitgliedsabfrage bleibt die
+Labelauswahl gesperrt. Bei Speicherkonflikten wird der konkrete Servergrund als Text
+gezeigt; Abbrechen und erneutes Öffnen bleiben bewusste Entscheidungen.

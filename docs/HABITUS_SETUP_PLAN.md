@@ -152,6 +152,17 @@ die konkrete Quellenkorrektur und bewahrt die gespeicherte Konfiguration bei Abb
 717 Python-/78 JS-Tests/68 Verträge und erweiterter Zonenbrowser grün; Handy-/Desktop-
 Screenshots angesehen. Logs `/private/tmp/habitus-anchor-*`. Neue exakte CI folgt.
 
+Weitere Fortsetzung: Rückkopplungsschutz auf `351283e` mit fünf grünen CI-Jobs
+(`36665786791`). Im gespeicherten Zoneneditor sechs Bedienlücken zuerst im Browser
+rot reproduziert: feste Labelbindung blieb wechselbar, fehlende Labelkennung und
+Ursache verschwanden, Speicherkonflikte verloren ihren Grund, laufender Import ließ
+eine andere Auswahl zu. Der bestehende Editor zeigt Bindung/fehlendes Label und
+Konfliktursache, erhält den Entwurf und sperrt die Auswahl nur passend zum Zustand.
+Kein neuer Store oder HA-Schreibweg. Logs `/private/tmp/habitus-label-guidance-*`;
+Erweiterter Zonenbrowser, 78 JS-Tests und 68 Verträge grün; tatsächliche Handy-/
+Desktop-Screenshots angesehen. Abschluss-CI im bestehenden PR. Ein alter Browser-Wartepunkt wurde auf den tatsächlichen
+Wechsel zur neu gespeicherten Zone präzisiert, statt schon die vorige Zone zu akzeptieren.
+
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),
 [Einrichtung](screenshots/habitus-setup-alpha72/foundation-390.png),
 [Lichteditor](screenshots/habitus-setup-alpha72/zone-lighting-editor-390.png),
@@ -159,8 +170,9 @@ Screenshots angesehen. Logs `/private/tmp/habitus-anchor-*`. Neue exakte CI folg
 
 ## Übergabepunkte für die Fortsetzung
 
-- Lokaler geprüfter erster Commit: `04425ae`. Nicht veröffentlicht; App-Version
-  noch nicht angehoben. Untracked AGENTS.md unverändert lassen.
+- Aktueller Kandidat und exakte CI: bestehender PR #153 und CURRENT_STATE.md.
+  Lokale/Connector-Commit-IDs unterscheiden sich bei gleichem geprüftem Quellbaum.
+  Alpha.72 ist vorbereitet; Alpha.71 bleibt installiert. AGENTS.md unverändert lassen.
 - Python: `/private/tmp/pilotsuite-test-env.saaFlP/bin/python`, `PYTHONPATH=pilotsuite`.
   Browserbibliothek: `/Users/andreas/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright`.
   `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/pilotsuite-browsers`; `PYTHON` wie oben.
@@ -173,5 +185,5 @@ Screenshots angesehen. Logs `/private/tmp/habitus-anchor-*`. Neue exakte CI folg
 - Bisherige Logs: `/private/tmp/habitus-full-tests.log`,
   `/private/tmp/habitus-js-tests.log`, `/private/tmp/habitus-setup-browser.log`.
   Synthetische Screenshots: `/private/tmp/habitus-setup-ui/`.
-- Kein authentifizierter Haushaltsbrowser beobachtet. Die HA-App-Metadaten wurden
-  frisch geprüft: Alpha.71 gestartet, kein Update angeboten. Keine Live-Applys.
+- Kein authentifizierter Haushaltsbrowser beobachtet. Den tatsächlichen App-Stand
+  vor Auslieferung nativ neu lesen; keine Installation aus diesem Übergabetext ableiten.

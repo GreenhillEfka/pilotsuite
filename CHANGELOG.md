@@ -2,6 +2,9 @@
 
 ## [0.1.0-alpha.72] - 2026-09-30
 
+- Bound and missing zone labels remain explicit in the editor; imports hold their
+  selection and save conflicts preserve the actual reason and all draft inputs.
+
 - Create Habitus zones from HA areas, additional entities and existing/manual labels
   in one editor. Save membership, stable identities, role labels and relevance together.
   Zone labels beginning with "Habitus" remain selectable; only exact role labels are excluded.
