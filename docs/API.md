@@ -99,6 +99,13 @@ connection retain their separate explicit ontology workflow.
 | `POST` | `/api/v1/zones/{zone_id}/lighting-decision` | Explicit transient check of the current canonical zone roles, cached observations and freshly read related automation structures. Returns exactly one next step, never treats indoor lux as confirmed outdoor daylight, never infers physical measurement freshness from transport freshness, persists nothing and cannot execute. |
 | `POST` | `/api/v1/zones/{zone_id}/presence-adoption/review` | Explicit read-only structural review. Saved organization bindings select existing-control mode; otherwise the legacy review remains compatible. No execution. |
 
+The existing zone-presence GET includes `lighting.current.daylight.status` when a
+comparison is available: `valid`, `not_configured`, `connection_unconfirmed`,
+`provenance_unconfirmed`, `time_unknown`, `stale`, `unit_invalid` or `value_invalid`.
+This explains the first failing existing gate; only `valid` accompanies a numeric
+lux value. `manual_sources` retains the observed state per configured entity.
+Diagnosis is read-only and does not relax proposal gates or authorize execution.
+
 ## Routine drafts, comparisons and review notes
 
 | Method | Path | Purpose |

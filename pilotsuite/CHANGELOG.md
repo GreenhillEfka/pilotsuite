@@ -2,6 +2,9 @@
 
 ## [0.1.0-alpha.72] - 2026-09-30
 
+- Explain daylight validity and named manual blockers in the live light comparison;
+  retain open diagnostics and keyboard focus on refresh without changing the policy.
+
 - Saved zone members explain renamed, disabled and unresolved identities using the
   existing resolver. Opening loads canonical structure/relevance with matching
   revisions, without automatic rebinding or replacement.

@@ -43,10 +43,10 @@ commits although trees match. Check fresh PR head/CI rather than reusing an old 
   settings or owned bindings. Preview and transactional restore reject unsupported
   scope. Native app backup is still the complete recovery path; no ownership replay.
 
-Validation: 718 Python tests, 78 JS tests and 68 API contracts pass. All eleven
+Validation: 719 Python tests, 78 JS tests and 68 API contracts pass. All eleven
 browser suites passed; the maintenance suite passed again after the restore guard.
 Seven actual HA 2026.9.3 protocol scenarios pass in a disposable local instance.
-Final Python resource audit: 718 tests, subsequent garbage collection, zero ResourceWarnings.
+Final Python resource audit: 719 tests, subsequent garbage collection, zero ResourceWarnings.
 Red/green cases cover label/anchor races, helper metadata drift, disabled anchors,
 restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
@@ -70,6 +70,16 @@ registry, not current device state. Six API cases reproduced missing diagnostics
 718 Python tests, 78 JS tests, 68 contracts and both affected browsers pass. Actual
 mobile/desktop screenshots inspected. New exact CI closure belongs in PR #153.
 
+Member-identity candidate 5b59d4c passed all five CI jobs (36667558353). The light
+comparison now explains each existing daylight validity gate and names configured
+manual blockers with their actual state. No policy, store or write authority changes.
+Nine initially failing diagnostic cases pass; 719 Python/78 JS tests, 68 contracts
+and the extended zone browser pass. Open details and keyboard focus survive passive
+refresh. Missing values withhold proposals; recovery reacquires stability. Actual
+390/1440 screenshots inspected in /private/tmp/habitus-light-diagnostics-ui/.
+Final Python garbage collection emitted no ResourceWarnings. New exact CI is still
+required for this additive diagnosis; the receipt belongs in PR #153.
+
 ## Release boundary and actual backup finding
 
 Alpha.72 version markers and both changelogs are prepared. No merge to main, Store
@@ -86,7 +96,7 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish member-identity review and new exact latest PR CI; obtain clean
+Next: finish the light-diagnostic candidate with exact latest PR CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation

@@ -149,11 +149,19 @@ def evaluate(spec, previous, states, presence, *, now, fresh, event=None, restar
     at = timestamp(raw.get('last_reported', raw.get('last_updated')))
     age = now-at if finite(at) and at <= now else None
     lux = None
-    if (fresh and age is not None and age <= spec['max_age_seconds'] and spec['daylight_provenance'] == 'outdoor'
-            and raw.get('attributes', {}).get('unit_of_measurement') in ('lx', 'lux')):
+    if lux_id is None: daylight_status = 'not_configured'
+    elif not fresh: daylight_status = 'connection_unconfirmed'
+    elif spec['daylight_provenance'] != 'outdoor': daylight_status = 'provenance_unconfirmed'
+    elif age is None: daylight_status = 'time_unknown'
+    elif age > spec['max_age_seconds']: daylight_status = 'stale'
+    elif raw.get('attributes', {}).get('unit_of_measurement') not in ('lx', 'lux'): daylight_status = 'unit_invalid'
+    else:
+        daylight_status = 'value_invalid'
         try:
             value = float(raw.get('state'))
-            if finite(value) and value >= 0: lux = value
+            if finite(value) and value >= 0:
+                lux = value
+                daylight_status = 'valid'
         except (ValueError, TypeError): pass
     next_points = {}; rows = []
     for eid in spec['lights']:
@@ -189,7 +197,8 @@ def evaluate(spec, previous, states, presence, *, now, fresh, event=None, restar
                      'manual_until':holds.get(eid)})
     state = {'points':next_points, 'holds':holds, 'last_event':last_event, 'observed_at':now}
     view = {'observed_at':now, 'presence_state':presence_state, 'lights':rows, 'manual_sources':manual,
-            'daylight':{'entity_id':lux_id, 'value':lux, 'age_seconds':age, 'provenance':spec['daylight_provenance']},
+            'daylight':{'entity_id':lux_id, 'value':lux, 'age_seconds':age, 'provenance':spec['daylight_provenance'],
+                        'status':daylight_status},
             'execution':{'allowed':False, 'actions':[]},
             'message':'Laufender Lichtvergleich auf der PilotSuite-Präsenz. Bestehende HA-Steuerung bleibt zuständig.'}
     return state, view

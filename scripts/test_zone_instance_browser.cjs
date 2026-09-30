@@ -86,6 +86,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.match(await page.locator('#ps-zone-presence').innerText(),/Steuerungsverantwortung bleiben unverändert/);
   if(out)await page.screenshot({path:path.join(out,'single-helper-preview-desktop.png'),fullPage:true});
   await page.getByRole('button',{name:'Schließen',exact:true}).click();
+  await page.waitForFunction(()=>!selectionBusy&&!window.PilotSuiteZonePresence.dirty());
   assert.equal((await command({action:'snapshot'})).helper_creates,0,'single-helper preview performs no HA write');
   await page.locator('#ps-helper-options>summary').click();
   await page.evaluate(()=>{location.hash='#ps-organization';});
@@ -614,6 +615,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.getByLabel('Tageslichtquelle',{exact:true}).selectOption('sensor.demo_lux');
   await page.getByLabel('Herkunft der Luxmessung',{exact:true}).selectOption('outdoor');
   await page.getByLabel('Pause nach Lichtänderung (s)',{exact:true}).fill('600');
+  await page.getByText('Zusätzliche manuelle Sperren · optional',{exact:true}).click();
+  await page.getByLabel('Manueller Vorrang Demo',{exact:true}).check();
   await page.getByLabel('Lichtgruppe Demo',{exact:true}).check();
   await page.getByRole('button',{name:'Lichtvergleich speichern',exact:true}).click();
   await page.getByText('Lichtgruppen und ihre Mitglieder überschneiden sich; nur einmal zuordnen',{exact:true}).waitFor();
@@ -640,6 +643,24 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(afterLight.output_calls,beforeLight.output_calls);assert.equal(afterLight.helper_creates,beforeLight.helper_creates);
   if(out)await page.locator('#ps-zone-lighting').screenshot({path:path.join(out,'zone-lighting-comparison.png')});
   assert.deepEqual(errors,[]);
+  await page.locator('#ps-lighting-inputs>summary').click();
+  assert.match(await page.locator('#ps-lighting-inputs').innerText(),/Tageslicht Demo/);
+  await command({action:'tick',values:{'input_boolean.demo_override':'unavailable','sensor.demo_lux':'unavailable'}});await refreshPresence();
+  await page.locator('#ps-lighting-inputs').getByText(/^Luxwert fehlt oder ist ungültig/).waitFor();
+  assert.match(await page.locator('#ps-lighting-inputs').innerText(),/Luxwert fehlt oder ist ungültig/);
+  assert.match(await page.locator('#ps-lighting-inputs').innerText(),/Manueller Vorrang Demo.*Nicht verfügbar.*bleibt gesperrt/s);
+  assert.equal(await page.locator('#ps-zone-lighting').getByText(/^Vorschlag:/).count(),0,'unclear blocker and lux never produce a proposal');
+  await page.locator('#ps-lighting-inputs>summary').focus();
+  await page.evaluate(async()=>{await load({background:true});await load({background:true});});
+  assert.equal(await page.locator('#ps-lighting-inputs').evaluate(e=>e.open),true,'passive refresh preserves the open diagnostic');
+  assert.equal(await page.locator('#ps-lighting-inputs>summary').evaluate(e=>e===document.activeElement),true);
+  if(out)for(const width of [390,1440]){await page.setViewportSize({width,height:1100});await page.locator('#ps-zone-lighting').screenshot({path:path.join(out,`zone-lighting-inputs-${width}.png`)});}
+  await command({action:'tick',values:{'input_boolean.demo_override':'off','sensor.demo_lux':'80'}});await refreshPresence();
+  await page.locator('#ps-lighting-inputs').getByText(/^Bestätigte Außenmessung/).waitFor();
+  assert.match(await page.locator('#ps-lighting-inputs').innerText(),/Bestätigte Außenmessung/);
+  assert.match(await page.locator('#ps-zone-lighting').innerText(),/stabil bleiben/);
+  const afterLightDiagnosis=await command({action:'snapshot'});
+  for(const key of ['zones','mode','roles','learning','output_calls','metadata_calls','helper_creates','organization'])assert.deepEqual(afterLightDiagnosis[key],afterLight[key]);
   console.log('ok 10 - live light comparison shares primary presence; bounded settings, drafts/errors and no actuator calls');
   await command({action:'legacy_anchor_role'});await page.evaluate(()=>loadSelection('room'));await refreshPresence();
   const beforeAnchorEdit=await command({action:'snapshot'});

@@ -47,6 +47,26 @@ class ZoneLightingPolicyTests(unittest.TestCase):
                 if change=='provenance':self.spec['daylight_provenance']='unconfirmed'
                 _,view=self.stabilized();self.assertIsNone(view['daylight']['value']);self.assertEqual({},view['lights'][0]['settings'])
 
+    def test_daylight_diagnostic_explains_each_existing_input_gate(self):
+        for case, expected in (('valid','valid'), ('none','not_configured'),
+                ('provenance','provenance_unconfirmed'), ('connection','connection_unconfirmed'),
+                ('future','time_unknown'), ('stale','stale'), ('unit','unit_invalid'),
+                ('unavailable','value_invalid'), ('negative','value_invalid')):
+            with self.subTest(case=case):
+                self.setUp()
+                if case=='none': self.spec['daylight_source']=None;self.spec['daylight_provenance']='unconfirmed'
+                elif case=='provenance': self.spec['daylight_provenance']='unconfirmed'
+                elif case=='future': self.states[LUX]=state(LUX,'80',NOW+1,{'unit_of_measurement':'lx'})
+                elif case=='stale': self.states[LUX]=state(LUX,'80',NOW-1801,{'unit_of_measurement':'lx'})
+                elif case=='unit': self.states[LUX]['attributes']['unit_of_measurement']='%'
+                elif case=='unavailable': self.states[LUX]['state']='unavailable'
+                elif case=='negative': self.states[LUX]['state']='-1'
+                _,view=self.step(fresh=case!='connection')
+                self.assertEqual(expected,view['daylight'].get('status'))
+                self.assertEqual(80 if case=='valid' else None,view['daylight']['value'])
+                self.assertEqual({},view['lights'][0]['settings'])
+                self.assertFalse(view['execution']['allowed'])
+
     def test_manual_change_preserves_absolute_hold_across_restart_and_duplicates(self):
         point,_=self.stabilized()
         event={'entity_id':LAMP,'old_state':deepcopy(self.states[LAMP]),'new_state':state(LAMP,'on',NOW+31,{'brightness':90})}

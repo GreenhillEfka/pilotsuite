@@ -248,3 +248,10 @@ ID; deaktivierte und ungeklärte Mitglieder bleiben sichtbar. Ihre Rollen/Analys
 werden erst nach geklärtem Bestand geändert. Die Anzeige ist ein Registerabzug,
 kein Live-Zustandsbeleg. Struktur und Relevanz stammen vom selben vorhandenen
 Leseendpunkt; widersprüchliche Definition-/Strukturrevisionen öffnen keinen Entwurf.
+
+Der laufende Lichtvergleich erklärt Tageslicht und zusätzliche manuelle Sperren in
+einem aufklappbaren Detailbereich. Quellenname, konkreter Gültigkeitsgrund,
+Meldealter und konfigurierte Altersgrenze stehen zusammen. Ein unbekannter
+Sperrsensor wird nicht als bestätigte manuelle Bedienung dargestellt. Details und
+Tastaturfokus bleiben bei passiver Aktualisierung erhalten; dies verändert keine
+Schaltrechte oder Vorschlagsregeln.

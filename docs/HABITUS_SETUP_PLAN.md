@@ -180,6 +180,18 @@ Python-Abschluss mit Garbage Collection ohne ResourceWarnings. Exakte CI im PR.
 [Lichteditor](screenshots/habitus-setup-alpha72/zone-lighting-editor-390.png),
 [Lichtvergleich](screenshots/habitus-setup-alpha72/zone-lighting-comparison.png).
 
+Weitere Fortsetzung: Mitgliedsidentitäten auf `5b59d4c`, alle fünf CI-Jobs in
+`36667558353` grün. Ergänzte Lichtdiagnose erklärt die bereits vorhandenen Lux-
+Gültigkeitsgrenzen und zeigt manuelle Sperrsensoren mit Namen und Zustand. Neun
+Fälle zunächst rot, anschließend 719 Python-/78 JS-Tests, 68 Verträge und der
+Zonenbrowser grün. Unbekannte Eingänge erzeugen keinen Vorschlag; nach Rückkehr
+muss die Stabilität neu entstehen. Offene Details und Tastaturfokus bleiben beim
+Nachladen erhalten. Keine Änderung an Policy, Store oder Schaltrechten.
+Logs `/private/tmp/habitus-light-diagnostics-*`, tatsächlich angesehene Bilder
+unter `/private/tmp/habitus-light-diagnostics-ui/`. Zwei Browser-Wartepunkte wurden
+an bestätigte Antwort bzw. beendetes Nachladen gebunden, ohne feste Wartezeiten.
+Abschluss-CI wieder am exakten neuen Kandidaten prüfen; keine Auslieferung behaupten.
+
 ## Übergabepunkte für die Fortsetzung
 
 - Aktueller Kandidat und exakte CI: bestehender PR #153 und CURRENT_STATE.md.

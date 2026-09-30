@@ -63,6 +63,7 @@
    const horizontal=output.querySelector('.ps-zone-scroll')?.scrollLeft||0;
    const openSources=output.querySelector('[data-ps-live=sources]')?.open||false;
    const openTrace=output.querySelector('[data-ps-live=trace]')?.open||false;
+   const openLightInputs=output.querySelector('[data-ps-live=lighting-inputs]')?.open;
    const openReview=output.querySelector('[data-ps-live=existing-review]')?.open??true;
    const openCalculation=output.querySelector('[data-ps-live=calculation]')?.open||false;
    const focusedLive=output.contains(document.activeElement)?document.activeElement.closest('[data-ps-live]')?.dataset.psLive:null;
@@ -93,7 +94,7 @@
      comparison.append(E('summary','PilotSuite-Vergleich & eigenes Ausgangspaket'),E('p','Unabhängige Bewertung, kein Ersatz für die Bestandsmeldung. Diese Zeiten verändern den HA-Nachlauf nicht.','ps-muted'));
      const values=E('div','','ps-presence-summary');addCalculation(values);comparison.append(values);output.append(comparison);
    }
-   renderLighting();
+   renderLighting(openLightInputs);
    const missing=d?.sources?.filter(s=>s.required&&!s.usable)||[];
    if(missing.length)output.append(E('p',`${missing.length} erforderliche Quelle(n) derzeit nicht nutzbar. Eine Datenlücke ist kein Freibeleg. Die PilotSuite-Bewertung berücksichtigt diese Quellenkombination; sie erklärt nicht automatisch die HA-Bestandslogik.`,'ps-warning'));
    if(d){const table=E('table','','ps-zone-source-table');const header=E('tr');for(const text of ['Quelle','Signaltyp','Zustand','Meldealter','Indirekte Frist'])header.append(E('th',text));table.append(header);
@@ -110,14 +111,31 @@
    }
    note(summary.state==='Pausiert'?'PilotSuite-Bewertung pausiert. Eine vorhandene HA-Steuerung läuft davon unabhängig.':'Relevant erlaubt Live- und verfügbare Historienauswertung. Änderungen in Home Assistant brauchen eine eigene Bestätigung.');
  }
- function renderLighting(){
+ function renderLighting(openInputs){
    const light=data.lighting;if(!light)return;
    const section=E('section');section.id='ps-zone-lighting';section.append(E('h3','Licht · laufender Vergleich'));
    const labels={not_configured:'Noch nicht eingerichtet',paused:'Pausiert',basis_changed:'Zuordnung geändert · erneut prüfen',configuration_required:'Konfiguration prüfen',current:'Vergleich eingerichtet'};
    section.append(E('p',labels[light.status]||'Unklar'),E('p','Nutzt dieselbe PilotSuite-Präsenz. Bestehende Lichtautomationen bleiben zuständig; hier wird keine Leuchte geschaltet.','ps-muted'));
    const configure=B('Lichtvergleich konfigurieren',openLightingEditor);configure.id='ps-lighting-configure';configure.disabled=busy;section.append(configure);
    if(light.current){
-     const d=light.current;section.append(E('p',`Präsenz: ${state(d.presence_state)} · bestätigtes Außenlicht: ${fmt(d.daylight.value)} lx`),E('small','Bewertet: '+date(d.observed_at)));
+     const d=light.current,manual=d.manual_sources||[],blocked=manual.filter(row=>row.state!=='off');
+     const known=id=>data.catalog.find(row=>row.entity_id===id)?.name||id;
+     const daylightReasons={valid:'Bestätigte Außenmessung',not_configured:'Keine Tageslichtquelle gewählt',
+       provenance_unconfirmed:'Herkunft der Luxmessung noch ungeklärt',connection_unconfirmed:'HA-Verbindung nicht bestätigt',
+       time_unknown:'Zeitbezug der Luxmessung unklar',stale:'Luxmessung zu alt',unit_invalid:'Einheit der Luxmessung ungültig',
+       value_invalid:'Luxwert fehlt oder ist ungültig'};
+     section.append(E('p',`Präsenz: ${state(d.presence_state)} · Tageslicht: ${d.daylight.status==='valid'?fmt(d.daylight.value)+' lx':'unklar'}`+
+       (blocked.length?` · ${blocked.length} manuelle Sperre(n) aktiv oder ungeklärt`:'')),E('small','Bewertet: '+date(d.observed_at)));
+     const inputs=E('details');inputs.id='ps-lighting-inputs';inputs.dataset.psLive='lighting-inputs';
+     inputs.open=openInputs??(d.daylight.status!=='valid'||blocked.length>0);
+     inputs.append(E('summary','Tageslicht & manuelle Sperren'),
+       E('p','Luxquelle: '+(known(d.daylight.entity_id)||'keine gewählt')),
+       E('p',(daylightReasons[d.daylight.status]||'Tageslicht nicht beurteilbar')+` · Meldealter: ${fmt(d.daylight.age_seconds)} s · Grenze: ${fmt(light.spec.max_age_seconds)} s`));
+     if(manual.length){const list=E('ul');for(const row of manual)list.append(E('li',`${known(row.entity_id)}: ${state(row.state)} · `+
+       (row.state==='off'?'keine Sperre':row.state==='on'?'Vergleich gesperrt':'Status ungeklärt; Vergleich bleibt gesperrt')));inputs.append(list);}
+     else inputs.append(E('p','Keine zusätzliche manuelle Sperrquelle zugeordnet. Lichtänderungen lösen weiterhin die Bedienpause aus.','ps-muted'));
+     section.append(inputs);
+
      for(const row of d.lights){
        const card=E('article','','ps-zone-source-edit');card.append(E('h4',data.catalog.find(r=>r.entity_id===row.entity_id)?.name||row.entity_id),E('p',row.reason));
        if(row.manual_until)card.append(E('p','Bedienung oder fremde Lichtänderung · Pause bis '+date(row.manual_until)));

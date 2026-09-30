@@ -62,6 +62,13 @@ The editor loads canonical structure/relevance and rejects mixed opening revisio
 Renamed/disabled/unresolved members stay visible and never auto-rebind. Six initially
 failing diagnostic API cases, then 718 Python/78 JS tests, 68 contracts and both
 selection/zone browsers passed. Screenshots inspected; exact new CI remains required.
+Member-identity candidate 5b59d4c passed all five jobs (36667558353). Light diagnosis
+now reports the existing validity gates for lux and named manual blockers without
+altering the decision policy. Nine red/green cases plus the extended browser cover
+unavailable inputs, recovery stability, retained open/focus state and zero writes.
+719 Python/78 JS tests and 68 contracts pass; mobile/desktop screenshots inspected.
+Final full-suite garbage collection reports no resource warnings. Latest exact CI
+must be verified after this change.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 
 Alpha.71 installed after PR #151: targeted single Boolean/timer creation through the
