@@ -113,6 +113,37 @@ class ZoneStructureTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.world['areas'],report['areas'])
         self.s.client.zone_output_registry.assert_not_awaited()
 
+    async def test_device_role_inheritance_matches_actual_habitus_dashboard(self):
+        self.world['devices'][0]['labels'].append('overview')
+        await self.s.world.replace(deepcopy(self.world))
+        members=await (await self.http.get('/api/v1/zone-labels/room')).json()
+        self.assertEqual(['Habitus Übersicht'],next(r for r in members['members'] if r['entity_id']=='light.group')['habitus_roles'])
+        setup={**self.setup,'roles':{'light.group':[]}}
+        zone=await (await self.save(setup)).json()
+        report=await (await self.http.get('/api/v1/zones/'+zone['zone_id']+'/structure?verify=1')).json()
+        row=next(r for r in report['verification']['members'] if r['entity_id']=='light.group')
+        self.assertEqual(['Habitus Übersicht'],row['ha_roles'])
+        self.assertIn('roles_differ',row['issues'])
+        from pilotsuite.core.selections import SelectionConflict
+        with self.assertRaises(SelectionConflict):
+            await self.s.structure_label_preview(zone['zone_id'],{'revision':zone['revision']})
+        self.s.client.zone_set_metadata.assert_not_awaited()
+        self.world['devices'][0]['labels'].remove('overview')
+        plan=await self.s.structure_label_preview(zone['zone_id'],{'revision':zone['revision']})
+        self.world['devices'][0]['labels'].append('overview')
+        result=await self.s.ontology_apply(zone['zone_id'],plan['id'],{'sha256':plan['sha256'],'confirm':True})
+        self.assertEqual('attention',result['state'])
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_device_inherited_anchor_conflict_blocks_entity_label_plan(self):
+        zone=await (await self.save()).json()
+        self.world['devices'].append({'id':'other_device','labels':['room','anchor']})
+        self.registry['binary_sensor.external']=self.entity('binary_sensor.external',[],device_id='other_device',disabled_by='user')
+        from pilotsuite.core.selections import SelectionConflict
+        with self.assertRaises(SelectionConflict):
+            await self.s.structure_label_preview(zone['zone_id'],{'revision':zone['revision']})
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
     async def asyncSetUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

@@ -824,6 +824,11 @@ class ZonePresenceServiceMixin:
                 raise SelectionConflict('Bedeutung der Helferrollen seit der Vorschau geändert')
             projected[op['entity_id']] = set(after['labels'])
             rows.setdefault(op['entity_id'], {'disabled_by': None})
+        for eid, member in profile['members'].items():
+            inherited_roles = {names[key] for key in devices.get(rows.get(eid, {}).get('device_id'), [])
+                               if names.get(key) in ONTOLOGY_ROLES}
+            if not inherited_roles <= set(member['roles']):
+                raise SelectionConflict('Geerbte Geräte-Rollen widersprechen der Zonenstruktur: ' + eid)
         anchors = {key for key, name in names.items() if name == 'Habitus Zone'}
         zones = [(profile['label_id'], True)]
         for other in await self.zones.list():
@@ -837,7 +842,7 @@ class ZonePresenceServiceMixin:
             if not own and not members & changed:
                 continue
             # Disabled anchors are still existing identities, not permission to replace them.
-            if sum(bool(projected[eid] & anchors) for eid in members) > 1:
+            if sum(bool((projected[eid] | set(devices.get(rows[eid].get('device_id'), []))) & anchors) for eid in members) > 1:
                 raise SelectionConflict('Der Abgleich würde mehrere öffentliche Zonenanker hinterlassen')
         return labels
 

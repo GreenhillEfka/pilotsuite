@@ -120,3 +120,10 @@ sind historische Tests des bewusst entfernten Alpha.72-Produkts; ihre alten
 Navigationsannahmen gehören nicht zur aktuellen CI. Sie bleiben für späteren
 gezielten Wiedereinbau erhalten. Backend-, Modell- und native Protokollregressionen
 laufen weiterhin vollständig.
+
+Live-Referenzprüfung am 30.09.2026: Die bestehende HA-Vorlage vererbt sowohl
+Zonen- als auch Rollenlabels von Geräten. Rollen bevorzugt explizit an Entitäten
+pflegen, aber vorhandene Geräte-Rollen beim Import und Prüfen mitrechnen.
+Ein Gerätetagg kann nicht durch Entfernen eines Entitätentags aufgehoben werden.
+Widersprechende geerbte Rollen und zusätzliche geerbte Zonenanker blockieren den
+Plan bereits vor einer Mutation. Das HA-Template selbst wurde nicht geändert.

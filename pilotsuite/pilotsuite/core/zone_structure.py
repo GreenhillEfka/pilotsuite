@@ -37,7 +37,8 @@ def verify_structure(profile, labels, registry, devices, areas, area_ids):
     for ident in member_identities(profile, catalog):
         eid = ident['saved_entity_id']
         row = index.get(ident.get('entity_id'), {})
-        observed_roles = sorted({role_ids[key] for key in (row.get('labels') or []) if key in role_ids})
+        device_roles = sorted({role_ids[key] for key in row.get('device_labels', []) if key in role_ids})
+        observed_roles = sorted({role_ids[key] for key in (row.get('labels') or []) if key in role_ids} | set(device_roles))
         gaps = []
         if ident['status'] != 'bound':
             gaps.append(ident['status'])
@@ -46,7 +47,7 @@ def verify_structure(profile, labels, registry, devices, areas, area_ids):
         if observed_roles != sorted(members[eid]['roles']):
             gaps.append('roles_differ')
         rows.append({**ident, 'entity_id': eid, 'resolved_entity_id': ident.get('entity_id'),
-                     'roles': members[eid]['roles'], 'ha_roles': observed_roles, 'issues': gaps,
+                     'roles': members[eid]['roles'], 'ha_roles': observed_roles, 'device_roles': device_roles, 'issues': gaps,
                      'membership_source': 'entity' if label_id in (row.get('labels') or []) else
                      'device' if label_id and label_id in row.get('device_labels', []) else None})
     extra = sorted(actual - set(members))
@@ -83,7 +84,8 @@ def label_members(label_id, labels, catalog):
         if not direct and not inherited:
             continue
         members.append({**row, 'membership_source': 'entity' if direct else 'device',
-                        'habitus_roles': sorted({role_names[key] for key in row.get('labels', []) if key in role_names})})
+                        'habitus_roles': sorted({role_names[key] for key in set(row.get('labels', [])) | set(row.get('device_labels', [])) if key in role_names}),
+                        'device_habitus_roles': sorted({role_names[key] for key in row.get('device_labels', []) if key in role_names})})
     if len(members) > MAX_MEMBERS:
         raise InvalidSelection('Mehr als 500 Labelmitglieder; Label vor dem Import eingrenzen')
     return {'label_id': label_id, 'name': label['name'], 'members': members,
@@ -154,7 +156,7 @@ def setup_profile(payload, labels, catalog, previous=None):
             continue
         if not row or row.get('disabled') or not row.get('in_registry') or not row.get('unique_id') or not row.get('platform'):
             raise InvalidSelection('Mitglied fehlt, ist deaktiviert oder nicht stabil identifizierbar: ' + eid)
-        roles = sorted({role_names[key] for key in row.get('labels', []) if key in role_names})
+        roles = sorted({role_names[key] for key in set(row.get('labels', [])) | set(row.get('device_labels', [])) if key in role_names})
         if eid in requested_roles:
             roles = requested_roles[eid]
             if (not isinstance(roles, list) or len(roles) > len(ROLES)

@@ -10,12 +10,19 @@ and later modules remain hidden/deferred. No authority to change household contr
 The Alpha.73 candidate on `docs/habitus-foundation-reset` implements the reduced
 zone overview/editor/documentation, preserved runtime/analysis choices, fresh
 registry verification, plan receipts/restore and dated export using existing owners.
-727 Python and 77 JS tests plus all five current browser suites passed locally;
+729 Python and 77 JS tests plus all five current browser suites passed locally;
 all seven native HA 2026.9.3 protocol scenarios also passed, including fresh
 structure verification. Exact CI remains recorded in the candidate PR.
 The current UI contract replaces seven old full-product navigation suites; their
 backend/model coverage and selected isolated component tests remain. Screenshots
 from the actual local fixture reviewed at 390/820/1440 in light/dark.
+
+Read-only household inspection also confirmed the Habitus dashboard currently
+contains Erdkellerbereich and its configuration/diagnostic/documentation views.
+Its shared template inherits both zone and role labels from devices. No current
+Habitus role label is attached to a device. Import/readback and plan guards now
+handle that supported inheritance; two explicit red/green regressions protect it.
+This observation does not reveal the four saved PilotSuite bindings.
 
 Two external gates remain. The available HA browser still shows the login page;
 the user has been asked to log in and open PilotSuite. Native direct app proxy

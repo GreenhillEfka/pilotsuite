@@ -232,7 +232,8 @@ async def _zone_candidates(request: web.Request) -> web.Response:
     service = request.app[SERVICE_KEY]
     labels = await service.client.zone_labels()
     roles = {row['label_id']:row['name'] for row in labels if row['name'] in ROLES}
-    members = [{**row, 'habitus_roles':sorted({roles[key] for key in row['labels'] if key in roles}),
+    members = [{**row, 'habitus_roles':sorted({roles[key] for key in set(row['labels']) | set(row.get('device_labels', [])) if key in roles}),
+                'device_habitus_roles':sorted({roles[key] for key in row.get('device_labels', []) if key in roles}),
                 'membership_source':'area' if row['area_id'] in payload['area_ids'] else 'explicit'}
                for row in await service.world.organization_catalog()
                if row['area_id'] in payload['area_ids'] or row['entity_id'] in payload['entity_ids']]

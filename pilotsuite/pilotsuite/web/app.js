@@ -441,6 +441,7 @@ function renderZoneMembers() {
         disabled:'Gespeicherte Entität deaktiviert; keinen Ersatz anlegen.',
         identity_unresolved:'Gespeicherte Identität fehlt oder ist uneindeutig; Bestand prüfen.'}[row.identity_status];
       if(identityNote)note+=` · Zuordnung beim Öffnen: ${identityNote}`;
+      if(row.device_habitus_roles?.length)note+=` · Rollen vom Gerät geerbt: ${row.device_habitus_roles.join(', ')}`;
       detail.textContent=`${row.entity_id} · ${note}${row.membership_source==='device'?' · vom Gerät':''}${unavailable?' · nicht auswählbar':''}`;
     };updateDetail();
     const relevantLabel=document.createElement('label'),relevant=document.createElement('input');relevant.type='checkbox';

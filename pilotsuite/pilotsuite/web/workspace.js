@@ -88,6 +88,7 @@
    const identity=structureData.member_identities.find(r=>r.saved_entity_id===eid),check=v?.members?.find(r=>r.entity_id===eid),row=E('article','','ps-structure-member');
    row.append(E('strong',identity?.name||eid),E('code',eid),E('p',member.roles.join(' · ')||'Noch keine Darstellungsrolle','ps-muted'));
    if(check)row.append(E('small',check.membership_source==='device'?'Zonenlabel vom Gerät':check.membership_source==='entity'?'Zonenlabel an der Entität':'Labelmitgliedschaft nicht bestätigt'));
+   if(check?.device_roles?.length)row.append(E('small','Rollen vom Gerät geerbt: '+check.device_roles.join(', ')));
    const gaps=check?.issues||((identity&&identity.status!=='bound')?[identity.status]:[]);
    for(const issue of gaps)row.append(E('p',explanation[issue]||issue,'ps-warning'));members.append(row);
   }docBody.append(members);
