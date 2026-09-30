@@ -91,9 +91,9 @@ oder falsche Behauptung, der gesamte Backendbetrieb sei bereits auf Struktur red
 - Klima, Multimedia und Mustererkennung bleiben spätere Schritte. Kein Modul
   allein aufgrund vorhandenen Codes wieder sichtbar machen.
 
-Der beendete Nachtlauf bleibt pausiert. Alpha.72 und sein Auslieferungsbeleg bleiben
-unverändert. Entwicklung, Veröffentlichung, Installation und Haushaltsabnahme
-werden beim kommenden Umbau separat belegt.
+Der beendete Nachtlauf bleibt pausiert. Frühere Releasebelege bleiben in Git
+erhalten. Entwicklung, Veröffentlichung, Installation und Haushaltsabnahme
+werden weiterhin separat belegt.
 
 ## Lokaler Umsetzungspfad und Prüfvertrag
 
@@ -127,3 +127,17 @@ pflegen, aber vorhandene Geräte-Rollen beim Import und Prüfen mitrechnen.
 Ein Gerätetagg kann nicht durch Entfernen eines Entitätentags aufgehoben werden.
 Widersprechende geerbte Rollen und zusätzliche geerbte Zonenanker blockieren den
 Plan bereits vor einer Mutation. Das HA-Template selbst wurde nicht geändert.
+
+## Typbasierte Darstellungsvorauswahl, Alpha.74
+
+Neue, noch unbeschriftete Mitglieder erhalten beim Einlesen einen änderbaren
+Vorschlag pro Entität: HA-Kategorie vor Geräteklasse vor Entitätentyp. Leuchten
+und andere Bedienelemente → Bedienung, Umgebungswerte → Übersicht, sonstige
+Mess-/Zustandswerte → Status, Einstellwerte → Konfiguration, Batterie/Verbindung/
+Wartung → Diagnose. Ein Multifunktionsgerät bekommt keine pauschale gemeinsame
+Rolle. Vorhandene direkte oder geerbte Rollen und gespeicherte bzw. manuelle
+Entwürfe haben Vorrang, auch eine leere Auswahl. Bei unbeschrifteten Einträgen
+kann die Vorauswahl ausdrücklich erneut übernommen werden. Herkunft und aktuelle
+Rollen sind am Eintrag sichtbar. Unbekannter Typ oder fehlende/deaktivierte
+Identität erzeugt keinen geratenen Vorschlag. „Habitus Zone“ bleibt eine bewusste
+Zuordnung. Speichern/HA-Abgleich und alle bisherigen Rechte bleiben getrennt.

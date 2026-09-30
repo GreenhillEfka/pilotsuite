@@ -9,6 +9,46 @@ ROLE_DESCRIPTIONS=('Ein öffentlicher Zonenanker','Essentielle Alltagsinformatio
                    'Zustand und Verlauf','Parameter und Verhaltenslogik','Technik, Wartung und Fehler')
 
 
+def display_role_suggestion(row):
+    """Explain an editable display default from HA type metadata, never a grant.
+
+    Existing labels and saved/manual drafts take precedence at the import boundary.
+    A device can expose controls, configuration and diagnostics together: classify
+    each entity, never propagate one guessed role to the whole device.
+    """
+    def result(role, reason):
+        return {'suggested_habitus_roles': [role] if role else [], 'habitus_role_reason': reason}
+    if (row.get('disabled') or row.get('in_registry') is False or
+            not row.get('unique_id') or not row.get('platform')):
+        return result(None, 'Keine eindeutige aktive Registerzuordnung.')
+    category = row.get('entity_category')
+    if category in ('diagnostic', 'config'):
+        return result('Habitus Diagnose' if category == 'diagnostic' else 'Habitus Konfiguration',
+                      'HA-Kategorie: Diagnose.' if category == 'diagnostic' else 'HA-Kategorie: Konfiguration.')
+    domain = row.get('entity_id', '').split('.')[0]
+    device_class = row.get('device_class')
+    if domain in ('sensor', 'binary_sensor') and device_class in ('battery', 'signal_strength', 'connectivity', 'problem'):
+        return result('Habitus Diagnose', 'Geräteklasse: Batterie, Verbindung oder Gerätestörung.')
+    if domain == 'sensor' and device_class in ('temperature', 'humidity', 'illuminance', 'carbon_dioxide', 'pm25'):
+        return result('Habitus Übersicht', 'Umgebungswert für die Zonenübersicht.')
+    controls = {'light':'Leuchte', 'switch':'Schalter', 'fan':'Ventilator', 'cover':'Beschattung',
+                'climate':'Thermostat', 'media_player':'Wiedergabegerät', 'vacuum':'Saug-/Wischroboter',
+                'valve':'Ventil', 'lock':'Schloss', 'water_heater':'Warmwassergerät',
+                'scene':'Szene', 'script':'Skript', 'button':'Taste', 'input_button':'Taste',
+                'input_boolean':'Schalter'}
+    if domain in controls:
+        return result('Habitus Bedienung', 'Gerätetyp: ' + controls[domain] + '.')
+    if domain in ('number', 'select', 'text', 'input_number', 'input_select', 'input_text', 'input_datetime', 'automation'):
+        return result('Habitus Konfiguration', 'Einstellwert oder Verhaltenslogik.')
+    if domain in ('sensor', 'binary_sensor', 'timer', 'counter', 'device_tracker', 'person', 'calendar'):
+        return result('Habitus Status', 'Zustandsanzeige; daraus folgt keine Zonenanwesenheit.')
+    if domain == 'weather':
+        return result('Habitus Übersicht', 'Wetter für die Zonenübersicht.')
+    if domain == 'update':
+        return result('Habitus Diagnose', 'Wartung und verfügbare Aktualisierungen.')
+    return result(None, 'Kein eindeutiger Darstellungsvorschlag; Rolle manuell wählen.')
+
+
 def slug(text):
     text=text.replace('ä','ae').replace('ö','oe').replace('ü','ue').replace('ß','ss')
     text=unicodedata.normalize('NFKD',text).encode('ascii','ignore').decode().lower()

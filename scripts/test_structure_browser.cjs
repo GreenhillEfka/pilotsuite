@@ -45,7 +45,25 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(await page.getByText('Für Auswertung verwenden',{exact:true}).isVisible(),false);
   await page.locator('#zone-label-select').selectOption('setup_demo');await page.locator('#zone-label-import').click();
   await page.waitForFunction(()=>!zoneLabelBusy && zoneSetupRows.length===2);
-  const light=member('light.demo');await light.locator('summary').click();await light.getByLabel('Habitus Bedienung',{exact:true}).check();
+  const light=member('light.demo');await light.locator('summary').click();
+  assert.equal(await light.getByLabel('Habitus Bedienung',{exact:true}).isChecked(),true,'new untagged light gets an editable display default');
+  assert.match(await light.innerText(),/Vorauswahl.*Leuchte/);
+  const roleDirectory=process.env.PILOTSUITE_SCREENSHOTS||'/tmp/pilotsuite-structure-review';await fs.mkdir(roleDirectory,{recursive:true});
+  for(const [width,theme] of [[1440,'light'],[390,'dark']]){
+   await page.setViewportSize({width,height:1000});await page.getByLabel('Farbschema').selectOption(theme);
+   await light.scrollIntoViewIfNeeded();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+   await page.screenshot({path:path.join(roleDirectory,`role-preselection-${width}-${theme}.png`),fullPage:true});
+  }
+  await page.setViewportSize({width:1440,height:1100});
+
+  assert.equal(await member('binary_sensor.demo_presence').getByLabel('Habitus Übersicht',{exact:true}).isChecked(),true,'existing label wins over type');
+  await light.getByLabel('Habitus Bedienung',{exact:true}).uncheck();
+  await page.locator('#zone-label-import').click();await page.waitForFunction(()=>!zoneLabelBusy);
+  await light.locator('summary').click();
+  assert.equal(await light.getByLabel('Habitus Bedienung',{exact:true}).isChecked(),false,'intentional empty role draft survives reimport');
+  await light.getByRole('button',{name:'Typbasierte Vorauswahl übernehmen',exact:true}).click();
+  assert.equal(await light.getByLabel('Habitus Bedienung',{exact:true}).isChecked(),true);
+
   await member('binary_sensor.demo_presence').locator('input[type=checkbox]').first().uncheck();
   await page.locator('#zone-label-import').click();await page.waitForFunction(()=>!zoneLabelBusy);
   assert.equal(await member('binary_sensor.demo_presence').locator('input').first().isChecked(),false);
@@ -98,8 +116,17 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('#zone-extras').selectOption('binary_sensor.demo_motion');
   await page.locator('#zone-label-new').click();await page.locator('#zone-candidates-import').click();
   await page.waitForFunction(()=>!zoneLabelBusy && zoneSetupRows.length===1);
+  await member('binary_sensor.demo_motion').locator('summary').click();
+  assert.equal(await member('binary_sensor.demo_motion').getByLabel('Habitus Status',{exact:true}).isChecked(),true,'candidate import gets type default');
+  assert.equal(await member('binary_sensor.demo_motion').getByLabel('Habitus Zone',{exact:true}).isChecked(),false);
+  await member('binary_sensor.demo_motion').getByLabel('Habitus Status',{exact:true}).uncheck();
+
   await page.getByRole('button',{name:'Zone speichern',exact:true}).click();await page.waitForFunction(()=>!zoneSaving && !zoneFormOpen && !selectionBusy);
   assert.equal(await page.evaluate(()=>zoneDefinitions.find(z=>z.zone_id===selectionZone).enabled),false);
+  await openEditor();await member('binary_sensor.demo_motion').locator('summary').click();
+  assert.equal(await member('binary_sensor.demo_motion').getByLabel('Habitus Status',{exact:true}).isChecked(),false,'saved empty selection survives reopen');
+  await page.locator('#zone-cancel').click();
+
   await page.getByRole('link',{name:'Zonendokumentation',exact:true}).click();await page.locator('#ps-structure-sync').click();
   await page.getByRole('button',{name:'Genau diese Labels abgleichen',exact:true}).waitFor();
   assert.match(await page.locator('#ps-structure-plan').innerText(),/Zonenlabel anlegen: Test Zonenlabel/);

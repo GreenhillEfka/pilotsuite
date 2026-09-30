@@ -144,6 +144,25 @@ class ZoneStructureTests(unittest.IsolatedAsyncioTestCase):
             await self.s.structure_label_preview(zone['zone_id'],{'revision':zone['revision']})
         self.s.client.zone_set_metadata.assert_not_awaited()
 
+    async def test_role_suggestions_use_registry_category_without_replacing_labels(self):
+        self.world['entities'][1]['entity_category'] = 'diagnostic'
+        await self.s.world.replace(deepcopy(self.world))
+        imported = await (await self.http.get('/api/v1/zone-labels/room')).json()
+        rows = {r['entity_id']:r for r in imported['members']}
+        self.assertEqual(['Habitus Diagnose'], rows['light.group']['suggested_habitus_roles'])
+        self.assertEqual([], rows['light.group']['habitus_roles'])
+        self.assertEqual(['Habitus Übersicht'], rows['sensor.temperature']['habitus_roles'])
+        self.assertEqual([], rows['sensor.disabled']['suggested_habitus_roles'])
+        candidates = await (await self.http.post('/api/v1/zone-candidates', json={
+            'area_ids':[], 'entity_ids':['light.group']})).json()
+        self.assertEqual(rows['light.group']['suggested_habitus_roles'], candidates['members'][0]['suggested_habitus_roles'])
+        zone = await (await self.save()).json()
+        report = await (await self.http.get('/api/v1/zones/'+zone['zone_id']+'/structure')).json()
+        light = next(r for r in report['member_identities'] if r['saved_entity_id']=='light.group')
+        self.assertEqual(['Habitus Diagnose'], light['suggested_habitus_roles'])
+        self.assertEqual([], report['profile']['members']['light.group']['roles'], 'suggestion is not a saved assignment')
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
     async def asyncSetUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

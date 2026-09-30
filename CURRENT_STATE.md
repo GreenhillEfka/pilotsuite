@@ -1,5 +1,15 @@
 # Current state — Alpha.73 installed
 
+## Current extension: editable display-role defaults
+
+User request: preselect “Darstellung im Habitus-Dashboard” after choosing a device.
+Alpha.74 candidate classifies each selected entity by registry category, device
+class and type. Existing tags and saved/manual choices (including empty roles)
+win. Fresh imports get explained defaults; untagged saved rows offer an explicit
+reuse button. Unknown or disabled identities stay undecided; no inferred zone
+anchor or analysis/control permission. The installed baseline remains Alpha.73
+until a separate verified release receipt. Tests and screenshots are in the PR.
+
 ## Delivered structural foundation, 30.09.2026
 
 PilotSuite now exposes only the Habitus zone overview, structure editor and zone
