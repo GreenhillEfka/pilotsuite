@@ -29,11 +29,13 @@ edit/enable/disable automations, activate outputs, transfer control or grant lea
 
 ## Current continuation
 
-Alpha.72 from PR #153 is installed and healthy, after exact candidate/main CI,
+Alpha.73 from PR #155 is installed and healthy, after exact candidate/main CI,
 fresh PilotSuite-only backup and one targeted update. CURRENT_STATE.md and
 RELEASE_STATE.json own the actual receipt and the narrow backup-list exception.
-The user requested “Bitte abschließen”; delivery closure changes no household
-bindings, control or learning permissions. The night heartbeat is PAUSED.
+The user answered “ja immer” to the narrow local-backup exception on 30 September;
+it now applies to future matching Synology listing errors without another question.
+The release runbook defines the unchanged local verification gates. No household
+bindings, control or learning permissions changed. The night heartbeat is PAUSED.
 
 The implemented flow covers areas/tags, stable members and roles, explicit metadata
 plans, presence/helper autolabeling and the primary-presence light comparison.
@@ -44,7 +46,7 @@ The latest user direction after delivery supersedes that immediate expansion:
 reduce the visible product to creating, displaying and documenting Habitus zones.
 No comparisons, presence/light configuration, learning or automation workbench in
 the next UI. Read ADR-044 and docs/HABITUS_FOUNDATION_RESET.md before any next change.
-The reduced Alpha.73 candidate is implemented locally; not installed.
+The reduced Alpha.73 flow is installed; authenticated real structural adoption is open.
 Preserve existing data and owners; do not conflate hiding modules with stopping
 runtime outputs. The user now explicitly requests real structural zone acceptance/adoption.
 Inspect real saved bindings, confirm concrete metadata changes and verify fresh HA
@@ -52,4 +54,4 @@ registries. Active light execution and presence/control adoption remain deferred
 No authenticated browser session was available for the release. Verify actual
 saved bindings before household import/apply. Synthetic tests and readiness are
 not proof of household wiring or safe control handover.
-Do not reinstall Alpha.72, reactivate the heartbeat or create extra agents/tasks.
+Do not reinstall the current version, reactivate the heartbeat or create extra agents/tasks.

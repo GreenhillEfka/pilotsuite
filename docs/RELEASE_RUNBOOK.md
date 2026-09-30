@@ -86,11 +86,22 @@ which are full-HA operations.
 {"ws_command":"backup/details","data":{"backup_id":"COMPLETED_BACKUP_ID"}}
 ```
 
-Require result.agent_errors empty and result.backup:
+Require result.agent_errors empty, except for the standing authorization below,
+and independently verify result.backup:
 - addons contains exactly PilotSuite's slug and the installed previous version;
 - failed_addons, failed_agent_ids and failed_folders are empty;
 - homeassistant_included and database_included false; folders empty;
 - expected date and nonzero agents size; unprotected, or an available approved key.
+
+Standing user authorization, 2026-09-30: “ja immer”, directly answering the
+disclosed Alpha.73 local-backup exception. Additional Synology agents may report
+only `Failed to list backups` when a fresh, completed local `hassio.local` backup
+independently meets every scope/version/size/failed-component condition above.
+Do not ask again for that same narrow exception. Record the errors and the local
+verification in each release receipt; do not claim off-device resilience or a
+successful restore test. Any other error, missing local confirmation or actual
+failed component remains a stop condition. This grants no NAS/backup settings
+changes and does not waive source, CI or runtime acceptance.
 
 Standard app backup covers the app and its data/options. This is metadata
 verification, not archive extraction or a live restore drill. Missing confirmation

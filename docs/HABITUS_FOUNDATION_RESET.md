@@ -3,8 +3,8 @@
 Verbindliche Produktrichtung vom 30.09.2026, nach Abschluss von Alpha.72.
 Nutzerauftrag: PilotSuite vollständig auf saubere Erstellung, Darstellung und
 Dokumentation von Habituszonen reduzieren; alles Weitere vorerst ausblenden,
-ausdrücklich auch Vergleiche. Der lokale Alpha.73-Kandidat setzt diesen Umbau um; die installierte Anlage bleibt
-bis zum bestätigten Release Alpha.72. Latest scope: der Nutzer beauftragt ausdrücklich
+ausdrücklich auch Vergleiche. Alpha.73 ist nach PR #155 und exakter CI installiert;
+Releasebeleg: RELEASE_STATE.json. Die reale Abnahme benötigt weiterhin die Anmeldung. Aktueller Umfang: der Nutzer beauftragt ausdrücklich
 Entwicklung bis zur realen strukturellen Zonenabnahme/Übernahme. HA und PilotSuite
 sollen dieselben Mitglieder und Habitus-Rollen haben. Das erlaubt den geprüften
 konkreten Labelabgleich, keine Übernahme von Licht-/Präsenzsteuerung.
