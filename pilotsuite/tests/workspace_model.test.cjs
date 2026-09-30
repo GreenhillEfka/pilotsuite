@@ -1,19 +1,17 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const M=require('../pilotsuite/web/workspace-model.js');
-test('three navigation groups retain every legacy view preference',()=>{
- for(const view of ['cockpit','zone','config','automations','history'])assert.equal(M.primaryView(view),'cockpit');
- for(const view of ['workbench','system','all'])assert.equal(M.primaryView(view),view);
+test('foundation navigation remaps all deferred views to zones',()=>{
+ assert.deepEqual(M.views,['cockpit','config','documentation']);
+ for(const view of ['zone','automations','history','workbench','system','all','unknown']){
+  assert.equal(M.primaryView(view),'cockpit');assert.equal(M.preferences({view}).view,'cockpit');
+ }
  for(const view of M.views)assert.equal(M.preferences({view}).view,view);
-});
-test('zone automation view has a durable preference without a second navigation owner',()=>{
- assert.equal(M.views.includes('automations'),true);
- assert.equal(M.preferences({view:'automations'}).view,'automations');
 });
 test('workspace preferences persist presentation only and reject unknown values',()=>{
   assert.deepEqual(M.preferences({view:'raw',theme:'injected',density:'no',ids:1,token:'NO'}),{view:'cockpit',theme:'auto',density:'comfortable',ids:false});
   assert.deepEqual(Object.keys(M.preferences({household:'NO'})).sort(),['density','ids','theme','view']);
-  assert.equal(M.preferences({view:'all',theme:'dark',density:'compact',ids:true}).view,'all');
+  assert.equal(M.preferences({view:'all',theme:'dark',density:'compact',ids:true}).view,'cockpit');
 });
 test('workspace never substitutes unknown measurements with zero',()=>{
   for(const value of [null,undefined,'0',NaN,Infinity])assert.equal(M.number(value),'—');

@@ -1,15 +1,29 @@
 # PilotSuite — ein verständlicher Zonenassistent
 
-Priorität des Nutzers vom 30.09.2026: erst eine durchgehende Habituszonenerstellung
-aus HA-Bereichen und manuellem Tagsystem, darauf Präsenz samt Helfern/Sensoren und
-Autolabeling, danach Licht. Klima und Multimedia folgen später. Weitergehende
-Mustererkennung und Vision werden erst nach dieser Grundkonfiguration fortgesetzt.
-Einrichtungsfreigaben bündeln, bekannte Zuordnungen übernehmen und den bestehenden
-Workspace vereinfachen. Umsetzung: [HABITUS_SETUP_PLAN.md](HABITUS_SETUP_PLAN.md).
-Einrichtungsschritte zeigen den gespeicherten Stand und führen in dieselben
-Editoren. „Eingerichtet“ ist weder ein aktueller Anwesenheitsbeleg noch eine
-Haushaltsabnahme. Eindeutige vorhandene Rollen werden vorgeschlagen; ähnliche
-Anzeigenamen reichen nicht als Zuordnungsnachweis.
+## Aktuelles Produkt: Habituszonen sauber aufbauen
+
+Neue Nutzerentscheidung vom 30.09.2026 nach Auslieferung von Alpha.72: PilotSuite
+auf **Erstellung, Darstellung und Dokumentation von Habituszonen** reduzieren.
+Die Oberfläche wird dafür von Grund auf neu geordnet. Vergleiche, Präsenz-/Licht-
+einrichtung, Automationswerkzeuge, Lernen und weitere Module vorerst ausblenden.
+
+PilotSuite beantwortet zunächst: **Welche Zonen habe ich? Was gehört dazu?
+Wie ist die Zuordnung begründet und dokumentiert?** HA-Bereiche und manuelle Tags
+werden in einem verständlichen Zonenweg zusammengeführt. Vorhandene Daten,
+stabile Identitäten und die bestehenden Speicher bleiben erhalten.
+
+Verbindlicher nächster Umfang und Abnahme:
+[HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md), ADR-044.
+Der Alpha.73-Kandidat setzt diese Richtung lokal um. Alpha.72 bleibt bis zum
+Release installiert. Reale strukturelle Zonenabnahme ist ausdrücklich beauftragt
+und benötigt die angemeldete Prüfung der tatsächlichen Zuordnungen. Aktive Lichtsteuerung bleibt offen. Erst nach tragfähiger Struktur folgen Präsenz/Helfer, dann Licht und später
+Klima, Multimedia und Mustererkennung.
+
+## Nachgelagerte Vision und bestehende fachliche Grundlagen
+
+Die folgenden Abschnitte bewahren Ziele und technische Invarianten des bisherigen
+Produkts. Sie sind kein Auftrag, diese Module jetzt sichtbar zu lassen oder weiter
+auszubauen. Der frühere Nachtauftrag steht in [HABITUS_SETUP_PLAN.md](HABITUS_SETUP_PLAN.md).
 
 Konsolidiertes Zielbild vom 28.09.2026, zur schrittweisen Umsetzung im bestehenden
 Projekt. Dies ist kein Nachweis neuer Laufzeitfunktionen. Den Funktionsstand führt

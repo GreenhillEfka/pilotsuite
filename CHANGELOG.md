@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-alpha.73] - 2026-09-30
+
+- Reduce the product to zone overview, structure editing and documentation. Redirect
+  old views and stop deferred UI queries while preserving stored module settings.
+- Import current HA areas/tags into the existing zone editor, preserving drafts,
+  stable member identities and earlier analysis choices. New members gain no consent.
+- Preview and confirm concrete label changes through the existing durable plan;
+  expose receipts and rollback, including recovery after a lost response.
+- Verify structure against fresh HA entity/device/area/label registries and shared
+  role assignments. Report missing, renamed, extra and conflicting members honestly.
+  Export the dated structural check without claiming presence or control acceptance.
+
 ## [0.1.0-alpha.72] - 2026-09-30
 
 - Keep saved presence sources visible when they become unselectable; require explicit

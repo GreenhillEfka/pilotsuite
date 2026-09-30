@@ -51,6 +51,13 @@ class ZoneOutputClientMixin:
         if not isinstance(rows,list): raise HomeAssistantError('Labels nicht lesbar')
         return rows
 
+    async def zone_structure_areas(self):
+        from .client import HomeAssistantError
+        rows = await self._zone_ws({'type': 'config/area_registry/list'})
+        if not isinstance(rows, list) or any(not isinstance(row, dict) or 'area_id' not in row for row in rows):
+            raise HomeAssistantError('Bereichsregister nicht vollständig')
+        return [{key: row.get(key) for key in ('area_id', 'name', 'floor_id')} for row in rows]
+
     async def zone_registry_entry(self, eid):
         from .client import HomeAssistantError
         if not isinstance(eid, str) or not ID.fullmatch(eid):

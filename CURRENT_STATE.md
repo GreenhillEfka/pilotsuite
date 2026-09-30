@@ -1,5 +1,31 @@
 # Current state — Alpha.72 installed
 
+## New product direction after delivery, 30.09.2026
+
+The user explicitly requests development through **real structural zone adoption**:
+HA and PilotSuite synchronized with matching manual zone/role labels. This supersedes
+the temporary deferral of structural acceptance. Presence, helpers, light control
+and later modules remain hidden/deferred. No authority to change household control.
+
+The Alpha.73 candidate on `docs/habitus-foundation-reset` implements the reduced
+zone overview/editor/documentation, preserved runtime/analysis choices, fresh
+registry verification, plan receipts/restore and dated export using existing owners.
+727 Python and 77 JS tests plus all five current browser suites passed locally;
+all seven native HA 2026.9.3 protocol scenarios also passed, including fresh
+structure verification. Exact CI remains recorded in the candidate PR.
+The current UI contract replaces seven old full-product navigation suites; their
+backend/model coverage and selected isolated component tests remain. Screenshots
+from the actual local fixture reviewed at 390/820/1440 in light/dark.
+
+Two external gates remain. The available HA browser still shows the login page;
+the user has been asked to log in and open PilotSuite. Native direct app proxy
+returns 403 Ingress required; that route is stopped, with no auth workaround.
+Fresh backup `e57999fb` (30 Sep 09:29:25 UTC) confirms only Alpha.72 app/data,
+54,558,720 bytes local, no failed components or HA/database/folders. Two Synology
+agents again fail to list backups. Runbook's empty-agent-errors gate is not met;
+the previous Alpha.72 exception is not silently extended. No merge/publication,
+installation or real structural acceptance is claimed for Alpha.73.
+
 ## Delivery completed, 30.09.2026
 
 PR #153 is merged. Exact release main: `04c47bb0b99ccf34872e938bd0029b6cdac6e325`.
@@ -51,7 +77,7 @@ reproduced before fixes; actual mobile/desktop light/dark screenshots inspected.
 Local final Python garbage collection had zero ResourceWarnings. Both project
 skills are maintained and validated. Exact completion receipts are in PR #153.
 
-## Remaining acceptance and next step
+## Deferred acceptance from the delivered package
 
 No authenticated household Ingress session was available. Real saved bindings
 and preservation of all four household zones remain to be observed there; runtime
@@ -59,14 +85,16 @@ readiness and synthetic UI tests do not prove that acceptance. Existing HA-chain
 inspection found coupled status/timer/light logic and unevaluated template limits.
 Private evidence is in ignored pilot_data/reviews, not public documentation.
 
-Next: read-only Erdkellerbereich and one unlike zone in authenticated Ingress;
-compare areas/tags, independent sources and existing status/timer/automation
-bindings before household import/apply. Then review genuinely missing helpers.
+When accepting the reduced structure, inspect Erdkellerbereich and one unlike zone
+read-only in authenticated Ingress: areas/tags, members, roles and stable identities.
+Independent sources, status/timer/automation bindings and genuinely missing helpers
+belong to the later presence phase, before any household connection/apply.
 No household helpers/labels/bindings, automations or learning grants were changed.
 Active light actuation and automation takeover remain unimplemented. Climate,
 media and pattern recognition follow a household-accepted foundation.
 
 The overnight deadline ended. Its heartbeat is confirmed PAUSED; no new timed
 loop or task. Preserve untracked AGENTS.md and the original local feature commits.
-The documentation receipt uses docs/alpha72-release-receipt from release main;
-no further feature package or household changes are part of this closure.
+The completed documentation receipt is PR #154. The new direction is prepared on
+docs/habitus-foundation-reset; the current code changes are local. No household
+labels, helpers, control bindings or learning grants have been changed.

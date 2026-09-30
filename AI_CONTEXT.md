@@ -40,8 +40,16 @@ plans, presence/helper autolabeling and the primary-presence light comparison.
 Active light actuation, automation takeover and household Ingress acceptance remain
 open. Prior version receipts and implementation history remain in Git/ledger.
 
-Next is authenticated read-only Ingress acceptance of Erdkellerbereich and one
-unlike zone. No authenticated browser session was available for the release.
-Verify actual saved bindings before household import/apply. Synthetic tests and
-runtime readiness are not proof of household wiring or safe control handover.
+The latest user direction after delivery supersedes that immediate expansion:
+reduce the visible product to creating, displaying and documenting Habitus zones.
+No comparisons, presence/light configuration, learning or automation workbench in
+the next UI. Read ADR-044 and docs/HABITUS_FOUNDATION_RESET.md before any next change.
+The reduced Alpha.73 candidate is implemented locally; not installed.
+Preserve existing data and owners; do not conflate hiding modules with stopping
+runtime outputs. The user now explicitly requests real structural zone acceptance/adoption.
+Inspect real saved bindings, confirm concrete metadata changes and verify fresh HA
+registries. Active light execution and presence/control adoption remain deferred.
+No authenticated browser session was available for the release. Verify actual
+saved bindings before household import/apply. Synthetic tests and readiness are
+not proof of household wiring or safe control handover.
 Do not reinstall Alpha.72, reactivate the heartbeat or create extra agents/tasks.

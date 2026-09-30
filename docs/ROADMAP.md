@@ -1,6 +1,36 @@
 # Roadmap — weniger Parallelität, vollständige Nutzerwege
 
-## Aktueller Vorrang, 30.09.2026
+## Aktuell: nur Habituszonen, 30.09.2026 nach Auslieferung
+
+Der Nutzer ersetzt den bisherigen Ausbaukurs durch einen strukturellen Neustart:
+nur Zonen erstellen, darstellen und dokumentieren. Alle Vergleiche und weiteren
+Module sollen aus der Oberfläche verschwinden. Alpha.73-Kandidat lokal umgesetzt; reale
+strukturelle Abnahme ausdrücklich beauftragt und noch offen. Verbindlicher Umfang: [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md)
+und ADR-044. Alpha.72 bleibt der installierte Stand.
+
+1. **Oberfläche reduzieren:** vorhandenen Router und Editoren auf Zonenübersicht,
+   strukturelle Bearbeitung und Dokumentation begrenzen. Alte Links/Präferenzen
+   auffangen; keine Analysewerkzeuge über „Alle Bereiche“ wieder öffnen.
+2. **Struktur durchgängig machen:** HA-Bereiche, Geräte/Entitäten, manuelle Tags,
+   Habitus-Rollen und stabile Zuordnungen in einem vorhandenen Speicherweg.
+3. **Dokumentieren und abnehmen:** Steckbrief aus gespeicherter Struktur, Herkunft,
+   offene Konflikte und Änderungsbelege; synthetische UI-Prüfung und separat reale
+   Zonenabnahme. Keine Analyse-/Steuerungsfreigabe aus Strukturvollständigkeit.
+4. **Erst anschließend:** Präsenz samt Helfern und Sensoren wieder einführen, dann
+   Licht. Aktive Lichtausführung und Automationsübernahme bleiben offen. Klima,
+   Medien und Mustererkennung bleiben später.
+
+Keine Datenlöschung, neue Engine oder automatische Betriebsartenmigration.
+Ein UI-Ausblenden ist kein Beleg für angehaltene Hintergrundauswertung.
+Nacht-Heartbeat bleibt pausiert. Veröffentlichung folgt dem bestehenden Runbook;
+der jetzige Entscheidungsstand enthält keine App- oder Haushaltsänderung.
+
+## Historischer Ausbaukurs bis Alpha.72
+
+Die folgende Chronik erklärt den erreichten Bestand. Ihre damaligen „nächsten
+Schritte“ sind durch den aktuellen Vorrang oben ersetzt.
+
+### Vorrang des beendeten Nachtauftrags, 30.09.2026
 
 Der befristete Auftrag endete um 08:00 Europe/Berlin. Der Nutzer hat danach mit
 „weiter“ die direkte Fortsetzung beauftragt; der alte Heartbeat ist pausiert. Zuerst Zone/Tags mit

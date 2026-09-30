@@ -6,12 +6,13 @@ ASSETS = ("workspace-model.js", "workspace.js", "workspace.css", "appearance.js"
 
 
 def workspace_page(web_dir: Path) -> str:
-    """Enhance the one canonical document, keeping a functional no-JS fallback."""
+    """Enhance the one canonical document, preserving editor handlers while hiding deferred modules."""
     source = (web_dir / "index.html").read_text(encoding="utf-8")
-    source = source.replace('</head>', '<link rel="stylesheet" href="assets/workspace.css"><link rel="stylesheet" href="assets/zone-presence.css">\n  </head>')
-    return source.replace('</body>', '<script src="assets/zone-presence-model.js" defer></script><script src="assets/zone-presence.js" defer></script><script src="assets/presence-shadow.js" defer></script>\n'
-                          '    <script src="assets/organization.js" defer></script>\n'
-                          '    <script src="assets/workspace.js" defer></script>\n  </body>')
+    source = source.replace('<body>', '<body data-ps-foundation="true"><noscript>Für die Zonenoberfläche ist JavaScript erforderlich.</noscript>')
+    source = source.replace('</head>', '<link rel="stylesheet" href="assets/workspace.css">\n  </head>')
+    for name in ('drafts', 'history'):
+        source = source.replace(f'<script src="assets/{name}.js" defer></script>', '')
+    return source.replace('</body>', '<script src="assets/workspace.js" defer></script>\n  </body>')
 
 
 def register_workspace(app: web.Application, web_dir: Path) -> None:

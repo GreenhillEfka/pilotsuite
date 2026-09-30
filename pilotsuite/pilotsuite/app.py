@@ -187,6 +187,18 @@ async def _selection_inventory(request: web.Request) -> web.Response:
 
 async def _zones(request: web.Request) -> web.Response:
     service = request.app[SERVICE_KEY]
+    if request.query.get('structure') == '1':
+        from .core.zone_structure import KEY
+        async with service._projection_lock:
+            items = await service.zones.list()
+            summaries = {}
+            for zone in items:
+                profile = (await service.context.get(zone['zone_id'])).get(KEY)
+                summaries[zone['zone_id']] = {'saved': profile is not None,
+                    'member_count': len((profile or {}).get('members', {})),
+                    'label_id': (profile or {}).get('label_id'), 'label_name': (profile or {}).get('label_name')}
+            return web.json_response({'items': items, 'structure': summaries,
+                'areas': await service.world.areas()}, headers={'Cache-Control':'no-store'})
     return web.json_response({'items': await service.zones.list(), 'results': service._zone_results})
 
 
@@ -238,10 +250,37 @@ async def _zone_structure(request: web.Request) -> web.Response:
         config = await service.context.get(zid)
         decisions = (await service.selections.get(zid))['decisions']
         identities = member_identities(config.get(KEY), await service.world.organization_catalog())
-    return web.json_response({'zone_id': zid, 'revision': inventory['revision'],
+    result = {'zone_id': zid, 'revision': inventory['revision'],
                               'profile': config.get(KEY), 'decisions': decisions,
-                              'member_identities': identities, 'identity_basis':'cached_registry_not_live_state'},
-                             headers={'Cache-Control': 'no-store'})
+                              'member_identities': identities, 'identity_basis':'cached_registry_not_live_state'}
+    result['plans'] = [plan for plan in await service.plans.organization_plans(zid)
+                       if plan['kind'] == 'structure_labels']
+    if request.query.get('verify') == '1':
+        import asyncio
+        from datetime import UTC, datetime
+        from .core.zone_structure import verify_structure
+        from .ha.client import HomeAssistantError
+        zone = next(z for z in await service.zones.list() if z['zone_id'] == zid)
+        try:
+            labels, registry, devices, areas = await asyncio.gather(service.client.zone_labels(),
+                service.client.zone_output_registry(), service.client.zone_label_devices(),
+                service.client.zone_structure_areas())
+        except (HomeAssistantError, TimeoutError):
+            return web.json_response({'message': 'HA-Strukturprüfung nicht bestätigt. Erneut prüfen.',
+                'verification': {'state': 'unconfirmed'}}, status=503, headers={'Cache-Control':'no-store'})
+        async with service._projection_lock:
+            fresh = await service.selection_inventory(zid)
+            if fresh['revision'] != inventory['revision']:
+                raise SelectionConflict('Zonenstruktur während der Prüfung geändert; erneut prüfen')
+            result['verification'] = verify_structure(config.get(KEY), labels, registry, devices, areas, zone['area_ids'])
+            try:
+                await service._zone_structure_shared_roles(zid, [], labels)
+            except SelectionConflict:
+                result['verification']['state'] = 'different'
+                result['verification']['issues'].append('shared_roles_conflict')
+            result['verification']['checked_at'] = datetime.now(UTC).isoformat()
+            result['verification']['basis'] = 'fresh_ha_registries'
+    return web.json_response(result, headers={'Cache-Control': 'no-store'})
 
 
 async def _zone_export(request: web.Request) -> web.Response:
@@ -260,12 +299,18 @@ async def _save_zone(request: web.Request) -> web.Response:
         raise InvalidSelection('invalid JSON') from exc
     zone_id = request.match_info.get('zone_id')
     expected = {'definition', 'revision'} if zone_id else {'definition'}
-    if not isinstance(payload, dict) or set(payload) not in (expected, expected | {'setup'}):
+    if not isinstance(payload, dict) or set(payload) not in (expected, expected | {'setup'}, expected | {'setup', 'structure_only'}):
         raise InvalidSelection('invalid zone request fields')
+    structural = payload.get('structure_only') is True
+    if 'structure_only' in payload and (not structural or not isinstance(payload['setup'], dict) or 'relevant_entity_ids' in payload['setup']):
+        raise InvalidSelection('Strukturauftrag darf keine Auswertungsentscheidung enthalten')
     definition = service.zones.validate(payload['definition'])
     labels = await service.client.zone_labels() if 'setup' in payload else None
     async with service._projection_lock:
         previous = next((z for z in await service.zones.list() if z['zone_id'] == zone_id), {})
+        if structural and (definition['enabled'] != previous.get('enabled', False) or
+                           definition['profile'] != previous.get('profile', 'observe')):
+            raise InvalidSelection('Strukturauftrag darf die Betriebsart nicht ändern')
         areas = {a['area_id'] for a in await service.world.areas()} | set(previous.get('area_ids', []))
         entities = {e['entity_id'] for e in await service.world.catalog() if not e['disabled']} | set(previous.get('extra_entity_ids', []))
         if not set(definition['area_ids']) <= areas or not set(definition['extra_entity_ids']) <= entities:
@@ -274,11 +319,19 @@ async def _save_zone(request: web.Request) -> web.Response:
         if 'setup' in payload:
             from .core.zone_structure import KEY as STRUCTURE, setup_profile
             old_structure = (await service.context.get(zone_id)).get(STRUCTURE) if zone_id else None
-            setup = setup_profile(payload['setup'], labels, await service.world.organization_catalog(), old_structure)
+            setup_payload = payload['setup']
+            if structural:
+                if not isinstance(setup_payload.get('entity_ids'), list) or any(
+                        not isinstance(eid, str) for eid in setup_payload['entity_ids']):
+                    raise InvalidSelection('Strukturmitglieder müssen eine Liste von Entitäten sein')
+                old_decisions = (await service.selections.get(zone_id))['decisions'] if zone_id else {}
+                setup_payload = {**setup_payload, 'relevant_entity_ids': [eid for eid in setup_payload.get('entity_ids', [])
+                    if old_decisions.get(eid) == 'relevant']}
+            setup = setup_profile(setup_payload, labels, await service.world.organization_catalog(), old_structure)
             definition = service.zones.validate({**definition, 'extra_entity_ids':
                 sorted(set(definition['extra_entity_ids']) | set(setup['members']))})
         saved = await service.zones.save(definition, zone_id, payload.get('revision'), setup=setup,
-                                         relevant=payload.get('setup', {}).get('relevant_entity_ids'))
+                                         relevant=None if structural else payload.get('setup', {}).get('relevant_entity_ids', []))
         await service._derive()
         return web.json_response(saved, status=200 if zone_id else 201)
 

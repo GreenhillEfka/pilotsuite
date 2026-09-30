@@ -1,8 +1,27 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.72. Read
+> Documentation for app version 0.1.0-alpha.73. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
+
+## Current product: Habitus zone structure
+
+Open **Habituszonen**, then **Zone bearbeiten** to select areas and import a manual
+zone label or plan a new one. Device labels bring their entities. Select members
+and Habitus display roles; saving preserves existing runtime and analysis choices.
+New members do not gain analysis or control authority.
+
+Under **Zonendokumentation**, prepare concrete label changes, check the additions
+and removals, and confirm once. Close the plan and use **Mit Home Assistant prüfen**
+for independent fresh readback. Missing, renamed, extra or conflicting members stay
+visible. A successful dated structure check is not a presence or control acceptance.
+Export the documentation as JSON; stored change receipts also offer a reviewed
+metadata rollback. When an apply response is lost, read its stored plan status
+before any further action. Old module links now lead to the structural overview.
+Existing module settings and runtime processes remain preserved in the background.
+
+The following capability descriptions include retained backend features that are
+currently hidden and are not part of this structural setup workflow.
 
 ## Habituszonen einrichten (Alpha.72)
 
@@ -162,7 +181,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.72`
+- Release: `0.1.0-alpha.73`
 
 ## Habitus zones and entity selection
 

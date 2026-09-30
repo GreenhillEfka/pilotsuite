@@ -1,4 +1,22 @@
-# Workspace — Alltag zuerst, Diagnose bei Bedarf
+# Workspace — Habituszonen zuerst
+
+## Aktueller Bedienumfang, 30.09.2026 nach Alpha.72
+
+Nur Zonenübersicht, strukturelle Bearbeitung und Zonendokumentation. Vergleiche,
+Präsenz-/Lichtkonfiguration, Automationswerkbank, Lernbereiche und ihre Kennzahlen
+sind im lokalen Alpha.73-Kandidaten ausgeblendet. Die vereinfachte Navigation benutzt den
+vorhandenen Router und dieselben Editoren/Stores. Alte Links und gespeicherte
+Ansichten führen zur Zonenstruktur; „Alle Bereiche“ darf keine Hintertür bleiben.
+Strukturkonflikte und konkrete HA-Metadatenvorschauen bleiben verständlich erreichbar.
+
+Verbindlicher Zielumfang und Prüfkriterien:
+[HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md), ADR-044.
+Lokal umgesetzt und geprüft; noch keine Änderung der installierten Oberfläche. Die folgenden Abschnitte
+beschreiben den bisherigen Bestand und nachgelagerte Module; ihr breiterer
+Navigationsumfang und ihre Kompatibilitätsforderung für alle sichtbaren Ansichten
+sind für den kommenden Umbau ausdrücklich ersetzt.
+
+## Bisheriger Workspace bis Alpha.72
 
 Überarbeitet am 29.09.2026 nach Nutzerfeedback; Zielkonzept gemäß ADR-043.
 Alpha.69 besitzt drei Hauptzugänge, Zonenpräsenz, Konfiguration, vier direkte

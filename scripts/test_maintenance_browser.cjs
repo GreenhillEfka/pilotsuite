@@ -25,14 +25,15 @@ async function fixture(broken=false){
       ...(process.env.PILOTSUITE_CHROMIUM?{executablePath:process.env.PILOTSUITE_CHROMIUM}:{})});
     const page=await browser.newPage({viewport:{width:390,height:844}});page.setDefaultTimeout(10000);
     const errors=[];page.on('pageerror',error=>errors.push(error.message));
-    await page.goto(f.info.url);await page.waitForFunction(()=>!selectionBusy && contextData);
+    await page.goto(f.info.url);await page.waitForFunction(()=>!selectionBusy && structureData);
     assert.ok((await page.locator('#recent-versions').innerText()).includes(f.info.version));
     assert.equal(await page.locator('#release-install').getAttribute('href'),'/hassio/addon/0d79c5e8_pilotsuite/info');
-    // A maintenance navigation must not discard an active role draft.
-    await page.evaluate(()=>{contextEditing=true;});
+    // A maintenance navigation must not discard an active structure draft.
+    const workspaceURL=page.url();
+    await page.evaluate(()=>{zoneFormOpen=true;});
     await page.locator('a[href="maintenance"]:visible').first().click();
-    assert.equal(page.url(),f.info.url);
-    await page.evaluate(()=>{contextEditing=false;});
+    assert.equal(page.url(),workspaceURL);
+    await page.evaluate(()=>{zoneFormOpen=false;});
     await page.locator('a[href="maintenance"]:visible').first().click();
     await page.waitForFunction(()=>!document.getElementById('savepoint-create').disabled);
     assert.equal(await page.locator('#release-history details').count(),3);

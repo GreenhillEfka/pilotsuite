@@ -1,5 +1,14 @@
 # PilotSuite capability ledger — Alpha.72 installed
 
+Local Alpha.73 candidate: reduced overview/editor/documentation, legacy route
+remapping, saved structural summaries, fresh entity/device/label/area verification,
+shared-role conflict checks, preserved runtime/analysis choices, existing plan
+receipts/rollback and dated documentation export. Local validation: 727 Python,
+77 JS, five current browser suites and seven native HA protocol scenarios. See
+CURRENT_STATE.md for the pending release and real household gates; none of this
+candidate has been installed yet. The installed Alpha.72 ledger follows.
+
+
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 

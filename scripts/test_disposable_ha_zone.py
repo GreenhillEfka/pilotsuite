@@ -196,6 +196,14 @@ async def main():
             cfg = await service.context.get(new_zone['zone_id'])
             assert cfg[STRUCTURE]['label_id']==linked['binding']['label_id']
             assert not (await service.ontology_apply(new_zone['zone_id'],structure_plan['id'],args))['write_repeated']
+            from pilotsuite.core.zone_structure import verify_structure
+            areas=await service.client.zone_structure_areas()
+            assert info['area'] in {row['area_id'] for row in areas}
+            verified=verify_structure(cfg[STRUCTURE],await service.client.zone_labels(),
+                await service.client.zone_output_registry(),await service.client.zone_label_devices(),areas,[])
+            assert verified['state']=='synchronized',json.dumps(verified)
+            assert verified['control_accepted'] is False
+
             reverse = await service.ontology_restore_preview(new_zone['zone_id'],structure_plan['id'], {'revision':linked['binding']['revision']})
             restored = await service.ontology_apply(new_zone['zone_id'],reverse['id'],{'sha256':reverse['sha256'],'confirm':True})
             assert restored['state']=='verified', json.dumps(restored,default=str)
