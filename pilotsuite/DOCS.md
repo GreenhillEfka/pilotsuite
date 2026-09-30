@@ -1,8 +1,34 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.71. Read
+> Documentation for app version 0.1.0-alpha.72. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
+
+## Habituszonen einrichten (Alpha.72)
+
+In **Zone → Einrichtung** Name und physische Bereiche wählen. Vorhandene manuelle
+Zonenlabels können samt Geräte-/Entitätsmitgliedern importiert werden; alternativ
+ein neues Label zunächst planen. Rollen und relevante Analysequellen in derselben
+Ansicht prüfen und einmal speichern. Mitgliedschaft allein aktiviert keine Analyse
+und keine Steuerung. Physische Bereiche und fremde Labels bleiben erhalten.
+
+**Zonenlabels abgleichen** zeigt den konkreten HA-Änderungsplan. Ein neues Label und
+seine Mitglieder werden gemeinsam bestätigt. Erst bestätigte Anlage und Rücklesen
+binden die tatsächliche HA-ID. Bei unklarem Ergebnis den gespeicherten Plan prüfen;
+nicht durch einen zweiten Auftrag oder gleichnamigen Ersatz umgehen.
+
+Die **Einrichtungsschritte** führen anschließend zu Präsenzquellen/Nachlauf und
+zum bestehenden HA-Status. Eindeutige Quellen können in leere Bestandszuordnungen
+vorbefüllt werden; erst Speichern übernimmt sie. Bestehende Automationen bleiben
+zuständig. Fehlende eigene Ausgangshelfer samt passenden Labels lassen sich im
+vorhandenen Paketplan prüfen. Anlage und Veröffentlichung sind getrennte Schritte.
+
+**Lichtvergleich konfigurieren** verwendet dieselbe eigene Zonenpräsenz. Leuchten,
+geeignete Außen-Luxquelle, gewünschte Stimmung, Grenzen und Bedienpause festlegen;
+Feinparameter sind aufklappbar. Fehlende oder unklare Quellen ergeben keine
+Abschaltfreigabe. Die Vorschläge schalten nichts; aktive Lichtsteuerung und die
+Übernahme vorhandener Automationen sind noch nicht Bestandteil dieses Moduls.
+Der ältere Schattenvergleich ist dafür nicht erforderlich.
 
 ## Zoneninstanz: Präsenz, Daten & Ordnung
 
@@ -125,7 +151,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.71`
+- Release: `0.1.0-alpha.72`
 
 ## Habitus zones and entity selection
 

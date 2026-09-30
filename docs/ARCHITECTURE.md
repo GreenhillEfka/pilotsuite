@@ -18,11 +18,17 @@ Historie liefert begrenzte Analyse, niemals nachträgliche Live-Trigger.
 | Rollen, Belege, Präsenzkonfiguration und Checkpoints | `ContextStore` mit vorhandenen Mixins | Eine SQLite-Datei, keine neue Konfigurationsquelle |
 | Typisierte Präsenz / Zustandsübergang | `core/zone_presence.py` → `core/presence_kernel.py` | Kein HA-I/O im reinen Kern |
 | Ablauf, Historienabfrage, Ausgang | `zone_presence_service.py` | Revision und Identität vor/nach I/O prüfen |
+| Zonen-Lichtvergleich | `core/zone_lighting.py` → vorhandene `lighting_policy.py` | Nutzt die primäre Präsenz; kein zweiter Präsenzkern oder Leuchten-Executor |
 | Entwürfe, Notizen, Änderungsbelege | `PlanStore` und bestehende Organisationspläne | Allgemeines Apply bleibt geschlossen |
 | Darstellung | `web/` und vorhandene APIs | Keine Entscheidung oder Berechtigung im Browser |
 
 Pfade beziehen sich auf `pilotsuite/pilotsuite/`. Die gemeinsame Datenbank heißt
 `selections.sqlite3`; es existieren außerdem begrenzte Audit-/Legacy-JSONL-Dateien.
+Der neue Lichtvergleich vom 30.09. speichert seine Parameter im ContextStore und
+seine begrenzten letzten Lichtzwischenstände im vorhandenen `zone_operational`.
+Er läuft im bestehenden Zonentakt. GET liest nur die aktuelle Projektion; Fehler
+und Identitätskonflikte dürfen die primäre Präsenz nicht durch einen Lichtzustand
+ersetzen. Vergleich ist keine Ausführungsfreigabe.
 „Ein Besitzer“ bedeutet klare fachliche Zuständigkeit, nicht eine riesige Klasse.
 Insbesondere nutzt PlanStore für aktuelle Routinen und Notizen bereits SQLite;
 die frühere Aussage „Pläne bleiben JSONL“ war zu pauschal.

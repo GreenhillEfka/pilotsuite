@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.0-alpha.72] - 2026-09-30
+
+- Create Habitus zones from HA areas, additional entities and existing/manual labels
+  in one editor. Save membership, stable identities, role labels and relevance together.
+- Plan new zone labels and member metadata as one reviewed change, with actual HA ID
+  binding, independent readback, partial-result recovery and metadata rollback.
+- Include readable helper names and autolabeling in the existing owned-output package.
+  Preserve physical locations, foreign labels, existing anchors and shared-zone roles.
+- Guide setup through the existing presence and binding editors; prefill verified
+  empty mappings and replace repeated generic prompts with visible concrete effects.
+- Add a configurable live light comparison using the primary zone presence and
+  existing light policy. Bound proposals, confirm daylight provenance and preserve
+  manual-change holds/cooldowns; identity conflicts require explicit review.
+- No new household control, light actuator path or automation takeover. Installation
+  does not import household assignments, create helpers or enable publication/learning.
+
 ## [0.1.0-alpha.71] - 2026-09-29
 
 - Prepare one missing Boolean or timer through the existing zone helper transaction,

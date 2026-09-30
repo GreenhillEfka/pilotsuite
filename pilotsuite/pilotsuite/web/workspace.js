@@ -68,7 +68,8 @@
   const zoneRuntime=mark(E('section','','panel ps-zone-panel'),'zone config history');zoneRuntime.id='ps-zone-presence';zoneNav.after(zoneRuntime);
   mark(document.querySelector('[aria-labelledby="guide-title"]'),'workbench');
   mark(document.querySelector('[aria-labelledby="daily-brief-title"]'),'cockpit');
-  mark(document.querySelector('[aria-labelledby="foundation-title"]'),'zone');
+  const foundationPanel=mark(document.querySelector('[aria-labelledby="foundation-title"]'),'zone config');
+  foundationPanel.id='ps-zone-journey';zoneRuntime.after(foundationPanel);
   mark($('zone-setup'),'config');mark($('history-section'),'history');mark($('learning-section'),'workbench');
   for(const section of main.querySelectorAll(':scope > section')) {
     if(section===zonePanel||panels.includes(section))continue;mark(section,'zone');
@@ -76,7 +77,7 @@
   const diagnostics=mark(E('details','','panel ps-diagnostics'),'zone');diagnostics.id='ps-zone-diagnostics';
   diagnostics.append(E('summary','Module & Diagnose — bei Bedarf öffnen'));
   for(const panel of panels.filter(p=>p!==zoneRuntime&&p.dataset.psView==='zone'))if(panel!==diagnostics)diagnostics.append(panel);
-  zoneRuntime.after(diagnostics);
+  foundationPanel.after(diagnostics);
   diagnostics.addEventListener('toggle',()=>{if(diagnostics.open)renderModules();});
   const rolePanel=mark(E('section','','panel ps-role-panel'),'config');rolePanel.id='ps-roles';
   const roleSummary=E('div','','ps-role-summary');roleSummary.id='ps-role-summary';
@@ -94,9 +95,17 @@
     ['presence','Anwesenheit & Nachlauf','Sensoren kombinieren und Zeiten der PilotSuite-Bewertung festlegen.',()=>{const button=$('ps-zone-configure');if(!button||button.disabled){announce('Präsenzkonfiguration noch nicht bereit. Den Zonenstand unten prüfen und aktualisieren.');return;}button.click();}],
     ['lighting','Lichtquellen','Lux, Helligkeitsindikatoren und Leuchten zuordnen. Keine Lichtschaltung.',()=>openRoles('lighting')],
     ['entities','Entitäten auswählen','Relevante Quellen der Zone prüfen und bestätigen.',()=>{revealHash('#entity-details');$('selection-search').focus();}],
-    ['zone','Name & Bereiche','Die bestehende Zone bearbeiten; keine neue Zone anlegen.',()=>{const button=$('zone-edit');if(button.disabled){announce('Zoneneinstellungen noch nicht bereit. Bitte den Zonenstand laden lassen.');return;}button.click();}]
+    ['zone','Name, Bereiche & Tags','Die bestehende Zone samt Mitgliedern und Tag-Verbindung bearbeiten.',()=>{const button=$('zone-edit');if(button.disabled){announce('Zoneneinstellungen noch nicht bereit. Bitte den Zonenstand laden lassen.');return;}button.click();}]
   ]){const button=B('',()=>setupAction(action));button.id='ps-setup-'+id;button.append(E('strong',title),E('span',detail));setupActions.append(button);}
   setup.append(setupActions);zoneNav.after(setup);
+  window.PilotSuiteOpenSetup=id=>setupAction(()=>{
+    if(id==='existing'){if(navigate('automations')){revealHash('#ps-organization');window.PilotSuiteOrganization?.focusRole('presence_output');}return;}
+    if(!navigate('config'))return;
+    const button=id==='labels'?$('ps-structure-sync'):id==='lightmodule'?$('ps-lighting-configure'):$('ps-setup-'+id);
+    if(!button||button.disabled){announce('Einrichtung noch nicht bereit. Zonenstand aktualisieren.');return;}
+    button.click();
+  });
+
   $('zone-setup').querySelector('a[href="#learning-section"]').href='#ps-roles';
   const organizationPanel=mark(E('section','','panel'),'automations');
   $('learning-section').before(organizationPanel);

@@ -16,12 +16,20 @@ async def main():
  logging.basicConfig(level=logging.CRITICAL,stream=sys.stderr)
  tmp=tempfile.TemporaryDirectory();p=Path(tmp.name);now=NOW
  clock=patch('time.time',side_effect=lambda:now);clock.start()
+ class FixtureDatetime(datetime):
+  @classmethod
+  def now(cls,tz=None):return datetime.fromtimestamp(now,tz)
+ status_clock=patch('pilotsuite.service.datetime',FixtureDatetime);status_clock.start()
  app=create_app(Settings(p,p/'options.json',golden_zone_area_ids=('room','z_empty','z_paused','z_other'),supervisor_token='',
    refresh_interval_seconds=3600,ingress_allowed_peers=('127.0.0.1',)))
  http=TestClient(TestServer(app));await http.start_server();s=app[SERVICE_KEY]
  for t in s._tasks:t.cancel()
  await asyncio.gather(*s._tasks,return_exceptions=True);s._tasks=[]
  world=await seed_shadow(s,now)
+ for row in world['entities']:
+  if row['entity_id']==SOURCE:row['labels']=['setup_demo','1']
+  if row['entity_id']=='light.demo':row['device_id']='demo_device'
+ world['devices'].append({'id':'demo_device','area_id':'room','labels':['setup_demo']})
  for eid,platform,uid,value,attrs in [
    ('input_boolean.existing_presence','input_boolean','existing-owner','on',{}),
    ('timer.existing_presence','timer','existing-timer','active',{'finishes_at':datetime.fromtimestamp(now+120,UTC).isoformat()}),
@@ -69,11 +77,18 @@ async def main():
  async def metadata(eid,**fields):next(r for r in registry if r['entity_id']==eid).update(fields)
  public_id=None;template_inputs=None
  s.client.zone_output_registry=AsyncMock(side_effect=lambda:deepcopy(registry))
+ s.client.zone_registry_entry=AsyncMock(side_effect=lambda eid:deepcopy(next(r for r in registry if r['entity_id']==eid)))
  s.client.zone_output_states=AsyncMock(side_effect=lambda:deepcopy(states))
  s.client.zone_output_service=AsyncMock(side_effect=service_call)
  s.client.zone_create_storage_helper=AsyncMock(side_effect=create_helper)
  s.client.zone_create_binary_sensor=AsyncMock(side_effect=create_sensor)
- s.client.zone_labels=AsyncMock(return_value=[{'label_id':str(i),'name':r} for i,r in enumerate(ROLES)]+[{'label_id':'zone','name':'room'}])
+ s.client.zone_label_devices=AsyncMock(return_value={})
+ labels=[{'label_id':str(i),'name':r} for i,r in enumerate(ROLES)]+[{'label_id':'zone','name':'room'},{'label_id':'setup_demo','name':'Demo Zonenlabel'}]
+ s.client.zone_labels=AsyncMock(side_effect=lambda:deepcopy(labels))
+ async def create_label(name):
+  from pilotsuite.core.zone_ontology import slug
+  row={'label_id':slug(name),'name':name};labels.append(row);return deepcopy(row)
+ s.client.zone_create_label=AsyncMock(side_effect=create_label)
  s.client.zone_set_metadata=AsyncMock(side_effect=metadata)
  s.client.history=AsyncMock(return_value={'records':{SOURCE:[{'lu':NOW-3600,'s':'off'},{'lu':NOW-300,'s':'on'}]},'metadata':{}})
  async def tick(delta=1,values=None):
@@ -96,7 +111,7 @@ async def main():
     'learning':cfg['learning'],'roles':cfg['roles'],'history_reads':s.client.history.await_count,
     'automation_reads':s.client.automation_config.await_count,'organization':cfg.get('organization'),
     'helper_creates':s.client.zone_create_storage_helper.await_count+s.client.zone_create_binary_sensor.await_count,
-    'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)
+    'label_creates':s.client.zone_create_label.await_count,'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)
  finally:
-  await http.close();clock.stop();tmp.cleanup()
+  await http.close();status_clock.stop();clock.stop();tmp.cleanup()
 if __name__=='__main__':asyncio.run(main())

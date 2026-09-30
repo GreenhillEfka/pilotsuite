@@ -29,6 +29,17 @@ edit/enable/disable automations, activate outputs, transfer control or grant lea
 
 ## Current continuation
 
+New explicit user assignment on 30.09.2026 supersedes the expired loops below:
+implement the complete Habitus setup concept until 08:00 Europe/Berlin (06:00 UTC).
+Use `feat/habitus-zone-setup` and `docs/HABITUS_SETUP_PLAN.md`; keep progressing
+through zone/tag setup, presence/helper autolabeling and then lighting. Climate,
+multimedia and pattern recognition follow the foundation. The heartbeat now targets
+the current implementation thread; no extra thread/agent. The earlier statements
+about no new timed loop describe the prior completed assignment, not this one.
+Existing zones, identities and HA control remain intact during development.
+CURRENT_STATE.md identifies implemented/tested/pending work; installation remains
+Alpha.71 until separately verified through the release routine.
+
 Timed overnight and additional-hour runs ended; the existing heartbeat stays paused.
 The user subsequently said to continue the existing package directly in this chat.
 PR #151 on `feat/zone-missing-helper` is merged and Alpha.71 safely delivered.

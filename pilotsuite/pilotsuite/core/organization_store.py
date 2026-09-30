@@ -62,7 +62,7 @@ class OrganizationPlanMixin:
             return await durable(self._organization_plan_create,zone_id,revision,operations,kind,details)
 
     def _organization_plan_create(self, zone_id, revision, operations, kind, details):
-        if kind not in ('names','restore_names','repair_review','ontology','presence_package','presence_helper') or not 1 <= len(operations) <= 30:
+        if kind not in ('names','restore_names','repair_review','ontology','presence_package','presence_helper','structure_labels') or not 1 <= len(operations) <= (501 if kind=='structure_labels' else 30):
             raise InvalidSelection('Ungültiger oder leerer Ordnungsplan')
         plan={'id':uuid.uuid4().hex,'zone_id':zone_id,'revision':revision,'kind':kind,
               'created_at':time.time(),'expires_at':time.time()+900,'state':'preview',
@@ -157,7 +157,8 @@ class OrganizationPlanMixin:
         with closing(sqlite3.connect(self._context.path,timeout=10)) as db,db:
             db.execute('BEGIN IMMEDIATE')
             plan=json.loads(db.execute('SELECT value FROM zone_meta WHERE key=?',(PREFIX+plan_id,)).fetchone()[0])
-            if plan['kind'] not in ('presence_package','presence_helper') or plan['operations'][index].get('outcome') not in ('sending','unknown'):
+            if (plan['kind'] not in ('presence_package','presence_helper') and not (plan['kind']=='structure_labels' and plan['operations'][index].get('effect')=='create_zone_label') or
+                    plan['operations'][index].get('outcome') not in ('sending','unknown')):
                 raise SelectionConflict('Keine laufende Helferoperation')
             # Creation response and independent registry read-back are separate
             # evidence. Preserve both so a restart can prove ownership without

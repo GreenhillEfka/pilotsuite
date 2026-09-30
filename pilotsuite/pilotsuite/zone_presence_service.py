@@ -29,6 +29,7 @@ class ZonePresenceServiceMixin:
     def _zone_presence_init(self):
         self._zone_views={};self._zone_traces={};self._zone_cache={};self._zone_io_lock=asyncio.Lock()
         self._zone_backoff={};self._zone_last_published={}
+        self._zone_lighting_seen=set()
 
     async def _zone_basis(self,zid,catalog=None):
         inv=await self.selection_inventory(zid);cfg=await self.context.get(zid)
@@ -70,6 +71,14 @@ class ZonePresenceServiceMixin:
                 fresh=self._presence_inputs_fresh(now), now=now,
                 owned=(config.get('package') or {}).get('entities', {}).values())
             labels=[] # fetched on explicit ontology edit, not on every display poll
+            from .core import zone_lighting
+            light_config=cfg.get(zone_lighting.KEY) or {}
+            lighting={'mode':light_config.get('mode','not_configured'),
+                      'spec':light_config.get('spec',deepcopy(zone_lighting.DEFAULTS)),
+                      'candidates':zone_lighting.candidates(catalog,relevant),
+                      'status':cached.get('lighting_status','not_configured'),
+                      'current':cached.get('lighting') if current else None,
+                      'execution':{'allowed':False,'actions':[]}}
             return {'schema':kernel.SCHEMA,'zone_id':zid,'revision':inv['revision'],
                     'analysis_policy':'relevant_means_live_and_available_history','analysis_enabled':bool(inv['enabled']),
                     'spec':spec,'mode':config.get('mode','compare'),'package':config.get('package'),
@@ -77,7 +86,7 @@ class ZonePresenceServiceMixin:
                     'current':current,'status':cached.get('status','waiting'),'existing':existing,
                     'publication':publication,'publication_checked_at':checked_at if confirmed else None,
                     'trace':list(self._zone_traces.get(zid,[]))[-128:] if current else [],
-                    'trace_basis':'session_only_not_recorded_history',
+                    'trace_basis':'session_only_not_recorded_history','lighting':lighting,
                     'history':self._zone_cache.get(zid,{}).get('summary',{'status':'not_loaded'}),
                     'dashboard_example':'habitus-zonen','ontology_roles':list(ONTOLOGY_ROLES)}
 
@@ -189,6 +198,48 @@ class ZonePresenceServiceMixin:
                 mixed=sum(row['usage'] == 'mixed_writer' for row in result['automations']))
             return result
 
+    async def zone_lighting_configure(self,zid,payload):
+        from .core import zone_lighting
+        if (not isinstance(payload,dict) or set(payload)!={'revision','spec','mode'} or
+                type(payload['revision']) is not int or payload['mode'] not in ('compare','paused')):
+            raise InvalidSelection('Revision, Lichtkonfiguration und Vergleich/Pause erforderlich')
+        async with self._zone_io_lock:
+            async with self._projection_lock:
+                inv,cfg,catalog,relevant=await self._zone_basis(zid)
+                if inv['revision']!=payload['revision']:raise SelectionConflict('Zone geändert')
+                presence=cfg.get(KEY) or {}
+                if not presence.get('spec'):raise InvalidSelection('Zuerst die Zonenpräsenz konfigurieren')
+                spec=zone_lighting.validate_spec(payload['spec'],catalog,relevant)
+                record={'spec':spec,'mode':payload['mode'],'basis':zone_lighting.basis(spec,catalog,presence)}
+                operational=await self.context.zone_operational(zid)
+                revision=await self.context.save_zone_lighting(zid,inv['revision'],record,
+                    recover=bool((operational.get('lighting') or {}).get('suspended')))
+                if revision!=inv['revision']:self._zone_lighting_seen.discard(zid)
+                await self._zone_presence_tick_locked()
+        return await self.zone_presence_view(zid)
+
+    async def _zone_lighting_tick(self,zid,inv,cfg,catalog,relevant,state,view,now,event):
+        from .core import zone_lighting
+        record=cfg.get(zone_lighting.KEY)
+        if not record:return None,None,'not_configured'
+        if record.get('mode')=='paused':return None,None,'paused'
+        previous=state.get('lighting') or {}
+        if previous.get('suspended'):return previous,None,previous['suspended']
+        try:
+            spec=zone_lighting.validate_spec(record['spec'],catalog,relevant)
+            if record.get('basis')!=zone_lighting.basis(spec,catalog,cfg.get(KEY) or {}):
+                return {**previous,'suspended':'basis_changed'},None,'basis_changed'
+            watched=spec['lights']+spec['manual_entities']+([spec['daylight_source']] if spec['daylight_source'] else [])
+            scope=await self.world.scope((),tuple(watched))
+            observations={row['entity_id']:row['state'] for row in scope['entities']}
+            point,lighting=zone_lighting.evaluate(spec,state.get('lighting'),observations,view,
+                now=now,fresh=self._presence_inputs_fresh(now),event=event,restart=zid not in self._zone_lighting_seen)
+            self._zone_lighting_seen.add(zid)
+            return point,lighting,'current'
+        except (InvalidSelection,ValueError,TypeError,KeyError):
+            self._zone_lighting_seen.discard(zid)
+            return {**previous,'suspended':'configuration_required'},None,'configuration_required'
+
     async def _zone_presence_tick_locked(self,event=None):
         catalog=await self.world.organization_catalog()
         for zone in await self.zones.list():
@@ -217,9 +268,12 @@ class ZonePresenceServiceMixin:
                 if not old or (old['state'],old['reason'],old['deadline'])!=(view['state'],view['reason'],view['deadline']):
                     self._zone_traces.setdefault(zid,[]).append({k:view[k] for k in ('state','reason','deadline','observed_at')})
                     self._zone_traces[zid]=self._zone_traces[zid][-128:]
+                light_point,lighting,light_status=await self._zone_lighting_tick(zid,inv,cfg,catalog,relevant,state,view,now,event)
                 await self.context.save_zone_operational(zid,inv['revision'],{**state,'basis':basis,'checkpoint':checkpoint,
+                        **({'lighting':light_point} if light_point is not None else {}),
                         'session':record.get('session'),'suspended':None})
-                self._zone_views[zid]={'revision':inv['revision'],'basis':basis,'current':view,'status':'current'}
+                self._zone_views[zid]={'revision':inv['revision'],'basis':basis,'current':view,'status':'current',
+                                     'lighting':lighting,'lighting_status':light_status}
                 if event and event.get('entity_id') in relevant:
                     old_e,new_e=event.get('old_state'),event.get('new_state')
                     if isinstance(old_e,dict) and isinstance(new_e,dict) and old_e.get('state')=='off' and new_e.get('state')=='on':
@@ -335,6 +389,7 @@ class ZonePresenceServiceMixin:
         if public_id in existing:
             raise SelectionConflict('Semantischer Anwesenheitssensor existiert bereits; zuerst bestehenden Ausgang und seine Schreiber prüfen, kein Duplikat anlegen')
         operations.append({'role':'sensor','domain':'template','name':name,'entity_id':public_id,'effect':'create_template_binary_sensor'})
+        await self._zone_package_autolabel(cfg, zone, operations)
         return await self.plans.organization_plan_create(zid,inv['revision'],operations,kind='presence_package',
             details={'no_existing_automation_takeover':True,'previously_existing_outputs_untouched':True,
                      'grace_seconds':record['spec']['grace_seconds'],'lease_seconds':90,'availability_resolution_seconds':60})
@@ -361,14 +416,86 @@ class ZonePresenceServiceMixin:
         rows=await self.client.zone_output_registry()
         if any(r['entity_id']==eid for r in rows):
             raise SelectionConflict('Helferkennung existiert bereits; vorhandenen Plan oder Bestand prüfen')
-        return await self.plans.organization_plan_create(zid,inv['revision'],[
+        operations = [
             {'role':role,'domain':domain,'name':name,'entity_id':eid,
-             'suggested_display_name':zone['name']+' '+title,'effect':'create_unconnected_helper'}],
+             'suggested_display_name':zone['name']+' '+title,'effect':'create_unconnected_helper'}]
+        await self._zone_package_autolabel(cfg, zone, operations)
+        return await self.plans.organization_plan_create(zid,inv['revision'],operations,
             kind='presence_helper',details={'helper_role':role,'grace_seconds':duration or 300,
                 'duration_seconds':duration,'automation_connected':False,'binding_changed':False,
                 'control_enabled':False,'initial_state_is_presence_evidence':False,
                 'recovery':'No automatic deletion; inspect consumers before removing the new helper.',
                 'review_required':['existing_helpers','writers_and_consumers','automation_wiring','valid_public_output']})
+
+    async def _zone_package_autolabel(self, cfg, zone, operations):
+        """Extend the existing creation plan, never a second post-creation job."""
+        from .core.zone_structure import KEY as STRUCTURE
+        profile = cfg.get(STRUCTURE)
+        if not profile:
+            return  # Historical callers retain their explicit ontology workflow.
+        if len(set(zone['extra_entity_ids']) | {op['entity_id'] for op in operations}) > 500 or len(profile['members']) + len(operations) > 500:
+            raise InvalidSelection('Zone vor der Helferanlage auf höchstens 500 Mitglieder begrenzen')
+        if any(op['role']=='sensor' for op in operations) and any(
+                'Habitus Zone' in member['roles'] for member in profile['members'].values()):
+            raise SelectionConflict('Ein Zonenanker ist bereits verbunden; Bestandskette verwenden')
+        labels = await self.client.zone_labels()
+        if profile['label_id'] not in {label['label_id'] for label in labels}:
+            raise SelectionConflict('Zonenlabel fehlt; Einrichtung zuerst abgleichen')
+        by_name = {}
+        for label in labels:
+            by_name.setdefault(label['name'], []).append(label['label_id'])
+        titles = {'anwesenheit_intern': 'Anwesenheit intern', 'entscheidung_gueltig': 'Präsenz gültig',
+                  'gueltig_bis': 'Präsenz gültig bis', 'nachlauf': 'Präsenznachlauf',
+                  'sensor': 'Anwesenheit', 'presence_status': 'Anwesenheit intern', 'presence_timer': 'Nachlauf'}
+        for op in operations:
+            roles = (['Habitus Zone', 'Habitus Übersicht', 'Habitus Status'] if op['role']=='sensor'
+                     else ['Habitus Status', 'Habitus Diagnose'] if op['domain']=='timer' else ['Habitus Diagnose'])
+            if any(len(by_name.get(role, [])) != 1 for role in roles):
+                raise SelectionConflict('Benötigte Habitus-Rollenlabels fehlen oder sind mehrdeutig')
+            name = zone['name'] + ' ' + titles[op['role']]
+            if len(name) > 120:
+                raise InvalidSelection('Zonenname für Helfer zu lang')
+            op['metadata'] = {'name': name, 'labels': sorted({profile['label_id']} | {by_name[role][0] for role in roles})}
+            op['habitus_roles'] = roles
+        await self._zone_structure_guard(zone['zone_id'], operations)
+
+    async def _zone_finish_created_metadata(self, zid, plan, index, row, *, may_write=True):
+        """Only the exact newly created identity, with durable before/after evidence."""
+        op = (await self.plans.organization_plan_get(zid, plan['id']))['operations'][index]
+        if 'metadata' not in op:
+            return row
+        receipt = op.get('receipt', {})
+        if not same_identity(receipt.get('identity', {}), row):
+            raise SelectionConflict('Helferidentität vor Autolabeling nicht bestätigt')
+        current = {'name': row.get('name'), 'labels': sorted(row.get('labels') or [])}
+        before = receipt.get('metadata_before')
+        after = receipt.get('metadata_after')
+        if before is None:
+            before = current
+            after = {'name': op['metadata']['name'], 'labels': sorted(set(before['labels']) | set(op['metadata']['labels']))}
+            await self.plans.organization_receipt(zid, plan['id'], index,
+                {'metadata_before': before, 'metadata_after': after})
+        if current == after:
+            return row
+        if current != before or not may_write:
+            raise SelectionConflict('Helfermetadaten zwischenzeitlich geändert; nicht überschrieben')
+        await self._organization_basis(zid, plan['revision'])
+        fresh = next((r for r in await self.client.zone_output_registry() if r['entity_id']==row['entity_id']), {})
+        if (not same_identity(row, fresh) or fresh.get('disabled_by') is not None or
+                {'name': fresh.get('name'), 'labels': sorted(fresh.get('labels') or [])} != before):
+            raise SelectionConflict('Helfer vor der Beschriftung geändert')
+        await self._zone_structure_guard(zid, [dict(op, metadata=after)])
+        await self._organization_basis(zid, plan['revision'])
+        try:
+            await self.client.zone_set_metadata(row['entity_id'], **after)
+        except HomeAssistantError:
+            pass  # A lost response is resolved only by independent readback.
+        observed = next((r for r in await self.client.zone_output_registry() if r['entity_id']==row['entity_id']), {})
+        if (not same_identity(row, observed) or observed.get('disabled_by') is not None or
+                {'name': observed.get('name'), 'labels': sorted(observed.get('labels') or [])} != after):
+            raise HomeAssistantError('Autolabeling nicht unabhängig bestätigt')
+        await self.plans.organization_receipt(zid, plan['id'], index, {'metadata_verified': True})
+        return observed
 
     async def zone_package_apply(self,zid,plan_id,payload):
         if not isinstance(payload,dict) or set(payload)!={'sha256','confirm'} or payload['confirm'] is not True:
@@ -399,6 +526,15 @@ class ZonePresenceServiceMixin:
                             plan=await self.plans.organization_progress(zid,plan_id,index,'unknown')
                         return {**plan,'write_repeated':False,'recovery':'ownership_unconfirmed'}
                     identities[op['role']]=identity(row);entities[op['role']]=row['entity_id']
+                    if outcome!='verified':
+                        await self.plans.organization_receipt(zid,plan_id,index,
+                            {'identity':identity(row),'entity_id':row['entity_id']})
+                    try:
+                        await self._zone_finish_created_metadata(zid, plan, index, row, may_write=outcome!='verified')
+                    except SelectionConflict:
+                        return await self.plans.organization_progress(zid,plan_id,index,'conflict')
+                    except (HomeAssistantError,TimeoutError):
+                        return await self.plans.organization_progress(zid,plan_id,index,'unknown')
                     if outcome!='verified':
                         await self.plans.organization_receipt(zid,plan_id,index,
                             {'identity':identity(row),'entity_id':row['entity_id']})
@@ -442,7 +578,9 @@ class ZonePresenceServiceMixin:
                         raise HomeAssistantError('Unabhängiges aktives Identitäts-Readback fehlgeschlagen')
                     row=matches[0];identities[op['role']]=identity(row);entities[op['role']]=row['entity_id']
                     await self.plans.organization_receipt(zid,plan_id,index,{'identity':identity(row),'entity_id':row['entity_id']})
-                    if op['domain']=='template':
+                    if 'metadata' in op:
+                        await self._zone_finish_created_metadata(zid, plan, index, row)
+                    elif op['domain']=='template':
                         await self.client.zone_set_metadata(row['entity_id'],name=op['name'],labels=row.get('labels') or [])
                         named=next((r for r in await self.client.zone_output_registry() if r['entity_id']==row['entity_id']),{})
                         if not same_identity(row,named) or named.get('name')!=op['name']:
@@ -460,13 +598,25 @@ class ZonePresenceServiceMixin:
                 not same_identity(identities[role],latest.get(eid,{})) or
                 latest[eid].get('disabled_by') is not None for role,eid in entities.items()):
                 raise SelectionConflict('Ausgangsidentität vor Bindung geändert')
+            plan = await self.plans.organization_plan_get(zid, plan_id)
+            for index, op in enumerate(plan['operations']):
+                expected = op.get('receipt', {}).get('metadata_after')
+                row = latest.get(op['entity_id'], {})
+                if expected and {'name': row.get('name'), 'labels': sorted(row.get('labels') or [])} != expected:
+                    return await self.plans.organization_progress(zid, plan_id, index, 'conflict')
+            try:
+                await self._zone_structure_guard(zid, plan['operations'])
+            except SelectionConflict:
+                return await self.plans.organization_progress(zid, plan_id, len(plan['operations'])-1, 'conflict')
             async with self._projection_lock:
                 inv,cfg,catalog,relevant=await self._zone_basis(zid)
                 if inv['revision']!=plan['revision']:
                     return await self.plans.organization_progress(zid,plan_id,len(plan['operations'])-1,'conflict')
                 config=deepcopy(cfg[KEY]);config['package']={'plan_id':plan_id,'entities':entities,'identities':identities}
                 config['mode']='compare' # Creation never turns on presence/control.
-                await self.context.save_zone_presence(zid,inv['revision'],config)
+                members = {op['entity_id']: {'identity': identities[op['role']], 'roles': op['habitus_roles']}
+                           for op in plan['operations'] if 'metadata' in op}
+                await self.context.save_zone_presence(zid,inv['revision'],config, structure_members=members or None)
             return await self.plans.organization_plan_get(zid,plan_id)
 
     @staticmethod
@@ -606,6 +756,126 @@ class ZonePresenceServiceMixin:
                 'labels':await self.client.zone_labels(),'roles':list(ONTOLOGY_ROLES),
                 'physical_locations_unchanged':True,'technical_id_execution':False}
 
+    async def _zone_structure_shared_roles(self, zid, operations, labels):
+        """HA role labels are global, even when entities belong to several zones."""
+        from .core.zone_structure import KEY as STRUCTURE
+        role_names = {row['label_id']: row['name'] for row in labels if row['name'] in ONTOLOGY_ROLES}
+        profile = (await self.context.get(zid)).get(STRUCTURE, {})
+        changes = {eid:set(member['roles']) for eid,member in profile.get('members', {}).items()}
+        changes.update({op['entity_id']: {role_names[key] for key in (op.get('after') or op.get('metadata', {})).get('labels', []) if key in role_names}
+                        for op in operations if 'entity_id' in op})
+        for other in await self.zones.list():
+            if other['zone_id'] == zid:
+                continue
+            members = (await self.context.get(other['zone_id'])).get(STRUCTURE, {}).get('members', {})
+            for eid in set(members) & set(changes):
+                if set(members[eid]['roles']) != changes[eid]:
+                    raise SelectionConflict('Globale HA-Rollenlabels widersprechen einer weiteren Zone: ' + eid)
+
+    async def _zone_structure_guard(self, zid, operations, expected_labels=None, planned_label=None):
+        from .core.zone_structure import KEY as STRUCTURE, PENDING_LABEL
+        profile = deepcopy((await self.context.get(zid)).get(STRUCTURE))
+        if not profile:
+            return []
+        labels = await self.client.zone_labels()
+        if profile['label_id'] is None:
+            if not planned_label or planned_label['name'] != profile.get('label_name'):
+                raise SelectionConflict('Zonenlabel ist noch nicht angelegt; Zonenlabels zuerst abgleichen')
+            profile['label_id'] = planned_label['label_id']
+            if planned_label['label_id'] == PENDING_LABEL:
+                if any(row['name'].casefold() == planned_label['name'].casefold() for row in labels):
+                    raise SelectionConflict('Labelname inzwischen vorhanden; Bestand ausdrücklich zuordnen')
+                labels = [*labels, planned_label]
+            elif not any(row['label_id']==planned_label['label_id'] and row['name']==planned_label['name'] for row in labels):
+                raise SelectionConflict('Angelegtes Zonenlabel inzwischen geändert')
+        names = {row['label_id']: row['name'] for row in labels}
+        if profile['label_id'] not in names:
+            raise SelectionConflict('Zonenlabel fehlt inzwischen')
+        for key, name in (expected_labels or {}).items():
+            if (name in ONTOLOGY_ROLES or key == profile['label_id']) and names.get(key) != name:
+                raise SelectionConflict('Zonen- oder Rollenlabel seit der Vorschau geändert')
+        await self._zone_structure_shared_roles(zid, operations, labels)
+        rows = {row['entity_id']: row for row in await self.client.zone_output_registry()}
+        devices = await self.client.zone_label_devices()
+        projected = {eid: set(row.get('labels') or []) for eid, row in rows.items()}
+        for op in operations:
+            after = op.get('after') or op.get('metadata')
+            if not after:
+                continue
+            if not set(after['labels']) <= set(names):
+                # Existing unrelated labels may have been removed meanwhile too.
+                # Never send a label ID that no longer exists.
+                raise SelectionConflict('Ein benötigtes Label fehlt inzwischen')
+            roles = {names[key] for key in after['labels'] if names[key] in ONTOLOGY_ROLES}
+            if 'habitus_roles' in op and roles != set(op['habitus_roles']):
+                raise SelectionConflict('Bedeutung der Helferrollen seit der Vorschau geändert')
+            projected[op['entity_id']] = set(after['labels'])
+            rows.setdefault(op['entity_id'], {'disabled_by': None})
+        anchors = {key for key, name in names.items() if name == 'Habitus Zone'}
+        zones = [(profile['label_id'], True)]
+        for other in await self.zones.list():
+            if other['zone_id'] != zid:
+                label = (await self.context.get(other['zone_id'])).get(STRUCTURE, {}).get('label_id')
+                if label:
+                    zones.append((label, False))
+        changed = {op['entity_id'] for op in operations if 'entity_id' in op}
+        for label, own in zones:
+            members = {eid for eid, values in projected.items() if label in values or label in devices.get(rows[eid].get('device_id'), [])}
+            if not own and not members & changed:
+                continue
+            # Disabled anchors are still existing identities, not permission to replace them.
+            if sum(bool(projected[eid] & anchors) for eid in members) > 1:
+                raise SelectionConflict('Der Abgleich würde mehrere öffentliche Zonenanker hinterlassen')
+        return labels
+
+    async def structure_label_preview(self, zid, payload):
+        from .core.zone_structure import KEY as STRUCTURE, PENDING_LABEL
+        if not isinstance(payload, dict) or set(payload) != {'revision'}:
+            raise InvalidSelection('Revision erforderlich')
+        inv, cfg, _, _ = await self._organization_basis(zid, payload['revision'])
+        profile = cfg.get(STRUCTURE)
+        if not profile:
+            raise InvalidSelection('Zuerst ein Zonenlabel und Mitglieder speichern')
+        labels = await self.client.zone_labels()
+        pending = profile['label_id'] is None
+        label_id = PENDING_LABEL if pending else profile['label_id']
+        planned_label = {'label_id': label_id, 'name':profile['label_name']} if pending else None
+        if not pending and label_id not in {row['label_id'] for row in labels}:
+            raise SelectionConflict('Das verbundene Zonenlabel fehlt inzwischen')
+        by_name = {}
+        for label in labels:
+            by_name.setdefault(label['name'], []).append(label['label_id'])
+        required_roles = {role for member in profile['members'].values() for role in member['roles']}
+        if any(len(by_name.get(role, [])) != 1 for role in required_roles):
+            raise SelectionConflict('Benötigte Habitus-Rollenlabels fehlen oder sind mehrdeutig')
+        role_ids = {label for role in ONTOLOGY_ROLES for label in by_name.get(role, [])}
+        rows = {row['entity_id']: row for row in await self.client.zone_output_registry()}
+        operations = ([{'effect':'create_zone_label', 'name':profile['label_name']}] if pending else [])
+        for eid, member in profile['members'].items():
+            row = rows.get(eid, {})
+            if not same_identity(member['identity'], row) or row.get('disabled_by') is not None:
+                raise SelectionConflict('Mitglied fehlt, wurde ersetzt oder deaktiviert: ' + eid)
+            before = {'name': row.get('name'), 'labels': sorted(row.get('labels') or [])}
+            desired = sorted((set(before['labels']) - role_ids) | {label_id} |
+                             {by_name[role][0] for role in member['roles']})
+            after = {'name': before['name'], 'labels': desired}
+            if before != after:
+                operations.append({'entity_id': eid, 'identity': identity(row), 'before': before,
+                                   'after': after, 'effect': 'zone_membership_and_roles'})
+        await self._zone_structure_guard(zid, operations, planned_label=planned_label)
+        await self._organization_basis(zid, inv['revision'])
+        if not operations:
+            return {'state': 'unchanged', 'operations': [], 'message': 'Zonenlabel und Rollen stimmen überein.'}
+        return await self.plans.organization_plan_create(zid, inv['revision'], operations, kind='structure_labels',
+            details={'scope': 'zone_labels_and_roles', 'label_id': profile['label_id'],
+                     'label_names': {row['label_id']: row['name'] for row in [*labels, *([planned_label] if pending else [])]},
+                     'creates_zone_label': pending,
+                     'other_labels_preserved': True, 'physical_locations_unchanged': True,
+                     'names_unchanged': True, 'control_enabled': False,
+                     'limits': ['Label-basierte Automationen und Dashboards können auf den Abgleich reagieren.',
+                                'Entfernte Mitglieder verlieren keine bestehenden HA-Labels; Entfernung gesondert prüfen.',
+                                'Bei Teilfehlern bleiben bestätigte Schritte sichtbar; kein blindes Wiederholen.']})
+
     async def ontology_preview(self,zid,payload):
         if not isinstance(payload,dict) or set(payload)!={'revision','entity_id','name','zone_label','roles','target_entity_id'}:
             raise InvalidSelection('Vollständiger Ontologieauftrag erforderlich')
@@ -630,40 +900,144 @@ class ZonePresenceServiceMixin:
             'scope':'display_name_and_role_labels','entity_ids_unchanged':True,'other_labels_preserved':True,
             'limits':['Name-/Label-basierte Automationen und Dashboards können auf diese Änderung reagieren.','HA besitzt keinen atomaren Compare-and-swap für Registermetadaten.']})
 
+    @staticmethod
+    def _zone_resolved_label_operations(plan):
+        from .core.zone_structure import PENDING_LABEL
+        created = next((op.get('receipt', {}).get('label') for op in plan['operations'] if op.get('effect')=='create_zone_label'), None)
+        operations = []
+        for index, raw in enumerate(plan['operations']):
+            if raw.get('effect') == 'create_zone_label':
+                continue
+            op = deepcopy(raw)
+            for side in ('before', 'after'):
+                if PENDING_LABEL in op[side]['labels']:
+                    if not created:
+                        raise SelectionConflict('Anlagebeleg für das neue Zonenlabel fehlt')
+                    op[side]['labels'] = sorted(created['label_id'] if key==PENDING_LABEL else key for key in op[side]['labels'])
+            operations.append((index, op))
+        return created, operations
+
+    async def _zone_create_planned_label(self, zid, plan):
+        """Creation receipt proves ownership; a matching name never does."""
+        from .core.zone_structure import PENDING_LABEL
+        op = plan['operations'][0]
+        if op.get('outcome') == 'conflict':
+            return plan
+        try:
+            await self._organization_basis(zid, plan['revision'])
+            if op.get('outcome') == 'pending':
+                before_labels = await self._zone_structure_guard(zid, plan['operations'], plan['details'].get('label_names'),
+                    planned_label={'label_id':PENDING_LABEL, 'name':op['name']})
+                rows = {row['entity_id']: row for row in await self.client.zone_output_registry()}
+                for change in plan['operations'][1:]:
+                    if not metadata_matches(rows.get(change['entity_id'], {}), change, 'before'):
+                        raise SelectionConflict('Mitglied vor der Labelanlage geändert')
+                await self.plans.organization_progress(zid, plan['id'], 0, 'sending')
+                await self._organization_basis(zid, plan['revision'])
+                # No label mutation is retried after sending without a receipt.
+                created = await self.client.zone_create_label(op['name'])
+                if (not isinstance(created, dict) or not isinstance(created.get('label_id'), str) or
+                        not created['label_id'] or created['label_id'] in {row['label_id'] for row in before_labels} or
+                        created.get('name') != op['name']):
+                    raise HomeAssistantError('Labelanlage nicht identifizierbar')
+                await self.plans.organization_receipt(zid, plan['id'], 0,
+                    {'label': {'label_id':created['label_id'], 'name':created['name']}})
+                plan = await self.plans.organization_plan_get(zid, plan['id'])
+                op = plan['operations'][0]
+            created = op.get('receipt', {}).get('label')
+            if not created:
+                return await self.plans.organization_progress(zid, plan['id'], 0, 'unknown')
+            labels = await self.client.zone_labels()
+            found = next((row for row in labels if row['label_id']==created['label_id']), None)
+            if not found or found['name'] != created['name']:
+                raise SelectionConflict('Angelegtes Label fehlt oder wurde manuell geändert')
+            return await self.plans.organization_progress(zid, plan['id'], 0, 'verified', True)
+        except SelectionConflict:
+            return await self.plans.organization_progress(zid, plan['id'], 0, 'conflict')
+        except (HomeAssistantError, TimeoutError):
+            return await self.plans.organization_progress(zid, plan['id'], 0, 'unknown')
+
     async def ontology_apply(self,zid,plan_id,payload):
         if not isinstance(payload,dict) or set(payload)!={'sha256','confirm'} or payload['confirm'] is not True:
             raise InvalidSelection('Konkreten Metadatenplan bestätigen')
         async with self._automation_review_lock:
             plan=await self.plans.organization_plan_get(zid,plan_id)
-            if plan['kind']!='ontology':raise InvalidSelection('Kein Ontologieplan')
+            if plan['kind'] not in ('ontology','structure_labels'):raise InvalidSelection('Kein Metadatenplan')
             plan,claimed=await self.plans.organization_claim(zid,plan_id,payload['sha256'])
-            if not claimed:return {**plan,'write_repeated':False}
-            op=plan['operations'][0]
+            creates_label = plan['operations'][0].get('effect') == 'create_zone_label'
+            if not claimed and (not creates_label or plan.get('binding')):
+                return {**plan,'write_repeated':False}
+            if creates_label:
+                plan = await self._zone_create_planned_label(zid, plan)
+                if plan['operations'][0]['outcome'] != 'verified':
+                    return plan
+            created, indexed = self._zone_resolved_label_operations(plan)
+            changes = [op for _, op in indexed]
+            async def read(eid):
+                if plan['kind']=='structure_labels':
+                    return await self.client.zone_registry_entry(eid)
+                return next((r for r in await self.client.zone_output_registry() if r['entity_id']==eid),{})
+            guard_labels = None
+            for offset, (index, op) in enumerate(indexed):
+                try:
+                    if offset == 0:
+                        guard_labels = await self._zone_structure_guard(zid, changes, plan['details'].get('label_names'), created)
+                    elif guard_labels:
+                        await self._zone_structure_shared_roles(zid, [op], guard_labels)
+                        anchor_ids = {row['label_id'] for row in guard_labels if row['name']=='Habitus Zone'}
+                        if anchor_ids & set(op['after']['labels']):
+                            await self._zone_structure_guard(zid, changes, plan['details'].get('label_names'), created)
+                    await self._organization_basis(zid,plan['revision'])
+                    row=await read(op['entity_id'])
+                    if not claimed and op.get('outcome') != 'pending':
+                        if op.get('outcome')=='conflict':return plan
+                        # Read-only recovery. An uncertain write is never repeated.
+                        outcome = 'verified' if metadata_matches(row,op,'after') else 'unknown'
+                        plan = await self.plans.organization_progress(zid,plan_id,index,outcome)
+                        if outcome!='verified':return plan
+                        continue
+                    if not metadata_matches(row,op,'before'):return await self.plans.organization_progress(zid,plan_id,index,'conflict')
+                    await self.plans.organization_progress(zid,plan_id,index,'sending')
+                    await self._organization_basis(zid,plan['revision'])
+                    confirmed=True
+                    try:await self.client.zone_set_metadata(op['entity_id'],**op['after'])
+                    except HomeAssistantError:confirmed=False
+                    row=await read(op['entity_id'])
+                    outcome='verified' if metadata_matches(row,op,'after') else 'unknown'
+                    plan=await self.plans.organization_progress(zid,plan_id,index,outcome,confirmed)
+                    if outcome!='verified':return plan
+                except SelectionConflict:return await self.plans.organization_progress(zid,plan_id,index,'conflict')
+                except (HomeAssistantError,TimeoutError):return await self.plans.organization_progress(zid,plan_id,index,'unknown')
             try:
-                await self._organization_basis(zid,plan['revision'])
-                row=next((r for r in await self.client.zone_output_registry() if r['entity_id']==op['entity_id']),{})
-                if not metadata_matches(row,op,'before'):return await self.plans.organization_progress(zid,plan_id,0,'conflict')
-                await self.plans.organization_progress(zid,plan_id,0,'sending')
-                confirmed=True
-                try:await self.client.zone_set_metadata(op['entity_id'],**op['after'])
-                except HomeAssistantError:confirmed=False
-                row=next((r for r in await self.client.zone_output_registry() if r['entity_id']==op['entity_id']),{})
-                return await self.plans.organization_progress(zid,plan_id,0,'verified' if metadata_matches(row,op,'after') else 'unknown',confirmed)
-            except SelectionConflict:return await self.plans.organization_progress(zid,plan_id,0,'conflict')
-            except (HomeAssistantError,TimeoutError):return await self.plans.organization_progress(zid,plan_id,0,'unknown')
+                final_rows = {row['entity_id']: row for row in await self.client.zone_output_registry()}
+                for index, op in indexed:
+                    if not metadata_matches(final_rows.get(op['entity_id'], {}), op, 'after'):
+                        return await self.plans.organization_progress(zid, plan_id, index, 'conflict')
+                await self._zone_structure_guard(zid, changes, plan['details'].get('label_names'), created)
+                if creates_label:
+                    plan = await self.zones.bind_created_label(zid, plan['revision'], plan_id)
+            except SelectionConflict:
+                return await self.plans.organization_progress(zid, plan_id, len(plan['operations'])-1, 'conflict')
+            except (HomeAssistantError, TimeoutError):
+                return await self.plans.organization_progress(zid, plan_id, len(plan['operations'])-1, 'unknown')
+            return plan
 
     async def ontology_restore_preview(self,zid,plan_id,payload):
         if not isinstance(payload,dict) or set(payload)!={'revision'}:raise InvalidSelection('Revision erforderlich')
         await self._organization_basis(zid,payload['revision'])
         original=await self.plans.organization_plan_get(zid,plan_id)
-        if original['kind']!='ontology' or original['state']!='verified':
+        if original['kind'] not in ('ontology','structure_labels') or original['state']!='verified':
             raise InvalidSelection('Nur verifiziert abgeschlossene Metadatenpläne zurücknehmen')
         rows={r['entity_id']:r for r in await self.client.zone_output_registry()}
         operations=[]
-        for op in original['operations']:
+        _, indexed = self._zone_resolved_label_operations(original)
+        for _, op in indexed:
             if not metadata_matches(rows.get(op['entity_id'],{}),op,'after'):
                 raise SelectionConflict('Metadaten inzwischen geändert; Rücknahme würde fremde Änderungen überschreiben')
             operations.append({**{k:v for k,v in op.items() if k not in ('outcome','write_response_confirmed')},
                                'before':op['after'],'after':op['before']})
-        return await self.plans.organization_plan_create(zid,payload['revision'],operations,kind='ontology',
-                    details={'restores':plan_id,'scope':'exact_previous_metadata'})
+        if not operations:
+            return {'state':'unchanged', 'operations':[], 'message':'Nur das Label wurde angelegt. Keine automatische Löschung; mögliche Verbraucher zuerst prüfen.'}
+        return await self.plans.organization_plan_create(zid,payload['revision'],operations,kind=original['kind'],
+                    details={'restores':plan_id,'scope':'exact_previous_metadata',
+                             'limits':['Das neu angelegte Zonenlabel bleibt bestehen; keine automatische Löschung.'] if original['details'].get('creates_zone_label') else []})

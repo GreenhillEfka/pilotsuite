@@ -60,7 +60,85 @@ class ZonePackageRecoveryTests(unittest.IsolatedAsyncioTestCase):
         return {'result': {'entry_id': 'entry-owned-1'}}
 
     async def _set_metadata(self, entity_id, *, name, labels):
-        next(row for row in self.rows if row['entity_id'] == entity_id)['name'] = name
+        next(row for row in self.rows if row['entity_id'] == entity_id).update(name=name, labels=labels)
+
+    async def _connect_structure(self):
+        from pilotsuite.core.zone_ontology import ROLES
+        zone = next(zone for zone in await self.service.zones.list() if zone['zone_id']=='room')
+        definition = {key: zone[key] for key in ('name','area_ids','extra_entity_ids','enabled','profile')}
+        await self.service.zones.save(definition, 'room', 1, setup={
+            'schema':'pilotsuite-zone-structure-v1','label_id':'zone','members':{}}, relevant=[])
+        self.service.client.zone_label_devices = AsyncMock(return_value={})
+        self.service.client.zone_labels = AsyncMock(return_value=[{'label_id':'zone','name':'Room'}] +
+            [{'label_id':str(i),'name':role} for i,role in enumerate(ROLES)])
+
+    async def test_connected_zone_creates_names_labels_and_members_in_one_package(self):
+        await self._connect_structure()
+        plan = await self.service.zone_package_preview('room', {'revision':2})
+        self.assertTrue(all('metadata' in op for op in plan['operations']))
+        result = await self.service.zone_package_apply('room', plan['id'], {'sha256':plan['sha256'],'confirm':True})
+        self.assertEqual('verified', result['state'])
+        cfg = await self.service.context.get('room')
+        self.assertEqual(5, len(cfg['zone_structure']['members']))
+        for row in self.rows:
+            self.assertIn('zone', row['labels'])
+            self.assertFalse(row['name'].startswith('ps_'))
+        self.assertEqual('compare', cfg['zone_presence_v2']['mode'])
+        self.service.client.zone_output_service.assert_not_awaited()
+
+    async def test_autolabel_lost_reply_recovers_by_readback_without_duplicate_creation(self):
+        await self._connect_structure()
+        plan = await self.service.zone_package_preview('room', {'revision':2,'helper_role':'presence_timer','duration_seconds':180})
+        async def lost_reply(eid, **fields):
+            await self._set_metadata(eid, **fields)
+            raise HomeAssistantError('Synthetic lost metadata response')
+        self.service.client.zone_set_metadata.side_effect = lost_reply
+        result = await self._single_apply(plan)
+        self.assertEqual('verified', result['state'])
+        self.assertIn('zone', self.rows[0]['labels'])
+        await self._single_apply(plan)
+        self.assertEqual(1, len(self.storage_calls))
+        self.assertEqual(1, self.service.client.zone_set_metadata.await_count)
+
+    async def test_autolabel_outage_does_not_hide_creation_and_manual_edit_blocks_retry(self):
+        await self._connect_structure()
+        plan = await self.service.zone_package_preview('room', {'revision':2,'helper_role':'presence_timer','duration_seconds':180})
+        self.service.client.zone_set_metadata.side_effect = HomeAssistantError('Synthetic unavailable metadata')
+        result = await self._single_apply(plan)
+        self.assertEqual('attention', result['state'])
+        self.assertIn('metadata_before', result['operations'][0]['receipt'])
+        self.rows[0]['name'] = 'Manual name'
+        result = await self._single_apply(plan)
+        self.assertEqual('conflict', result['operations'][0]['outcome'])
+        self.assertEqual(1, len(self.storage_calls))
+        self.assertEqual('Manual name', self.rows[0]['name'])
+
+    async def test_new_package_rejects_existing_external_zone_anchor(self):
+        await self._connect_structure()
+        self.rows.append({'entity_id':'binary_sensor.external', 'labels':['zone','0'], 'disabled_by':None})
+        with self.assertRaises(SelectionConflict):
+            await self.service.zone_package_preview('room', {'revision':2})
+        self.service.client.zone_create_storage_helper.assert_not_awaited()
+
+    async def test_disabled_external_anchor_does_not_authorize_a_replacement_package(self):
+        await self._connect_structure()
+        self.rows.append({'entity_id':'binary_sensor.disabled_anchor', 'labels':['zone','0'], 'disabled_by':'user'})
+        with self.assertRaises(SelectionConflict):
+            await self.service.zone_package_preview('room', {'revision':2})
+        self.service.client.zone_create_storage_helper.assert_not_awaited()
+
+    async def test_metadata_changed_during_package_prevents_binding(self):
+        await self._connect_structure()
+        plan = await self.service.zone_package_preview('room', {'revision':2})
+        async def change_earlier(eid, **fields):
+            await self._set_metadata(eid, **fields)
+            if eid.startswith('binary_sensor.'):
+                self.rows[0]['name'] = 'Manually changed'
+        self.service.client.zone_set_metadata.side_effect = change_earlier
+        result = await self.service.zone_package_apply('room', plan['id'], {'sha256':plan['sha256'],'confirm':True})
+        self.assertEqual('attention', result['state'])
+        self.assertIsNone((await self.service.context.get('room'))['zone_presence_v2']['package'])
+        self.assertEqual('Manually changed', self.rows[0]['name'])
 
     async def _preview(self):
         return await self.service.zone_package_preview('room', {'revision': 1})

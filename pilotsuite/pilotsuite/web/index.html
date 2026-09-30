@@ -81,7 +81,7 @@
         <div id="daily-brief" aria-live="polite">Alltagsbrief wird geladen …</div>
       </section>
       <section class="panel" aria-labelledby="foundation-title">
-        <h2 id="foundation-title">Zonenbasis</h2>
+        <h2 id="foundation-title">Einrichtungsschritte</h2>
         <p>Ein geführter Weg von Quellen und vorhandener Hauslogik bis zur späteren, geprüften Übernahme.</p>
         <div id="foundation-journey" class="grid status-grid" aria-live="polite"></div>
         <details><summary>Technische Grundlagen und Konflikte</summary><div id="foundation-detail"></div></details>
@@ -93,8 +93,8 @@
       </section>
       <section id="zone-setup" class="panel selection-panel" aria-labelledby="selection-title">
         <h2>Zone einrichten</h2>
-        <p>1. Bereiche festlegen → 2. Entitäten bestätigen → 3. Hauptsensoren zuordnen. Danach kannst du die Auswertung starten und optional Lernen freigeben.</p>
-        <a href="#learning-section">Zu Hauptsensoren und Lernfreigabe</a>
+        <p>Zone und Tags verbinden → Präsenz einrichten → Licht ergänzen. Die Grundkonfiguration benötigt keine Lernfreigabe.</p>
+        <a href="#learning-section">Zu Quellen und ergänzenden Einstellungen</a>
         <details id="zone-editor">
           <summary>Zoneneinstellungen und Export</summary>
           <p>Bereiche liefern Kandidaten. Zusätzliche Entitäten können aus anderen Bereichen stammen. Neue Zonen starten deaktiviert und mit bestätigter Auswahl.</p>
@@ -106,14 +106,34 @@
               <legend id="zone-form-title">Zone</legend>
               <div class="selection-tools">
                 <label>Name <input id="zone-name" required maxlength="80"></label>
-                <label>Regelprofil <select id="zone-profile"><option value="observe">Neutral beobachten</option><option value="cellar">Erdkeller – konservative Klimaregeln</option></select></label>
+
               </div>
               <p>Die Auswertung startest oder pausierst du direkt im Zonen-Reiter. Eine neue Zone startet pausiert.</p>
               <div class="selection-tools">
                 <fieldset class="area-field"><legend>Bereiche auswählen</legend><div id="zone-areas" class="area-choices"></div></fieldset>
                 <label>Zusätzliche Entitäten suchen <input id="zone-extra-search" type="search" placeholder="Name oder ID"><select id="zone-extras" multiple size="6" aria-label="Zusätzliche Entitäten"></select></label>
               </div>
-              <p>Bereiche einzeln anhaken, zum Beispiel Bad und Toilette. Anschließend relevante Entitäten auswählen. Entfernte Quellen behalten ihre Entscheidungen für eine spätere Wiederaufnahme.</p>
+              <fieldset class="area-field">
+                <legend>Zone mit Tags verbinden</legend>
+                <p>Vorhandenes Label übernehmen oder ein neues planen. Beschriftete Geräte liefern ihre Entitäten mit.</p>
+                <div class="selection-tools">
+                  <button id="zone-label-load" type="button">HA-Labels einlesen</button>
+                  <label>Zonenlabel <select id="zone-label-select" disabled><option value="">Noch nicht verbunden</option></select></label>
+                  <button id="zone-label-import" type="button" disabled>Mitglieder vorschlagen</button>
+                </div>
+                <div class="selection-tools">
+                  <label>Neues Zonenlabel <input id="zone-label-name" maxlength="80" placeholder="Zum Beispiel Wohnbereich"></label>
+                  <button id="zone-label-new" type="button">Neues Label planen</button>
+                </div>
+                <p>Ein neues Label wird erst im anschließenden gemeinsamen Änderungsplan in HA angelegt.</p>
+                <button id="zone-candidates-import" type="button">Bereiche und Zusatzentitäten als Mitglieder prüfen</button>
+                <p id="zone-label-message" role="status" aria-live="polite"></p>
+                <label>Mitglieder filtern <input id="zone-member-search" type="search" placeholder="Name oder Entitäts-ID"></label>
+                <div id="zone-label-members" class="zone-member-list"></div>
+              </fieldset>
+              <details><summary>Weitere Einstellungen</summary>
+                <label>Regelprofil <select id="zone-profile"><option value="observe">Neutral beobachten</option><option value="cellar">Erdkeller – konservative Klimaregeln</option></select></label>
+              </details>
               <div class="selection-tools"><button type="submit">Zone speichern</button><button id="zone-cancel" type="button">Abbrechen</button></div>
             </fieldset>
           </form>

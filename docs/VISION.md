@@ -1,5 +1,16 @@
 # PilotSuite — ein verständlicher Zonenassistent
 
+Priorität des Nutzers vom 30.09.2026: erst eine durchgehende Habituszonenerstellung
+aus HA-Bereichen und manuellem Tagsystem, darauf Präsenz samt Helfern/Sensoren und
+Autolabeling, danach Licht. Klima und Multimedia folgen später. Weitergehende
+Mustererkennung und Vision werden erst nach dieser Grundkonfiguration fortgesetzt.
+Einrichtungsfreigaben bündeln, bekannte Zuordnungen übernehmen und den bestehenden
+Workspace vereinfachen. Umsetzung: [HABITUS_SETUP_PLAN.md](HABITUS_SETUP_PLAN.md).
+Einrichtungsschritte zeigen den gespeicherten Stand und führen in dieselben
+Editoren. „Eingerichtet“ ist weder ein aktueller Anwesenheitsbeleg noch eine
+Haushaltsabnahme. Eindeutige vorhandene Rollen werden vorgeschlagen; ähnliche
+Anzeigenamen reichen nicht als Zuordnungsnachweis.
+
 Konsolidiertes Zielbild vom 28.09.2026, zur schrittweisen Umsetzung im bestehenden
 Projekt. Dies ist kein Nachweis neuer Laufzeitfunktionen. Den Funktionsstand führt
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), die Installation

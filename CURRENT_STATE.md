@@ -1,4 +1,70 @@
-# Current state — Alpha.71 installed; household acceptance pending
+# Current state — Habitus setup implementation; Alpha.71 installed
+
+## Active assignment, 30.09.2026 until 08:00 Europe/Berlin
+
+The user explicitly authorized autonomous development through this new window.
+Branch `feat/habitus-zone-setup` from `e3e5dc2`; preserve untracked AGENTS.md.
+`docs/HABITUS_SETUP_PLAN.md` owns the ordered work and cutoff times. The existing
+heartbeat is active on the current thread; earlier paused-loop statements below
+are historical. No new agent or parallel checkout.
+
+Implemented locally: device/entity label import in the existing zone editor;
+atomic zone, stable membership, desired Habitus roles and relevance save in the
+existing SQLite transaction; duplicate label ownership and identity/anchor guards.
+Explicit batch HA label preview/apply/readback/restore reuses ontology/PlanStore;
+foreign labels, names and locations survive. The form hides unrelated setup panels.
+One concrete apply button replaces redundant browser confirmation dialogs.
+Installed version remains Alpha.71; no household metadata or control changed.
+
+Validation: first label/import slice passed all 661 Python, 78 JS tests and 66 API
+contracts. Extended browser passed import, passive refresh, 390/768/1440 themes,
+batch labels/readback/rollback with no actor calls. Skills updated and validated.
+Autolabeling then added to the existing helper transaction: readable names,
+role/zone labels, durable before/after receipts, lost-response readback and manual
+conflict protection. Full own package binds its members to structure/scope in the
+same transaction. Complete rerun: 665 Python tests pass; 78 JavaScript tests and
+66 API contracts pass. Extended browser passes; mobile light screenshot inspected
+with reduced motion to avoid capturing an unfinished theme transition. New helper
+autolabel cases cover full member binding, lost metadata response and conflict on
+manual edits. No HA household mutation, publication or installation performed.
+Next local slice implemented: pending zone labels and member metadata share one
+confirmed plan, native label receipt/readback and atomic canonical ID binding.
+Area/extra candidates are selectable in the same form, with analysis off by default.
+Fresh global anchors/device labels/shared roles and final metadata are checked;
+manual conflicts do not get overwritten. Four regressions reproduced red before fix.
+679 Python, 78 JS, 67 contracts and all eleven existing browsers pass locally;
+selection browser required the existing dependency's NODE_PATH. Seven native HA
+2026.9.3 protocol scenarios pass in a local disposable instance. New form screenshots
+reviewed in light/dark. Metadata plan history now has correct labels, effects and
+endpoints; its additional zone-browser regression and the organization browser pass.
+Presence/connection UX is now implemented locally: visible zone setup steps lead
+to the existing editors; verified stable zone members can prefill empty existing
+presence bindings without saving or replacing drafts. Explicit save replaces the
+redundant generic mapping confirmation. Publication has its concrete effect and
+owned sensor target visible in the same form. Disabled anchors still block a
+replacement package. 685 Python, 78 JS and 67 contracts pass; affected foundation,
+workspace, organization and extended zone browsers pass. New mobile setup and
+binding proposal screenshots inspected. Browser fixture uses one consistent clock
+for status freshness and deterministic presence, without changing production guards.
+The light comparison now uses the primary zone presence and existing light policy
+in the same tick/operational store. Stable relevant target/source identities,
+explicit outdoor-lux provenance, bounded brightness/temperature proposals and a
+configurable hold after external light changes are visible in the zone editor.
+No second presence session or light actuator path. Restart preserves proposal
+cooldown; identity conflicts remain suspended until explicit reconfiguration.
+701 Python / 78 JS / 68 API contracts pass. Extended zone browser passes the light
+editor, unsaved/error retention and proposals without actuator calls. All eleven
+browser suites pass; complete resource audit reports no ResourceWarnings. Seven
+native HA protocol cases passed again. The component-browser launcher filename
+was corrected before completing the remaining suites; no product failure hidden.
+Active light control/automation takeover remains a separate unfinished capability,
+not implied by comparison settings, relevance, tags or app installation.
+Full exact-source release gates and actual household acceptance remain pending.
+Alpha.72 markers/changelogs prepared locally. Fresh partial backup `63f11346`,
+30 Sep 02:05:15 UTC, confirms only Alpha.71 PilotSuite, 54,528,000 bytes locally,
+no HA/database/folders or failed components. However native backup/details reports
+list failures for two unrelated Synology agents. The runbook's empty agent_errors
+gate is not met. No publication/installation; do not weaken that gate implicitly.
 
 ## Completed package: PR #151
 

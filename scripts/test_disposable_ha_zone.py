@@ -179,6 +179,30 @@ async def main():
             assert (before['name'], before['labels']) == (after['name'], after['labels'])
             print('ok 4 - real name/label application and explicit rollback preserve registry identity', flush=True)
 
+            # Fresh zone plus native label creation uses one durable metadata plan.
+            # No household principal, actor, automation or existing assignment.
+            from pilotsuite.core.zone_structure import setup_profile, KEY as STRUCTURE
+            await service.world.replace(await service.client.snapshot())
+            profile = setup_profile({'label_id':None, 'label_name':'Protocol New Zone',
+                'entity_ids':[source_id], 'relevant_entity_ids':[]}, await service.client.zone_labels(),
+                await service.world.organization_catalog())
+            new_zone = await service.zones.save({'name':'Protocol New Zone','area_ids':[],
+                'extra_entity_ids':[source_id],'enabled':False,'profile':'observe'}, setup=profile,relevant=[])
+            structure_plan = await service.structure_label_preview(new_zone['zone_id'], {'revision':new_zone['revision']})
+            args = {'sha256':structure_plan['sha256'],'confirm':True}
+            linked = await service.ontology_apply(new_zone['zone_id'],structure_plan['id'],args)
+            assert linked['state']=='verified', json.dumps(linked,default=str)
+            assert linked['binding']['label_id'] in (await service.client.zone_registry_entry(source_id))['labels']
+            cfg = await service.context.get(new_zone['zone_id'])
+            assert cfg[STRUCTURE]['label_id']==linked['binding']['label_id']
+            assert not (await service.ontology_apply(new_zone['zone_id'],structure_plan['id'],args))['write_repeated']
+            reverse = await service.ontology_restore_preview(new_zone['zone_id'],structure_plan['id'], {'revision':linked['binding']['revision']})
+            restored = await service.ontology_apply(new_zone['zone_id'],reverse['id'],{'sha256':reverse['sha256'],'confirm':True})
+            assert restored['state']=='verified', json.dumps(restored,default=str)
+            assert linked['binding']['label_id'] not in (await service.client.zone_registry_entry(source_id))['labels']
+            assert any(row['label_id']==linked['binding']['label_id'] for row in await service.client.zone_labels())
+            print('ok 6 - native zone label create, entity metadata, atomic binding, no replay and metadata restore', flush=True)
+
             # A real client restart preserves the existing native helper identities.
             identities = deepcopy(package['identities'])
             await service.client.close()
@@ -188,7 +212,7 @@ async def main():
             assert all(same_identity(identities[k], rows[v]) for k,v in e.items())
             assert not (await service.context.get(zid))['learning']
             print('ok 5 - reconnect preserves identity and learning remains unchanged', flush=True)
-            print(json.dumps({'actual_homeassistant': info['version'], 'tests':6,
+            print(json.dumps({'actual_homeassistant': info['version'], 'tests':7,
                 'scope':'disposable Core APIs, not household or Supervisor principal attestation'}), flush=True)
         finally:
             if service is not None:

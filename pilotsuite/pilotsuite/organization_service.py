@@ -73,11 +73,15 @@ class OrganizationServiceMixin:
         for row in naming:
             row['shared_zone_ids']=shared.get(row['entity_id'],[])
             if row['shared_zone_ids']: row['name_change_eligible']=False
+        from .core.zone_structure import connection_suggestions
+        fresh = (await self.status())['ready']
+        suggestions = connection_suggestions(cfg, catalog,
+            {row['entity_id'] for row in inv['items'] if row.get('decision')=='relevant'}, fresh=fresh)
         return {'schema':'pilotsuite-organization-v1','zone_id':zone_id,'revision':inv['revision'],
             'zone_name':zone['name'],'bindings':bindings,'catalog':eligible,
             'roles':{key:{'label':v[0],'domains':list(v[1]),'max':v[2]} for key,v in ROLES.items()},
-            'naming':naming,'plans':await self.plans.organization_plans(zone_id),
-            'fresh':(await self.status())['ready'], 'scope':'global_registry_and_state_snapshot',
+            'naming':naming,'plans':await self.plans.organization_plans(zone_id), 'setup_suggestions':suggestions,
+            'fresh':fresh, 'scope':'global_registry_and_state_snapshot',
             'learning_changed':False,'control_enabled':False}
 
     async def organization_save(self,zone_id,payload):

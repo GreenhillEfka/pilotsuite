@@ -110,3 +110,16 @@
 .ps-shadow-light-row{padding:14px 0;border-bottom:1px solid var(--ps-line);}
 .ps-shadow-light-row>strong{font-size:.88rem;}.ps-shadow-light-row>p{margin:.5em 0;font-size:.88rem;}
 @media(max-width:800px){.ps-shadow-cards{grid-template-columns:1fr;}.ps-shadow-form{grid-template-columns:1fr;}}
+.zone-member-list{max-height:26rem;overflow:auto;margin:12px 0;border-top:1px solid var(--ps-line);}
+.zone-member{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;padding:12px 4px;border-bottom:1px solid var(--ps-line);}
+.zone-member>small{grid-column:1;overflow-wrap:anywhere;color:var(--ps-muted);}
+.zone-member>label{display:flex;align-items:center;gap:8px;min-width:0;overflow-wrap:anywhere;}
+.zone-member>label:nth-of-type(2){grid-column:2;grid-row:1/3;}
+#zone-label-select{max-width:100%;}#zone-member-search{max-width:100%;}
+@media(max-width:600px){.zone-member{grid-template-columns:minmax(0,1fr);}.zone-member>label:nth-of-type(2){grid-column:1;grid-row:auto;}}
+.ps-zone-editing #ps-zone-journey,.ps-zone-editing #zone-overview,.ps-zone-editing #ps-zone-presence,.ps-zone-editing #ps-setup-shortcuts,.ps-zone-editing #ps-roles,
+.ps-zone-editing #zone-setup>p,.ps-zone-editing #zone-setup>a,.ps-zone-editing #entity-details,
+.ps-zone-editing #zone-editor>summary,.ps-zone-editing #zone-editor>p,.ps-zone-editing #zone-editor>.selection-tools{display:none;}
+.ps-zone-editing #zone-form{margin-top:12px;}
+.zone-member>details{grid-column:1/-1;}.zone-member>details>label{display:flex;align-items:center;gap:8px;margin:8px 0;}
+.zone-member>details>summary{cursor:pointer;padding:8px 0;}

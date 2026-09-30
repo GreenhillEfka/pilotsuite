@@ -29,8 +29,15 @@ class ZoneOutputClientMixin:
         rows=await self._zone_ws({'type':'config/entity_registry/list'})
         if not isinstance(rows,list) or len(rows)>50000: raise HomeAssistantError('Register nicht vollständig')
         # No credentials, config-entry payloads or integration secrets.
-        return [{k:r.get(k) for k in ('entity_id','unique_id','platform','config_entry_id','name','labels','disabled_by')}
+        return [{k:r.get(k) for k in ('entity_id','unique_id','platform','config_entry_id','name','labels','disabled_by','device_id')}
                 for r in rows if isinstance(r,dict)]
+
+    async def zone_label_devices(self):
+        from .client import HomeAssistantError
+        rows = await self._zone_ws({'type': 'config/device_registry/list'})
+        if not isinstance(rows, list) or len(rows) > 50000:
+            raise HomeAssistantError('Geräteregister nicht vollständig')
+        return {row['id']: list(row.get('labels') or []) for row in rows if isinstance(row, dict) and 'id' in row}
 
     async def zone_output_states(self):
         from .client import HomeAssistantError
@@ -43,6 +50,15 @@ class ZoneOutputClientMixin:
         rows=await self._zone_ws({'type':'config/label_registry/list'})
         if not isinstance(rows,list): raise HomeAssistantError('Labels nicht lesbar')
         return rows
+
+    async def zone_registry_entry(self, eid):
+        from .client import HomeAssistantError
+        if not isinstance(eid, str) or not ID.fullmatch(eid):
+            raise HomeAssistantError('Ungültige Registry-Identität')
+        row = await self._zone_ws({'type': 'config/entity_registry/get', 'entity_id': eid})
+        if not isinstance(row, dict) or row.get('entity_id') != eid:
+            raise HomeAssistantError('Registry-Identität nicht bestätigt')
+        return {key: row.get(key) for key in ('entity_id', 'unique_id', 'platform', 'name', 'labels', 'disabled_by')}
 
     async def zone_create_label(self,name):
         from .client import HomeAssistantError

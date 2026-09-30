@@ -3,6 +3,26 @@
 `docs/RELEASE_STATE.json` is the delivery receipt. None of the rows below implies
 household acceptance.
 
+Unreleased work on `feat/habitus-zone-setup`, 30.09.2026: zone-label import with
+device inheritance, one-save structure/relevance, role editor and explicit batch
+label synchronization through the existing metadata plans. Connected own helper
+packages include readable names/autolabeling with durable readback and cumulative
+recovery receipts. New labels plus member metadata now share a reviewed plan and
+atomic canonical ID binding; area/extra candidate selection is in the same editor.
+Fresh anchor/device/shared-role guards and final readback protect manual changes.
+679 Python, 78 JS tests, 67 route contracts, all eleven existing browsers and seven
+native disposable-HA scenarios passed locally. Existing installation remains
+Alpha.71. Presence setup now leads through existing editors and suggests only
+verified stable members into empty existing bindings. Inline publication effects
+replace generic extra confirmation; disabled anchors block replacement. 685 Python,
+78 JS, 67 contracts and four affected browsers pass; new screenshots inspected.
+Light comparison is integrated into the primary presence tick/store, with explicit
+outdoor-lux provenance, bounded proposals and external-change holds. Restart
+cooldown and sticky identity conflicts have red/green regressions. 701 Python,
+78 JS and 68 contracts pass; extended zone browser and seven native HA cases pass.
+Active lighting/automation takeover and release/household acceptance remain open.
+See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
+
 Alpha.71 installed after PR #151: targeted single Boolean/timer creation through the
 existing plan/store/transaction, explicit duration, collision/binding guards,
 restart-safe cumulative receipts and separate plan-history projection. Creation

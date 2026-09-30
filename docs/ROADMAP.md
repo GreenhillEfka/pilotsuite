@@ -1,5 +1,20 @@
 # Roadmap — weniger Parallelität, vollständige Nutzerwege
 
+## Aktueller Vorrang, 30.09.2026
+
+Der neue ausdrückliche Auftrag läuft bis 08:00 Europe/Berlin. Zuerst Zone/Tags mit
+einem gemeinsamen Einrichtungsweg; dann Präsenz und Helfer/Sensoren mit Autolabeling;
+darauf Licht. Klima, Multimedia und Mustererkennung sind nachgelagert. Der aktive
+Branch ist `feat/habitus-zone-setup`; [Umsetzungsplan](HABITUS_SETUP_PLAN.md) und
+CURRENT_STATE.md haben für dieses Paket Vorrang vor den abgeschlossenen Fenstern
+der folgenden Chronik. Die alte Beschränkung auf einen rein lesenden nächsten
+Entwicklungsschritt gilt nicht für den jetzt beauftragten Implementierungsumfang.
+Prüfung/Installation und konkrete Haushalts-Steuerungsübernahme bleiben getrennt.
+Lokal umgesetzt sind Zonen-/Labelimport und Abgleich, neue Labelanlage samt
+Mitgliedslabels, Autolabeling eigener Helfer sowie der geführte Präsenzanschluss.
+Das Lichtmodul muss dieselbe primäre Präsenz und vorhandene Lichtpolicy verwenden;
+der ältere Schattenvergleich darf dafür keine zweite Präsenzsitzung starten.
+
 Stand 29.09.2026. Kein Neustart und keine neue Versionsversprechung.
 Release-Chronik: [CHANGELOG](../CHANGELOG.md). Tatsächliche Fähigkeiten:
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md). Installationsbelege:

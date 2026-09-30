@@ -101,6 +101,21 @@
     const topicNodes={};
     for(const topic of topics){const section=E('section','','org-topic');section.dataset.orgTopic=topic.id;section.append(E('h3',topic.title),E('p',topic.description,'ps-muted'),E('div','','org-topic-summary'));topicGrid.append(section);topicNodes[topic.role]=section;}
     const helpers=E('details');helpers.id='org-helpers';helpers.open=helperOpen;helpers.append(E('summary','Anwesenheitskette & vorhandene Helfer zuordnen'),E('p','Sensoren → Bestandsautomation mit Nachlauf → Boolean → öffentlicher Präsenzsensor. Hier verbinden, nicht die HA-Regeln oder deren Zeiten verändern.','ps-muted'));
+    const suggested=data.setup_suggestions?.assignments||{};
+    if(Object.keys(suggested).length){
+      const proposal=E('section');proposal.id='org-zone-suggestions';proposal.append(E('h3','Aus deiner Zone vorbefüllen'));
+      for(const [role,ids] of Object.entries(suggested))proposal.append(E('p',labels[role]+': '+ids.map(id=>chosen(role,id)).join(', ')));
+      proposal.append(E('p','Nur eindeutig gespeicherte Zonenrollen und bestätigte Rohquellen. Vorhandene oder bereits bearbeitete Zuordnungen bleiben erhalten. Noch nichts gespeichert.','ps-muted'),
+        B('Diese Zonenvorschläge vormerken',()=>run(async()=>{
+          assertCurrent();let count=0;
+          for(const [role,ids] of Object.entries(suggested))if(draft[role]&&!draft[role].size){
+            draft[role]=new Set(ids);drawChoices(role);count+=ids.length;
+            const group=form.querySelector('[data-org-group="'+role+'"]');if(group)group.open=true;
+          }
+          notice(count?`${count} Zuordnungen vorgemerkt. Gemeinsam prüfen und einmal speichern.`:'Bestehende Auswahl bleibt erhalten; keine freie Funktion zu ergänzen.');
+        })));
+      helpers.append(proposal);helpers.open=true;
+    }
     const timingLabel=E('label','Nachlaufverfahren der Bestandskette');const select=E('select');select.id='org-timing';for(const [v,t] of Object.entries(timingLabels)){const o=E('option',t);o.value=v;select.append(o);}select.value=data.bindings.timing;select.addEventListener('change',updateButtons);timingLabel.append(select);helpers.append(timingLabel);
     const groups=E('div','','org-role-grid');
     for(const role of Object.keys(labels)){const group=E('details');group.dataset.orgGroup=role;group.open=view.get(role)?.open??['presence_status','presence_timer','presence_output'].includes(role);
@@ -108,7 +123,7 @@
       const choices=E('div');selections[role]=choices;search.addEventListener('input',()=>drawChoices(role));group.append(label,choices);(topicNodes[role]||groups).append(group);drawChoices(role);
     }helpers.append(groups);form.append(helpers);drawAutomationTopics();
     const actions=E('div','','selection-tools');const save=B('Funktionszuordnung speichern',()=>run(async()=>{
-      assertCurrent();if(!window.confirm('Diese Funktionszuordnung speichern? Bestehende Lernquellen, Lernfreigaben und HA-Steuerung bleiben unverändert.'))return;
+      assertCurrent(); // The explicit save commits the visible mapping; no second generic confirmation.
       const origin=ticket(),payload={revision:data.revision,...JSON.parse(encode()),confirm:true};
       pendingSave=origin;
       let acknowledged=false;
@@ -214,10 +229,45 @@
     if(!list.children.length)list.append(E('p',reportView.filter==='all'?'Keine gelesenen Ergebnisse vorhanden.':'Für diesen Filter liegt in der aktuellen Prüfsitzung kein Ergebnis vor.','ps-muted'));
     updateButtons();
   }
+  async function requestMetadataPlan(plan, action, body){
+    assertCurrent();if(changed())throw Error('Offene Zuordnung zuerst speichern oder verwerfen');
+    const t=ticket();const result=await request(`api/v1/zones/${encodeURIComponent(t.zone)}/ontology/${plan.id}/${action}`,{method:'POST',body:JSON.stringify(body)});
+    if(!current(t))return;
+    if(result.binding){
+      await afterSave();if(basis?.zone!==t.zone)return;
+      const updated=await request(path());
+      if(updated.zone_id!==basis.zone||updated.revision!==basis.revision)throw Error('Zonenstand neu laden');
+      data=updated;loadedBasis={...basis};render();
+    }
+    drawPlan(result);
+  }
+  function drawMetadataPlan(plan){
+    planPanel.append(E('p','Zonen- und Rollenlabels sowie die ausdrücklich gezeigten Anzeigenamen. Technische IDs und physische Orte bleiben erhalten.'));
+    const names=plan.details.label_names||{};
+    for(const op of plan.operations){
+      const row=E('div','','org-plan-change');
+      if(op.effect==='create_zone_label')row.append(E('strong','Neues Zonenlabel: '+op.name),E('p',op.receipt?.label?'Anlagebeleg vorhanden: '+op.receipt.label.label_id:'Noch kein Anlagebeleg. Ein gleicher Name beweist keine eigene Anlage.'));
+      else row.append(E('strong',op.entity_id),E('p',`${op.before.name||'Standardname'} → ${op.after.name||'Standardname'}`),
+        E('p','Labels vorher: '+(op.before.labels.map(id=>names[id]||id).join(', ')||'keine')),
+        E('p','Labels danach: '+(op.after.labels.map(id=>names[id]||id).join(', ')||'keine')));
+      if(op.outcome)row.append(E('small',op.outcome));planPanel.append(row);
+    }
+    if(plan.binding)planPanel.append(E('p','Zonenlabel verbunden; Anlage und Zuordnung zurückgelesen.'));
+    planPanel.append(B('Gespeicherten Planstatus laden',()=>run(async()=>{await requestPlan('/plans/'+plan.id);})));
+    if(plan.revision===basis.revision&&plan.state==='preview'){
+      planPanel.append(B('Diesen Zonenplan anwenden',()=>run(()=>requestMetadataPlan(plan,'apply',{sha256:plan.sha256,confirm:true}))));
+    }else if(plan.revision===basis.revision&&['applying','attention'].includes(plan.state)&&plan.details.creates_zone_label&&!plan.operations.some(op=>op.outcome==='conflict')){
+      planPanel.append(E('p','Unklare Schritte werden nur zurückgelesen. Bereits bestätigte Anlage wird nicht wiederholt; noch nicht begonnene Schritte des bestätigten Plans können weiterlaufen.','ps-warning'),
+        B('Bestätigten Zonenplan weiterprüfen',()=>run(()=>requestMetadataPlan(plan,'apply',{sha256:plan.sha256,confirm:true}))));
+    }
+    if(plan.state==='verified')planPanel.append(B('Metadaten-Rücknahme prüfen',()=>run(()=>requestMetadataPlan(plan,'restore-preview',{revision:basis.revision}))));
+    for(const limit of plan.details.limits||[])planPanel.append(E('p',limit,'ps-muted'));
+  }
   function drawPlan(plan){planPanel.replaceChildren();planPanel.append(E('h3',outcomeLabels[plan.state]||plan.state));if(plan.state==='unchanged'){planPanel.append(E('p',plan.message));return;}
     planPanel.dataset.planId=plan.id;
+    if(plan.kind==='ontology'||plan.kind==='structure_labels'){drawMetadataPlan(plan);return;}
     if(plan.kind==='presence_helper'||plan.kind==='presence_package'){
-      planPanel.append(E('p',plan.kind==='presence_helper'?'Einzelhelfer-Anlageplan. Keine Namensänderung, Zuordnung oder Steuerungsübernahme.':'Eigenes Ausgangspaket; kein Namensplan.'));
+      planPanel.append(E('p',plan.kind==='presence_helper'?'Einzelhelfer-Anlageplan einschließlich gegebenenfalls geplanter Beschriftung. Kein Anschluss und keine Steuerungsübernahme.':'Eigenes Ausgangspaket; kein Namensplan.'));
       for(const op of plan.operations)planPanel.append(E('p',op.entity_id+' · '+(op.outcome||'Noch nicht angelegt'),'org-plan-change'));
       planPanel.append(E('p','Gespeicherter Anlegenachweis, kein aktueller Funktionsbeleg. Unklare Ergebnisse nicht blind wiederholen. Angelegte Helfer werden hier nicht gelöscht.','ps-warning'));
       return;

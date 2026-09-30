@@ -282,3 +282,28 @@ produktiven WS-/REST-Pfad für Helfer, natives Template, Gültigkeit, Timer und
 Metadatenrücknahme mit echter Authentifizierung. Er verbindet sich nie mit dem Haushalt
 und behält keine Zugangsdaten. Alpha.50 bestand diesen exakten Kandidatenpfad; die noch
 offene angemeldete Ingress-Abnahme wird dadurch nicht ersetzt.
+
+## Licht auf der Zoneninstanz (lokaler Ausbau 30.09.2026)
+
+`PUT /api/v1/zones/{zone_id}/lighting` konfiguriert Vergleich oder Pause. Die
+Präsenz muss zuvor im vorhandenen Editor gespeichert sein. Relevante Leuchten,
+unabhängige Luxquelle und optionale manuelle Sperren benötigen stabile Identitäten.
+Die Luxquelle ist erst mit ausdrücklich bestätigter Außenherkunft eine geeignete
+Tageslichtbasis. Fehlende Luxdaten werden nicht als Dunkelheit interpretiert.
+
+Die vorhandene Lichtpolicy erhält dieselbe aktuelle Präsenzentscheidung. Sie
+begrenzt Helligkeit, Schrittweite, Totzone und Vorschlagsabstand; Farbtemperatur
+wird nur bei belegter Unterstützung vorgeschlagen. Fremde Lichtänderungen lösen
+eine konfigurierbare Pause aus. Die Herkunft wird nicht als sicher menschlich
+behauptet. An/unklar bei einer manuellen Sperre hält ebenfalls an. Unklare Präsenz
+erlaubt keinen Abschaltvorschlag.
+
+Neustart/Datenlücke entziehen die Stabilitätsannahme, erhalten aber einen noch
+laufenden Vorschlagsabstand. Identitätskonflikte bleiben bis zur erneuten
+Konfigurationsprüfung ausgesetzt. Lichtkonfiguration verändert keinen laufenden
+Präsenznachlauf. GET verändert weder Einstellungen noch Checkpoints.
+
+Es gibt in dieser Stufe keinen Leuchten-Schreibpfad und keine automatische
+Übernahme vorhandener Lichtautomationen. Diese spätere Ausführung benötigt einen
+konkreten Plan mit geklärten Schreibern, manueller Hoheit, Fehlerbehandlung und
+Rückweg. App-Installation, Tags oder Relevanz erteilen diese Freigabe nicht.

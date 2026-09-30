@@ -194,6 +194,7 @@ let contextEditing = false;
 let contextData = null;
 let contextGeneration = 0;
 let zoneExtraSelection = new Set();
+let zoneSetupDraft = null, zoneSetupRows = [], zoneRoleChoices = [], zoneLabelBusy = false, zoneSetupEpoch = 0;
 const decisionLabels = { relevant: 'Relevant', ignored: 'Ignoriert', unreviewed: 'Ungeprüft' };
 
 function selectionControls() {
@@ -213,6 +214,7 @@ function selectionControls() {
 }
 
 function renderSelection() {
+  document.body.classList.toggle('ps-zone-editing', zoneFormOpen);
   selectionControls();
   const root = byId('selection-rows');
   root.replaceChildren();
@@ -352,11 +354,23 @@ function renderExtraChoices() {
 async function openZoneEditor(existing) {
   if (selectionBusy || selectionDraft?.dirty || zoneFormOpen || contextEditing) return;
   zoneFormOpen = true; byId('zone-editor').open = true; renderSelection();
+  zoneSetupEpoch++;
   try {
     const [areas, catalog, zones] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones')]);
     zoneEditing = existing ? zones.items.find(z => z.zone_id === selectionZone) : null;
     if (existing && !zoneEditing) throw new Error('Zone nicht mehr vorhanden. Neu laden.');
     const zone = zoneEditing || {name: '', area_ids: [], extra_entity_ids: [], enabled: false, profile: 'observe'};
+    const structure = existing ? contextData?.config?.zone_structure : null;
+    zoneSetupDraft = structure ? {label_id: structure.label_id, ...(!structure.label_id?{label_name:structure.label_name}:{}), entity_ids: Object.keys(structure.members),
+      relevant_entity_ids: [...(selectionDraft?.inventory?.items || []),...(selectionDraft?.inventory?.missing || [])].filter(r=>r.decision==='relevant' && structure.members[r.entity_id]).map(r=>r.entity_id),
+      roles:Object.fromEntries(Object.entries(structure.members).map(([id,row])=>[id,[...row.roles]]))} : null;
+    zoneSetupRows = structure ? Object.entries(structure.members).map(([entity_id,row])=>({entity_id,name:entity_id,habitus_roles:row.roles})) : [];
+    byId('zone-label-name').value = structure?.label_name || zone.name;
+    byId('zone-label-new').disabled = !!structure?.label_id;
+    byId('zone-label-select').replaceChildren(new Option(structure?.label_id || 'Noch nicht verbunden', structure?.label_id || ''));
+    byId('zone-label-select').disabled = true; byId('zone-label-import').disabled = true;
+    byId('zone-member-search').value = ''; renderZoneMembers();
+    text('zone-label-message', structure?.label_name ? `Neues Label „${structure.label_name}“ geplant; Anlage folgt im Änderungsplan.` : structure ? 'Zonenlabel verbunden. Gespeicherte Mitglieder bleiben erhalten; HA-Labels einlesen zeigt den aktuellen Bestand.' : 'Vorhandenes Label wählen oder ein neues Label planen.');
     byId('zone-name').value = zone.name; byId('zone-profile').value = zone.profile;
     const allAreas = new Map(areas.items.map(a => [a.area_id, a.name || a.area_id]));
     for (const id of zone.area_ids) if (!allAreas.has(id)) allAreas.set(id, `${id} (nicht verfügbar)`);
@@ -383,20 +397,127 @@ byId('zone-extras').addEventListener('change', () => {
     if (option.selected) zoneExtraSelection.add(option.value); else zoneExtraSelection.delete(option.value);
   }
 });
+
+function renderZoneMembers() {
+  const host=byId('zone-label-members'), filter=byId('zone-member-search').value.trim().toLocaleLowerCase();
+  host.replaceChildren();
+  if(!zoneSetupDraft) return;
+  for(const row of zoneSetupRows.filter(r=>`${r.name} ${r.entity_id}`.toLocaleLowerCase().includes(filter))) {
+    const line=document.createElement('div');line.className='zone-member';
+    const memberLabel=document.createElement('label'),member=document.createElement('input');member.type='checkbox';
+    member.checked=zoneSetupDraft.entity_ids.includes(row.entity_id);member.disabled=!!row.disabled && !member.checked;
+    memberLabel.append(member,document.createTextNode(row.name || row.entity_id));
+    const detail=document.createElement('small');detail.textContent=`${row.entity_id} · ${(row.habitus_roles||[]).join(', ') || 'Rolle später zuordnen'}${row.membership_source==='device'?' · vom Gerät':''}${row.disabled?' · nicht auswählbar':''}`;
+    const relevantLabel=document.createElement('label'),relevant=document.createElement('input');relevant.type='checkbox';
+    const isAnchor=()=>!!zoneSetupDraft.roles[row.entity_id]?.includes('Habitus Zone'),anchor=isAnchor();
+    relevant.checked=zoneSetupDraft.relevant_entity_ids.includes(row.entity_id);relevant.disabled=!member.checked || anchor || !!row.disabled;
+    relevantLabel.append(relevant,document.createTextNode(anchor?'Zonenstatus (Ausgang)':'Für Auswertung verwenden'));
+    member.addEventListener('change',()=>{
+      zoneSetupDraft.entity_ids=zoneSetupDraft.entity_ids.filter(id=>id!==row.entity_id);
+      if(member.checked) zoneSetupDraft.entity_ids.push(row.entity_id);
+      else {zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);relevant.checked=false;}
+      relevant.disabled=!member.checked || isAnchor() || !!row.disabled;
+    });
+    relevant.addEventListener('change',()=>{zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);if(relevant.checked)zoneSetupDraft.relevant_entity_ids.push(row.entity_id);});
+    line.append(memberLabel,detail,relevantLabel);
+    if(zoneRoleChoices.length){
+      const roles=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Darstellung im Habitus-Dashboard';roles.append(summary);
+      for(const role of zoneRoleChoices){
+        const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';
+        input.checked=(zoneSetupDraft.roles[row.entity_id]||[]).includes(role);label.append(input,document.createTextNode(role));
+        input.addEventListener('change',()=>{
+          const selected=new Set(zoneSetupDraft.roles[row.entity_id]||[]);if(input.checked)selected.add(role);else selected.delete(role);
+          zoneSetupDraft.roles[row.entity_id]=[...selected];
+          if(role==='Habitus Zone'){
+            relevant.disabled=input.checked || !member.checked;
+            if(input.checked){relevant.checked=false;zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);}
+          }
+        });roles.append(label);
+      }
+      line.append(roles);
+    }
+    host.append(line);
+  }
+}
+byId('zone-member-search').addEventListener('input',renderZoneMembers);
+byId('zone-label-load').addEventListener('click',async()=>{
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-load').disabled=true;
+  const epoch=zoneSetupEpoch;
+  try {
+    const result=await json('api/v1/zone-labels');
+    if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
+    zoneRoleChoices=result.roles||[];renderZoneMembers();
+    const select=byId('zone-label-select');select.replaceChildren(new Option('Zonenlabel wählen',''),...result.items.filter(r=>!r.name.startsWith('Habitus ')).map(r=>new Option(`${r.name} (${r.member_count})`,r.label_id)));
+    select.value=zoneSetupDraft?.label_id || '';select.disabled=false;byId('zone-label-import').disabled=!select.value;
+    text('zone-label-message','Label wählen und Mitglieder prüfen. Bestehende Eingaben bleiben bis zur Übernahme erhalten.');
+  } catch(error){text('zone-label-message',error.message);}
+  finally {zoneLabelBusy=false;byId('zone-label-load').disabled=false;}
+});
+byId('zone-label-select').addEventListener('change',()=>{byId('zone-label-import').disabled=!byId('zone-label-select').value;});
+byId('zone-label-import').addEventListener('click',async()=>{
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-import').disabled=true;
+  const epoch=zoneSetupEpoch;
+  try {
+    const chosen=byId('zone-label-select').value,result=await json('api/v1/zone-labels/'+encodeURIComponent(chosen));
+    if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
+    const old=zoneSetupDraft&&(zoneSetupDraft.label_id===chosen||zoneSetupDraft.label_id===null)?zoneSetupDraft:null;
+    const rows=new Map(zoneSetupRows.filter(r=>old?.entity_ids.includes(r.entity_id)).map(r=>[r.entity_id,r]));
+    for(const row of result.members)rows.set(row.entity_id,{...row,disabled:row.disabled || !row.unique_id || !row.platform});
+    zoneSetupRows=[...rows.values()];
+    zoneSetupDraft={label_id:chosen,entity_ids:[...new Set([...(old?.entity_ids||[]),...result.members.filter(r=>!r.disabled && r.unique_id && r.platform).map(r=>r.entity_id)])],relevant_entity_ids:old?.relevant_entity_ids||[],
+      roles:Object.fromEntries(zoneSetupRows.map(row=>[row.entity_id,[...(old?.roles?.[row.entity_id]||row.habitus_roles||[])]]))};
+    if(!byId('zone-name').value.trim())byId('zone-name').value=result.name;
+    renderZoneMembers();
+    text('zone-label-message',`${result.members.length} Mitglieder gefunden. Quellen für die Auswertung gezielt anhaken; ein Speichern übernimmt Zone und Auswahl. Keine HA-Labels werden dabei geändert.`);
+  } catch(error){text('zone-label-message',error.message);}
+  finally {zoneLabelBusy=false;byId('zone-label-import').disabled=!byId('zone-label-select').value;}
+});
+byId('zone-label-new').addEventListener('click',()=>{
+  if(zoneLabelBusy || zoneSaving)return;
+  const name=byId('zone-label-name').value.trim();
+  if(!name){text('zone-label-message','Bitte einen Namen für das neue Zonenlabel angeben.');byId('zone-label-name').focus();return;}
+  zoneSetupDraft={label_id:null,label_name:name,entity_ids:zoneSetupDraft?.entity_ids||[],
+    relevant_entity_ids:zoneSetupDraft?.relevant_entity_ids||[],roles:zoneSetupDraft?.roles||{}};
+  if(!byId('zone-name').value.trim())byId('zone-name').value=name;
+  byId('zone-label-select').value='';byId('zone-label-import').disabled=true;
+  text('zone-label-message',`Neues Label „${name}“ geplant. Unten Bereiche und Zusatzentitäten wählen und als Mitglieder prüfen. Speichern allein schreibt keine HA-Labels.`);
+  renderZoneMembers();
+});
+byId('zone-candidates-import').addEventListener('click',async()=>{
+  if(zoneLabelBusy || zoneSaving)return;
+  if(!zoneSetupDraft){text('zone-label-message','Zuerst ein bestehendes Zonenlabel übernehmen oder ein neues Label planen.');return;}
+  zoneLabelBusy=true;byId('zone-candidates-import').disabled=true;
+  const epoch=zoneSetupEpoch;
+  try {
+    const result=await json('api/v1/zone-candidates',{method:'POST',body:JSON.stringify({
+      area_ids:[...byId('zone-areas').querySelectorAll('input:checked')].map(i=>i.value),entity_ids:[...zoneExtraSelection]})});
+    if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
+    zoneRoleChoices=result.roles;
+    const rows=new Map(zoneSetupRows.map(r=>[r.entity_id,r]));
+    for(const row of result.members)rows.set(row.entity_id,{...row,disabled:row.disabled || !row.unique_id || !row.platform});
+    zoneSetupRows=[...rows.values()];
+    zoneSetupDraft.entity_ids=[...new Set([...zoneSetupDraft.entity_ids,...result.members.filter(r=>!r.disabled&&r.unique_id&&r.platform).map(r=>r.entity_id)])];
+    for(const row of result.members)if(!zoneSetupDraft.roles[row.entity_id])zoneSetupDraft.roles[row.entity_id]=row.habitus_roles||[];
+    renderZoneMembers();text('zone-label-message',`${result.members.length} Kandidaten ergänzt. Mitglieder abwählen und Auswertungsquellen gezielt wählen. Bereits gewählte Quellen bleiben erhalten.`);
+  }catch(error){text('zone-label-message',error.message);}
+  finally{zoneLabelBusy=false;byId('zone-candidates-import').disabled=false;}
+});
 byId('zone-cancel').addEventListener('click', () => {
   if (zoneSaving) return;
+  zoneSetupEpoch++;
   zoneFormOpen = false; byId('zone-form').hidden = true; renderSelection();
 });
 byId('zone-form').addEventListener('submit', async event => {
-  event.preventDefault(); if (zoneSaving) return;
+  event.preventDefault(); if (zoneSaving || zoneLabelBusy) return;
   const definition = {name: byId('zone-name').value, profile: byId('zone-profile').value,
     enabled: zoneEditing?.enabled ?? false, area_ids: [...byId('zone-areas').querySelectorAll('input:checked')].map(o => o.value), extra_entity_ids: [...zoneExtraSelection]};
   zoneSaving = true; byId('zone-fields').disabled = true;
   try {
     const payload = {definition}; if (zoneEditing) payload.revision = zoneEditing.revision;
+    if(zoneSetupDraft)payload.setup={...zoneSetupDraft,roles:Object.fromEntries(Object.entries(zoneSetupDraft.roles).filter(([id])=>zoneSetupDraft.entity_ids.includes(id)))};
     const saved = await json(`api/v1/zones${zoneEditing ? '/' + encodeURIComponent(zoneEditing.zone_id) : ''}`, {method: zoneEditing ? 'PATCH' : 'POST', body: JSON.stringify(payload)});
     zoneFormOpen = false; byId('zone-form').hidden = true;
-    text('zone-message', 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
+    text('zone-message', zoneSetupDraft ? 'Zone, Tag-Verbindung und Quellen gespeichert. Zonenlabels abgleichen, dann die Präsenz einrichten.' : 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
     await reloadZones(saved.zone_id); await load();
   } catch (error) { text('zone-message', error.status === 409 ? 'Zone oder Entitätenauswahl zwischenzeitlich geändert. Entwurf bleibt erhalten. Abbrechen und erneut öffnen, um den aktuellen Stand zu laden.' : error.message); }
   finally { zoneSaving = false; byId('zone-fields').disabled = false; renderSelection(); }
@@ -616,7 +737,7 @@ function renderFoundationJourney() {
   root.replaceChildren(); detail.replaceChildren();
   if (!journey) { root.textContent='Zonenbasis derzeit nicht verfügbar.'; return; }
   const labels={ready:'Quellen zugeordnet', attention:'Prüfen', unverified:'Ungeprüft', optional:'Optional',
-    planned:'Vorbereitet', locked:'Gesperrt', needs_sources:'Quellen fehlen'};
+    planned:'Nächste Stufe', configured:'Gespeichert', paused:'Pausiert', locked:'Gesperrt', needs_sources:'Quellen fehlen'};
   const modules={presence:'Anwesenheit',lighting:'Beleuchtung',media:'Musik',climate:'Raumklima'};
   const roles={presence:'Anwesenheit',light:'Leuchten',climate:'Klimaregler',temperature:'Temperatur',
     'one_of:illuminance/daylight_binary':'Lux oder Helligkeitsindikator'};
@@ -625,10 +746,13 @@ function renderFoundationJourney() {
     const title=document.createElement('strong'); title.textContent=step.title;
     const state=document.createElement('span'); state.className='tag'; state.textContent=labels[step.state]||'Ungeprüft';
     const p=document.createElement('small'); p.textContent=step.summary;
-    card.append(title,state,p); root.append(card);
+    card.append(title,state,p);
+    const actions={zone:'Zone und Tags bearbeiten',labels:'Zonenlabels abgleichen',presence:'Präsenz einrichten',entities:'Quellen wählen',existing:'Bestandsstatus verbinden',lighting:'Lichtquellen wählen',lightmodule:'Lichtvergleich einrichten'};
+    if(actions[step.action]){const button=document.createElement('button');button.type='button';button.textContent=actions[step.action];button.dataset.setupAction=step.action;button.addEventListener('click',()=>window.PilotSuiteOpenSetup?.(step.action));card.append(button);}
+    root.append(card);
   }
   const note=document.createElement('p');
-  note.textContent='Planungsansicht. Ausschließlich der geplante Anwesenheits-Nachlauftimer kann nach ausdrücklicher Bestätigung geprüft angelegt werden; Automationsübernahme und Geräteaktionen bleiben gesperrt.';
+  note.textContent='Einrichtungsstand aus gespeicherten Zuordnungen. Label- und Helferanlagen besitzen konkrete gemeinsame Änderungspläne. Laufender Zustand, Veröffentlichung und Haushaltssteuerung werden separat geprüft.';
   detail.append(note);
   const provision=byId('helper-provisioning'), button=byId('helper-provision');
   const action=(f.provisioning?.execution?.actions||[]).find(a=>a.domain==='timer');

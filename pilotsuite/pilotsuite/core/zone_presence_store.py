@@ -10,14 +10,46 @@ from .selections import SelectionConflict, InvalidSelection
 KEY='zone_presence_v2'
 
 class ZonePresenceContextMixin:
-    async def save_zone_presence(self,zid,revision,config):
-        return await durable(self._save_zone_presence,zid,revision,deepcopy(config))
+    async def save_zone_lighting(self,zid,revision,config,*,recover=False):
+        return await durable(self._save_zone_lighting,zid,revision,deepcopy(config),recover)
 
-    def _save_zone_presence(self,zid,revision,config):
+    def _save_zone_lighting(self,zid,revision,config,recover=False):
+        from .zone_lighting import KEY as LIGHTING
+        with closing(sqlite3.connect(self.path,timeout=10)) as db,db:
+            db.execute('BEGIN IMMEDIATE');self._shadow_revision(db,zid,revision)
+            previous=self.read(db,zid)
+            if previous.get(LIGHTING)==config and not recover:return revision
+            previous[LIGHTING]=config
+            db.execute('INSERT OR REPLACE INTO zone_context VALUES (?,?)',(zid,json.dumps(previous,allow_nan=False)))
+            db.execute('INSERT OR REPLACE INTO zones VALUES (?,?)',(zid,revision+1))
+            row=db.execute('SELECT value FROM zone_meta WHERE key=?',('zone_presence_state:'+zid,)).fetchone()
+            if row:
+                state=json.loads(row[0]);state.pop('lighting',None)
+                db.execute('UPDATE zone_meta SET value=? WHERE key=?',(json.dumps(state,allow_nan=False),'zone_presence_state:'+zid))
+            db.execute('INSERT INTO selection_journal(zone_id,revision,changes) VALUES (?,?,?)',
+                (zid,revision+1,json.dumps({'$zone_lighting':{'mode':config['mode']}})))
+            self.selections.prune_journal(db)
+            return revision+1
+
+    async def save_zone_presence(self,zid,revision,config, *, structure_members=None):
+        return await durable(self._save_zone_presence,zid,revision,deepcopy(config),deepcopy(structure_members))
+
+    def _save_zone_presence(self,zid,revision,config,structure_members=None):
         with closing(sqlite3.connect(self.path,timeout=10)) as db,db:
             db.execute('BEGIN IMMEDIATE');self._shadow_revision(db,zid,revision)
             previous=self.read(db,zid);before=deepcopy(previous.get(KEY))
             previous[KEY]=config
+            if structure_members:
+                from .zone_structure import KEY as STRUCTURE
+                if STRUCTURE not in previous:
+                    raise SelectionConflict('Zonenstruktur vor der Helferbindung verloren')
+                definition = json.loads(db.execute('SELECT definition FROM habitus_zones WHERE zone_id=?', (zid,)).fetchone()[0])
+                ids = sorted(set(definition['extra_entity_ids']) | set(structure_members))
+                if len(ids) > 500:
+                    raise InvalidSelection('Zu viele Zonenmitglieder')
+                previous[STRUCTURE]['members'].update(structure_members)
+                definition['extra_entity_ids'] = ids
+                db.execute('UPDATE habitus_zones SET definition=? WHERE zone_id=?', (json.dumps(definition), zid))
             # Exactly one evaluation owner. Previous shadow sessions cannot coexist.
             for key in ('presence_shadow','presence_lifecycle','shadow_lighting'):
                 previous.pop(key,None)
