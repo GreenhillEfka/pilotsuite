@@ -82,7 +82,7 @@ die konkrete Übernahme einer Haushaltssteuerung sind getrennte Schritte.
 - Lichtvergleich lokal verbunden: vorhandene Policy, dieselbe Zonenpräsenz und
   derselbe Tick/Checkpoint. Einstellbare Luxherkunft, Stimmung, Grenzen, Stabilität
   und Bedienpause; kein neuer Präsenzkern. Neustart erhält Mindestabstand,
-  Quellenkonflikte bleiben bis zur expliziten Prüfung ausgesetzt. 702 Python,
+  Quellenkonflikte bleiben bis zur expliziten Prüfung ausgesetzt. 704 Python,
   78 JS und 68 Verträge grün; erweiterter Zonenbrowser und sieben native HA-Fälle grün.
   Aktive Lichtausführung/Automationsübernahme bleibt offen; es existiert weiterhin
   kein Leuchten-Schreibpfad. Alle elf Browser-Suiten und die Ressourcenprüfung
@@ -90,6 +90,10 @@ die konkrete Übernahme einer Haushaltssteuerung sind getrennte Schritte.
   der erste Sammelaufruf wurde entsprechend korrigiert.
   Eigenes Diff-Review ergänzte einen rot/grün belegten Schutz für reine Farb- und
   Effektwechsel (HS/XY/RGBW/RGBWW/Effekt/Mireds), die ebenfalls die Bedienpause starten.
+  Zusätzlich: ältere Teil-Speicherpunkte dürfen neue Zonen-/Präsenz-/Lichtparameter
+  und Ausgangsbindungen nicht entfernen. Vorschau und Restore-Transaktion prüfen
+  den tatsächlichen Umfang; vollständiger Rückweg bleibt die native App-Sicherung.
+  Drei fehlende Umfangsschutzfälle zunächst rot; Gesamtsuite und Wartungsbrowser grün.
 - Nächster Schritt: vollständige Gates/Review, Version und sichere Auslieferung
   nach Runbook. Alpha.72 lokal vorbereitet, keine Veröffentlichung/Installation.
   Frische Sicherung `63f11346` enthält bestätigt nur PilotSuite Alpha.71 lokal;

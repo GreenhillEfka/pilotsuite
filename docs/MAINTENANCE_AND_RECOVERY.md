@@ -25,6 +25,14 @@ The existing release runbook remains the deployment mechanism.
 | Native PilotSuite-only app backup | App version and app data/options under HA's backup contract | Unselected HA/Core/other apps and external data |
 | Object-specific HA before-image | A specific future helper/automation change | Not implemented by this release's savepoints |
 
+Alpha.72 scope guard: the v1 savepoint does not capture `zone_structure`,
+`zone_presence_v2` or `zone_lighting`. Preview and the restore transaction refuse
+to replace any target zone currently containing those modules. Their parameters
+and owned-output bindings survive unchanged; use native PilotSuite app recovery.
+Extending savepoints requires a validated configuration/ownership migration, not
+blindly serializing or replaying module publication permissions. The existing
+partial savepoint remains usable for zones within its original scope.
+
 A local point is under PilotSuite's own `/data/savepoints`, not HA `.storage`.
 It has a UUID, UTC timestamp, package version, label, explicit schema and SHA-256
 checksum. The checksum detects corruption; it is NOT a signature or protection

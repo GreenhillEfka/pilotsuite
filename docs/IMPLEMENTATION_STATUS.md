@@ -19,7 +19,9 @@ replace generic extra confirmation; disabled anchors block replacement. 685 Pyth
 Light comparison is integrated into the primary presence tick/store, with explicit
 outdoor-lux provenance, bounded proposals and external-change holds. Restart
 cooldown and sticky identity conflicts have red/green regressions. Pure color/effect
-changes also receive a manual hold after a further six-case red/green check. 702 Python,
+changes also receive a manual hold after a further six-case red/green check. Legacy
+partial savepoints cannot erase the newer module settings; preview and transactional
+restore reject unsupported scope. Three omitted-module cases reproduced red. 704 Python,
 78 JS and 68 contracts pass; extended zone browser and seven native HA cases pass.
 Active lighting/automation takeover and release/household acceptance remain open.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.

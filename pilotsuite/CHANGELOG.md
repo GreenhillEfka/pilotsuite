@@ -15,6 +15,8 @@
   manual-change holds/cooldowns; identity conflicts require explicit review.
 - No new household control, light actuator path or automation takeover. Installation
   does not import household assignments, create helpers or enable publication/learning.
+- Refuse legacy partial-savepoint restores that would discard newer zone, presence
+  or lighting configuration. Native app backup remains the full recovery path.
 
 ## [0.1.0-alpha.71] - 2026-09-29
 

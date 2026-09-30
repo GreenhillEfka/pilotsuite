@@ -31,6 +31,19 @@ ID_RE = re.compile(r"[0-9a-f]{32}")
 HASH_RE = re.compile(r"[0-9a-f]{64}")
 
 
+def require_legacy_restore_scope(db, zone_ids):
+    """A v1 partial savepoint cannot discard newer module settings/ownership.
+
+    Keep native app recovery authoritative until a separately validated extension
+    can restore module configuration without replaying output ownership/grants.
+    """
+    for zid in zone_ids:
+        config = ContextStore.read(db, zid)
+        if any(key in config for key in ('zone_structure','zone_presence_v2','zone_lighting')):
+            raise InvalidSelection('Dieser Teil-Speicherpunkt enthält Zonenlabels, Präsenz- und Lichtmodule nicht vollständig. '
+                                   'Ihre Einstellungen bleiben erhalten; zur vollständigen Wiederherstellung die native PilotSuite-App-Sicherung verwenden.')
+
+
 def encoded(value):
     try:
         data = json.dumps(value, ensure_ascii=False, sort_keys=True,
@@ -227,6 +240,7 @@ class SavepointsMixin:
         point = self._read_point(point_id)
         with closing(sqlite3.connect(self._context.path, timeout=10)) as db, db:
             db.execute("BEGIN")
+            require_legacy_restore_scope(db, (z['zone_id'] for z in point['zones']))
             current = capture(db)
         by_id = {z["zone_id"]: z for z in current}
         return {"id": point_id, "sha256": point["sha256"], "basis": digest(current),
@@ -261,6 +275,7 @@ class SavepointsMixin:
             receipt = db.execute("SELECT value FROM zone_meta WHERE key=?", (receipt_key,)).fetchone()
             if receipt:
                 return dict(json.loads(receipt[0]), replayed=True)
+            require_legacy_restore_scope(db, (z['zone_id'] for z in point['zones']))
             if not hmac.compare_digest(digest(current), payload["basis"]):
                 raise SelectionConflict("Konfiguration seit Vorschau geändert; nichts wiederhergestellt")
             before = self._write_point(current, "Vor Wiederherstellung", "before_restore")

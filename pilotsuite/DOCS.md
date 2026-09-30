@@ -238,6 +238,11 @@ nativen Installation. Die Installationsbestätigung erfolgt in Home Assistant; v
 einem Update ist weiter eine frische geprüfte PilotSuite-only-App-Sicherung nötig.
 
 **Speicherpunkt erstellen** sichert Zonen, Auswahl, Rollen und Lernparameter lokal.
+Diese älteren Teil-Speicherpunkte enthalten Zonenlabel-Verbindung und die neueren
+Präsenz-/Lichtmodule nicht vollständig. Sobald eine betroffene Zone solche Module
+besitzt, wird ihre Teil-Wiederherstellung abgelehnt, damit Einstellungen und eigene
+Ausgangsbindungen erhalten bleiben. Dafür die native PilotSuite-App-Sicherung
+verwenden; sie umfasst App, Daten und Optionen.
 **Wiederherstellung prüfen** zeigt den Umfang. Erst nach Bestätigung werden die
 gespeicherten Zonen zurückgesetzt und pausiert; Lernfreigaben werden nicht
 zurückgespielt. Vorher entsteht automatisch ein weiterer Speicherpunkt. Neuere

@@ -147,4 +147,25 @@ class SavepointTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(InvalidSelection):await self.plans.preview_restore(point['id'])
         with self.assertRaises(InvalidSelection):await self.point()
 
+    async def test_partial_savepoint_cannot_erase_newer_zone_module_configuration(self):
+        point=await self.point();preview=await self.plans.preview_restore(point['id'])
+        for key in ('zone_structure','zone_presence_v2','zone_lighting'):
+            with self.subTest(module=key):
+                config=await self.context.get('a');config[key]={'synthetic':'must survive'}
+                with closing(sqlite3.connect(self.selections.path)) as db,db:
+                    db.execute('UPDATE zone_context SET config=? WHERE zone_id=?',(json.dumps(config),'a'))
+                with self.assertRaises(InvalidSelection):await self.plans.preview_restore(point['id'])
+                with self.assertRaises(InvalidSelection):await self.restore(point,preview)
+                self.assertEqual(config,await self.context.get('a'))
+                self.assertEqual(1,len(await self.plans.savepoints()))
+
+    async def test_module_added_after_preview_is_protected_at_restore_transaction(self):
+        point=await self.point();preview=await self.plans.preview_restore(point['id'])
+        config=await self.context.get('a');config['zone_presence_v2']={'synthetic':'retained ownership'}
+        with closing(sqlite3.connect(self.selections.path)) as db,db:
+            db.execute('UPDATE zone_context SET config=? WHERE zone_id=?',(json.dumps(config),'a'))
+        with self.assertRaises(InvalidSelection):await self.restore(point,preview)
+        self.assertEqual(config,await self.context.get('a'))
+        self.assertEqual(1,len(await self.plans.savepoints()))
+
 if __name__=='__main__':unittest.main()
