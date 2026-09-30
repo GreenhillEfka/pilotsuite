@@ -121,6 +121,16 @@ die konkrete Übernahme einer Haushaltssteuerung sind getrennte Schritte.
   kein ResourceWarning nach Gesamtsuite und Garbage Collection. Exakte neue CI folgt.
 
 Synthetische UI-Belege, keine Haushaltsbilder:
+Weitere Prüfung 05:15 Ortszeit: Der Gruppen-Kandidat `7869be3` bestand alle fünf
+CI-Jobs (`36662483135`). Anschließend wurde eine Sackgasse bei pausierten Zonen
+korrigiert: Ganzzonenpause und Präsenzmodulpause besitzen passende nächste Schritte.
+Der neue Link fokussiert nur die bestehende Startaktion; er startet keine Auswertung
+und ändert keine Betriebsart. Eine gespeicherte Veröffentlichung wird ausdrücklich
+benannt. Vier Unit-Fälle zunächst rot, anschließend 713 Python-/78 JS-Tests und
+68 Verträge grün; Zonenbrowser prüft Tastatur, keine Schreibaktion und erhaltene
+Konfiguration. Logs: `/private/tmp/habitus-paused-full-tests.log` und
+`/private/tmp/habitus-paused-browser-green.log`. Neue exakte Kandidaten-CI folgt.
+
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),
 [Einrichtung](screenshots/habitus-setup-alpha72/foundation-390.png),
 [Lichteditor](screenshots/habitus-setup-alpha72/zone-lighting-editor-390.png),

@@ -29,3 +29,23 @@ class SetupJourneyTests(unittest.TestCase):
         self.assertEqual('paused',result['steps'][1]['state'])
         self.assertEqual('configured',result['steps'][2]['state'])
         self.assertIn('Veröffentlichung ist aus',result['steps'][2]['summary'])
+
+    def test_zone_pause_leads_to_evaluation_without_changing_saved_publication(self):
+        for mode in ('compare', 'publish', 'paused'):
+            with self.subTest(mode=mode):
+                cfg={'zone_presence_v2':{'spec':{'sources':[{}]},'mode':mode,'package':{'plan_id':'known'}}}
+                step=setup_journey({},config=cfg,inventory={'enabled':False})['steps'][1]
+                self.assertEqual('paused',step['state'])
+                self.assertEqual('evaluation',step['action'])
+                self.assertIn('gesamte Zone',step['summary'])
+                if mode=='publish':self.assertIn('Veröffentlichung',step['summary'])
+                elif mode=='paused':self.assertIn('Präsenzmodul bleibt',step['summary'])
+                else:self.assertIn('Vergleich',step['summary'])
+                self.assertEqual(mode,cfg['zone_presence_v2']['mode'])
+
+    def test_module_pause_leads_to_presence_editor_for_an_enabled_zone(self):
+        cfg={'zone_presence_v2':{'spec':{'sources':[{}]},'mode':'paused'}}
+        step=setup_journey({},config=cfg,inventory={'enabled':True})['steps'][1]
+        self.assertEqual('paused',step['state'])
+        self.assertEqual('presence',step['action'])
+        self.assertIn('Präsenzmodul',step['summary'])

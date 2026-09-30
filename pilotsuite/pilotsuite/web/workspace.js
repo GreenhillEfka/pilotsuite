@@ -101,6 +101,13 @@
   window.PilotSuiteOpenSetup=id=>setupAction(()=>{
     if(id==='existing'){if(navigate('automations')){revealHash('#ps-organization');window.PilotSuiteOrganization?.focusRole('presence_output');}return;}
     if(!navigate('config'))return;
+    if(id==='evaluation'){
+      const button=$('zone-toggle');
+      if(!button||button.disabled){announce('Auswertung noch nicht bereit. Zonenstand aktualisieren.');return;}
+      // Navigation is not authorization to start the saved evaluation/publication.
+      announce('„Auswertung starten“ gilt für die gesamte Zone. Gespeicherte Modul-Betriebsarten bleiben erhalten. Den angezeigten Veröffentlichungsstatus vor dem Start prüfen.');
+      button.focus();return;
+    }
     const button=id==='labels'?$('ps-structure-sync'):id==='lightmodule'?$('ps-lighting-configure'):$('ps-setup-'+id);
     if(!button||button.disabled){announce('Einrichtung noch nicht bereit. Zonenstand aktualisieren.');return;}
     button.click();

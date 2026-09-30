@@ -9,6 +9,8 @@
   binding, independent readback, partial-result recovery and metadata rollback.
 - Include readable helper names and autolabeling in the existing owned-output package.
   Preserve physical locations, foreign labels, existing anchors and shared-zone roles.
+- Distinguish a whole-zone pause from a paused presence module and lead to the
+  existing start control without activating it; retain and explain publication mode.
 - Guide setup through the existing presence and binding editors; prefill verified
   empty mappings and replace repeated generic prompts with visible concrete effects.
 - Add a configurable live light comparison using the primary zone presence and

@@ -142,6 +142,11 @@ auf eine ausgeblendete andere Rolle lenken. Automatische Aktualisierung öffnet
 keinen Editor und verschiebt keinen Fokus. Der Hauptsensor-Link führt in die
 Konfiguration, nicht in die Lernwerkbank.
 
+Eine pausierte Gesamtzone führt zur vorhandenen Startaktion, ein separat pausiertes
+Präsenzmodul in dessen Editor. Das Öffnen des Schritts startet weder Auswertung noch
+Veröffentlichung. Die gespeicherte Betriebsart bleibt erhalten; gewählte Publikation
+wird vor dem Start benannt. Eine Pause von PilotSuite stoppt keine HA-Bestandsautomation.
+
 ## Diagnose ohne konkurrierende Wahrheiten
 
 Synthetisches Replay, alter expliziter Schattenvergleich und technische IDs gehören

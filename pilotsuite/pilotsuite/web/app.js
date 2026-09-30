@@ -747,7 +747,7 @@ function renderFoundationJourney() {
     const state=document.createElement('span'); state.className='tag'; state.textContent=labels[step.state]||'Ungeprüft';
     const p=document.createElement('small'); p.textContent=step.summary;
     card.append(title,state,p);
-    const actions={zone:'Zone und Tags bearbeiten',labels:'Zonenlabels abgleichen',presence:'Präsenz einrichten',entities:'Quellen wählen',existing:'Bestandsstatus verbinden',lighting:'Lichtquellen wählen',lightmodule:'Lichtvergleich einrichten'};
+    const actions={zone:'Zone und Tags bearbeiten',labels:'Zonenlabels abgleichen',presence:'Präsenz einrichten',evaluation:'Start der Auswertung prüfen',entities:'Quellen wählen',existing:'Bestandsstatus verbinden',lighting:'Lichtquellen wählen',lightmodule:'Lichtvergleich einrichten'};
     if(actions[step.action]){const button=document.createElement('button');button.type='button';button.textContent=actions[step.action];button.dataset.setupAction=step.action;button.addEventListener('click',()=>window.PilotSuiteOpenSetup?.(step.action));card.append(button);}
     root.append(card);
   }

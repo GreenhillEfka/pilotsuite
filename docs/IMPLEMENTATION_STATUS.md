@@ -29,6 +29,12 @@ unknown members withhold proposals, identity changes suspend only lighting. Eigh
 initial failing group cases, then 711 Python/78 JS tests and 68 contracts pass; the
 complete zone browser covers overlap errors and preserved drafts. No ResourceWarnings
 after the full Python suite and garbage collection. New exact candidate CI is required.
+Group candidate 7869be3 passed all five CI jobs (36662483135). The following setup
+correction distinguishes whole-zone and module pause and focuses the existing start
+control without starting evaluation. Saved publication is explained and preserved.
+Four unit cases reproduced red; 713 Python/78 JS tests and 68 contracts pass, with
+keyboard/no-write navigation in the extended synthetic browser. New exact CI remains
+required for this follow-up.
 Active lighting/automation takeover and release/household acceptance remain open.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 

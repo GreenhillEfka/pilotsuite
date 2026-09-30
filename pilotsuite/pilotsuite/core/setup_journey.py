@@ -30,10 +30,22 @@ def setup_journey(foundation, *, config=None, inventory=None, imported_automatio
             'Bereiche und Zusatzentitäten mit einem vorhandenen oder neuen Zonenlabel verbinden.', 'zone')
 
     if sources:
-        add('presence', 'Präsenz & Nachlauf', 'paused' if not inventory.get('enabled') or presence.get('mode')=='paused' else 'configured',
-            f"{len(sources)} Quellen und Nachlauf gespeichert. " +
-            ('Auswertung ist pausiert; Einstellungen bleiben erhalten.' if not inventory.get('enabled') or presence.get('mode')=='paused' else
-             'Die aktuelle Gültigkeit zeigt der Zonenstatus; Speicherung allein ist kein Anwesenheitsbeleg.'), 'presence')
+        state, action = 'configured', 'presence'
+        summary = 'Die aktuelle Gültigkeit zeigt der Zonenstatus; Speicherung allein ist kein Anwesenheitsbeleg.'
+        if not inventory.get('enabled'):
+            state, action = 'paused', 'evaluation'
+            summary = 'Die gesamte Zone ist pausiert. Den Start der Auswertung in der Einrichtung prüfen. '
+            if presence.get('mode') == 'publish':
+                summary += 'Beim Start gilt die gespeicherte Veröffentlichung in das eigene HA-Ausgangspaket.'
+            elif presence.get('mode') == 'paused':
+                summary += 'Das Präsenzmodul bleibt danach separat pausiert.'
+            else:
+                summary += 'Der gespeicherte Vergleich verändert keine HA-Steuerung.'
+        elif presence.get('mode') == 'paused':
+            state = 'paused'
+            summary = 'Das Präsenzmodul ist pausiert; die Zone selbst ist für Auswertung aktiv. Betriebsart im Präsenzeditor prüfen.'
+        add('presence', 'Präsenz & Nachlauf', state,
+            f"{len(sources)} Quellen und Nachlauf gespeichert. " + summary, action)
     else:
         add('presence', 'Präsenz & Nachlauf', 'attention',
             f'{relevant} relevante Entitäten; {missing} bestätigte Quellen fehlen. '

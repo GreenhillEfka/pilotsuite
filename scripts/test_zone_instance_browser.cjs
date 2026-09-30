@@ -120,6 +120,33 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(await page.evaluate(()=>location.hash),guardedHash,'completion never resumes blocked navigation');
   if(out)await page.screenshot({path:path.join(out,'zone-edit-complete-desktop.png'),fullPage:true});
   assert.equal((await command({action:'snapshot'})).mode,'compare');console.log('ok 1 - relevance-based presence, typed configuration, no extra grant, dirty guard');
+  // A zone pause is a separate control from a paused presence module.
+  await page.locator('[data-ps-nav="config"]').click();
+  await page.locator('#zone-toggle').click();
+  await page.waitForFunction(()=>!selectionBusy&&zoneDefinitions.find(z=>z.zone_id==='room')?.enabled===false);
+  await page.locator('[data-ps-nav="zone"]').click();
+  const pausedNavigation=await command({action:'snapshot'}),beforeResumeLink=network.length;
+  await page.locator('[data-setup-action="evaluation"]').focus();await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#zone-toggle').evaluate(e=>e===document.activeElement),true);
+  assert.equal(await page.locator('#ps-view-title').textContent(),'Zone einrichten');
+  assert.match(await page.locator('#ps-notice').innerText(),/gesamte Zone/);
+  assert.equal(await page.locator('#ps-zone-form').count(),0,'resume link does not open a module editor');
+  assert.equal(network.length,beforeResumeLink,'resume link only navigates, never starts evaluation');
+  assert.deepEqual(await command({action:'snapshot'}),pausedNavigation);
+  if(out){
+   for(const width of [390,1440]){
+    await page.setViewportSize({width,height:1100});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await page.screenshot({path:path.join(out,`zone-paused-setup-${width}.png`),fullPage:true});
+   }
+  }
+  await page.locator('#zone-toggle').click();
+  await page.waitForFunction(()=>!selectionBusy&&zoneDefinitions.find(z=>z.zone_id==='room')?.enabled===true);
+  await page.locator('[data-ps-nav="zone"]').click();
+  assert.equal(await page.locator('[data-setup-action="evaluation"]').count(),0);
+  assert.equal((await command({action:'snapshot'})).mode,'compare');
+  console.log('ok 1d - paused zone links to its existing start control without a write or mode change');
+  await command({action:'tick',values:{'binary_sensor.demo_presence':'on'}});await refreshPresence();
   await command({action:'tick',values:{'binary_sensor.demo_presence':'off'}});await refreshPresence();
   await page.waitForFunction(()=>document.querySelector('#ps-presence-state strong')?.textContent==='Nachlauf');
   const grace=await command({action:'snapshot'});assert.equal(grace.view.current.state,'grace');

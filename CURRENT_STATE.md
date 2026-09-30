@@ -43,20 +43,23 @@ commits although trees match. Check fresh PR head/CI rather than reusing an old 
   settings or owned bindings. Preview and transactional restore reject unsupported
   scope. Native app backup is still the complete recovery path; no ownership replay.
 
-Validation: 711 Python tests, 78 JS tests and 68 API contracts pass. All eleven
+Validation: 713 Python tests, 78 JS tests and 68 API contracts pass. All eleven
 browser suites passed; the maintenance suite passed again after the restore guard.
 Seven actual HA 2026.9.3 protocol scenarios pass in a disposable local instance.
-Final Python resource audit: 711 tests, subsequent garbage collection, zero ResourceWarnings.
+Final Python resource audit: 713 tests, subsequent garbage collection, zero ResourceWarnings.
 Red/green cases cover label/anchor races, helper metadata drift, disabled anchors,
 restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
 selected synthetic images are in docs/screenshots/habitus-setup-alpha72/.
 Skills home-assistant-struktur and pilotsuite-quality-release are maintained locally.
-Candidate c8f37e4 passed all five CI jobs in run 36660672269, including the corrected
-Habitus label filter. Current continuation adds the group safeguards above. Eight
-group cases initially failed; full Python/JS and extended zone browser are green.
-Screenshots and source diff are reviewed before updating the same PR. New exact-head
-CI is required after this correction; previous receipts remain in PR #153.
+Candidate 7869be3 passed all five CI jobs in run 36662483135, including group
+safeguards and all eleven browsers/seven native HA protocol cases. A subsequent
+setup correction distinguishes the whole-zone pause from the presence-module pause
+and links to the existing start control without starting it. Saved publication
+mode is explained and preserved. Four pause cases first failed in unit tests;
+713 Python/78 JS and 68 contracts pass. The extended browser verifies navigation,
+keyboard focus, no write, preserved mode and mobile/desktop layout. Fresh CI for
+this final correction is required; exact closure receipts belong in PR #153.
 
 ## Release boundary and actual backup finding
 
@@ -74,7 +77,7 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish group correction review and new exact latest PR CI; obtain clean
+Next: finish pause-navigation correction review and new exact latest PR CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation
