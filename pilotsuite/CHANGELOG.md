@@ -9,6 +9,8 @@
   binding, independent readback, partial-result recovery and metadata rollback.
 - Include readable helper names and autolabeling in the existing owned-output package.
   Preserve physical locations, foreign labels, existing anchors and shared-zone roles.
+- Keep explicit exclusions and draft roles on repeated tag/area imports; expose
+  missing tag memberships and HA/draft role differences without auto-enabling sources.
 - Distinguish a whole-zone pause from a paused presence module and lead to the
   existing start control without activating it; retain and explain publication mode.
 - Guide setup through the existing presence and binding editors; prefill verified

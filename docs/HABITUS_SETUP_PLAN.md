@@ -131,6 +131,16 @@ benannt. Vier Unit-Fälle zunächst rot, anschließend 713 Python-/78 JS-Tests u
 Konfiguration. Logs: `/private/tmp/habitus-paused-full-tests.log` und
 `/private/tmp/habitus-paused-browser-green.log`. Neue exakte Kandidaten-CI folgt.
 
+Fortsetzung: Pausen-Navigation `a653cc3` mit fünf grünen CI-Jobs (`36663683536`).
+Erneutes Einlesen von Label-/Bereichsmitgliedern setzte zuvor explizite Abwahlen
+zurück; beide Browserfälle zunächst rot reproduziert. Auswahl und Rollen bleiben
+nun erhalten. Fehlende Labelmitgliedschaft und HA-/Entwurfsrollen werden benannt;
+neue Kandidaten erhalten keine Analysefreigabe. Lesefehler erhalten den Entwurf.
+Erweiterter Zonenbrowser und 713 Python-/78 JS-Tests/68 Verträge grün. Screenshots
+mobil/dunkel und Desktop angesehen. Logs: `/private/tmp/habitus-tag-refresh-*`.
+Kein neuer Speicher, automatischer HA-Scan oder Metadaten-Schreibpfad. Exakte neue
+CI folgt im bestehenden PR; keine Auslieferung oder Haushaltsänderung.
+
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),
 [Einrichtung](screenshots/habitus-setup-alpha72/foundation-390.png),
 [Lichteditor](screenshots/habitus-setup-alpha72/zone-lighting-editor-390.png),

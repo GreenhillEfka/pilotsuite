@@ -35,6 +35,13 @@ control without starting evaluation. Saved publication is explained and preserve
 Four unit cases reproduced red; 713 Python/78 JS tests and 68 contracts pass, with
 keyboard/no-write navigation in the extended synthetic browser. New exact CI remains
 required for this follow-up.
+Pause-navigation candidate a653cc3 passed all five jobs (36663683536). A subsequent
+browser review reproduced repeated label/area imports resetting exclusions. The
+editor now retains those decisions and draft roles, shows missing label membership
+and current-read/draft role differences, and never auto-approves new analysis inputs.
+The extended browser verifies changed tags, read-only import and preserved draft
+on read errors; full 713 Python/78 JS tests and 68 contracts remain green. Latest
+candidate CI is required after this correction.
 Active lighting/automation takeover and release/household acceptance remain open.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 

@@ -52,14 +52,15 @@ restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
 selected synthetic images are in docs/screenshots/habitus-setup-alpha72/.
 Skills home-assistant-struktur and pilotsuite-quality-release are maintained locally.
-Candidate 7869be3 passed all five CI jobs in run 36662483135, including group
-safeguards and all eleven browsers/seven native HA protocol cases. A subsequent
-setup correction distinguishes the whole-zone pause from the presence-module pause
-and links to the existing start control without starting it. Saved publication
-mode is explained and preserved. Four pause cases first failed in unit tests;
-713 Python/78 JS and 68 contracts pass. The extended browser verifies navigation,
-keyboard focus, no write, preserved mode and mobile/desktop layout. Fresh CI for
-this final correction is required; exact closure receipts belong in PR #153.
+Candidate a653cc3 passed all five CI jobs in run 36663683536, including the
+whole-zone/module pause navigation, all eleven browsers and seven native HA cases.
+The next review reproduced two lost-exclusion bugs on repeated label/area imports.
+The editor now preserves existing selections/exclusions and roles while refreshing
+observed rows. New candidates stay unapproved for analysis; missing label membership
+and differing HA/draft roles are visible. Read failure preserves the complete draft.
+The extended actual-app browser covers these paths plus existing flows at mobile/
+desktop widths. Local 713 Python/78 JS tests and 68 contracts pass. New exact CI for
+this import correction is required; exact closure receipts belong in PR #153.
 
 ## Release boundary and actual backup finding
 
@@ -77,7 +78,7 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish pause-navigation correction review and new exact latest PR CI; obtain clean
+Next: finish import-refresh correction review and new exact latest PR CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation

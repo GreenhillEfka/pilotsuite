@@ -105,6 +105,13 @@ async def main():
    cmd=json.loads(line)
    if cmd['action']=='tick':await tick(cmd.get('seconds',1),cmd.get('values',{}))
    elif cmd['action']=='publish':await s._zone_publish_all() # Only the mocked client above.
+   elif cmd['action']=='tag_membership_change':
+    changed=cmd['changed']
+    for row in world['entities']:
+     if row['entity_id']==SOURCE:row['labels']=['1'] if changed else ['setup_demo','1']
+     elif row['entity_id']==MOTION:row['labels']=['setup_demo'] if changed else []
+     elif row['entity_id']=='light.demo':row['labels']=['3'] if changed else []
+    await s.world.replace(deepcopy(world))
    elif cmd['action']=='light_group':
     eid='light.demo_group'
     world['entities'].append({'entity_id':eid,'name':'Lichtgruppe Demo','platform':'group',

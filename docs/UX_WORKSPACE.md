@@ -147,6 +147,14 @@ Präsenzmodul in dessen Editor. Das Öffnen des Schritts startet weder Auswertun
 Veröffentlichung. Die gespeicherte Betriebsart bleibt erhalten; gewählte Publikation
 wird vor dem Start benannt. Eine Pause von PilotSuite stoppt keine HA-Bestandsautomation.
 
+Erneutes Einlesen von Tags oder Bereichskandidaten erhält auch ausdrückliche
+Abwahlen und geänderte Rollen im offenen Entwurf. Neue Mitglieder sind Vorschläge,
+keine Analysefreigabe. Der Editor unterscheidet eingelesene HA-Rollen von abweichenden
+Entwurfsrollen und nennt Mitgliedschaften, die beim letzten Label-Einlesen fehlen.
+Das beschreibt den ausdrücklich eingelesenen Bestand, keine kontinuierliche HA-Überwachung.
+Ein Lesefehler entfernt keine Eingaben; der nachfolgende HA-Abgleich behält seine
+frischen Vorbedingungen und konkrete Änderungsbestätigung.
+
 ## Diagnose ohne konkurrierende Wahrheiten
 
 Synthetisches Replay, alter expliziter Schattenvergleich und technische IDs gehören
