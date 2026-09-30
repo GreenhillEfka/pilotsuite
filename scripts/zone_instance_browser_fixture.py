@@ -51,6 +51,7 @@ async def main():
   world['areas'].append({'area_id':zid,'name':title})
   old=next(z for z in await s.zones.list() if z['zone_id']==zid)
   await s.zones.save({'name':title,'area_ids':[zid],'extra_entity_ids':[],'enabled':zid!='z_paused','profile':'observe'},zid,old['revision'])
+ source_registration=deepcopy(next(row for row in world['entities'] if row['entity_id']==SOURCE))
  s.client.snapshot=AsyncMock(side_effect=lambda:deepcopy(world))
  registry=[{'entity_id':e['entity_id'],'unique_id':e['unique_id'],'platform':e['platform'],
    'name':e['name'],'labels':[],'disabled_by':None} for e in world['entities']]
@@ -115,6 +116,14 @@ async def main():
     await s.zones.save(definition,'room',zone['revision'],setup=profile,
       relevant=[row['entity_id'] for row in inv['items'] if row['decision']=='relevant'])
     await tick()
+   elif cmd['action']=='member_identity':
+    world['entities']=[row for row in world['entities'] if row['entity_id'] not in (SOURCE,'binary_sensor.demo_renamed','binary_sensor.demo_duplicate')]
+    row=deepcopy(source_registration)
+    if cmd['variant']=='renamed':row['entity_id']='binary_sensor.demo_renamed'
+    elif cmd['variant']=='disabled':row['disabled_by']='user'
+    if cmd['variant']!='missing':world['entities'].append(row)
+    if cmd['variant']=='ambiguous':world['entities'].append({**row,'entity_id':'binary_sensor.demo_duplicate'})
+    await s.world.replace(deepcopy(world))
    elif cmd['action']=='tag_membership_change':
     changed=cmd['changed']
     for row in world['entities']:

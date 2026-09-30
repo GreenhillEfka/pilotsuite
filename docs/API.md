@@ -57,6 +57,14 @@ Omitting setup preserves older clients and stored structure. Identical saves are
 no-ops. Duplicate zone-label ownership, replaced identities, disabled members,
 multiple anchors and an anchor selected as its own evidence are rejected.
 This save does not write HA, change learning, create helpers or enable a module.
+The existing structure GET additionally returns `member_identities`, each with
+`saved_entity_id`, currently resolved `entity_id` (or null), `name` and `status`.
+Statuses reuse Organization's resolver (`bound`, `renamed`, `identity_unresolved`)
+plus explicit `disabled`. `identity_basis: cached_registry_not_live_state` separates
+registry identity from runtime state/freshness. Profile and relevance remain the
+saved canonical values; this projection performs no HA network read or migration.
+The editor opens definition/structure only with matching revisions.
+
 Metadata synchronization preserves unrelated labels, names and physical location.
 Removing a member stops its selected analysis but does not delete HA labels blindly.
 One concrete preview/apply covers the selected changes. HA and SQLite are not an

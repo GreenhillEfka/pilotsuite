@@ -43,10 +43,10 @@ commits although trees match. Check fresh PR head/CI rather than reusing an old 
   settings or owned bindings. Preview and transactional restore reject unsupported
   scope. Native app backup is still the complete recovery path; no ownership replay.
 
-Validation: 717 Python tests, 78 JS tests and 68 API contracts pass. All eleven
+Validation: 718 Python tests, 78 JS tests and 68 API contracts pass. All eleven
 browser suites passed; the maintenance suite passed again after the restore guard.
 Seven actual HA 2026.9.3 protocol scenarios pass in a disposable local instance.
-Final Python resource audit: 717 tests, subsequent garbage collection, zero ResourceWarnings.
+Final Python resource audit: 718 tests, subsequent garbage collection, zero ResourceWarnings.
 Red/green cases cover label/anchor races, helper metadata drift, disabled anchors,
 restart cooldown, sticky identity conflicts, six color/effect forms and omitted
 savepoint module scope. Actual mobile/desktop light/dark screenshots inspected;
@@ -59,13 +59,16 @@ including unresolved or renamed identities. Defaults omit them; explicit configu
 and runtime reject feedback. Read-only comparison remains possible. Legacy source
 configurations stay visible for explicit correction, never silently rewritten.
 
-The following UI review reproduced six label-guidance failures in the actual-app
-browser. Existing label bindings now remain fixed in the editor; missing HA labels
-retain their identity and saved draft with an explicit explanation. Loading a label
-locks the selection until the response finishes. Save conflicts show their real
-cause without discarding inputs. Missing-label recovery, cancellation and unchanged
-HA calls are checked. New exact CI for this UI refinement is required; closure
-evidence belongs in PR #153.
+Label-guidance candidate b9b2772 passed all five jobs in run 36666545782. Fixed
+bindings, missing label identities, pending imports and actual conflict causes are
+visible while drafts remain intact. The next review adds a read-only identity view
+to the existing structure API, using Organization's resolver. Renamed, disabled or
+unresolved saved members are explained in the same editor, without rebinding or
+replacement. Structure and relevance load from the canonical store when opening;
+mismatched revisions reject the draft. Identity matching describes the cached HA
+registry, not current device state. Six API cases reproduced missing diagnostics;
+718 Python tests, 78 JS tests, 68 contracts and both affected browsers pass. Actual
+mobile/desktop screenshots inspected. New exact CI closure belongs in PR #153.
 
 ## Release boundary and actual backup finding
 
@@ -83,7 +86,7 @@ explicit empty-agent_errors gate is not met. No implicit waiver, repeated backup
 NAS reconfiguration or publication. Do not alter backup settings to hide the errors.
 Native app recovery is available in principle; no extraction or restore drill done.
 
-Next: finish label-guidance review and new exact latest PR CI; obtain clean
+Next: finish member-identity review and new exact latest PR CI; obtain clean
 native backup confirmation or the pending explicit user decision on the narrow
 local-backup exception. The question was asked; no answer has arrived yet.
 Only then may release/main CI, Store/source matching and targeted installation

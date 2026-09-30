@@ -37,6 +37,23 @@ def label_members(label_id, labels, catalog):
             'control_enabled': False, 'learning_changed': False}
 
 
+def member_identities(profile, catalog):
+    """Explain saved identities using the existing resolver; never migrate members."""
+    from .organization import resolve
+    result = []
+    for eid, member in (profile or {}).get('members', {}).items():
+        row = resolve(member['identity'], catalog)
+        status = row['status']
+        if row.get('entity_id') and not row.get('in_registry'):
+            status = 'identity_unresolved'
+        elif row.get('disabled'):
+            status = 'disabled'
+        result.append({'saved_entity_id':eid,
+                       'entity_id':row.get('entity_id') if status != 'identity_unresolved' else None,
+                       'name':row.get('name') or eid, 'status':status})
+    return result
+
+
 def setup_profile(payload, labels, catalog, previous=None):
     required = {'label_id', 'entity_ids', 'relevant_entity_ids'}
     if not isinstance(payload, dict) or not required <= set(payload) or set(payload) - required - {'roles', 'label_name'}:

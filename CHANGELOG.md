@@ -2,6 +2,9 @@
 
 ## [0.1.0-alpha.72] - 2026-09-30
 
+- Saved zone members explain renamed, disabled and unresolved identities using the
+  existing resolver. Opening loads canonical structure/relevance with matching
+  revisions, without automatic rebinding or replacement.
 - Bound and missing zone labels remain explicit in the editor; imports hold their
   selection and save conflicts preserve the actual reason and all draft inputs.
 

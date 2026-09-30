@@ -450,6 +450,30 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   for(const key of ['helper_creates','output_calls','metadata_calls','learning','roles','mode'])assert.deepEqual(afterSetup[key],beforeSetup[key]);
   assert.equal(afterSetup.zones.length,beforeSetup.zones.length+1);
   for(const z of beforeSetup.zones)assert.deepEqual(afterSetup.zones.find(r=>r.zone_id===z.zone_id),z);
+  const identityBaseline=await page.evaluate(()=>json('api/v1/zones/'+encodeURIComponent(selectionZone)+'/structure'));
+  for(const [variant,message] of [['renamed',/Umbenannt zu binary_sensor.demo_renamed/],['disabled',/Gespeicherte Entität deaktiviert/],['missing',/Identität fehlt oder ist uneindeutig/],['ambiguous',/Identität fehlt oder ist uneindeutig/]]){
+   await command({action:'member_identity',variant});
+   await page.locator('#zone-edit').click();await page.locator('#zone-form').waitFor();
+   const identityMember=page.locator('.zone-member').filter({hasText:'binary_sensor.demo_presence'});
+   assert.match(await identityMember.locator('small').innerText(),message);
+   assert.equal(await identityMember.getByLabel('Für Auswertung verwenden',{exact:true}).isDisabled(),true);
+   assert.equal(await identityMember.locator('input[type="checkbox"]').first().isChecked(),true,'unresolved member is retained');
+   await page.locator('#zone-label-load').click();await page.waitForFunction(()=>!zoneLabelBusy);
+   await page.locator('#zone-label-import').click();await page.waitForFunction(()=>!zoneLabelBusy);
+   assert.match(await identityMember.locator('small').innerText(),message,'tag import cannot hide an unresolved saved identity');
+   assert.equal(await identityMember.getByLabel('Für Auswertung verwenden',{exact:true}).isDisabled(),true,'tag import cannot approve an unresolved identity');
+   await identityMember.locator('summary').click();
+   assert.equal(await identityMember.getByLabel('Habitus Übersicht',{exact:true}).isDisabled(),true,'resolve saved identity before changing its roles');
+   if(variant==='renamed'&&out)for(const width of [390,1440]){await page.setViewportSize({width,height:1100});await page.locator('#zone-form').screenshot({path:path.join(out,`zone-member-identity-${width}.png`)});}
+   await page.locator('#zone-cancel').click();
+   const identityAfter=await page.evaluate(()=>json('api/v1/zones/'+encodeURIComponent(selectionZone)+'/structure'));
+   for(const key of ['profile','decisions','revision'])assert.deepEqual(identityAfter[key],identityBaseline[key]);
+  }
+  await command({action:'member_identity',variant:'same'});
+  await page.route('**/api/v1/zones/*/structure',async route=>{const response=await route.fetch(),data=await response.json();data.revision++;await route.fulfill({response,json:data});},{times:1});
+  await page.locator('#zone-edit').click();
+  await page.getByText('Zone während des Öffnens geändert. Bitte erneut öffnen.',{exact:true}).waitFor();
+  assert.equal(await page.locator('#zone-form').isVisible(),false,'mixed revisions cannot open an editable draft');
   await page.locator('#zone-edit').click();await page.locator('#zone-form').waitFor();
   await page.locator('#zone-name').fill('Offener Label-Entwurf');
   await page.locator('#zone-label-load').click();await page.waitForFunction(()=>!zoneLabelBusy);

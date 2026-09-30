@@ -241,3 +241,10 @@ keine Labelmigration. Fehlt das HA-Label, bleiben ID und Entwurf sichtbar, bis d
 Bestand erneut geprüft wird. Während einer laufenden Mitgliedsabfrage bleibt die
 Labelauswahl gesperrt. Bei Speicherkonflikten wird der konkrete Servergrund als Text
 gezeigt; Abbrechen und erneutes Öffnen bleiben bewusste Entscheidungen.
+
+Gespeicherte Mitglieder verwenden beim Öffnen des Zoneneditors den bestehenden
+Identitätsresolver. Umbenennung zeigt das neue Ziel bei unveränderter gespeicherter
+ID; deaktivierte und ungeklärte Mitglieder bleiben sichtbar. Ihre Rollen/Analysewahl
+werden erst nach geklärtem Bestand geändert. Die Anzeige ist ein Registerabzug,
+kein Live-Zustandsbeleg. Struktur und Relevanz stammen vom selben vorhandenen
+Leseendpunkt; widersprüchliche Definition-/Strukturrevisionen öffnen keinen Entwurf.

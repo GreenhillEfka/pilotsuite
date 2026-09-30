@@ -56,6 +56,12 @@ HA label identities without discarding the draft and preserves actual save-confl
 causes. Pending imports lock label selection. Six actual-browser failures reproduced
 first; recovery/cancel checks verify no configuration or HA-write side effect. This
 is a UI correction using existing API/storage semantics, not a label migration.
+Label-guidance candidate b9b2772 passed all five jobs (36666545782). The existing
+structure GET now explains saved member identities through Organization's resolver.
+The editor loads canonical structure/relevance and rejects mixed opening revisions.
+Renamed/disabled/unresolved members stay visible and never auto-rebind. Six initially
+failing diagnostic API cases, then 718 Python/78 JS tests, 68 contracts and both
+selection/zone browsers passed. Screenshots inspected; exact new CI remains required.
 See CURRENT_STATE.md and HABITUS_SETUP_PLAN.md; this is not a delivered-version claim.
 
 Alpha.71 installed after PR #151: targeted single Boolean/timer creation through the

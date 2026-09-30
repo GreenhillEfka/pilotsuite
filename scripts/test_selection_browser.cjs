@@ -39,6 +39,10 @@ const assert = require('node:assert/strict');
           moods: [{name: z.zone_id === 'example' ? 'cellar_only' : 'bath_only', score: 0.5}],
           neurons: [{entity_id: z.zone_id + '_sensor', kind: 'temperature', value: 20, quality: 'good'}]}))};
       }
+      else if (/api\/v1\/zones\/[^/]+\/structure$/.test(suffix)) {
+        const id=suffix.split('/')[3],zone=zones.find(row=>row.zone_id===id);
+        data={zone_id:id,revision:zone.revision,profile:null,decisions:{},member_identities:[],identity_basis:'cached_registry_not_live_state'};
+      }
       else if (/api\/v1\/zones\/[^/]+\/context$/.test(suffix)) {
         const id = suffix.split('/')[3];
         contexts[id] ||= {revision: 1, config: {roles:{},learning:false,consented_at:null},event_count:0,patterns:[],eligible:false,candidates:roleCandidates,progress:{first_evidence_at:null,last_evidence_at:null,windows:[{start_hour:8,end_hour:10,events:3,days:3,missing_events:2,missing_days:0}]}};

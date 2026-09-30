@@ -356,16 +356,23 @@ async function openZoneEditor(existing) {
   zoneFormOpen = true; byId('zone-editor').open = true; renderSelection();
   zoneSetupEpoch++;
   try {
-    const [areas, catalog, zones] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones')]);
+    const [areas, catalog, zones, savedStructure] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones'),
+      existing ? json('api/v1/zones/'+encodeURIComponent(selectionZone)+'/structure') : null]);
     zoneEditing = existing ? zones.items.find(z => z.zone_id === selectionZone) : null;
     if (existing && !zoneEditing) throw new Error('Zone nicht mehr vorhanden. Neu laden.');
     const zone = zoneEditing || {name: '', area_ids: [], extra_entity_ids: [], enabled: false, profile: 'observe'};
-    const structure = existing ? contextData?.config?.zone_structure : null;
+    if(existing && savedStructure.revision!==zoneEditing.revision)throw new Error('Zone während des Öffnens geändert. Bitte erneut öffnen.');
+    const structure = savedStructure?.profile;
+    const memberIdentities = new Map((savedStructure?.member_identities||[]).map(row=>[row.saved_entity_id,row]));
     zoneBoundLabel = structure?.label_id || null;
     zoneSetupDraft = structure ? {label_id: structure.label_id, ...(!structure.label_id?{label_name:structure.label_name}:{}), entity_ids: Object.keys(structure.members),
-      relevant_entity_ids: [...(selectionDraft?.inventory?.items || []),...(selectionDraft?.inventory?.missing || [])].filter(r=>r.decision==='relevant' && structure.members[r.entity_id]).map(r=>r.entity_id),
+      relevant_entity_ids: Object.entries(savedStructure.decisions).filter(([id,decision])=>decision==='relevant'&&structure.members[id]).map(([id])=>id),
       roles:Object.fromEntries(Object.entries(structure.members).map(([id,row])=>[id,[...row.roles]]))} : null;
-    zoneSetupRows = structure ? Object.entries(structure.members).map(([entity_id,row])=>({entity_id,name:entity_id,habitus_roles:row.roles})) : [];
+    zoneSetupRows = structure ? Object.entries(structure.members).map(([entity_id,row])=>{
+      const current=memberIdentities.get(entity_id);
+      return {entity_id,name:current?.name||entity_id,habitus_roles:row.roles,identity_status:current?.status,
+        resolved_entity_id:current?.entity_id,disabled:!!current&&current.status!=='bound'};
+    }) : [];
     byId('zone-label-name').value = structure?.label_name || zone.name;
     byId('zone-label-name').disabled = !!zoneBoundLabel;
     byId('zone-label-new').disabled = !!structure?.label_id;
@@ -406,8 +413,9 @@ function renderZoneMembers() {
   if(!zoneSetupDraft) return;
   for(const row of zoneSetupRows.filter(r=>`${r.name} ${r.entity_id}`.toLocaleLowerCase().includes(filter))) {
     const line=document.createElement('div');line.className='zone-member';
+    const unavailable=!!row.disabled || !!row.identity_status&&row.identity_status!=='bound';
     const memberLabel=document.createElement('label'),member=document.createElement('input');member.type='checkbox';
-    member.checked=zoneSetupDraft.entity_ids.includes(row.entity_id);member.disabled=!!row.disabled && !member.checked;
+    member.checked=zoneSetupDraft.entity_ids.includes(row.entity_id);member.disabled=unavailable && !member.checked;
     memberLabel.append(member,document.createTextNode(row.name || row.entity_id));
     const detail=document.createElement('small');
     const updateDetail=()=>{
@@ -417,17 +425,21 @@ function renderZoneMembers() {
         : `${row.membership_source?'Eingelesene HA-Rollen':'Gespeicherte Rollen'}: ${current.join(', ')||'keine'}`;
       if(row.membership_source&&row.label_observation!=='missing'&&JSON.stringify(current)!==JSON.stringify(draft))
         note+=` · Entwurf weicht ab: ${draft.join(', ')||'keine Rollen'}. Vor dem Abgleich prüfen.`;
-      detail.textContent=`${row.entity_id} · ${note}${row.membership_source==='device'?' · vom Gerät':''}${row.disabled?' · nicht auswählbar':''}`;
+      const identityNote={renamed:`Umbenannt zu ${row.resolved_entity_id}; gespeicherte Zuordnung unverändert.`,
+        disabled:'Gespeicherte Entität deaktiviert; keinen Ersatz anlegen.',
+        identity_unresolved:'Gespeicherte Identität fehlt oder ist uneindeutig; Bestand prüfen.'}[row.identity_status];
+      if(identityNote)note+=` · Zuordnung beim Öffnen: ${identityNote}`;
+      detail.textContent=`${row.entity_id} · ${note}${row.membership_source==='device'?' · vom Gerät':''}${unavailable?' · nicht auswählbar':''}`;
     };updateDetail();
     const relevantLabel=document.createElement('label'),relevant=document.createElement('input');relevant.type='checkbox';
     const isAnchor=()=>!!zoneSetupDraft.roles[row.entity_id]?.includes('Habitus Zone'),anchor=isAnchor();
-    relevant.checked=zoneSetupDraft.relevant_entity_ids.includes(row.entity_id);relevant.disabled=!member.checked || anchor || !!row.disabled;
+    relevant.checked=zoneSetupDraft.relevant_entity_ids.includes(row.entity_id);relevant.disabled=!member.checked || anchor || unavailable;
     relevantLabel.append(relevant,document.createTextNode(anchor?'Zonenstatus (Ausgang)':'Für Auswertung verwenden'));
     member.addEventListener('change',()=>{
       zoneSetupDraft.entity_ids=zoneSetupDraft.entity_ids.filter(id=>id!==row.entity_id);
       if(member.checked) zoneSetupDraft.entity_ids.push(row.entity_id);
       else {zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);relevant.checked=false;}
-      relevant.disabled=!member.checked || isAnchor() || !!row.disabled;
+      relevant.disabled=!member.checked || isAnchor() || unavailable;
     });
     relevant.addEventListener('change',()=>{zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);if(relevant.checked)zoneSetupDraft.relevant_entity_ids.push(row.entity_id);});
     line.append(memberLabel,detail,relevantLabel);
@@ -435,7 +447,7 @@ function renderZoneMembers() {
       const roles=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Darstellung im Habitus-Dashboard';roles.append(summary);
       for(const role of zoneRoleChoices){
         const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';
-        input.checked=(zoneSetupDraft.roles[row.entity_id]||[]).includes(role);label.append(input,document.createTextNode(role));
+        input.checked=(zoneSetupDraft.roles[row.entity_id]||[]).includes(role);input.disabled=!!row.identity_status&&row.identity_status!=='bound';label.append(input,document.createTextNode(role));
         input.addEventListener('change',()=>{
           const selected=new Set(zoneSetupDraft.roles[row.entity_id]||[]);if(input.checked)selected.add(role);else selected.delete(role);
           zoneSetupDraft.roles[row.entity_id]=[...selected];
@@ -486,7 +498,7 @@ byId('zone-label-import').addEventListener('click',async()=>{
     const old=zoneSetupDraft&&(zoneSetupDraft.label_id===chosen||zoneSetupDraft.label_id===null)?zoneSetupDraft:null;
     const rows=new Map((old?zoneSetupRows:[]).map(r=>[r.entity_id,{...r,label_observation:'missing'}]));
     const known=new Set(rows.keys());
-    for(const row of result.members)rows.set(row.entity_id,{...row,label_observation:'present',disabled:row.disabled || !row.unique_id || !row.platform});
+    for(const row of result.members)rows.set(row.entity_id,{...rows.get(row.entity_id),...row,label_observation:'present',disabled:row.disabled || !row.unique_id || !row.platform});
     zoneSetupRows=[...rows.values()];
     zoneSetupDraft={label_id:chosen,entity_ids:[...new Set([...(old?.entity_ids||[]),...result.members.filter(r=>!known.has(r.entity_id)&&!r.disabled && r.unique_id && r.platform).map(r=>r.entity_id)])],relevant_entity_ids:old?.relevant_entity_ids||[],
       roles:Object.fromEntries(zoneSetupRows.map(row=>[row.entity_id,[...(old?.roles?.[row.entity_id]||row.habitus_roles||[])]]))};
@@ -519,7 +531,7 @@ byId('zone-candidates-import').addEventListener('click',async()=>{
     zoneRoleChoices=result.roles;
     const rows=new Map(zoneSetupRows.map(r=>[r.entity_id,r]));
     const known=new Set(rows.keys());
-    for(const row of result.members)rows.set(row.entity_id,{...row,disabled:row.disabled || !row.unique_id || !row.platform});
+    for(const row of result.members)rows.set(row.entity_id,{...rows.get(row.entity_id),...row,disabled:row.disabled || !row.unique_id || !row.platform});
     zoneSetupRows=[...rows.values()];
     zoneSetupDraft.entity_ids=[...new Set([...zoneSetupDraft.entity_ids,...result.members.filter(r=>!known.has(r.entity_id)&&!r.disabled&&r.unique_id&&r.platform).map(r=>r.entity_id)])];
     for(const row of result.members)if(!zoneSetupDraft.roles[row.entity_id])zoneSetupDraft.roles[row.entity_id]=row.habitus_roles||[];

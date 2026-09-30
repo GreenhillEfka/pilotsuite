@@ -12,6 +12,12 @@ ein neues Label zunächst planen. Rollen und relevante Analysequellen in derselb
 Ansicht prüfen und einmal speichern. Mitgliedschaft allein aktiviert keine Analyse
 und keine Steuerung. Physische Bereiche und fremde Labels bleiben erhalten.
 
+Beim erneuten Öffnen zeigt der Mitgliederbestand umbenannte, deaktivierte oder
+nicht eindeutig aufgelöste Identitäten. Eine Umbenennung zeigt die neue technische
+ID, behält aber die gespeicherte Zuordnung. Solche Einträge zuerst prüfen; es wird
+kein Ersatz angelegt und keine Bindung automatisch umgestellt. Die Angaben stammen
+aus dem geladenen HA-Register und sagen nichts über aktuelle Anwesenheit aus.
+
 **Zonenlabels abgleichen** zeigt den konkreten HA-Änderungsplan. Ein neues Label und
 seine Mitglieder werden gemeinsam bestätigt. Erst bestätigte Anlage und Rücklesen
 binden die tatsächliche HA-ID. Bei unklarem Ergebnis den gespeicherten Plan prüfen;

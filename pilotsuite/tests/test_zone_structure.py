@@ -355,6 +355,44 @@ class ZoneStructureTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('zone_presence_v2',cfg)
         self.s.client.zone_set_metadata.assert_not_awaited()
 
+    async def test_saved_member_identity_view_is_read_only_and_never_rebinds(self):
+        zone = await (await self.save()).json()
+        zid = zone['zone_id']
+        before = await self.s.context.get(zid)
+        selection = await self.s.selections.get(zid)
+        original = deepcopy(self.world)
+        for variant, status, resolved in (
+                ('same', 'bound', 'sensor.temperature'),
+                ('renamed', 'renamed', 'sensor.new_name'),
+                ('replaced', 'identity_unresolved', None),
+                ('missing', 'identity_unresolved', None),
+                ('ambiguous', 'identity_unresolved', None),
+                ('disabled', 'disabled', 'sensor.temperature')):
+            with self.subTest(variant=variant):
+                self.world = deepcopy(original)
+                row = self.world['entities'][0]
+                if variant == 'renamed': row['entity_id'] = 'sensor.new_name'
+                elif variant == 'replaced': row['unique_id'] = 'replacement'
+                elif variant == 'missing': self.world['entities'].pop(0)
+                elif variant == 'ambiguous': self.world['entities'].append({**row, 'entity_id':'sensor.duplicate'})
+                elif variant == 'disabled': row['disabled_by'] = 'user'
+                await self.s.world.replace(self.world)
+                self.s.client.zone_labels.reset_mock()
+                response = await self.http.get('/api/v1/zones/' + zid + '/structure')
+                self.assertEqual(200, response.status)
+                result = await response.json()
+                self.assertEqual(before[KEY], result['profile'])
+                self.assertEqual(selection['decisions'], result['decisions'])
+                self.assertIn('member_identities', result)
+                entry = next(r for r in result['member_identities'] if r['saved_entity_id']=='sensor.temperature')
+                self.assertEqual(status, entry['status'])
+                self.assertEqual(resolved, entry['entity_id'])
+                self.assertEqual('cached_registry_not_live_state', result['identity_basis'])
+                self.assertEqual(before, await self.s.context.get(zid))
+                self.assertEqual(selection, await self.s.selections.get(zid))
+                self.s.client.zone_labels.assert_not_awaited()
+                self.s.client.zone_set_metadata.assert_not_awaited()
+
     async def test_saved_missing_member_can_be_retained_without_adopting_replacement(self):
         zone = await (await self.save()).json()
         self.world['entities'] = [r for r in self.world['entities'] if r['entity_id']!='sensor.temperature']

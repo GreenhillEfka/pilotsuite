@@ -163,6 +163,18 @@ Erweiterter Zonenbrowser, 78 JS-Tests und 68 Verträge grün; tatsächliche Hand
 Desktop-Screenshots angesehen. Abschluss-CI im bestehenden PR. Ein alter Browser-Wartepunkt wurde auf den tatsächlichen
 Wechsel zur neu gespeicherten Zone präzisiert, statt schon die vorige Zone zu akzeptieren.
 
+Weitere Fortsetzung: Labelbedienung auf `b9b2772`, alle fünf CI-Jobs in `36666545782`
+grün. Gespeicherte Mitglieder erhalten nun eine lesende Identitätsanzeige über den
+vorhandenen Organization-Resolver: unverändert, umbenannt, deaktiviert oder ungeklärt.
+Struktur/Relevanz werden beim Öffnen aus dem bestehenden Speicher gelesen; abweichende
+Revisionen öffnen keinen vermischten Entwurf. Keine automatische Umbindung, Migration
+oder Ersatzanlage. Sechs API-Fälle zunächst rot, danach 718 Python/78 JS-Tests,
+68 Verträge, Auswahl- und Zonenbrowser grün. Tatsächliche Handy-/Desktop-Screenshots
+unter `/private/tmp/habitus-member-identity-ui`, Logs `/private/tmp/habitus-member-*`.
+Ein zusätzlicher Browserfall verhinderte das erneute Freigeben einer mehrdeutigen
+Identität nach Tag-Import; rot reproduziert und im bestehenden Editor korrigiert.
+Python-Abschluss mit Garbage Collection ohne ResourceWarnings. Exakte CI im PR.
+
 [Zonenlabel](screenshots/habitus-setup-alpha72/zone-new-label-light-390.png),
 [Einrichtung](screenshots/habitus-setup-alpha72/foundation-390.png),
 [Lichteditor](screenshots/habitus-setup-alpha72/zone-lighting-editor-390.png),

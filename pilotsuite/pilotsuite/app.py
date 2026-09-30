@@ -230,15 +230,17 @@ async def _zone_candidates(request: web.Request) -> web.Response:
 
 
 async def _zone_structure(request: web.Request) -> web.Response:
-    from .core.zone_structure import KEY
+    from .core.zone_structure import KEY, member_identities
     service = request.app[SERVICE_KEY]
     zid = request.match_info['zone_id']
     async with service._projection_lock:
         inventory = await service.selection_inventory(zid)
         config = await service.context.get(zid)
         decisions = (await service.selections.get(zid))['decisions']
+        identities = member_identities(config.get(KEY), await service.world.organization_catalog())
     return web.json_response({'zone_id': zid, 'revision': inventory['revision'],
-                              'profile': config.get(KEY), 'decisions': decisions},
+                              'profile': config.get(KEY), 'decisions': decisions,
+                              'member_identities': identities, 'identity_basis':'cached_registry_not_live_state'},
                              headers={'Cache-Control': 'no-store'})
 
 
