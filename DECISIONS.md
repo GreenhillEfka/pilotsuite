@@ -6,6 +6,26 @@ docs/IMPLEMENTATION_STATUS.md; delivery: docs/RELEASE_STATE.json. Old statements
 such as “no alpha writes”, “PR remains off main” or separate learning consent apply
 to their recorded slice, not universally to today's zone-instance path.
 
+## ADR-044 — Limit the current product to Habitus zone structure
+
+Accepted 2026-09-30 after the Alpha.72 delivery. The user explicitly requests a
+fresh, reduced product focused only on creating, displaying and documenting
+Habitus zones. Hide all other product areas, including comparisons. This supersedes
+ADR-043's immediate UI scope and the overnight presence/light expansion order.
+
+Reuse existing stores, identities and structural metadata plans. Preserve saved
+zones, tags, configurations and evidence; the reset is not authorization to delete
+data or silently change household outputs. A concrete metadata-change preview is
+part of structural editing, not an analytical comparison. Hidden runtime behavior
+must not be described as stopped without a separately verified change.
+
+The next proposed user path is zone overview → structural editor → documentation.
+Old navigation/deep links must not reopen deferred modules. Presence, helper
+provisioning, lighting and learning return only after the zone foundation is
+accepted. Household acceptance and active light execution remain deferred open
+items, not completed work. Implementation contract: docs/HABITUS_FOUNDATION_RESET.md.
+This decision is recorded; no app behavior or installation changes in this package.
+
 ## ADR-043 — Configure the existing Habitus zone before adding intelligence
 
 Accepted product direction, 2026-09-29, following explicit user feedback and the
@@ -626,3 +646,15 @@ indirect calls and external consumers are not inferred as proven. No helper is
 created, automation rewritten or runtime enabled by saving these bindings. Changing
 PilotSuite timing never changes the household's existing timer or automation.
 Own managed-output publication remains its separate pre-existing reviewed path.
+
+## ADR-045 — Real structural adoption, separate from household control
+
+Accepted 2026-09-30 in the user's follow-up to ADR-044. Continue autonomously to
+real HA/PilotSuite zone synchronization: inspect actual bindings, reconcile manual
+zone/role tags through concrete metadata plans, then verify and document fresh
+registry readback. This is the current target, no longer deferred acceptance.
+Preserve earlier runtime/analysis choices; a structural edit or newly imported
+member grants no analysis/control right. Structural removal does not silently
+revoke a pre-existing analysis choice. Actual presence behavior, helpers and light
+control remain later acceptance stages. No authentication bypass or guessed real
+zone mapping when access is missing. The overnight heartbeat stays paused.

@@ -1,8 +1,8 @@
 /* Presentation-only helpers: no configuration storage, inference or execution authority. */
 (function(root) {
   'use strict';
-  const views = Object.freeze(['cockpit','zone','config','automations','history','workbench','system','all']);
-  const primaryView = view => ['cockpit','zone','config','automations','history'].includes(view)?'cockpit':view;
+  const views = Object.freeze(['cockpit','config','documentation']);
+  const primaryView = view => views.includes(view)?view:'cockpit';
   const roles = Object.freeze({presence:'Präsenz & Bewegung',temperature:'Temperatur',humidity:'Feuchte',
     illuminance:'Helligkeit (Lux)',daylight_binary:'Helligkeitsindikator',light:'Leuchten',
     climate:'Klimaregler',media:'Medienplayer',atmosphere:'Atmosphärenwunsch',reference_temperature:'Vergleichstemperatur'});

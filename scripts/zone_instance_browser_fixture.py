@@ -53,8 +53,7 @@ async def main():
   await s.zones.save({'name':title,'area_ids':[zid],'extra_entity_ids':[],'enabled':zid!='z_paused','profile':'observe'},zid,old['revision'])
  source_registration=deepcopy(next(row for row in world['entities'] if row['entity_id']==SOURCE))
  s.client.snapshot=AsyncMock(side_effect=lambda:deepcopy(world))
- registry=[{'entity_id':e['entity_id'],'unique_id':e['unique_id'],'platform':e['platform'],
-   'name':e['name'],'labels':[],'disabled_by':None} for e in world['entities']]
+ registry=deepcopy(world['entities'])
  states={e['entity_id']:deepcopy(e) for e in world['states']}
  async def create_helper(domain,name,grace_seconds=300):
   eid=domain+'.'+name;registry.append({'entity_id':eid,'unique_id':name,'platform':domain,'name':name,'labels':[],'disabled_by':None})
@@ -75,7 +74,10 @@ async def main():
    except ValueError:alive=False
    v=states.get(owner,{}).get('state') if alive and states.get(valid,{}).get('state')=='on' else 'unavailable'
    states[public_id]=state(public_id,v,now)
- async def metadata(eid,**fields):next(r for r in registry if r['entity_id']==eid).update(fields)
+ async def metadata(eid,**fields):
+  next(r for r in registry if r['entity_id']==eid).update(fields)
+  for row in world['entities']:
+   if row['entity_id']==eid:row.update(fields)
  public_id=None;template_inputs=None
  s.client.zone_output_registry=AsyncMock(side_effect=lambda:deepcopy(registry))
  s.client.zone_registry_entry=AsyncMock(side_effect=lambda eid:deepcopy(next(r for r in registry if r['entity_id']==eid)))
@@ -83,7 +85,8 @@ async def main():
  s.client.zone_output_service=AsyncMock(side_effect=service_call)
  s.client.zone_create_storage_helper=AsyncMock(side_effect=create_helper)
  s.client.zone_create_binary_sensor=AsyncMock(side_effect=create_sensor)
- s.client.zone_label_devices=AsyncMock(return_value={})
+ s.client.zone_label_devices=AsyncMock(side_effect=lambda:{r['id']:r.get('labels',[]) for r in world['devices']})
+ s.client.zone_structure_areas=AsyncMock(side_effect=lambda:deepcopy(world['areas']))
  labels=[{'label_id':str(i),'name':r} for i,r in enumerate(ROLES)]+[{'label_id':'zone','name':'room'},{'label_id':'setup_demo','name':'Habitus Demobereich'}]
  s.client.zone_labels=AsyncMock(side_effect=lambda:deepcopy(labels))
  async def create_label(name):
@@ -123,6 +126,7 @@ async def main():
     elif cmd['variant']=='disabled':row['disabled_by']='user'
     if cmd['variant']!='missing':world['entities'].append(row)
     if cmd['variant']=='ambiguous':world['entities'].append({**row,'entity_id':'binary_sensor.demo_duplicate'})
+    registry[:]=deepcopy(world['entities'])
     await s.world.replace(deepcopy(world))
    elif cmd['action']=='tag_membership_change':
     changed=cmd['changed']
@@ -130,6 +134,7 @@ async def main():
      if row['entity_id']==SOURCE:row['labels']=['1'] if changed else ['setup_demo','1']
      elif row['entity_id']==MOTION:row['labels']=['setup_demo'] if changed else []
      elif row['entity_id']=='light.demo':row['labels']=['3'] if changed else []
+    registry[:]=deepcopy(world['entities'])
     await s.world.replace(deepcopy(world))
    elif cmd['action']=='light_group':
     eid='light.demo_group'
@@ -142,7 +147,7 @@ async def main():
    elif cmd['action']!='snapshot':raise ValueError('Invalid fixture command')
    cfg=await s.context.get('room')
    print(json.dumps({'view':await s.zone_presence_view('room'),'zones':[{k:v for k,v in z.items() if k!='revision'} for z in await s.zones.list()],'mode':(cfg.get(KEY)or{}).get('mode'),
-    'learning':cfg['learning'],'roles':cfg['roles'],'history_reads':s.client.history.await_count,
+    'learning':cfg['learning'],'roles':cfg['roles'],'selections':await s.selections.get('room'),'history_reads':s.client.history.await_count,
     'automation_reads':s.client.automation_config.await_count,'organization':cfg.get('organization'),
     'helper_creates':s.client.zone_create_storage_helper.await_count+s.client.zone_create_binary_sensor.await_count,
     'label_creates':s.client.zone_create_label.await_count,'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)

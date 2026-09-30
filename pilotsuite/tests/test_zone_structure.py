@@ -11,6 +11,139 @@ from pilotsuite.core.zone_structure import KEY
 
 
 class ZoneStructureTests(unittest.IsolatedAsyncioTestCase):
+    async def test_structure_only_import_preserves_analysis_and_runtime(self):
+        old = next(z for z in await self.s.zones.list() if z['zone_id'] == 'a')
+        inv = await self.s.selection_inventory('a')
+        await self.s.selections.patch('a', inv['revision'], {'sensor.temperature': 'relevant'})
+        old = next(z for z in await self.s.zones.list() if z['zone_id'] == 'a')
+        definition = {k: old[k] for k in self.definition}
+        cfg = await self.s.context.get('a')
+        setup = {k: v for k, v in self.setup.items() if k != 'relevant_entity_ids'}
+        response = await self.http.patch('/api/v1/zones/a', json={
+            'definition': definition, 'revision': old['revision'], 'setup': setup, 'structure_only': True})
+        self.assertEqual(200, response.status, await response.text())
+        decisions = (await self.s.selections.get('a'))['decisions']
+        self.assertEqual('relevant', decisions['sensor.temperature'])
+        self.assertEqual('ignored', decisions['light.group'])
+        after = await self.s.context.get('a')
+        self.assertEqual(cfg, {k:v for k,v in after.items() if k != KEY})
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_fresh_structure_verification_detects_extra_inherited_members(self):
+        response = await self.http.post('/api/v1/zones', json={'definition': self.definition, 'setup': self.setup})
+        zid = (await response.json())['zone_id']
+        report = await (await self.http.get(f'/api/v1/zones/{zid}/structure?verify=1')).json()
+        self.assertEqual('different', report['verification']['state'])
+        self.assertIn('sensor.disabled', report['verification']['extra_members'])
+        self.assertEqual('device', next(r for r in report['verification']['members'] if r['entity_id']=='light.group')['membership_source'])
+        self.registry['sensor.disabled']['labels'] = []
+        report = await (await self.http.get(f'/api/v1/zones/{zid}/structure?verify=1')).json()
+        self.assertEqual('synchronized', report['verification']['state'])
+        self.registry['sensor.temperature']['labels'] = ['room']
+        report = await (await self.http.get(f'/api/v1/zones/{zid}/structure?verify=1')).json()
+        self.assertEqual('different', report['verification']['state'])
+        self.assertIn('roles_differ', report['verification']['members'][2]['issues'])
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_structure_verification_unavailable_is_not_accepted(self):
+        from pilotsuite.ha.client import HomeAssistantError
+        self.s.client.zone_output_registry.side_effect = HomeAssistantError('offline')
+        response = await self.http.get('/api/v1/zones/a/structure?verify=1')
+        self.assertEqual(503, response.status)
+        self.assertEqual('unconfirmed', (await response.json())['verification']['state'])
+
+    async def test_structure_only_rejects_runtime_changes_and_malformed_members(self):
+        old = next(z for z in await self.s.zones.list() if z['zone_id']=='a')
+        definition = {k:old[k] for k in self.definition}
+        setup = {k:v for k,v in self.setup.items() if k!='relevant_entity_ids'}
+        before = await self.s.zones.list()
+        for change in ({'enabled':not definition['enabled']}, {'profile':'observe' if definition['profile']=='cellar' else 'cellar'}):
+            response = await self.http.patch('/api/v1/zones/a', json={'definition':{**definition, **change},
+                'revision':old['revision'], 'setup':setup, 'structure_only':True})
+            self.assertEqual(400, response.status, await response.text())
+        for members in (None, 12, [None], [{}], 'sensor.temperature'):
+            response = await self.http.patch('/api/v1/zones/a', json={'definition':definition,
+                'revision':old['revision'], 'setup':{**setup, 'entity_ids':members}, 'structure_only':True})
+            self.assertEqual(400, response.status, await response.text())
+        self.assertEqual(before, await self.s.zones.list())
+
+    async def test_structural_removal_preserves_earlier_analysis_decision(self):
+        zone = await (await self.save()).json()
+        definition = {k:zone[k] for k in self.definition}
+        before = (await self.s.selections.get(zone['zone_id']))['decisions']
+        setup = {'label_id':'room', 'entity_ids':['light.group']}
+        response = await self.http.patch('/api/v1/zones/'+zone['zone_id'], json={'definition':definition,
+            'revision':zone['revision'], 'setup':setup, 'structure_only':True})
+        self.assertEqual(200,response.status,await response.text())
+        self.assertEqual(before,(await self.s.selections.get(zone['zone_id']))['decisions'])
+
+    async def test_fresh_verification_detects_identity_area_and_cross_zone_conflict(self):
+        zone = await (await self.save()).json()
+        self.labels.append({'label_id':'other','name':'Other'})
+        await self.save({'label_id':'other','entity_ids':['light.group'], 'relevant_entity_ids':[],
+                         'roles':{'light.group':['Habitus Übersicht']}})
+        self.world['areas'] = []
+        self.registry['sensor.temperature']['unique_id'] = 'replacement'
+        report = await (await self.http.get('/api/v1/zones/'+zone['zone_id']+'/structure?verify=1')).json()
+        v=report['verification']
+        self.assertEqual('different', v['state'])
+        self.assertIn('areas_missing', v['issues'])
+        self.assertIn('shared_roles_conflict', v['issues'])
+        row=next(r for r in v['members'] if r['entity_id']=='sensor.temperature')
+        self.assertIn('identity_unresolved', row['issues'])
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_verification_revision_changed_during_registry_read_is_rejected(self):
+        zone=await (await self.save()).json()
+        async def registry():
+            await self.s.selections.patch(zone['zone_id'],zone['revision'],{'sensor.temperature':'ignored'})
+            return deepcopy(list(self.registry.values()))
+        self.s.client.zone_output_registry.side_effect=registry
+        response=await self.http.get('/api/v1/zones/'+zone['zone_id']+'/structure?verify=1')
+        self.assertEqual(409,response.status,await response.text())
+        self.assertNotIn('verification',await response.json())
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_structure_list_is_saved_membership_not_inference_or_acceptance(self):
+        zone=await (await self.save()).json()
+        report=await (await self.http.get('/api/v1/zones?structure=1')).json()
+        self.assertNotIn('results',report)
+        self.assertEqual(3,report['structure'][zone['zone_id']]['member_count'])
+        self.assertFalse(report['structure']['a']['saved'])
+        self.assertEqual(self.world['areas'],report['areas'])
+        self.s.client.zone_output_registry.assert_not_awaited()
+
+    async def test_device_role_inheritance_matches_actual_habitus_dashboard(self):
+        self.world['devices'][0]['labels'].append('overview')
+        await self.s.world.replace(deepcopy(self.world))
+        members=await (await self.http.get('/api/v1/zone-labels/room')).json()
+        self.assertEqual(['Habitus Übersicht'],next(r for r in members['members'] if r['entity_id']=='light.group')['habitus_roles'])
+        setup={**self.setup,'roles':{'light.group':[]}}
+        zone=await (await self.save(setup)).json()
+        report=await (await self.http.get('/api/v1/zones/'+zone['zone_id']+'/structure?verify=1')).json()
+        row=next(r for r in report['verification']['members'] if r['entity_id']=='light.group')
+        self.assertEqual(['Habitus Übersicht'],row['ha_roles'])
+        self.assertIn('roles_differ',row['issues'])
+        from pilotsuite.core.selections import SelectionConflict
+        with self.assertRaises(SelectionConflict):
+            await self.s.structure_label_preview(zone['zone_id'],{'revision':zone['revision']})
+        self.s.client.zone_set_metadata.assert_not_awaited()
+        self.world['devices'][0]['labels'].remove('overview')
+        plan=await self.s.structure_label_preview(zone['zone_id'],{'revision':zone['revision']})
+        self.world['devices'][0]['labels'].append('overview')
+        result=await self.s.ontology_apply(zone['zone_id'],plan['id'],{'sha256':plan['sha256'],'confirm':True})
+        self.assertEqual('attention',result['state'])
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_device_inherited_anchor_conflict_blocks_entity_label_plan(self):
+        zone=await (await self.save()).json()
+        self.world['devices'].append({'id':'other_device','labels':['room','anchor']})
+        self.registry['binary_sensor.external']=self.entity('binary_sensor.external',[],device_id='other_device',disabled_by='user')
+        from pilotsuite.core.selections import SelectionConflict
+        with self.assertRaises(SelectionConflict):
+            await self.s.structure_label_preview(zone['zone_id'],{'revision':zone['revision']})
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
     async def asyncSetUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -36,6 +169,7 @@ class ZoneStructureTests(unittest.IsolatedAsyncioTestCase):
                          self.entity('sensor.disabled', ['room'], disabled_by='user')],
             'states': []}
         await self.s.world.replace(deepcopy(self.world))
+        self.s.client.zone_structure_areas = AsyncMock(side_effect=lambda: deepcopy(self.world['areas']))
         self.s.client.zone_label_devices = AsyncMock(side_effect=lambda: {r['id']: r.get('labels',[]) for r in self.world['devices']})
         self.s.client.zone_labels = AsyncMock(side_effect=lambda: deepcopy(self.labels))
         self.s.client.zone_set_metadata = AsyncMock()

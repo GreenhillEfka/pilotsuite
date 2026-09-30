@@ -1,5 +1,11 @@
 # Habituszonen als Grundlage — Arbeitsauftrag 30.09.2026
 
+**Abgeschlossenes Umsetzungspaket.** Nach Alpha.72 hat der Nutzer den nächsten
+Umfang auf reine Zonenerstellung, Darstellung und Dokumentation begrenzt.
+Vergleiche und weitere Module sollen ausgeblendet werden. Dafür gilt jetzt
+[HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md) / ADR-044; die folgende
+Chronik bleibt als Nachweis erhalten und ist kein Auftrag zum weiteren Modulausbau.
+
 Zeitfenster: bis 08:00 Europe/Berlin (06:00 UTC). Diese neue ausdrückliche
 Beauftragung ersetzt die abgelaufenen Zeitfenster, nicht historische Release-Belege.
 Arbeitsbranch: `feat/habitus-zone-setup`, Ausgang `e3e5dc2` / installierte Alpha.71.

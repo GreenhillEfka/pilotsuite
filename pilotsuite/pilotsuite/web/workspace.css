@@ -123,3 +123,26 @@
 .ps-zone-editing #zone-form{margin-top:12px;}
 .zone-member>details{grid-column:1/-1;}.zone-member>details>label{display:flex;align-items:center;gap:8px;margin:8px 0;}
 .zone-member>details>summary{cursor:pointer;padding:8px 0;}
+
+/* Foundation scope is enforced before enhancement too; no legacy flash/fallback. */
+body[data-ps-foundation] main>:not(#zone-overview):not(#zone-setup):not(.ps-page-heading):not(#ps-notice):not(#ps-cockpit):not(#ps-structure-documentation){display:none!important;}
+body[data-ps-foundation] [hidden],body[data-ps-foundation] #zone-toggle,body[data-ps-foundation] #zone-counts,body[data-ps-foundation] #zone-summary,body[data-ps-foundation] #zone-state-message,body[data-ps-foundation] #edit-status{display:none!important;}
+body[data-ps-foundation]:not(.ps-workspace-ready) main{visibility:hidden;}
+body[data-ps-foundation] .ps-brand{display:block;}body[data-ps-foundation] .ps-brand small{display:block;}
+#ps-cockpit>label{display:grid;gap:8px;margin:18px 0;max-width:420px;}
+.ps-structure-status{padding:16px;background:var(--ps-soft);border-radius:12px;font-weight:650;}
+.ps-structure-members{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin:20px 0;}
+.ps-structure-member{padding:16px;border:1px solid var(--ps-line);border-radius:12px;overflow-wrap:anywhere;}
+.ps-structure-member>code{display:block;font-size:.75rem;}.ps-structure-member>small{color:var(--ps-muted);}
+#ps-structure-documentation details{margin:18px 0;}#ps-structure-documentation summary{cursor:pointer;padding:10px 0;}
+#ps-structure-plan>button{margin:8px 8px 8px 0;}#ps-structure-plan:empty{display:none;}
+body[data-ps-foundation] .ps-sidebar-foot select{max-width:100%;}
+
+@media(max-width:800px){
+ body[data-ps-foundation] .ps-brand{display:none;}
+ body[data-ps-foundation] .ps-sidebar-foot{display:flex;align-items:center;gap:16px;padding:4px;margin:0;justify-content:center;}
+ body[data-ps-foundation] .ps-sidebar-foot select{min-height:36px;width:150px;}
+ body[data-ps-foundation] .ps-sidebar-foot a{font-size:.72rem;max-width:130px;}
+ body[data-ps-foundation] .ps-nav a{font-size:.72rem;min-height:44px;justify-content:center;}
+ body[data-ps-foundation] footer{padding-bottom:140px;}
+}

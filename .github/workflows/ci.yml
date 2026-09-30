@@ -106,42 +106,18 @@ jobs:
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_review_notes_browser.cjs
-      - name: Exercise review compass against the isolated actual application
-        env:
-          PILOTSUITE_SCREENSHOTS: ui-review
-        run: node scripts/test_review_compass_browser.cjs
-      - name: Exercise daily brief component with canonical-owner projections
+      - name: Exercise deferred daily brief as an isolated component
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_daily_brief_component.cjs
-      - name: Exercise daily brief against the isolated actual application
-        env:
-          PILOTSUITE_SCREENSHOTS: ui-review
-        run: node scripts/test_daily_brief_browser.cjs
-      - name: Exercise zone foundation against the isolated actual application
-        env:
-          PILOTSUITE_SCREENSHOTS: ui-review
-        run: node scripts/test_foundation_browser.cjs
       - name: Exercise maintenance, savepoints and rescue against disposable application
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
         run: node scripts/test_maintenance_browser.cjs
-      - name: Exercise modular workspace, configuration diff and safe navigation
+      - name: Exercise structural workspace, label adoption and fresh HA verification
         env:
           PILOTSUITE_SCREENSHOTS: ui-review
-        run: node scripts/test_workspace_browser.cjs
-      - name: Exercise inventory bindings, repair previews and confirmed name cleanup
-        env:
-          PILOTSUITE_SCREENSHOTS: ui-review
-        run: node scripts/test_organization_browser.cjs
-      - name: Exercise explicit live presence shadow and light proposals
-        env:
-          PILOTSUITE_SCREENSHOTS: ui-review
-        run: node scripts/test_presence_shadow_browser.cjs
-      - name: Exercise zone configurator, relevant histories and ontology plans
-        env:
-          PILOTSUITE_SCREENSHOTS: ui-review
-        run: node scripts/test_zone_instance_browser.cjs
+        run: node scripts/test_structure_browser.cjs
       - name: Save synthetic UI review screenshots
         if: always()
         uses: actions/upload-artifact@v4

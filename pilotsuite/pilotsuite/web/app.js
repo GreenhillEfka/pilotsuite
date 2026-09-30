@@ -1,4 +1,8 @@
 const byId = (id) => document.getElementById(id);
+const structureOnly = document.body.dataset.psFoundation === 'true';
+let structureData = null, zoneStructures = {}, zoneAreaNames = {};
+const zoneListPath = structureOnly ? 'api/v1/zones?structure=1' : 'api/v1/zones';
+function rememberStructureList(data){if(data.structure)zoneStructures=data.structure;if(data.areas)zoneAreaNames=Object.fromEntries(data.areas.map(a=>[a.area_id,a.name||a.area_id]));}
 const endpoint = (path) => new URL(path.replace(/^\//, ""), window.location.href).toString();
 
 async function json(path, options = {}) {
@@ -136,7 +140,7 @@ async function load({background = false} = {}) {
   byId("error").hidden = true;
   const [status, suggestions] = await Promise.all([
     json("api/v1/status"),
-    json("api/v1/suggestions"),
+    structureOnly ? Promise.resolve({items:[]}) : json("api/v1/suggestions"),
   ]);
   renderStatus(status);
   dashboardSuggestions = suggestions.items;
@@ -145,15 +149,18 @@ async function load({background = false} = {}) {
     try { await reloadZones(); }
     catch (error) { selectionInitialized = false; throw error; }
   } else {
-    const data = await json('api/v1/zones');
-    zoneDefinitions = data.items; zoneResults = data.results || [];
+    const data = await json(zoneListPath);
+    rememberStructureList(data); zoneDefinitions = data.items; zoneResults = data.results || [];
   }
-  if (!contextEditing && !selectionBusy && selectionZone) await loadContext({background});
+  if (!contextEditing && !selectionBusy && !zoneFormOpen && selectionZone) {
+    if(structureOnly)structureData=await json(`api/v1/zones/${encodeURIComponent(selectionZone)}/structure`);
+    else await loadContext({background});
+  }
   if (!background) { renderedZoneKey = null; renderZoneView(); }
   else {
     const zone = zoneDefinitions.find(z => z.zone_id === selectionZone);
     const result = zoneResults.find(z => z.zone_id === selectionZone);
-    const key = JSON.stringify([zone, result, dashboardSuggestions.filter(item => item.scope?.includes(selectionZone)), selectionDraft?.dirty]);
+    const key = JSON.stringify([zone, structureOnly ? structureData : result, dashboardSuggestions.filter(item => item.scope?.includes(selectionZone)), selectionDraft?.dirty]);
     if (key !== renderedZoneKey) keepReadingPosition(() => renderZoneView());
     renderedZoneKey = key;
   }
@@ -173,7 +180,7 @@ async function refresh() {
     byId("error").hidden = false;
   } finally {
     button.disabled = false;
-    button.textContent = "Jetzt abgleichen";
+    button.textContent = structureOnly ? 'Bestand aktualisieren' : "Jetzt abgleichen";
   }
 }
 
@@ -216,6 +223,7 @@ function selectionControls() {
 function renderSelection() {
   document.body.classList.toggle('ps-zone-editing', zoneFormOpen);
   selectionControls();
+  if(structureOnly)return;
   const root = byId('selection-rows');
   root.replaceChildren();
   if (!selectionDraft) return;
@@ -270,8 +278,9 @@ async function loadSelection(zone) {
   const zoneChanged = selectionZone !== zone;
   selectionBusy = true; selectionZone = zone;
   // A same-zone reload is also a new basis check, even while inventory is pending.
-  invalidateDailyBrief('Alltagsbrief wird für die ausgewählte Zone geladen …');
-  if (zoneChanged) {
+  if(!structureOnly)invalidateDailyBrief('Alltagsbrief wird für die ausgewählte Zone geladen …');
+  if(structureOnly)structureData=null;
+  if (zoneChanged && !structureOnly) {
     contextData = null;
     byId('learning-export').removeAttribute('href');
     routineComparison = null;
@@ -284,10 +293,11 @@ async function loadSelection(zone) {
   try {
     const inventory = await json(`api/v1/selections/${encodeURIComponent(zone)}`);
     selectionDraft = new SelectionDraft(inventory); selectionConflict = false;
-    await loadContext();
+    if(structureOnly)structureData=await json(`api/v1/zones/${encodeURIComponent(zone)}/structure`);
+    else await loadContext();
     text('selection-message', `${inventory.resolved ? 'Inventar geladen' : 'Zone derzeit nicht aufgelöst'} · Revision ${inventory.revision}. ${inventory.enabled === false ? 'Zone ist deaktiviert. ' : ''}Ungeprüft ist nicht gleich ignoriert.`);
   } catch (error) {
-    if (zone === selectionZone) invalidateDailyBrief('Alltagsbrief nicht verfügbar. Auswahl neu laden.');
+    if (!structureOnly && zone === selectionZone) invalidateDailyBrief('Alltagsbrief nicht verfügbar. Auswahl neu laden.');
     // Do not display one zone's data under another zone's label.
     if (selectionDraft?.inventory.zone_id !== zone) selectionDraft = null;
     if (!contextData) {
@@ -329,8 +339,8 @@ window.addEventListener('beforeunload', event => {
 });
 
 async function reloadZones(preferred = selectionZone) {
-  const data = await json('api/v1/zones');
-  zoneDefinitions = data.items; zoneResults = data.results || [];
+  const data = await json(zoneListPath);
+  rememberStructureList(data); zoneDefinitions = data.items; zoneResults = data.results || [];
   byId('selection-zone').replaceChildren(...zoneDefinitions.map(zone => {
     const option = document.createElement('option'); option.value = zone.zone_id;
     option.textContent = zone.name + (zone.enabled ? '' : ' (deaktiviert)'); return option;
@@ -356,7 +366,7 @@ async function openZoneEditor(existing) {
   zoneFormOpen = true; byId('zone-editor').open = true; renderSelection();
   zoneSetupEpoch++;
   try {
-    const [areas, catalog, zones, savedStructure] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json('api/v1/zones'),
+    const [areas, catalog, zones, savedStructure] = await Promise.all([json('api/v1/areas'), json('api/v1/entity-catalog'), json(zoneListPath),
       existing ? json('api/v1/zones/'+encodeURIComponent(selectionZone)+'/structure') : null]);
     zoneEditing = existing ? zones.items.find(z => z.zone_id === selectionZone) : null;
     if (existing && !zoneEditing) throw new Error('Zone nicht mehr vorhanden. Neu laden.');
@@ -375,6 +385,7 @@ async function openZoneEditor(existing) {
     }) : [];
     byId('zone-label-name').value = structure?.label_name || zone.name;
     byId('zone-label-name').disabled = !!zoneBoundLabel;
+    if(structureOnly){const controls=byId('zone-label-name').closest('.selection-tools');controls.hidden=!!zoneBoundLabel;controls.nextElementSibling.hidden=!!zoneBoundLabel;}
     byId('zone-label-new').disabled = !!structure?.label_id;
     byId('zone-label-select').replaceChildren(new Option(structure?.label_id || 'Noch nicht verbunden', structure?.label_id || ''));
     byId('zone-label-select').disabled = true; byId('zone-label-import').disabled = true;
@@ -396,6 +407,7 @@ async function openZoneEditor(existing) {
     text('zone-form-title', existing ? 'Zone bearbeiten' : 'Neue Zone');
     text('zone-message', 'Zusätzliche Entitäten: bis zu 600 Treffer sichtbar. Suche eingrenzen; ausgewählte Einträge bleiben erhalten.');
     byId('zone-form').hidden = false; byId('zone-name').focus();
+    if(structureOnly)byId('zone-label-load').click();
   } catch (error) { zoneFormOpen = false; text('zone-message', error.message); renderSelection(); }
 }
 byId('zone-new').addEventListener('click', () => openZoneEditor(false));
@@ -429,6 +441,7 @@ function renderZoneMembers() {
         disabled:'Gespeicherte Entität deaktiviert; keinen Ersatz anlegen.',
         identity_unresolved:'Gespeicherte Identität fehlt oder ist uneindeutig; Bestand prüfen.'}[row.identity_status];
       if(identityNote)note+=` · Zuordnung beim Öffnen: ${identityNote}`;
+      if(row.device_habitus_roles?.length)note+=` · Rollen vom Gerät geerbt: ${row.device_habitus_roles.join(', ')}`;
       detail.textContent=`${row.entity_id} · ${note}${row.membership_source==='device'?' · vom Gerät':''}${unavailable?' · nicht auswählbar':''}`;
     };updateDetail();
     const relevantLabel=document.createElement('label'),relevant=document.createElement('input');relevant.type='checkbox';
@@ -442,6 +455,7 @@ function renderZoneMembers() {
       relevant.disabled=!member.checked || isAnchor() || unavailable;
     });
     relevant.addEventListener('change',()=>{zoneSetupDraft.relevant_entity_ids=zoneSetupDraft.relevant_entity_ids.filter(id=>id!==row.entity_id);if(relevant.checked)zoneSetupDraft.relevant_entity_ids.push(row.entity_id);});
+    relevantLabel.hidden=structureOnly;
     line.append(memberLabel,detail,relevantLabel);
     if(zoneRoleChoices.length){
       const roles=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Darstellung im Habitus-Dashboard';roles.append(summary);
@@ -463,11 +477,19 @@ function renderZoneMembers() {
     host.append(line);
   }
 }
+function renderZoneLabelControls(){
+  const pending=zoneLabelBusy||zoneSaving;
+  byId('zone-label-load').disabled=pending;
+  byId('zone-label-new').disabled=pending||!!zoneBoundLabel;
+  byId('zone-candidates-import').disabled=pending;
+  byId('zone-form').querySelector('button[type=submit]').disabled=pending;
+}
 byId('zone-member-search').addEventListener('input',renderZoneMembers);
 byId('zone-label-load').addEventListener('click',async()=>{
-  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-load').disabled=true;
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;renderZoneLabelControls();byId('zone-label-load').disabled=true;
   const epoch=zoneSetupEpoch;
   try {
+    if(structureOnly)await json('api/v1/refresh',{method:'POST',body:'{}'});
     const result=await json('api/v1/zone-labels');
     if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
     zoneRoleChoices=result.roles||[];renderZoneMembers();
@@ -485,15 +507,17 @@ byId('zone-label-load').addEventListener('click',async()=>{
       text('zone-label-message','Label wählen und Mitglieder prüfen. Bestehende Eingaben bleiben bis zur Übernahme erhalten.');
     }
   } catch(error){text('zone-label-message',error.message);}
-  finally {zoneLabelBusy=false;byId('zone-label-load').disabled=false;}
+  finally {zoneLabelBusy=false;renderZoneLabelControls();byId('zone-label-load').disabled=false;}
 });
 byId('zone-label-select').addEventListener('change',()=>{byId('zone-label-import').disabled=!byId('zone-label-select').value;});
 byId('zone-label-import').addEventListener('click',async()=>{
-  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;byId('zone-label-import').disabled=true;
+  if(zoneLabelBusy || zoneSaving)return;zoneLabelBusy=true;renderZoneLabelControls();byId('zone-label-import').disabled=true;
   const epoch=zoneSetupEpoch,select=byId('zone-label-select'),selectionWasDisabled=select.disabled;
   select.disabled=true;
   try {
-    const chosen=select.value,result=await json('api/v1/zone-labels/'+encodeURIComponent(chosen));
+    const chosen=select.value;
+    if(structureOnly)await json('api/v1/refresh',{method:'POST',body:'{}'});
+    const result=await json('api/v1/zone-labels/'+encodeURIComponent(chosen));
     if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
     const old=zoneSetupDraft&&(zoneSetupDraft.label_id===chosen||zoneSetupDraft.label_id===null)?zoneSetupDraft:null;
     const rows=new Map((old?zoneSetupRows:[]).map(r=>[r.entity_id,{...r,label_observation:'missing'}]));
@@ -504,9 +528,9 @@ byId('zone-label-import').addEventListener('click',async()=>{
       roles:Object.fromEntries(zoneSetupRows.map(row=>[row.entity_id,[...(old?.roles?.[row.entity_id]||row.habitus_roles||[])]]))};
     if(!byId('zone-name').value.trim())byId('zone-name').value=result.name;
     renderZoneMembers();
-    text('zone-label-message',`${result.members.length} Mitglieder eingelesen. Bisherige Auswahl und Rollen bleiben erhalten; neue Mitglieder werden nur vorgeschlagen. Abweichungen stehen an den Einträgen. Quellen für die Auswertung gezielt anhaken. Speichern ändert keine HA-Labels.`);
+    text('zone-label-message',`${result.members.length} Mitglieder eingelesen. Bisherige Auswahl und Rollen bleiben erhalten; neue Mitglieder werden nur vorgeschlagen. Abweichungen stehen an den Einträgen. ${structureOnly ? '' : 'Quellen für die Auswertung gezielt anhaken. '}Speichern ändert keine HA-Labels.`);
   } catch(error){text('zone-label-message',error.message);}
-  finally {zoneLabelBusy=false;if(epoch===zoneSetupEpoch){select.disabled=selectionWasDisabled;byId('zone-label-import').disabled=!select.value;}}
+  finally {zoneLabelBusy=false;renderZoneLabelControls();if(epoch===zoneSetupEpoch){select.disabled=selectionWasDisabled;byId('zone-label-import').disabled=!select.value;}}
 });
 byId('zone-label-new').addEventListener('click',()=>{
   if(zoneLabelBusy || zoneSaving)return;
@@ -522,9 +546,10 @@ byId('zone-label-new').addEventListener('click',()=>{
 byId('zone-candidates-import').addEventListener('click',async()=>{
   if(zoneLabelBusy || zoneSaving)return;
   if(!zoneSetupDraft){text('zone-label-message','Zuerst ein bestehendes Zonenlabel übernehmen oder ein neues Label planen.');return;}
-  zoneLabelBusy=true;byId('zone-candidates-import').disabled=true;
+  zoneLabelBusy=true;renderZoneLabelControls();byId('zone-candidates-import').disabled=true;
   const epoch=zoneSetupEpoch;
   try {
+    if(structureOnly)await json('api/v1/refresh',{method:'POST',body:'{}'});
     const result=await json('api/v1/zone-candidates',{method:'POST',body:JSON.stringify({
       area_ids:[...byId('zone-areas').querySelectorAll('input:checked')].map(i=>i.value),entity_ids:[...zoneExtraSelection]})});
     if(!zoneFormOpen || epoch!==zoneSetupEpoch)return;
@@ -537,7 +562,7 @@ byId('zone-candidates-import').addEventListener('click',async()=>{
     for(const row of result.members)if(!zoneSetupDraft.roles[row.entity_id])zoneSetupDraft.roles[row.entity_id]=row.habitus_roles||[];
     renderZoneMembers();text('zone-label-message',`${result.members.length} Kandidaten eingelesen. Bisherige Auswahl, Abwahl und Rollen bleiben erhalten. Neue Quellen werden nicht automatisch für die Auswertung aktiviert.`);
   }catch(error){text('zone-label-message',error.message);}
-  finally{zoneLabelBusy=false;byId('zone-candidates-import').disabled=false;}
+  finally{zoneLabelBusy=false;renderZoneLabelControls();byId('zone-candidates-import').disabled=false;}
 });
 byId('zone-cancel').addEventListener('click', () => {
   if (zoneSaving) return;
@@ -551,10 +576,13 @@ byId('zone-form').addEventListener('submit', async event => {
   zoneSaving = true; byId('zone-fields').disabled = true;
   try {
     const payload = {definition}; if (zoneEditing) payload.revision = zoneEditing.revision;
-    if(zoneSetupDraft)payload.setup={...zoneSetupDraft,roles:Object.fromEntries(Object.entries(zoneSetupDraft.roles).filter(([id])=>zoneSetupDraft.entity_ids.includes(id)))};
+    if(zoneSetupDraft){
+      payload.setup={...zoneSetupDraft,roles:Object.fromEntries(Object.entries(zoneSetupDraft.roles).filter(([id])=>zoneSetupDraft.entity_ids.includes(id)))};
+      if(structureOnly){delete payload.setup.relevant_entity_ids;payload.structure_only=true;}
+    }
     const saved = await json(`api/v1/zones${zoneEditing ? '/' + encodeURIComponent(zoneEditing.zone_id) : ''}`, {method: zoneEditing ? 'PATCH' : 'POST', body: JSON.stringify(payload)});
     zoneFormOpen = false; byId('zone-form').hidden = true;
-    text('zone-message', zoneSetupDraft ? 'Zone, Tag-Verbindung und Quellen gespeichert. Zonenlabels abgleichen, dann die Präsenz einrichten.' : 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
+    text('zone-message', structureOnly?'Zonenstruktur gespeichert. Unter Dokumentation den HA-Abgleich prüfen.':zoneSetupDraft ? 'Zone, Tag-Verbindung und Quellen gespeichert. Zonenlabels abgleichen, dann die Präsenz einrichten.' : 'Zone gespeichert. Jetzt die relevanten Entitäten prüfen.');
     await reloadZones(saved.zone_id); await load();
   } catch (error) { text('zone-message', error.status === 409 ? `${error.message} · Entwurf bleibt erhalten. Aktuellen Bestand prüfen, bevor du erneut speicherst.` : error.message); }
   finally { zoneSaving = false; byId('zone-fields').disabled = false; renderSelection(); }
@@ -583,7 +611,7 @@ function renderZoneTabs() {
     button.id = `tab-${zone.zone_id}`;
     button.tabIndex = zone.zone_id === selectionZone ? 0 : -1;
     button.setAttribute('role', 'tab'); button.setAttribute('aria-selected', String(zone.zone_id === selectionZone));
-    button.textContent = `${zone.name}${zone.enabled ? '' : ' · pausiert'}`;
+    button.textContent = structureOnly ? zone.name : `${zone.name}${zone.enabled ? '' : ' · pausiert'}`;
     button.disabled = locked;
     button.addEventListener('click', async () => {
       byId('selection-search').value = ''; byId('selection-filter').value = 'all';
@@ -606,6 +634,10 @@ function renderZoneTabs() {
 }
 
 function renderZoneView() {
+  if(structureOnly){
+    text('active-zone-name',zoneDefinitions.find(z=>z.zone_id===selectionZone)?.name||'Neue Zone anlegen');
+    renderZoneTabs();return;
+  }
   const zone = zoneDefinitions.find(z => z.zone_id === selectionZone);
   const result = zoneResults.find(z => z.zone_id === selectionZone);
   text('active-zone-name', zone?.name || 'Noch keine Zone');
@@ -628,7 +660,7 @@ byId('zone-toggle').addEventListener('click', async () => {
   zoneToggleBusy = true; selectionBusy = true; renderSelection();
   try {
     // Definitions and selections share a revision; fetch it after the latest selection save.
-    const fresh = await json('api/v1/zones');
+    const fresh = await json(zoneListPath);
     const zone = fresh.items.find(z => z.zone_id === selectionZone);
     if (!zone) throw new Error('Zone nicht mehr vorhanden. Bitte neu laden.');
     const {name, area_ids, extra_entity_ids, profile} = zone;

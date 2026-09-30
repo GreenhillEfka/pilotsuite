@@ -103,9 +103,12 @@ class ZoneStore:
                     if old_member and old_member['identity'] != member['identity']:
                         raise SelectionConflict('Mitglied wurde ersetzt; Identität vor erneuter Zuordnung klären: ' + eid)
                 decisions = self.selections._read(db, zone_id)['decisions']
-                changes = {eid: 'relevant' if eid in (relevant or []) else 'ignored'
-                           for eid in setup['members']}
-                changes.update({eid: 'ignored' for eid in (before or {}).get('members', {}) if eid not in setup['members']})
+                if relevant is None:
+                    # Structural editing preserves all earlier analysis choices.
+                    changes = {eid: 'ignored' for eid in setup['members'] if eid not in decisions}
+                else:
+                    changes = {eid: 'relevant' if eid in relevant else 'ignored' for eid in setup['members']}
+                    changes.update({eid: 'ignored' for eid in (before or {}).get('members', {}) if eid not in setup['members']})
                 delta = {eid: value for eid, value in changes.items() if decisions.get(eid, 'unreviewed') != value}
                 if previous == definition and before == setup and not delta:
                     return dict(zone_id=zone_id, revision=revision, **definition)
