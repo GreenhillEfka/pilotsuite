@@ -39,25 +39,32 @@ verwendet zonale Favoriten und behält bei ausgeschalteter Tageszeit-Automatik
 die letzte manuelle Lautstärke. Eine Zuordnung hier aktiviert nichts.
 
 Der angemeldete PilotSuite-Abgleich vom 04.10.2026 hat Gangbereich und
-Eingangsbereich ergänzt. Für Erdkellerbereich, Gangbereich, Wohnbereich und
-Eingangsbereich sind die geprüften, lesenden Referenzen gespeichert und frisch
-gegen HA abgeglichen. Nur Eingangsbereich meldet eine vollständig passende
-Struktur. Bei Erdkellerbereich, Gangbereich und Wohnbereich bleiben zusätzliche,
+Eingangsbereich ergänzt. Für alle sechs Zonen sind die geprüften, lesenden
+Referenzen gespeichert und frisch aus der Anwendung gelesen. Nur Eingangsbereich
+meldet eine vollständig passende HA-Struktur. Bei Erdkellerbereich,
+Gangbereich und Wohnbereich bleiben zusätzliche,
 vorwiegend deaktivierte HA-Labelmitglieder als Abweichung sichtbar. Die 234
 ausgewählten Gangbereich-Mitglieder wurden aus 294 Vorschlägen kuratiert; die
 übrigen 60 wurden nicht still für Analyse oder Steuerung freigegeben.
 
+Alpha.77 wurde nach PR #161 und exakter CI installiert. Der authentifizierte
+Ingress zeigte die acht geprüften Verknüpfungen je Bad, Gang, Küche und Wohnen
+sowie drei Licht-/Shutdown-Verknüpfungen für Erdkeller und zwei für Eingang.
 Kochbereich behält 419 alte Mitglieder, darunter mindestens eine nach der
 Massenumbenennung ersetzte Identität. Ein normaler Struktur-Save wurde zu Recht
-abgelehnt. Alpha.77 bereitet einen revisionsgebundenen **Link-only-Save** vor:
-Er ändert nur validierte HA-Referenzen und erhält Mitglieder, Rollen und
-Auswertungsentscheidungen unverändert. Die alten Identitäten benötigen danach
-eine gesonderte, belegte Migration. Badbereichs Label hat 858 Mitglieder;
-ein Vollimport überschreitet die 500er Grenze. Alpha.77 bereitet deshalb eine
-gezielte Vorauswahl bereits gelabelter Mitglieder aus Bad und Toilette vor.
-Weitere Labelmitglieder bleiben im Abgleich sichtbar, auch wenn sie nicht in
-die Zone übernommen werden. Beide Wege müssen nach Auslieferung real geprüft
-werden; bis dahin ist für diese Zonen keine vollständige Übernahme behauptet.
+abgelehnt. Der revisionsgebundene **Link-only-Save** speicherte dort nur die acht
+validierten HA-Referenzen; Mitglieder, Rollen und Auswertungsentscheidungen
+blieben unverändert. Die alten Identitäten benötigen eine gesonderte, belegte
+Migration.
+
+Badbereichs Label lieferte 858 Kandidaten im HA-Bestand und überschritt die
+500er Vollimportgrenze. Der bereichsgebundene Import aus Bad und Toilette zeigte
+281 Kandidaten; 145 aktiv wählbare Mitglieder wurden mit ihren vorhandenen
+HA-Darstellungsrollen gespeichert. Die acht realen Licht-/Sonos-Verknüpfungen
+sind ebenfalls gespeichert und frisch lesbar. Der HA-Abgleich meldet weiterhin
+zusätzliche Labelmitglieder außerhalb dieses bewusst engeren Bereichs. Weder
+das breite Label noch die Küchen-Renames dürfen als vollständige strukturelle
+Synchronisierung oder als übernommene Geräteautomatik dargestellt werden.
 
 Diese sechs Zonen sind eine **Momentaufnahme und Referenz**, keine feste
 Anzahlgrenze. Neue Zonen aus aktuellem HA- und PilotSuite-Bestand entdecken,
