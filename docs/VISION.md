@@ -14,8 +14,8 @@ stabile Identitäten und die bestehenden Speicher bleiben erhalten.
 
 Verbindlicher nächster Umfang und Abnahme:
 [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md), ADR-044.
-Alpha.73 setzt diese Richtung um und ist nach geprüfter Auslieferung installiert. Reale strukturelle Zonenabnahme ist ausdrücklich beauftragt
-und benötigt die angemeldete Prüfung der tatsächlichen Zuordnungen. Aktive Lichtsteuerung bleibt offen. Erst nach tragfähiger Struktur folgen Präsenz/Helfer, dann Licht und später
+Alpha.76 setzt diese Richtung um und ist nach geprüfter Auslieferung installiert. Reale strukturelle Zonenabnahme ist ausdrücklich beauftragt
+und läuft über den angemeldeten Abgleich der tatsächlichen Zuordnungen. Aktive Lichtsteuerung bleibt offen. Erst nach tragfähiger Struktur folgen Präsenz/Helfer, dann Licht und später
 Klima, Multimedia und Mustererkennung.
 
 HA-Bestandsabgleich vom 04.10.2026: sechs öffentliche Habituszonen-Anker sind
@@ -23,8 +23,9 @@ vorhanden; weitere Zonen sollen ohne feste Anzahl ergänzt werden können. Jede 
 sechs HA-Zonen besitzt eine Lichtgruppe mit vorhandener Lichtautomatik-Freigabe.
 Vier Zonen (Bad, Gang, Küche, Wohnen) besitzen außerdem eine optionale
 präsenzgeführte Sonos-Sound-Cloud-Kopplung. Das sind HA-eigene Funktionen, keine
-PilotSuite-Licht-/Medienmodule und kein Beleg für bereits synchronisierte
-PilotSuite-Zonen. Die spätere Einbindung nutzt denselben geklärten Zonen- und
+PilotSuite-Licht-/Medienmodule. PilotSuite kann diese vorhandenen Beziehungen
+identitätsgeprüft dokumentieren; die bisher gespeicherten Zonen sind überwiegend
+noch nicht vollständig mit den breiten HA-Labels abgeglichen. Die spätere Einbindung nutzt denselben geklärten Zonen- und
 Präsenzbezug, ohne eine konkurrierende Licht- oder Sound-Engine zu bauen.
 
 ## Nachgelagerte Vision und bestehende fachliche Grundlagen

@@ -1,6 +1,46 @@
-# Current state — Alpha.75 installed; Alpha.76 cache fix in development
+# Current state — Alpha.76 installed; Alpha.77 structural adoption support in development
 
-## Alpha.76 local candidate — not yet published or installed
+Alpha.76 is installed after PR #160, exact candidate/main CI
+37171634810/37172229997, fresh PilotSuite-only backup `4c016987` of
+Alpha.75, and one targeted update. The authenticated Ingress editor now offers
+populated light and Sound-Cloud selectors. Four app options stayed unchanged.
+Runtime is ready, stream-connected and fresh. A current Supervisor log after
+the zone mapping corrections reports `zone_resolved=True`; the earlier false
+state is retained below as historical evidence. The source is main
+`2941659e577700562202c2dea5c4a121ddd6703b`, tree
+`00bc9af0ebbd2889fb7a161ce0d00884e86488f7`, app tree
+`483191fc4b8e699c6f307885fe906ee5c6f8b992`. This is a
+repository/version/app-tree association, not installed-image attestation.
+
+## Six HA reference zones — actual PilotSuite status, 04.10.2026
+
+Home Assistant currently has six public `habitus_zone` anchors. The count is
+observed, not a PilotSuite limit. In authenticated PilotSuite Ingress, the
+following **structural, non-actuating** work has been saved and read back:
+
+| Zone | Saved PilotSuite structure and reference links | Fresh HA structure check |
+| --- | --- | --- |
+| Erdkellerbereich | Two areas, 67 selected stable members, label and three light/shutdown links | Deviations: 60 extra HA-label members, chiefly disabled/technical |
+| Gangbereich | Gang and Speisekammer, 234 selected stable members, label and eight light/Sonos links | Deviations: 60 extra HA-label members, chiefly disabled/technical |
+| Wohnbereich | Stale `wohnimmer` area removed; Wohnzimmer, 263 selected members, label and eight light/Sonos links | Deviations: three extra disabled HA-label members |
+| Eingangsbereich | Flur, Hintereingang, Vordereingang and Vorraum, 64 selected members, label and two light/shutdown links | **Structure matches HA** |
+| Kochbereich | Existing 419-member structure retained; link save blocked by renamed member identity | Not accepted; do not bulk replace members |
+| Badbereich | Existing areas Bad and Toilette retained; its HA label has 858 members | Not accepted; full-label import exceeds the 500-member limit |
+
+New Alpha.77 work uses the same store and revision checks to save only validated
+read-only HA links without touching conflicting members, and offers a labelled
+area subset when a label is too large for full import. Both routes remain
+local/synthetic until exact CI, scoped backup, deployment and real Ingress
+readback. The four saved zones above are structural records, not proof of
+physical light/Sonos operation, active PilotSuite control or household acceptance.
+No household device was switched or played for this check. The existing HA
+light and native Sonos Sound-Cloud controllers remain authoritative; no second
+engine has been added. More zones must be discovered from current HA/PilotSuite
+records, never from a hard-coded six-zone list.
+
+## Historical Alpha.75/Alpha.76 preparation checkpoint
+
+### At that checkpoint, Alpha.76 was a local candidate
 
 Alpha.75's source passed all five jobs in PR #159 (candidate CI 37170519075)
 and on merged main `5a1fdcf6a693c399e8424c15a540f804ceb43421`

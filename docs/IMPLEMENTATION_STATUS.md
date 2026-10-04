@@ -1,4 +1,17 @@
-# PilotSuite capability ledger — Alpha.75 installed, Alpha.76 under review
+# PilotSuite capability ledger — Alpha.76 installed, Alpha.77 under review
+
+Alpha.76 fixes the mixed cached editor assets. PR #160 and exact candidate/main
+CI passed all five jobs; fresh scoped backup `4c016987` preceded one app update.
+The authenticated real Ingress editor then showed populated reference selectors.
+Four saved HA reference mappings were created/read back; only Eingangsbereich's
+structure currently matches HA without deviations. Kochbereich's renamed
+member identity and Badbereich's 858-member label are still open. Alpha.77's
+local implementation adds revision-bound link-only saving and a curated
+already-labelled area import for these cases. It does not execute HA controls,
+automatically repair identities or grant analysis permission. Full test/CI,
+publication, backup, installation and real use of these new paths remain open.
+
+## Historical Alpha.75/76 checkpoint
 
 Alpha.75 records existing HA light groups, light opt-ins, shutdown scripts and
 native Sonos Sound-Cloud relationships by stable identity without adopting

@@ -11,6 +11,47 @@ from pilotsuite.core.zone_structure import KEY
 
 
 class ZoneStructureTests(unittest.IsolatedAsyncioTestCase):
+    async def test_link_only_patch_preserves_renamed_members_and_ignores_form_definition(self):
+        zone = await (await self.save()).json()
+        zid = zone['zone_id']
+        before = await self.s.context.get(zid)
+        decisions = (await self.s.selections.get(zid))['decisions']
+        self.registry['sensor.temperature']['unique_id'] = 'replacement'
+        self.world['entities'][0]['unique_id'] = 'replacement'
+        await self.s.world.replace(deepcopy(self.world))
+        normal = await self.http.patch(f'/api/v1/zones/{zid}', json={
+            'definition': self.definition, 'revision': zone['revision'], 'structure_only': True,
+            'setup': {'label_id': 'room', 'entity_ids': self.setup['entity_ids'],
+                      'ha_links': {'light_group': 'light.group'}}})
+        self.assertEqual(409, normal.status, await normal.text())
+        invalid = await self.http.patch(f'/api/v1/zones/{zid}', json={
+            'revision': zone['revision'], 'ha_links': {'light_group': 'sensor.temperature'}})
+        self.assertEqual(400, invalid.status, await invalid.text())
+        response = await self.http.patch(f'/api/v1/zones/{zid}', json={
+            'revision': zone['revision'], 'ha_links': {'light_group': 'light.group'}})
+        self.assertEqual(200, response.status, await response.text())
+        profile = (await self.s.context.get(zid))[KEY]
+        self.assertEqual(before[KEY]['members'], profile['members'])
+        self.assertEqual('light.group', profile['ha_links']['light_group']['entity_id'])
+        self.assertEqual(decisions, (await self.s.selections.get(zid))['decisions'])
+        self.assertEqual(409, (await self.http.patch(f'/api/v1/zones/{zid}', json={
+            'revision': zone['revision'], 'ha_links': {'light_group': 'light.group'}})).status)
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_oversized_label_can_import_labeled_area_subset_without_guessing_members(self):
+        self.world['entities'].extend(self.entity(f'sensor.extra_{i}', ['room'], area_id='b') for i in range(501))
+        self.world['entities'][0]['area_id'] = 'a'
+        await self.s.world.replace(deepcopy(self.world))
+        response = await self.http.get('/api/v1/zone-labels/room')
+        self.assertEqual(400, response.status)
+        selected = await self.http.post('/api/v1/zone-candidates', json={
+            'area_ids': ['a'], 'entity_ids': [], 'label_id': 'room'})
+        self.assertEqual(200, selected.status, await selected.text())
+        self.assertEqual(['sensor.temperature'], [row['entity_id'] for row in (await selected.json())['members']])
+        self.assertEqual(400, (await self.http.post('/api/v1/zone-candidates', json={
+            'area_ids': ['a'], 'entity_ids': [], 'label_id': []})).status)
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
     async def test_existing_light_and_sound_links_are_structural_only(self):
         extra = [self.entity('input_boolean.light_auto', []), self.entity('script.zone_shutdown', []),
                  self.entity('media_player.sonos', []), self.entity('input_boolean.sound_presence', []),

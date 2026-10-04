@@ -38,9 +38,29 @@ Controller gruppiert native Sonos-Player, beachtet opt-in und Besitzmarker,
 verwendet zonale Favoriten und behält bei ausgeschalteter Tageszeit-Automatik
 die letzte manuelle Lautstärke. Eine Zuordnung hier aktiviert nichts.
 
-PilotSuite zeigte beim angemeldeten Lesen vier gespeicherte Zonen; Gangbereich
-und Eingangsbereich fehlten. Vor Vollübernahme müssen bestehende Mitgliedschaften,
-physische Bereiche und Rollen gegen HA geprüft werden. Der Gangbereich-Labelimport
-schlug 294 Mitglieder einschließlich Konfigurationsentitäten und Automationen
-vor; das ist ein Prüfbestand, keine pauschale Freigabe. Zusätzliche Zonen sind
-offen vorgesehen und werden künftig aus HA und PilotSuite dynamisch ermittelt.
+Der angemeldete PilotSuite-Abgleich vom 04.10.2026 hat Gangbereich und
+Eingangsbereich ergänzt. Für Erdkellerbereich, Gangbereich, Wohnbereich und
+Eingangsbereich sind die geprüften, lesenden Referenzen gespeichert und frisch
+gegen HA abgeglichen. Nur Eingangsbereich meldet eine vollständig passende
+Struktur. Bei Erdkellerbereich, Gangbereich und Wohnbereich bleiben zusätzliche,
+vorwiegend deaktivierte HA-Labelmitglieder als Abweichung sichtbar. Die 234
+ausgewählten Gangbereich-Mitglieder wurden aus 294 Vorschlägen kuratiert; die
+übrigen 60 wurden nicht still für Analyse oder Steuerung freigegeben.
+
+Kochbereich behält 419 alte Mitglieder, darunter mindestens eine nach der
+Massenumbenennung ersetzte Identität. Ein normaler Struktur-Save wurde zu Recht
+abgelehnt. Alpha.77 bereitet einen revisionsgebundenen **Link-only-Save** vor:
+Er ändert nur validierte HA-Referenzen und erhält Mitglieder, Rollen und
+Auswertungsentscheidungen unverändert. Die alten Identitäten benötigen danach
+eine gesonderte, belegte Migration. Badbereichs Label hat 858 Mitglieder;
+ein Vollimport überschreitet die 500er Grenze. Alpha.77 bereitet deshalb eine
+gezielte Vorauswahl bereits gelabelter Mitglieder aus Bad und Toilette vor.
+Weitere Labelmitglieder bleiben im Abgleich sichtbar, auch wenn sie nicht in
+die Zone übernommen werden. Beide Wege müssen nach Auslieferung real geprüft
+werden; bis dahin ist für diese Zonen keine vollständige Übernahme behauptet.
+
+Diese sechs Zonen sind eine **Momentaufnahme und Referenz**, keine feste
+Anzahlgrenze. Neue Zonen aus aktuellem HA- und PilotSuite-Bestand entdecken,
+stabile Identitäten und Rollen einzeln prüfen und nur bestätigte Licht-/Sonos-
+Beziehungen dokumentieren. Eine Strukturzuordnung beweist weder Anwesenheit
+noch physische Licht- oder Musikwirkung und aktiviert keine PilotSuite-Steuerung.

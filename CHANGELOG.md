@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-alpha.77] - 2026-10-04
+
+- Bestehende Licht- und Sound-Cloud-Verknüpfungen können separat gespeichert werden, wenn alte Zonenmitglieder nach dem HA-Massen-Rename noch Identitätskonflikte haben. Das verändert weder Mitglieder noch HA-Geräte.
+- Große HA-Zonenlabels können gezielt über bereits gelabelte Mitglieder der gewählten Bereiche übernommen werden; der Vollimport bleibt begrenzt und übrige Labeltreffer erscheinen im Abgleich.
+
 ## [0.1.0-alpha.76] - 2026-10-04
 
 - Version the structural workspace assets and require revalidation of the editor

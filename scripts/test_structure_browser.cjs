@@ -84,6 +84,19 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   assert.equal(saved.mode,before.mode);assert.equal(saved.learning,before.learning);
   assert.deepEqual(saved.roles,before.roles);assert.deepEqual(saved.selections.decisions,before.selections.decisions);
   assert.equal(saved.metadata_calls,before.metadata_calls);
+  await openEditor();
+  assert.equal(await page.locator('#zone-links-save').isVisible(),true);
+  await page.locator('#zone-name').fill('Nicht als Strukturänderung speichern');
+  await page.locator('#zone-ha-links select[data-ha-link="light_group"]').selectOption('');
+  await page.locator('#zone-links-save').click();
+  await page.waitForFunction(()=>!zoneFormOpen && !zoneSaving && !selectionBusy);
+  assert.notEqual((await page.evaluate(()=>zoneDefinitions.find(z=>z.zone_id===selectionZone))).name,'Nicht als Strukturänderung speichern');
+  assert.equal((await command({action:'snapshot'})).metadata_calls,before.metadata_calls);
+  await openEditor();
+  assert.equal(await page.locator('#zone-ha-links select[data-ha-link="light_group"]').inputValue(),'');
+  await page.locator('#zone-ha-links select[data-ha-link="light_group"]').selectOption('light.demo');
+  await page.locator('#zone-links-save').click();
+  await page.waitForFunction(()=>!zoneFormOpen && !zoneSaving && !selectionBusy);
   await page.getByRole('link',{name:'Zonendokumentation',exact:true}).click();await page.locator('#ps-structure-verify').click();
   await page.waitForFunction(()=>document.getElementById('ps-structure-status').textContent==='Abweichungen in der Struktur');
   await page.locator('#ps-structure-sync').click();await page.getByRole('button',{name:'Genau diese Labels abgleichen',exact:true}).waitFor();
@@ -120,6 +133,26 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('#ps-structure-verify').click();await page.waitForFunction(()=>document.getElementById('ps-structure-status').textContent==='HA-Prüfung nicht bestätigt');
 
   await page.unroute('**/structure?verify=1');await command({action:'member_identity',variant:'normal'});
+  const beforeOverflow=await command({action:'snapshot'});
+  await page.locator('#zone-new').click();await page.waitForFunction(()=>!zoneLabelBusy && zoneFormOpen);
+  await page.locator('#zone-label-select').selectOption('setup_demo');
+  await page.locator('#zone-areas input[value="room"]').check();
+  await page.route('**/api/v1/zone-labels/setup_demo',route=>route.fulfill({status:400,contentType:'application/json',
+    body:JSON.stringify({message:'Mehr als 500 Labelmitglieder; Label vor dem Import eingrenzen'})}),{times:1});
+  await page.locator('#zone-label-import').click();
+  await page.waitForFunction(()=>!zoneLabelBusy && zoneLabelOverflow);
+  assert.equal(await page.evaluate(()=>zoneSetupDraft.entity_ids.length),0);
+  await page.locator('#zone-candidates-import').click();
+  await page.waitForFunction(()=>!zoneLabelBusy && zoneSetupRows.length>0);
+  assert.equal(await page.evaluate(()=>zoneSetupRows.every(row=>row.label_observation==='present')),true);
+  const checkedBeforeRetry=await page.evaluate(()=>[...zoneSetupDraft.entity_ids]);
+  await page.route('**/api/v1/zone-labels/setup_demo',route=>route.fulfill({status:400,contentType:'application/json',
+    body:JSON.stringify({message:'Mehr als 500 Labelmitglieder; Label vor dem Import eingrenzen'})}),{times:1});
+  await page.locator('#zone-label-import').click();
+  await page.waitForFunction(()=>!zoneLabelBusy);
+  assert.deepEqual(await page.evaluate(()=>zoneSetupDraft.entity_ids),checkedBeforeRetry,'large-label retry preserves the curated draft');
+  assert.equal((await command({action:'snapshot'})).metadata_calls,beforeOverflow.metadata_calls);
+  await page.locator('#zone-cancel').click();
   await page.locator('#zone-new').click();await page.waitForFunction(()=>!zoneLabelBusy && zoneFormOpen);
   await page.locator('#zone-name').fill('Test Neue Zone');await page.locator('#zone-label-name').fill('Test Zonenlabel');
   await page.locator('#zone-extras').selectOption('binary_sensor.demo_motion');
