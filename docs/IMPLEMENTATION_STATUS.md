@@ -1,4 +1,16 @@
-# PilotSuite capability ledger — Alpha.73 installed
+# PilotSuite capability ledger — Alpha.74 installed
+
+Alpha.74 adds explained display-role defaults per entity from HA category, device
+class and type, preserving existing tags and saved/manual empty choices. No zone
+anchor or new authority is inferred. Installed after PR #157; exact candidate/main
+CI 36765700922 / 36766189903 passed all five jobs. Fresh scoped backup bc61e76f,
+one update, four options and runtime unchanged; ready/stream/fresh/resolved.
+735 Python, 77 JS, 68 API contracts, five CI browsers and seven native HA scenarios.
+Actual new desktop/mobile screenshots inspected. Requested preselection delivered;
+real authenticated structural adoption remains pending. RELEASE_STATE.json owns
+this receipt; historical details below do not override current scope.
+
+## Historical Alpha.73 foundation
 
 Alpha.73 installed on 30.09.2026 after PR #155, exact candidate/main CI
 (36698531500 / 36703236135), fresh scoped backup b510f891 and one targeted update.

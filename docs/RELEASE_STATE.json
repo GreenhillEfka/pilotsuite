@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.73",
-    "commit": "a620dafbeb472868d56d3cf5475dc3ec45b72ed1",
-    "tree": "3bc5ff3a1e07536ba1d872829f7fddece2140d8d",
-    "app_tree": "7cda002218b58062265520abb6dfe18ad1c04661",
-    "pull_request": 155,
-    "candidate_commit": "4312ec4073a2317c97a84d73d9f37138dde3293d",
-    "candidate_ci_run_id": 36698531500,
-    "ci_run_id": 36703236135,
+    "version": "0.1.0-alpha.74",
+    "commit": "43b4a8e2bd798a7b03a628a3f0c80b9f142a801d",
+    "tree": "2b685bd0aa8e6cf380da6d84b69c131121028c89",
+    "app_tree": "78572a69c0849179f50c4c4212f3dc15dfdd2ad8",
+    "pull_request": 157,
+    "candidate_commit": "998f00b6972d01cb0f8e6f6566587259376fc890",
+    "candidate_ci_run_id": 36765700922,
+    "ci_run_id": 36766189903,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.73",
-    "commit": "a620dafbeb472868d56d3cf5475dc3ec45b72ed1",
-    "tree": "3bc5ff3a1e07536ba1d872829f7fddece2140d8d",
-    "app_tree": "7cda002218b58062265520abb6dfe18ad1c04661",
-    "pull_request": 155,
-    "candidate_commit": "4312ec4073a2317c97a84d73d9f37138dde3293d",
-    "candidate_ci_run_id": 36698531500,
-    "ci_run_id": 36703236135,
+    "version": "0.1.0-alpha.74",
+    "commit": "43b4a8e2bd798a7b03a628a3f0c80b9f142a801d",
+    "tree": "2b685bd0aa8e6cf380da6d84b69c131121028c89",
+    "app_tree": "78572a69c0849179f50c4c4212f3dc15dfdd2ad8",
+    "pull_request": 157,
+    "candidate_commit": "998f00b6972d01cb0f8e6f6566587259376fc890",
+    "candidate_ci_run_id": 36765700922,
+    "ci_run_id": 36766189903,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "b510f891",
-    "name": "PilotSuite Alpha.72 before Alpha.73 2026-09-30 10:35 UTC",
-    "date": "2026-09-30T10:33:30.090729+00:00",
-    "size_bytes": 54558720,
-    "app_version": "0.1.0-alpha.72",
+    "backup_id": "bc61e76f",
+    "name": "PilotSuite Alpha.73 before Alpha.74 display role defaults 2026-09-30",
+    "date": "2026-09-30T19:25:07.164241+00:00",
+    "size_bytes": 54609920,
+    "app_version": "0.1.0-alpha.73",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -67,9 +67,9 @@
     "agent_error_keys_redacted": true
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.73",
-    "offered_version": "0.1.0-alpha.73",
-    "previous_version": "0.1.0-alpha.72",
+    "installed_version": "0.1.0-alpha.74",
+    "offered_version": "0.1.0-alpha.74",
+    "previous_version": "0.1.0-alpha.73",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -81,17 +81,17 @@
     "rebuild_calls": 0,
     "other_app_update_calls": 0,
     "source_association": "repository/version/app-tree; not independent installed-image attestation",
-    "verified_at_utc": "2026-09-30T10:36:55Z"
+    "verified_at_utc": "2026-09-30T19:33:27Z"
   },
   "runtime": {
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "startup_log_timestamp": "2026-09-30T12:36:44Z",
+    "startup_log_timestamp": "2026-09-30T21:33:14Z",
     "post_start_ready_log_timestamps": [
-      "2026-09-30T12:36:46Z",
-      "2026-09-30T12:38:17Z",
-      "2026-09-30T12:38:48Z"
+      "2026-09-30T21:33:16Z",
+      "2026-09-30T21:34:16Z",
+      "2026-09-30T21:34:47Z"
     ],
     "ready": true,
     "stream_connected": true,
@@ -110,7 +110,7 @@
     ]
   },
   "tests": {
-    "local_python_passed": 729,
+    "local_python_passed": 735,
     "local_javascript_passed": 77,
     "api_contracts": 68,
     "candidate_and_release_main_ci": "all five jobs successful on exact candidate and main release source",
@@ -119,12 +119,12 @@
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success; HA 2026.9.3, seven native scenarios in an isolated instance",
     "reproducible_source_checkout": "success",
-    "regressions": "Reduced routing and background queries, preserved structural edits and runtime/analysis decisions, fresh identity/role/area verification, inherited device roles and anchors, guarded async label loading, drafts/imports, metadata confirmation/readback, new labels, lost responses and restore. Concrete failures reproduced before fixes.",
+    "regressions": "Explained display defaults by registry category/device class/entity type, no guessed zone anchor, missing/disabled identities, independent entity/device role tags, manual and saved empty choices preserved across import/reopen, explicit reuse of defaults, and no metadata/control writes during suggestion. Missing frontend preselection reproduced red before the fix.",
     "historical_browser_scope": "Seven old full-product navigation suites are no longer current UI contracts; scripts remain for future module work. All backend/model/protocol coverage and selected isolated component suites remain."
   },
   "ui_review": {
-    "synthetic_browser": "All five current suites passed exact candidate and main CI. Actual fixture screenshots at 390/820/1440 in light/dark inspected; UI snapshots committed under docs/reviews/foundation-alpha73. This is not household acceptance.",
-    "authenticated_household_ingress": "Login form observed again after installation; authenticated PilotSuite still unavailable to this task. No auth bypass.",
+    "synthetic_browser": "Five current suites passed exact candidate and main CI. Extended structural browser passed locally. New actual screenshots at 1440 light and 390 dark inspected and committed in docs/reviews/roles-alpha74; existing foundation responsive checks remain. Not household acceptance.",
+    "authenticated_household_ingress": "Available HA browser tabs still show authentication URLs; no authenticated real zone acceptance. No access workaround.",
     "four_saved_zones_observed_after_update": false,
     "ingress_protection_weakened": false,
     "read_only_household_observation": {
@@ -132,7 +132,7 @@
       "scope": "Zone/role membership includes device inheritance. Actual PilotSuite saved bindings not observed. No HA metadata or control mutation.",
       "limitation": "Registry/template evidence does not prove real stored-zone synchronization or occupancy/control acceptance."
     },
-    "existing_client_reload": "An already-open Safari client still queried old module endpoints immediately after update; reload required for the new frontend. No real UI acceptance claimed."
+    "existing_client_reload": "Reload an already-open PilotSuite page to load the new frontend. No authenticated real UI acceptance claimed."
   },
   "boundaries": {
     "household_automation_changed": false,
@@ -148,19 +148,19 @@
   },
   "household_changes": [],
   "history": {
-    "previous_receipt_at": "1329be808dd8f15f334e7fef0754f98c9621b2e1:docs/RELEASE_STATE.json",
-    "integrated_pr": 155,
-    "integrated_commit": "a620dafbeb472868d56d3cf5475dc3ec45b72ed1"
+    "previous_receipt_at": "eba7aeba8721d5c85c778732704b69385f9e4dc5:docs/RELEASE_STATE.json",
+    "integrated_pr": 157,
+    "integrated_commit": "43b4a8e2bd798a7b03a628a3f0c80b9f142a801d"
   },
   "next_step": "User login/opening PilotSuite is pending. Then inspect all four saved zones and compare actual HA/PilotSuite areas/tags, stable members and Habitus roles, starting with Erdkellerbereich and one unlike zone. Apply only concrete confirmed structural differences through existing plans and independently reread before recording acceptance. Presence/helpers/control remain deferred.",
   "runtime_measurement": {
-    "scope": "No measured performance improvement claimed. Deferred frontend queries are removed in the current loaded shell; an old already-open client needs reload."
+    "scope": "No performance improvement claimed; this release changes explained display suggestions and preserves runtime behavior."
   },
   "workflow": {
-    "kind": "manual_structural_foundation_delivery_pr_155",
+    "kind": "manual_display_role_preselection_pr_157",
     "heartbeat": "PAUSED; the overnight assignment ended and was not restarted",
-    "requested_authority": "Autonomous development through real structural zone adoption; standing narrow backup-list exception explicitly accepted with ja immer. No household control handover.",
+    "requested_authority": "Add useful device-based Habitus dashboard display defaults within the commissioned structural setup; existing PilotSuite release authority and standing narrow local backup exception apply. No household control handover.",
     "household_binding_changed": false,
-    "phase": "Alpha.73 installed and healthy. Real structural adoption pending authenticated HA/PilotSuite session."
+    "phase": "Alpha.74 installed and healthy. Requested preselection delivered; real structural zone adoption still needs authenticated HA/PilotSuite access."
   }
 }

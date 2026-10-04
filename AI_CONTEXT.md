@@ -29,7 +29,7 @@ edit/enable/disable automations, activate outputs, transfer control or grant lea
 
 ## Current continuation
 
-Alpha.73 from PR #155 is installed and healthy, after exact candidate/main CI,
+Alpha.74 from PR #157 is installed and healthy, after exact candidate/main CI,
 fresh PilotSuite-only backup and one targeted update. CURRENT_STATE.md and
 RELEASE_STATE.json own the actual receipt and the narrow backup-list exception.
 The user answered “ja immer” to the narrow local-backup exception on 30 September;
@@ -46,7 +46,9 @@ The latest user direction after delivery supersedes that immediate expansion:
 reduce the visible product to creating, displaying and documenting Habitus zones.
 No comparisons, presence/light configuration, learning or automation workbench in
 the next UI. Read ADR-044 and docs/HABITUS_FOUNDATION_RESET.md before any next change.
-The reduced Alpha.73 flow is installed; authenticated real structural adoption is open.
+The reduced flow remains installed. Alpha.74 adds editable display-role defaults
+from HA category, device class and type; tags and saved/manual empty choices win.
+No guessed zone anchor or new analysis/control permission. Real structural adoption is open.
 Preserve existing data and owners; do not conflate hiding modules with stopping
 runtime outputs. The user now explicitly requests real structural zone acceptance/adoption.
 Inspect real saved bindings, confirm concrete metadata changes and verify fresh HA
