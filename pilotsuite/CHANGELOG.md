@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0-alpha.76] - 2026-10-04
+
+- Version the structural workspace assets and require revalidation of the editor
+  script after an app update. This prevents fresh zone markup from running with
+  an older cached script and leaving the new light/Sound-Cloud selectors empty.
+- Serve the main editor, selection, history and stylesheet assets with explicit
+  revalidation headers. No HA device control or zone assignment is changed.
+
 ## [0.1.0-alpha.75] - 2026-10-04
 
 - Document existing Home Assistant light groups, light opt-ins, shutdown actions,

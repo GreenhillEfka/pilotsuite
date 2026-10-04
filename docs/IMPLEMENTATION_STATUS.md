@@ -1,4 +1,16 @@
-# PilotSuite capability ledger — Alpha.74 installed
+# PilotSuite capability ledger — Alpha.75 installed, Alpha.76 under review
+
+Alpha.75 records existing HA light groups, light opt-ins, shutdown scripts and
+native Sonos Sound-Cloud relationships by stable identity without adopting
+their execution. PR #159 candidate/main CI passed all five jobs; fresh scoped
+backup `71ba105e` preceded the targeted update. The real Ingress editor then
+showed fresh markup with empty new selectors, consistent with a cached old
+editor script. Alpha.76 adds versioned asset URLs and no-cache revalidation.
+Local Python, JavaScript, contract and structural browser checks pass. Exact
+Alpha.76 CI, backup and installed browser readback remain open. No household
+zone metadata or device control has been changed by this release work.
+
+## Historical Alpha.74 display defaults
 
 Alpha.74 adds explained display-role defaults per entity from HA category, device
 class and type, preserving existing tags and saved/manual empty choices. No zone
