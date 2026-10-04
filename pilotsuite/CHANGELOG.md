@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-alpha.77] - 2026-10-04
+
+- Separate, revisionsgeschützte Speicherung geprüfter HA-Licht- und Sound-Cloud-Beziehungen bei alten Mitgliederkonflikten.
+- Gezielter Bereichsimport für übergroße HA-Labels ohne stilles Übernehmen anderer Bereiche.
+
 ## [0.1.0-alpha.76] - 2026-10-04
 
 - Version the structural workspace assets and require revalidation of the editor

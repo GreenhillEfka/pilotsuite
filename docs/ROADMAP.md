@@ -4,8 +4,8 @@
 
 Der Nutzer ersetzt den bisherigen Ausbaukurs durch einen strukturellen Neustart:
 nur Zonen erstellen, darstellen und dokumentieren. Alle Vergleiche und weiteren
-Module sind in Alpha.73 aus der Oberfläche entfernt. Die Version ist installiert; reale
-strukturelle Abnahme ist ausdrücklich beauftragt und noch wegen fehlender Anmeldung offen. Verbindlicher Umfang: [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md)
+Module sind seit Alpha.73 aus der Oberfläche entfernt. Alpha.76 ist installiert;
+die reale strukturelle Abnahme läuft im angemeldeten Ingress. Verbindlicher Umfang: [HABITUS_FOUNDATION_RESET.md](HABITUS_FOUNDATION_RESET.md)
 und ADR-044/045. Den Auslieferungsnachweis führt RELEASE_STATE.json.
 
 1. **Oberfläche reduzieren:** vorhandenen Router und Editoren auf Zonenübersicht,
@@ -21,8 +21,12 @@ und ADR-044/045. Den Auslieferungsnachweis führt RELEASE_STATE.json.
    Medien und Mustererkennung bleiben später.
 
 Standabgleich 04.10.2026: HA weist sechs öffentliche Habituszonen-Anker aus und
-weitere werden folgen. In der angemeldeten PilotSuite-Oberfläche sind derzeit
-vier Zonen gespeichert; Gangbereich und Eingangsbereich fehlen dort noch.
+weitere werden folgen. In der angemeldeten PilotSuite-Oberfläche sind nun
+alle sechs als Zonen gespeichert; vier besitzen geprüfte lesende Licht-/Sound-
+Referenzen, nur Eingangsbereich meldet vollständige HA-Strukturübereinstimmung.
+Badbereichs breites Label und Kochbereichs ersetzte Mitgliedsidentität bleiben
+gesonderte, sichtbare Abnahmepunkte. Alpha.77 bereitet gezielte Import- und
+Link-Speicherwege dafür vor, ohne die Konflikte zu verdecken.
 Die Zahl ist keine Obergrenze. Für den Abgleich in jeder späteren Sitzung den
 aktuellen Bestand erneut lesen und Mitglieder vor einer Übernahme kuratieren.
 HA-Lichtgruppen und präsenzgebundene Sonos-Sound-Cloud existieren bereits als
@@ -33,7 +37,8 @@ Licht-Cloud ist ein späteres Konzept, kein derzeit gelieferter Produktteil.
 Keine Datenlöschung, neue Engine oder automatische Betriebsartenmigration.
 Ein UI-Ausblenden ist kein Beleg für angehaltene Hintergrundauswertung.
 Nacht-Heartbeat bleibt pausiert. Veröffentlichung folgt dem bestehenden Runbook;
-Alpha.73 ist ausgeliefert, konkrete Haushaltszuordnungen bleiben noch unverändert.
+Alpha.76 ist ausgeliefert; strukturelle Zuordnungen in PilotSuite wurden
+ergänzt. HA-Gerätesteuerungen und Automationen blieben unverändert.
 
 ## Historischer Ausbaukurs bis Alpha.72
 

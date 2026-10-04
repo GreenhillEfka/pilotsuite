@@ -224,7 +224,7 @@ async def _zone_candidates(request: web.Request) -> web.Response:
         payload = await request.json()
     except ValueError as exc:
         raise InvalidSelection('Ungültiges JSON') from exc
-    if not isinstance(payload, dict) or set(payload) != {'area_ids', 'entity_ids'}:
+    if not isinstance(payload, dict) or set(payload) not in ({'area_ids', 'entity_ids'}, {'area_ids', 'entity_ids', 'label_id'}):
         raise InvalidSelection('Bereiche und zusätzliche Entitäten erforderlich')
     for key, maximum in (('area_ids', 100), ('entity_ids', 500)):
         values = payload[key]
@@ -232,12 +232,16 @@ async def _zone_candidates(request: web.Request) -> web.Response:
             raise InvalidSelection('Ungültige oder zu große Kandidatenauswahl')
     service = request.app[SERVICE_KEY]
     labels = await service.client.zone_labels()
+    label_id = payload.get('label_id')
+    if label_id is not None and (not isinstance(label_id, str) or label_id not in {row['label_id'] for row in labels}):
+        raise InvalidSelection('Gewähltes Zonenlabel fehlt')
     roles = {row['label_id']:row['name'] for row in labels if row['name'] in ROLES}
     members = [{**row, **display_role_suggestion(row), 'habitus_roles':sorted({roles[key] for key in set(row['labels']) | set(row.get('device_labels', [])) if key in roles}),
                 'device_habitus_roles':sorted({roles[key] for key in row.get('device_labels', []) if key in roles}),
                 'membership_source':'area' if row['area_id'] in payload['area_ids'] else 'explicit'}
                for row in await service.world.organization_catalog()
-               if row['area_id'] in payload['area_ids'] or row['entity_id'] in payload['entity_ids']]
+               if (row['area_id'] in payload['area_ids'] or row['entity_id'] in payload['entity_ids'])
+               and (label_id is None or label_id in set(row.get('labels') or []) | set(row.get('device_labels') or []))]
     if len(members) > 500:
         raise InvalidSelection('Mehr als 500 Kandidaten; Bereiche oder Zusatzentitäten eingrenzen')
     return web.json_response({'members':members, 'roles':list(ROLES)}, headers={'Cache-Control':'no-store'})
@@ -300,6 +304,19 @@ async def _save_zone(request: web.Request) -> web.Response:
     except ValueError as exc:
         raise InvalidSelection('invalid JSON') from exc
     zone_id = request.match_info.get('zone_id')
+    if zone_id and isinstance(payload, dict) and set(payload) == {'revision', 'ha_links'}:
+        from .core.zone_structure import KEY as STRUCTURE, _saved_ha_links
+        async with service._projection_lock:
+            previous = next((z for z in await service.zones.list() if z['zone_id'] == zone_id), None)
+            profile = (await service.context.get(zone_id)).get(STRUCTURE) if previous else None
+            if not profile:
+                raise InvalidSelection('Zuerst die Zonenstruktur speichern')
+            links = _saved_ha_links(payload['ha_links'], await service.world.organization_catalog(), profile)
+            setup = {**profile, 'ha_links': links}
+            definition = {key: previous[key] for key in ('name', 'area_ids', 'extra_entity_ids', 'enabled', 'profile')}
+            saved = await service.zones.save(definition, zone_id, payload['revision'], setup=setup, relevant=None)
+            await service._derive()
+            return web.json_response(saved)
     expected = {'definition', 'revision'} if zone_id else {'definition'}
     if not isinstance(payload, dict) or set(payload) not in (expected, expected | {'setup'}, expected | {'setup', 'structure_only'}):
         raise InvalidSelection('invalid zone request fields')

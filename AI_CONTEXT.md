@@ -1,66 +1,54 @@
 # PilotSuite continuation context
 
-Canonical repository: `GreenhillEfka/pilotsuite`; app: `0d79c5e8_pilotsuite`.
-Continue existing modules and preserve uncommitted work, including untracked
-AGENTS.md. Do not recreate functions or redeploy an old ZIP.
-
-Read CURRENT_STATE.md, docs/RELEASE_STATE.json, docs/RELEASE_RUNBOOK.md,
-DECISIONS.md, docs/VISION.md and docs/ROADMAP.md before changes.
-docs/ARCHITECTURE.md maps owners; docs/ZONE_INSTANCE_V2.md defines presence;
-docs/UX_WORKSPACE.md and ADR-043 define the zone-first setup concept.
+Canonical repository: `GreenhillEfka/pilotsuite`; app:
+`0d79c5e8_pilotsuite`. Continue existing modules and preserve uncommitted work,
+including the untracked `AGENTS.md`. Read `CURRENT_STATE.md`,
+`docs/RELEASE_STATE.json`, `docs/RELEASE_RUNBOOK.md`, `DECISIONS.md`,
+`docs/VISION.md`, `docs/ROADMAP.md` and zone/architecture contracts before changes.
 
 ## Boundaries
 
 - Presence first: continuous/pulse/support differ; unknown is never silently vacant.
-- Relevance authorizes live and available history. Write authority is separate.
-- Preserve all saved zones and entity cleanup. Authenticated PilotSuite UI on
-  04 October still listed four (Erdkeller, Koch, Wohn, Bad), while HA had six public
-  zone anchors. Gang and Eingangsbereich are absent from the PilotSuite list. Neither
-  count is a product limit; more zones are expected. HA areas do not redefine zones.
+- Relevance authorizes live and available history; write authority is separate.
+- HA areas do not redefine zones. Six public HA anchors and six PilotSuite zones
+  were observed on 04 October; this is a snapshot, never a product limit.
 - Habituszonen is an ontology/layout reference, not proof of occupancy.
 - One app, existing SQLite owners, no second engine or configuration.
-- Ingress/authentication/sandbox remain intact. No household test switching.
+- Ingress, authentication and sandbox remain intact; no household test switching.
 - General Apply is closed; bounded helper/metadata/publication paths already exist.
-  Do not describe presence_adoption_review as universal hard_read_only.
+  `presence_adoption_review` is not universal hard read-only.
 - Implemented, tested, installed and household-accepted are separate states.
 
-The user permits reusing/adopting existing automations. Prefer their inspected
-logic over rebuilding it. The earlier comparison-only preference is not a permanent
-product prohibition. Structural alignment does not establish equivalent behavior.
-Until concrete live-change scope is answered, do not create/rename household helpers,
-edit/enable/disable automations, activate outputs, transfer control or grant learning.
+The user permits reusing/adopting inspected existing automations. Structural
+alignment alone does not establish equivalent behavior. Do not create/rename
+household helpers, edit/enable/disable automations, activate outputs, transfer
+control or grant learning just from a structural link.
 
 ## Current continuation
 
-Alpha.74 from PR #157 is installed and healthy, after exact candidate/main CI,
-fresh PilotSuite-only backup and one targeted update. CURRENT_STATE.md and
-RELEASE_STATE.json own the actual receipt and the narrow backup-list exception.
-The user answered “ja immer” to the narrow local-backup exception on 30 September;
-it now applies to future matching Synology listing errors without another question.
-The release runbook defines the unchanged local verification gates. No household
-bindings, control or learning permissions changed. The night heartbeat is PAUSED.
+Alpha.76 from PR #160 is installed, started, ready, stream-connected and fresh.
+Its versioned frontend assets were checked in authenticated Ingress after a
+mixed-cache failure in Alpha.75. Its four app options stayed unchanged. Current
+readiness reports a resolved zone after the Wohnbereich mapping correction.
+`CURRENT_STATE.md` and `docs/RELEASE_STATE.json` own the source, CI and scoped
+backup receipt; the narrow user-approved Synology backup-list exception remains
+defined in the release runbook. The night heartbeat stays paused.
 
-The implemented flow covers areas/tags, stable members and roles, explicit metadata
-plans, presence/helper autolabeling and the primary-presence light comparison.
-Active light actuation, automation takeover and household Ingress acceptance remain
-open. Prior version receipts and implementation history remain in Git/ledger.
+The visible product is still reduced to creating, displaying and documenting
+Habituszonen. Preserve existing runtime stores and execution gates; hiding
+modules is not evidence that background work stopped. Six current HA zones have
+HA-owned light groups and positive opt-ins; Bad, Gang, Koch and Wohnbereich have
+optional native Sonos Sound-Cloud presence coupling. PilotSuite documents these
+relations by stable identity and does not own their execution. A cross-zone
+Light-Cloud is not established by the current groups.
 
-The latest user direction after delivery supersedes that immediate expansion:
-reduce the visible product to creating, displaying and documenting Habitus zones.
-No comparisons, presence/light configuration, learning or automation workbench in
-the next UI. Read ADR-044 and docs/HABITUS_FOUNDATION_RESET.md before any next change.
-The reduced flow remains installed. Alpha.74 adds editable display-role defaults
-from HA category, device class and type; tags and saved/manual empty choices win.
-No guessed zone anchor or new analysis/control permission. Real structural adoption is open.
-The six HA zones already have HA-owned light groups and opt-ins; four have
-presence-bound Sonos Sound-Cloud options. These are context for future zone
-documentation and later separately accepted modules, not PilotSuite lighting or
-media control. A cross-zone Light-Cloud is not established by the existing groups.
-Preserve existing data and owners; do not conflate hiding modules with stopping
-runtime outputs. The user now explicitly requests real structural zone acceptance/adoption.
-Inspect real saved bindings, confirm concrete metadata changes and verify fresh HA
-registries. Active light execution and presence/control adoption remain deferred.
-No authenticated browser session was available for the release. Verify actual
-saved bindings before household import/apply. Synthetic tests and readiness are
-not proof of household wiring or safe control handover.
-Do not reinstall the current version, reactivate the heartbeat or create extra agents/tasks.
+Authenticated structural adoption saved/read back Erdkellerbereich,
+Gangbereich, Wohnbereich and Eingangsbereich with curated members and read-only
+HA links. Only Eingangsbereich currently matches HA structure without deviations.
+Kochbereich has an old replaced member identity; Badbereich's HA label has 858
+members. Alpha.77 locally develops revision-bound link-only saving and a
+labelled area subset for these cases. Neither path is released or household-
+accepted yet. Do not silently migrate stale identities or bulk accept disabled
+label members. Active light/media actuation, presence/control takeover and
+physical household acceptance remain deferred. Re-read live registries before
+further association. Do not restart the heartbeat or create extra agents/tasks.
