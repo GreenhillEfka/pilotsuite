@@ -48,7 +48,8 @@ zugänglich. Allgemeine Diagnosen dominieren die Zonenoberfläche nicht.
 ## Bestehendes bewahren, Bedienung neu ordnen
 
 Vorhandene Zone-/Selection-/Context-Stores, stabile IDs und den Plan-/Transaktionsweg
-weiterverwenden. Vier gespeicherte Zonen, manuelle Tags, fremde Labels, physische
+weiterverwenden. Alle gespeicherten Zonen (vier im PilotSuite-Snapshot vom
+30.09.2026), manuelle Tags, fremde Labels, physische
 Bereiche, gespeicherte Modulkonfigurationen und Belege bleiben erhalten. Keine
 Datenlöschung, pauschale Migration, neue Engine oder zweite UI mit eigenem Zustand.
 
@@ -85,6 +86,11 @@ oder falsche Behauptung, der gesamte Backendbetrieb sei bereits auf Struktur red
   lesen, konkrete Abweichungen im bestehenden Plan abgleichen, danach frisch prüfen.
   Zusätzliche HA-Mitglieder nicht still entfernen oder nur durch Rollenähnlichkeit
   zuordnen. Ungeklärte Identitäten bleiben ein benannter Restpunkt.
+- Der HA-Schnappschuss vom 04.10.2026 enthält sechs öffentliche Zonenanker, je eine
+  vorhandene Lichtgruppe und in Bad/Gang/Küche/Wohnen eine optionale
+  präsenzgeführte Sound-Cloud. Diese Zahl ist keine feste Obergrenze und kein
+  PilotSuite-Bestandsbeleg. Licht und Sound-Cloud bleiben HA-eigene Funktionen;
+  der Struktureditor darf sie erklären, aber weder neu verdrahten noch einschalten.
 - Präsenzlogik und Helfer/Sensoren erst nach akzeptierter Zonenstruktur wieder
   einführen, danach Licht. Aktive Lichtsteuerung und Automationsübernahme sind
   weiterhin nicht implementiert oder freigegeben.

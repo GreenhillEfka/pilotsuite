@@ -196,7 +196,8 @@ async def _zones(request: web.Request) -> web.Response:
                 profile = (await service.context.get(zone['zone_id'])).get(KEY)
                 summaries[zone['zone_id']] = {'saved': profile is not None,
                     'member_count': len((profile or {}).get('members', {})),
-                    'label_id': (profile or {}).get('label_id'), 'label_name': (profile or {}).get('label_name')}
+                    'label_id': (profile or {}).get('label_id'), 'label_name': (profile or {}).get('label_name'),
+                    'ha_link_kinds': sorted((profile or {}).get('ha_links', {}))}
             return web.json_response({'items': items, 'structure': summaries,
                 'areas': await service.world.areas()}, headers={'Cache-Control':'no-store'})
     return web.json_response({'items': await service.zones.list(), 'results': service._zone_results})

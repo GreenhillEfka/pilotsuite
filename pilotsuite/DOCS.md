@@ -1,6 +1,6 @@
 # PilotSuite configuration
 
-> Documentation for app version 0.1.0-alpha.74. Read
+> Documentation for app version 0.1.0-alpha.75. Read
 > `docs/RELEASE_STATE.json` for separate, current delivery evidence; this packaged
 > document intentionally makes no installation claim.
 
@@ -10,6 +10,17 @@ Open **Habituszonen**, then **Zone bearbeiten** to select areas and import a man
 zone label or plan a new one. Device labels bring their entities. Select members
 and Habitus display roles; saving preserves existing runtime and analysis choices.
 New members do not gain analysis or control authority.
+
+Under **Vorhandene Licht- und Sound-Cloud**, link a zone to the already installed
+HA light group, positive automation opt-in and shutdown script. Where a native
+Sonos player is confirmed, also link the existing presence opt-in, zone switch,
+favorite selector and optional daytime-volume setting. The editor stores stable
+HA identities, not a second lighting or media engine. The zone documentation
+shows each link and a fresh identity check. A missing or changed link needs
+review; saving these references never switches lights, joins speakers or enables
+automatic playback. For an existing tagged zone, **Aktuelle HA-Rollen statt
+Vorschlägen übernehmen** replaces only untouched type suggestions with the roles
+actually observed in HA; saved/manual choices stay as they were.
 
 Under **Zonendokumentation**, prepare concrete label changes, check the additions
 and removals, and confirm once. Close the plan and use **Mit Home Assistant prüfen**
@@ -181,7 +192,7 @@ After starting, open the Web UI and confirm:
 - World snapshot: areas, entities, and states present
 - Golden Zone: resolves the Erdkeller area ID
 - Runtime mode: `presence_adoption_review`; workspace navigation grants no authority
-- Release: `0.1.0-alpha.74`
+- Release: `0.1.0-alpha.75`
 
 ## Habitus zones and entity selection
 

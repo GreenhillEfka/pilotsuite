@@ -52,8 +52,9 @@
  actions.append(verify,sync,download);const plans=E('div');plans.id='ps-structure-plan';
  docs.append(docBody,actions,plans);setup.after(docs);
  $('edit-status').hidden=true;$('error').hidden=true;
- const explanation={structure_not_saved:'Noch keine Zonenstruktur gespeichert.',label_not_bound:'Neues Zonenlabel noch nicht angelegt.',label_missing:'Verbundenes HA-Label fehlt.',no_members:'Noch keine Mitglieder gespeichert.',role_labels_ambiguous:'Benötigte Rollenlabels fehlen oder sind mehrdeutig.',areas_missing:'Gespeicherte Bereiche fehlen in Home Assistant.',extra_ha_members:'Das HA-Label umfasst weitere Entitäten. Mitglieder erneut einlesen und bewusst übernehmen oder im HA-Bestand klären.',renamed:'Entität umbenannt; gespeicherte Identität bewusst klären.',disabled:'Entität deaktiviert.',identity_unresolved:'Identität fehlt oder ist mehrdeutig.',membership_missing:'Zonenlabel fehlt an Entität und Gerät.',roles_differ:'HA-Rollen weichen von der gespeicherten Struktur ab.'};
+ const explanation={structure_not_saved:'Noch keine Zonenstruktur gespeichert.',label_not_bound:'Neues Zonenlabel noch nicht angelegt.',label_missing:'Verbundenes HA-Label fehlt.',no_members:'Noch keine Mitglieder gespeichert.',role_labels_ambiguous:'Benötigte Rollenlabels fehlen oder sind mehrdeutig.',areas_missing:'Gespeicherte Bereiche fehlen in Home Assistant.',extra_ha_members:'Das HA-Label umfasst weitere Entitäten. Mitglieder erneut einlesen und bewusst übernehmen oder im HA-Bestand klären.',ha_link_unresolved:'Eine gespeicherte Licht- oder Sound-Verknüpfung ist nicht mehr eindeutig erreichbar.',renamed:'Entität umbenannt; gespeicherte Identität bewusst klären.',disabled:'Entität deaktiviert.',identity_unresolved:'Identität fehlt oder ist mehrdeutig.',membership_missing:'Zonenlabel fehlt an Entität und Gerät.',roles_differ:'HA-Rollen weichen von der gespeicherten Struktur ab.'};
  explanation.shared_roles_conflict='Gespeicherte Rollen widersprechen einer weiteren Zone. Die gemeinsame Zuordnung zuerst klären.';
+ const linkNames={light_group:'Gemeinsame Lichtgruppe',light_automation:'Freigabe der HA-Lichtautomatik',shutdown_script:'Manuelle Zonenabschaltung',sound_player:'Sound-Cloud-Player',sound_presence:'Präsenzfreigabe für Sound-Cloud',sound_cloud_switch:'Sound-Cloud-Zonenschalter',sound_favorite:'Favoriten-Vorauswahl',sound_daytime_volume:'Tageszeit-Lautstärke'};
  function zone(){return zoneDefinitions.find(z=>z.zone_id===selectionZone);}
  function basis(){return structureData?.zone_id===selectionZone&&structureData.revision===zone()?.revision;}
  function currentVerification(){return basis()&&verificationZone===selectionZone&&verification?.revision===structureData.revision?verification:null;}
@@ -63,6 +64,7 @@
   const key=JSON.stringify([data,selectionZone,zoneStructures,zoneAreaNames]);if(key===cardKey)return;cardKey=key;
   const focused=document.activeElement?.dataset?.psZone;cards.replaceChildren();
   for(const z of data){const saved=zoneStructures[z.zone_id],card=E('article','','ps-zone-card');card.append(E('h3',z.name),E('p',`${z.area_ids.length} Bereiche · ${saved?.saved?saved.member_count+' gespeicherte Mitglieder':'Mitgliedschaft noch offen'}`,'ps-muted'),E('p',z.area_ids.map(id=>zoneAreaNames[id]||id).join(' · ')||'Bereiche noch offen'),E('p',saved?.saved?(saved.label_id?'Label verbunden · HA-Abgleich in der Dokumentation':`Label „${saved.label_name}“ noch anzulegen`):'Struktur noch nicht eingerichtet','ps-muted'));
+   if(saved?.ha_link_kinds?.length)card.append(E('p',`${saved.ha_link_kinds.includes('light_group')?'Licht verknüpft':'Licht offen'} · ${saved.ha_link_kinds.includes('sound_player')?'Sound-Cloud verknüpft':'Sound-Cloud ohne Player'}`,'ps-muted'));
    const open=B('Zone öffnen',async()=>{if(dirty()){say('Offene Änderungen zuerst speichern oder abbrechen.');return;}
     await loadSelection(z.zone_id);navigate('documentation',{focus:true});});open.dataset.psZone=z.zone_id;card.append(open);cards.append(card);}
   if(!data.length)cards.append(E('p',zoneDefinitions.length?'Keine passende Zone.':'Noch keine Zone. Mit „+ Neue Zone“ beginnen.'));
@@ -80,6 +82,13 @@
    E('p','Zonenlabel: '+(v?.label_name||p?.label_name||p?.label_id||'Noch nicht verbunden')),
    E('p','Mitglieder: '+Object.keys(p?.members||{}).length));
   if(!p)docBody.append(E('p','Struktur bearbeiten und vorhandenes Zonenlabel einlesen oder ein neues planen.','ps-muted'));
+  const links=E('section','','ps-zone-links');links.append(E('h3','Vorhandene Steuerungen'));
+  for(const [kind,name] of Object.entries(linkNames)){
+   const saved=p?.ha_links?.[kind],check=v?.ha_links?.[kind];
+   links.append(E('p',`${name}: ${saved?.entity_id||'Nicht verknüpft'}${check&&check.status!=='bound'?' · Zuordnung prüfen: '+check.status:''}`,saved&&check&&check.status!=='bound'?'ps-warning':'ps-muted'));
+  }
+  links.append(E('p','Licht und Sound-Cloud bleiben Home-Assistant-Funktionen. PilotSuite dokumentiert hier ihre Zuordnung; manuelle Bedienung hat Vorrang und nur die bestehende Sound-Cloud verwaltet ihre eigenen Teilnehmer. Diese Prüfung schaltet keine Geräte.','ps-muted'));
+  docBody.append(links);
   for(const issue of v?.issues||[])docBody.append(E('p',explanation[issue]||issue,'ps-warning'));
   if(v?.extra_members?.length)docBody.append(E('p','Zusätzlich in HA: '+v.extra_members.join(', '),'ps-warning'));
   if(v?.missing_areas?.length)docBody.append(E('p','Fehlende Bereiche: '+v.missing_areas.join(', '),'ps-warning'));

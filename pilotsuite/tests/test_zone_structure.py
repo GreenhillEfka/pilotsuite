@@ -11,6 +11,50 @@ from pilotsuite.core.zone_structure import KEY
 
 
 class ZoneStructureTests(unittest.IsolatedAsyncioTestCase):
+    async def test_existing_light_and_sound_links_are_structural_only(self):
+        extra = [self.entity('input_boolean.light_auto', []), self.entity('script.zone_shutdown', []),
+                 self.entity('media_player.sonos', []), self.entity('input_boolean.sound_presence', []),
+                 self.entity('switch.sound_switch', []), self.entity('input_select.sound_favorite', []),
+                 self.entity('input_boolean.daytime_volume', [])]
+        self.world['entities'].extend(extra)
+        self.registry.update({row['entity_id']: deepcopy(row) for row in extra})
+        await self.s.world.replace(deepcopy(self.world))
+        links = {'light_group':'light.group', 'light_automation':'input_boolean.light_auto',
+                 'shutdown_script':'script.zone_shutdown', 'sound_player':'media_player.sonos',
+                 'sound_presence':'input_boolean.sound_presence', 'sound_cloud_switch':'switch.sound_switch',
+                 'sound_favorite':'input_select.sound_favorite', 'sound_daytime_volume':'input_boolean.daytime_volume'}
+        response = await self.save({**self.setup, 'ha_links': links})
+        self.assertEqual(201, response.status, await response.text())
+        zone = await response.json()
+        profile = (await self.s.context.get(zone['zone_id']))[KEY]
+        self.assertEqual(links, {kind:row['entity_id'] for kind,row in profile['ha_links'].items()})
+        self.assertEqual({}, {key:value for key,value in (await self.s.context.get(zone['zone_id'])).items()
+                              if key in ('zone_lighting','zone_presence_v2')})
+        self.assertEqual('ignored', (await self.s.selections.get(zone['zone_id']))['decisions']['light.group'])
+        verified = (await (await self.http.get(f"/api/v1/zones/{zone['zone_id']}/structure?verify=1")).json())['verification']
+        self.assertEqual('bound', verified['ha_links']['sound_player']['status'])
+        self.assertFalse(verified['ha_links_control_accepted'])
+        self.labels.append({'label_id':'other','name':'Other'})
+        duplicate = await self.save({'label_id':'other', 'entity_ids':['light.group'],
+                                     'relevant_entity_ids':[], 'ha_links':{'light_group':'light.group'}})
+        self.assertEqual(409, duplicate.status, await duplicate.text())
+        self.s.client.zone_set_metadata.assert_not_awaited()
+
+    async def test_ha_link_domain_and_identity_conflicts_are_rejected(self):
+        self.assertEqual(400, (await self.save({**self.setup, 'ha_links':{'light_group':'sensor.temperature'}})).status)
+        self.assertEqual(400, (await self.save({**self.setup, 'ha_links':{'sound_presence':'input_boolean.absent'}})).status)
+        zone = await (await self.save({**self.setup, 'ha_links':{'light_group':'light.group'}})).json()
+        self.registry['light.group']['unique_id'] = 'replacement'
+        await self.s.world.replace({**self.world, 'entities':[
+            {**row, 'unique_id':'replacement'} if row['entity_id']=='light.group' else row
+            for row in self.world['entities']]})
+        definition = {key:zone[key] for key in self.definition}
+        response = await self.http.patch(f"/api/v1/zones/{zone['zone_id']}", json={
+            'definition':definition, 'revision':zone['revision'], 'structure_only':True,
+            'setup':{'label_id':'room', 'entity_ids':self.setup['entity_ids'],
+                     'ha_links':{'light_group':'light.group'}}})
+        self.assertEqual(409, response.status, await response.text())
+
     async def test_structure_only_import_preserves_analysis_and_runtime(self):
         old = next(z for z in await self.s.zones.list() if z['zone_id'] == 'a')
         inv = await self.s.selection_inventory('a')

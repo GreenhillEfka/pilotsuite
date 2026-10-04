@@ -20,6 +20,16 @@ und ADR-044/045. Den Auslieferungsnachweis führt RELEASE_STATE.json.
    Licht. Aktive Lichtausführung und Automationsübernahme bleiben offen. Klima,
    Medien und Mustererkennung bleiben später.
 
+Standabgleich 04.10.2026: HA weist sechs öffentliche Habituszonen-Anker aus und
+weitere werden folgen. In der angemeldeten PilotSuite-Oberfläche sind derzeit
+vier Zonen gespeichert; Gangbereich und Eingangsbereich fehlen dort noch.
+Die Zahl ist keine Obergrenze. Für den Abgleich in jeder späteren Sitzung den
+aktuellen Bestand erneut lesen und Mitglieder vor einer Übernahme kuratieren.
+HA-Lichtgruppen und präsenzgebundene Sonos-Sound-Cloud existieren bereits als
+eigene, getrennt freigegebene Funktionen. Die Strukturphase dokumentiert ihre
+Zuordnung, übernimmt aber weder Licht noch Mediensteuerung. Eine zonenübergreifende
+Licht-Cloud ist ein späteres Konzept, kein derzeit gelieferter Produktteil.
+
 Keine Datenlöschung, neue Engine oder automatische Betriebsartenmigration.
 Ein UI-Ausblenden ist kein Beleg für angehaltene Hintergrundauswertung.
 Nacht-Heartbeat bleibt pausiert. Veröffentlichung folgt dem bestehenden Runbook;

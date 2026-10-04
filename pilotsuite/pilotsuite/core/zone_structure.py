@@ -7,6 +7,48 @@ KEY = 'zone_structure'
 SCHEMA = 'pilotsuite-zone-structure-v1'
 MAX_MEMBERS = 500
 PENDING_LABEL = '$new_zone_label'
+HA_LINK_DOMAINS = {
+    'light_group': 'light',
+    'light_automation': 'input_boolean',
+    'shutdown_script': 'script',
+    'sound_player': 'media_player',
+    'sound_presence': 'input_boolean',
+    'sound_cloud_switch': 'switch',
+    'sound_favorite': 'input_select',
+    'sound_daytime_volume': 'input_boolean',
+}
+
+
+def _saved_ha_links(requested, catalog, previous):
+    """Record existing HA relationships with stable identities, without control rights."""
+    if requested is None:
+        return (previous or {}).get('ha_links', {})
+    if not isinstance(requested, dict) or set(requested) - set(HA_LINK_DOMAINS):
+        raise InvalidSelection('Unbekannte HA-Zonenverknüpfung')
+    if requested.get('light_automation') and not requested.get('light_group'):
+        raise InvalidSelection('Lichtfreigabe benötigt eine Lichtgruppe')
+    if any(requested.get(kind) for kind in ('sound_presence', 'sound_cloud_switch',
+                                            'sound_favorite', 'sound_daytime_volume')) and not requested.get('sound_player'):
+        raise InvalidSelection('Sound-Cloud-Freigabe benötigt einen bestätigten Player')
+    index = {row['entity_id']: row for row in catalog}
+    saved = {}
+    for kind, domain in HA_LINK_DOMAINS.items():
+        eid = requested.get(kind)
+        if eid in ('', None):
+            continue
+        if not isinstance(eid, str) or not eid.startswith(domain + '.'):
+            raise InvalidSelection('Ungültige HA-Zonenverknüpfung: ' + kind)
+        row = index.get(eid)
+        old = (previous or {}).get('ha_links', {}).get(kind)
+        if old and old['entity_id'] == eid and (not row or not row.get('in_registry') or row.get('disabled')):
+            saved[kind] = old
+            continue
+        if not row or not row.get('in_registry') or row.get('disabled') or not row.get('unique_id') or not row.get('platform'):
+            raise InvalidSelection('Verknüpfte HA-Entität fehlt oder ist nicht stabil: ' + eid)
+        if old and old['entity_id'] == eid and not same_identity(old['identity'], row):
+            raise SelectionConflict('Verknüpfte HA-Entität wurde ersetzt: ' + eid)
+        saved[kind] = {'entity_id': eid, 'identity': identity(row)}
+    return saved
 
 
 def verify_structure(profile, labels, registry, devices, areas, area_ids):
@@ -53,11 +95,25 @@ def verify_structure(profile, labels, registry, devices, areas, area_ids):
     extra = sorted(actual - set(members))
     if extra:
         issues.append('extra_ha_members')
+    from .organization import resolve
+    ha_links = {}
+    for kind, link in (profile or {}).get('ha_links', {}).items():
+        found = resolve(link['identity'], catalog)
+        status = found['status']
+        if found.get('entity_id') and not found.get('in_registry'):
+            status = 'identity_unresolved'
+        elif found.get('disabled'):
+            status = 'disabled'
+        if status != 'bound':
+            issues.append('ha_link_unresolved')
+        ha_links[kind] = {'saved_entity_id': link['entity_id'],
+                          'resolved_entity_id': found.get('entity_id'), 'status': status}
     state = 'synchronized' if not issues and not any(r['issues'] for r in rows) else 'different'
     if not profile:
         state = 'unconfigured'
     return {'state': state, 'scope': 'zone_structure_only', 'issues': issues, 'members': rows,
             'extra_members': extra, 'missing_areas': missing_areas,
+            'ha_links': ha_links, 'ha_links_control_accepted': False,
             'label_id': label_id, 'label_name': names.get(label_id),
             'areas': [row for row in areas if row['area_id'] in area_ids],
             'control_accepted': False, 'presence_accepted': False}
@@ -111,7 +167,7 @@ def member_identities(profile, catalog):
 
 def setup_profile(payload, labels, catalog, previous=None):
     required = {'label_id', 'entity_ids', 'relevant_entity_ids'}
-    if not isinstance(payload, dict) or not required <= set(payload) or set(payload) - required - {'roles', 'label_name'}:
+    if not isinstance(payload, dict) or not required <= set(payload) or set(payload) - required - {'roles', 'label_name', 'ha_links'}:
         raise InvalidSelection('Zonenlabel, Mitglieder und relevante Quellen erforderlich')
     label_id = payload['label_id']
     pending = label_id is None
@@ -172,7 +228,9 @@ def setup_profile(payload, labels, catalog, previous=None):
         raise InvalidSelection('Mehrere Zonenanker gefunden; zuerst den öffentlichen Status klären')
     if set(anchors) & set(payload['relevant_entity_ids']):
         raise InvalidSelection('Der Zonenanker ist ein Ausgang, keine unabhängige Präsenzquelle')
-    return {'schema': SCHEMA, 'label_id': label_id, 'members': members, **({'label_name': name} if pending else {})}
+    links = _saved_ha_links(payload.get('ha_links'), catalog, previous)
+    return {'schema': SCHEMA, 'label_id': label_id, 'members': members, **({'label_name': name} if pending else {}),
+            **({'ha_links': links} if links else {})}
 
 
 def connection_suggestions(config, catalog, relevant, *, fresh):

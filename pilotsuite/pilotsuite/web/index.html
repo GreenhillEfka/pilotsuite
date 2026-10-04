@@ -128,8 +128,26 @@
                 <p>Ein neues Label wird erst im anschließenden gemeinsamen Änderungsplan in HA angelegt.</p>
                 <button id="zone-candidates-import" type="button">Bereiche und Zusatzentitäten als Mitglieder prüfen</button>
                 <p id="zone-label-message" role="status" aria-live="polite"></p>
+                <button id="zone-use-ha-roles" type="button" disabled>Aktuelle HA-Rollen statt Vorschlägen übernehmen</button>
                 <label>Mitglieder filtern <input id="zone-member-search" type="search" placeholder="Name oder Entitäts-ID"></label>
                 <div id="zone-label-members" class="zone-member-list"></div>
+              </fieldset>
+              <fieldset id="zone-ha-links" class="area-field">
+                <legend>Vorhandene Licht- und Sound-Cloud</legend>
+                <p>Hier wird die bestehende Home-Assistant-Steuerung der Zone zugeordnet. Diese Auswahl schaltet nichts und aktiviert keine PilotSuite-Automatik.</p>
+                <div class="selection-tools">
+                  <label>Lichtgruppe <select data-ha-link="light_group"></select></label>
+                  <label>Lichtautomatik-Freigabe <select data-ha-link="light_automation"></select></label>
+                  <label>Zone beenden <select data-ha-link="shutdown_script"></select></label>
+                </div>
+                <div class="selection-tools">
+                  <label>Sound-Cloud-Player <select data-ha-link="sound_player"></select></label>
+                  <label>Sound-Cloud bei Präsenz <select data-ha-link="sound_presence"></select></label>
+                  <label>Sound-Cloud-Zonenschalter <select data-ha-link="sound_cloud_switch"></select></label>
+                  <label>Favoriten-Vorauswahl <select data-ha-link="sound_favorite"></select></label>
+                  <label>Tageszeit-Lautstärke <select data-ha-link="sound_daytime_volume"></select></label>
+                </div>
+                <p>Manuelle Bedienung bleibt vorrangig. Die bestehende Sound-Cloud verwaltet nur selbst übernommene Teilnehmer; Lichtgruppen, Szenen und Shutdown bleiben in HA. Ohne bestätigten Player bleibt Sound-Cloud hier leer.</p>
               </fieldset>
               <details><summary>Weitere Einstellungen</summary>
                 <label>Regelprofil <select id="zone-profile"><option value="observe">Neutral beobachten</option><option value="cellar">Erdkeller – konservative Klimaregeln</option></select></label>

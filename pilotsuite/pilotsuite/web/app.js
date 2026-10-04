@@ -405,6 +405,17 @@ async function openZoneEditor(existing) {
     for (const id of zoneExtraSelection) if (!allEntities.has(id)) allEntities.set(id, {entity_id: id, disabled: true});
     zoneCatalog = [...allEntities.values()].sort((a,b) => Number(zoneExtraSelection.has(b.entity_id)) - Number(zoneExtraSelection.has(a.entity_id)));
     byId('zone-extra-search').value = ''; renderExtraChoices();
+    for(const select of byId('zone-ha-links').querySelectorAll('select[data-ha-link]')){
+      const key=select.dataset.haLink,domain={light_group:'light',light_automation:'input_boolean',shutdown_script:'script',
+        sound_player:'media_player',sound_presence:'input_boolean',sound_cloud_switch:'switch',
+        sound_favorite:'input_select',sound_daytime_volume:'input_boolean'}[key];
+      const selected=structure?.ha_links?.[key]?.entity_id||'';
+      const matches=catalog.items.filter(row=>row.entity_id?.startsWith(domain+'.')&&!row.disabled)
+        .sort((a,b)=>(a.name||a.entity_id).localeCompare(b.name||b.entity_id,'de'));
+      select.replaceChildren(new Option('Nicht verknüpft',''),...matches.map(row=>new Option(`${row.name||row.entity_id} · ${row.entity_id}`,row.entity_id)));
+      if(selected&&!matches.some(row=>row.entity_id===selected))select.add(new Option(`${selected} (nicht verfügbar; Zuordnung erhalten)`,selected));
+      select.value=selected;
+    }
     text('zone-form-title', existing ? 'Zone bearbeiten' : 'Neue Zone');
     text('zone-message', 'Zusätzliche Entitäten: bis zu 600 Treffer sichtbar. Suche eingrenzen; ausgewählte Einträge bleiben erhalten.');
     byId('zone-form').hidden = false; byId('zone-name').focus();
@@ -425,10 +436,14 @@ function initialZoneMemberRoles(row) {
   row.role_preselection=!observed.length && !!suggested.length;
   return [...(observed.length?observed:suggested)];
 }
+function updateHaRoleButton(){
+  byId('zone-use-ha-roles').disabled=!zoneSetupDraft || !zoneSetupRows.some(row=>row.role_preselection&&row.label_observation==='present');
+}
 
 function renderZoneMembers() {
   const host=byId('zone-label-members'), filter=byId('zone-member-search').value.trim().toLocaleLowerCase();
   host.replaceChildren();
+  updateHaRoleButton();
   if(!zoneSetupDraft) return;
   for(const row of zoneSetupRows.filter(r=>`${r.name} ${r.entity_id}`.toLocaleLowerCase().includes(filter))) {
     const line=document.createElement('div');line.className='zone-member';
@@ -482,6 +497,7 @@ function renderZoneMembers() {
           const selected=new Set(zoneSetupDraft.roles[row.entity_id]||[]);if(input.checked)selected.add(role);else selected.delete(role);
           zoneSetupDraft.roles[row.entity_id]=[...selected];
           row.role_preselection=false;
+          updateHaRoleButton();
           updateDetail();
           if(role==='Habitus Zone'){
             relevant.disabled=input.checked || !member.checked;
@@ -493,6 +509,7 @@ function renderZoneMembers() {
         rolePreset=document.createElement('button');rolePreset.type='button';rolePreset.textContent='Typbasierte Vorauswahl übernehmen';rolePreset.disabled=!member.checked;
         rolePreset.addEventListener('click',()=>{
           zoneSetupDraft.roles[row.entity_id]=[...row.suggested_habitus_roles];row.role_preselection=true;
+          updateHaRoleButton();
           for(const [role,input] of roleInputs)input.checked=zoneSetupDraft.roles[row.entity_id].includes(role);
           relevant.disabled=!member.checked || isAnchor() || unavailable;updateDetail();
         });roles.append(rolePreset);
@@ -503,6 +520,16 @@ function renderZoneMembers() {
     host.append(line);
   }
 }
+byId('zone-use-ha-roles').addEventListener('click',()=>{
+  if(zoneLabelBusy||zoneSaving||!zoneSetupDraft)return;
+  let count=0;
+  for(const row of zoneSetupRows)if(row.role_preselection&&row.label_observation==='present'){
+    zoneSetupDraft.roles[row.entity_id]=[...(row.habitus_roles||[])];
+    row.role_preselection=false;count++;
+  }
+  renderZoneMembers();
+  text('zone-label-message',`${count} typbasierte Rollenvorschläge durch die tatsächlich gelesenen HA-Rollen ersetzt. Gespeicherte manuelle Entscheidungen bleiben erhalten.`);
+});
 function renderZoneLabelControls(){
   const pending=zoneLabelBusy||zoneSaving;
   byId('zone-label-load').disabled=pending;
@@ -603,6 +630,8 @@ byId('zone-form').addEventListener('submit', async event => {
   try {
     const payload = {definition}; if (zoneEditing) payload.revision = zoneEditing.revision;
     if(zoneSetupDraft){
+      zoneSetupDraft.ha_links=Object.fromEntries([...byId('zone-ha-links').querySelectorAll('select[data-ha-link]')]
+        .map(select=>[select.dataset.haLink,select.value]));
       payload.setup={...zoneSetupDraft,roles:Object.fromEntries(Object.entries(zoneSetupDraft.roles).filter(([id])=>zoneSetupDraft.entity_ids.includes(id)))};
       if(structureOnly){delete payload.setup.relevant_entity_ids;payload.structure_only=true;}
     }
