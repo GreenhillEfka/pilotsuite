@@ -4,33 +4,33 @@
   "repository": "GreenhillEfka/pilotsuite",
   "app_slug": "0d79c5e8_pilotsuite",
   "release": {
-    "version": "0.1.0-alpha.76",
-    "commit": "2941659e577700562202c2dea5c4a121ddd6703b",
-    "tree": "00bc9af0ebbd2889fb7a161ce0d00884e86488f7",
-    "app_tree": "483191fc4b8e699c6f307885fe906ee5c6f8b992",
-    "pull_request": 160,
-    "candidate_commit": "6af69a5204bbee2edc00ff7bffbe7593f897900b",
-    "candidate_ci_run_id": 37171634810,
-    "ci_run_id": 37172229997,
+    "version": "0.1.0-alpha.77",
+    "commit": "1946d5b8941689fce18574c05adf0f4e3b3adaf7",
+    "tree": "b7663ec5006c2683934a50703133f3ac571edd65",
+    "app_tree": "af4932391a58d77bb8b94d75025ec9ecbf040d64",
+    "pull_request": 161,
+    "candidate_commit": "b7f9e66ba2faa273075b2e5bdbafc2f7c985754d",
+    "candidate_ci_run_id": 37173914432,
+    "ci_run_id": 37174021635,
     "ci_conclusion": "success"
   },
   "published_source": {
-    "version": "0.1.0-alpha.76",
-    "commit": "2941659e577700562202c2dea5c4a121ddd6703b",
-    "tree": "00bc9af0ebbd2889fb7a161ce0d00884e86488f7",
-    "app_tree": "483191fc4b8e699c6f307885fe906ee5c6f8b992",
-    "pull_request": 160,
-    "candidate_commit": "6af69a5204bbee2edc00ff7bffbe7593f897900b",
-    "candidate_ci_run_id": 37171634810,
-    "ci_run_id": 37172229997,
+    "version": "0.1.0-alpha.77",
+    "commit": "1946d5b8941689fce18574c05adf0f4e3b3adaf7",
+    "tree": "b7663ec5006c2683934a50703133f3ac571edd65",
+    "app_tree": "af4932391a58d77bb8b94d75025ec9ecbf040d64",
+    "pull_request": 161,
+    "candidate_commit": "b7f9e66ba2faa273075b2e5bdbafc2f7c985754d",
+    "candidate_ci_run_id": 37173914432,
+    "ci_run_id": 37174021635,
     "ci_conclusion": "success"
   },
   "backup": {
-    "backup_id": "4c016987",
-    "name": "PilotSuite Alpha.75 before Alpha.76 browser asset cache fix 2026-10-04",
-    "date": "2026-10-04T02:49:15.394112+00:00",
-    "size_bytes": 54681600,
-    "app_version": "0.1.0-alpha.75",
+    "backup_id": "51227e96",
+    "name": null,
+    "date": "2026-10-04T03:24:32.862325+00:00",
+    "size_bytes": 54753280,
+    "app_version": "0.1.0-alpha.76",
     "app_slugs": [
       "0d79c5e8_pilotsuite"
     ],
@@ -55,7 +55,7 @@
     "archive_extraction_performed": false,
     "restore_drill_performed": false,
     "completion_verified_before_publication": true,
-    "recovery_boundary": "Only PilotSuite app/data under the existing scoped regression-recovery authorization; restore overwrites data/options since backup. No off-device resilience claim; no restore drill performed.",
+    "recovery_boundary": "Only PilotSuite app/data under existing scoped regression-recovery authorization. Restore would overwrite data/options since backup. No off-device resilience or restore drill claim.",
     "exception": {
       "scope": "Only nonempty agent_errors from two additional Synology backup-list operations; local PilotSuite-only scope/completion/size and all failed-component lists independently confirmed.",
       "user_message": "ja immer",
@@ -67,9 +67,9 @@
     "agent_error_keys_redacted": true
   },
   "installation": {
-    "installed_version": "0.1.0-alpha.76",
-    "offered_version": "0.1.0-alpha.76",
-    "previous_version": "0.1.0-alpha.75",
+    "installed_version": "0.1.0-alpha.77",
+    "offered_version": "0.1.0-alpha.77",
+    "previous_version": "0.1.0-alpha.76",
     "state": "started",
     "auto_update": true,
     "update_available": false,
@@ -81,48 +81,46 @@
     "rebuild_calls": 0,
     "other_app_update_calls": 0,
     "source_association": "Published main/version/app-tree association; no independent installed-image SHA attestation.",
-    "verified_at_utc": "2026-10-04T03:14:00Z"
+    "verified_at_utc": "2026-10-04T03:37:51Z"
   },
   "runtime": {
     "mode": "presence_adoption_review",
     "mode_unchanged": true,
     "hard_read_only_not_claimed": true,
-    "post_start_ready_log_timestamps": [
-      "2026-10-04T05:15:57Z"
-    ],
+    "post_start_ready_log_timestamps": [],
     "ready": true,
     "stream_connected": true,
     "snapshot_fresh": true,
     "zone_resolved": true,
-    "timestamp_note": "After the saved Wohnbereich area correction, a current 2026-10-04T05:15:57Z Supervisor readiness line reports ready/stream/fresh/zone_resolved true. The earlier false state preceded that correction.",
+    "timestamp_note": "Post-update Supervisor readiness line reported ready/stream/fresh/zone_resolved true. Its displayed offset was not independently reconciled; do not infer a UTC timestamp.",
     "capabilities_available": [
       "motion"
     ],
     "capabilities_partial": []
   },
   "tests": {
-    "local_python_passed": 737,
+    "local_python_passed": 739,
     "local_javascript_passed": 77,
     "api_contracts": 68,
-    "candidate_and_release_main_ci": "All five jobs passed for exact PR #160 candidate 37171634810 and merged main 37172229997.",
+    "candidate_and_release_main_ci": "All five jobs passed for exact PR #161 candidate 37173914432 and merged main 37174021635.",
     "browser_suites": 5,
     "local_browser_suites": 5,
     "container_platform": "linux/amd64",
     "disposable_home_assistant_protocol": "success in isolated CI",
     "reproducible_source_checkout": "success",
-    "regressions": "Versioned assets and no-cache revalidation fix stale editor JS with fresh HTML.",
+    "regressions": "Revision-bound link-only save preserves stale members; large-label overflow uses bounded area subset. Real Ingress readback verified both.",
     "historical_browser_scope": "Seven old full-product navigation suites are no longer current UI contracts; scripts remain for future module work. All backend/model/protocol coverage and selected isolated component suites remain."
   },
   "ui_review": {
     "synthetic_browser": "Structural synthetic browser passed; actual desktop/mobile screenshots inspected.",
-    "authenticated_household_ingress": "Authenticated Alpha.76 Ingress showed populated light and Sound-Cloud selectors; four real PilotSuite zone mappings were saved and reread. Only Eingangsbereich fully matched HA structure.",
+    "authenticated_household_ingress": "Authenticated Alpha.77 Ingress confirmed all six saved zones. Kochbereich eight HA links saved without altering 419 old members. Badbereich 145 enabled members and eight HA links saved from scoped Bad/Toilette candidates. Only Eingangsbereich fully matched HA structure.",
     "ingress_protection_weakened": false,
     "read_only_household_observation": {
       "reference": "Authenticated PilotSuite Ingress and HA registry on 2026-10-04",
-      "scope": "Six HA anchors and six saved PilotSuite zones observed. Four zones have read-only HA references. No HA metadata or actuator calls.",
-      "limitation": "Only Eingangsbereich fully matched HA structure; other deviations are visible. Physical control and presence acceptance are not claimed."
+      "scope": "Six HA anchors and six saved PilotSuite zones; all six with verified light/shutdown reference links, Bad/Gang/Koch/Wohn with native Sonos references. No HA metadata or actuator calls.",
+      "limitation": "Only Eingangsbereich fully matched HA structure. Extra labels and renamed members remain. Physical light/audio and presence acceptance not claimed."
     },
-    "existing_client_reload": "Versioned assets confirmed in real Ingress; selectors populated. No new HA control takeover."
+    "existing_client_reload": "Versioned Alpha.77 assets, scoped import, link-only save and reread confirmed in authenticated Ingress."
   },
   "boundaries": {
     "household_automation_changed": false,
@@ -137,44 +135,43 @@
     "active_light_actuation": false
   },
   "household_changes": [
-    "PilotSuite structure only: Erdkellerbereich, Gangbereich, Wohnbereich and Eingangsbereich saved with checked HA links; no HA metadata or device switching.",
-    "Kochbereich/Badbereich remain open for separate identity/label handling."
+    "PilotSuite structure only: six HA reference zones have checked light/shutdown links; Bad, Gang, Koch and Wohn also have checked native Sonos Sound-Cloud links. No HA metadata or device switching.",
+    "Badbereich saved 145 enabled members with existing HA roles from 281 Bad/Toilette area candidates.",
+    "Kochbereich retained 419 old members while eight checked links were saved; renamed identity conflict remains visible."
   ],
   "history": {
-    "previous_receipt_at": "5a1fdcf6a693c399e8424c15a540f804ceb43421:docs/RELEASE_STATE.json",
+    "previous_receipt_at": "2941659e577700562202c2dea5c4a121ddd6703b:docs/RELEASE_STATE.json",
     "previous_release": {
-      "version": "0.1.0-alpha.75",
-      "commit": "5a1fdcf6a693c399e8424c15a540f804ceb43421",
-      "tree": "1094cb69ba638cd467af54ece03dffed33585ef5",
-      "app_tree": "15ad57e3a9a645c0b0454f5b047d713af28dc05a",
-      "pull_request": 159,
-      "candidate_commit": "29d895815178a87e5e1f6945294a85663d6b45e2",
-      "candidate_ci_run_id": 37170519075,
-      "ci_run_id": 37170647256,
+      "version": "0.1.0-alpha.76",
+      "commit": "2941659e577700562202c2dea5c4a121ddd6703b",
+      "tree": "00bc9af0ebbd2889fb7a161ce0d00884e86488f7",
+      "app_tree": "483191fc4b8e699c6f307885fe906ee5c6f8b992",
+      "pull_request": 160,
+      "candidate_commit": "6af69a5204bbee2edc00ff7bffbe7593f897900b",
+      "candidate_ci_run_id": 37171634810,
+      "ci_run_id": 37172229997,
       "ci_conclusion": "success"
     },
-    "integrated_pr": 160,
-    "integrated_commit": "2941659e577700562202c2dea5c4a121ddd6703b"
+    "integrated_pr": 161,
+    "integrated_commit": "1946d5b8941689fce18574c05adf0f4e3b3adaf7"
   },
-  "next_step": "Finish and release Alpha.77 link-only and large-label subset paths through exact CI and fresh scoped backup, then complete real Kochbereich and Badbereich readback without switching devices.",
+  "next_step": "Reconcile Kochbereich renamed member identities and overly broad HA labels with evidence; then jointly accept real presence/light/Sonos behavior before any control handover.",
   "runtime_measurement": {
-    "scope": "No measured performance claim. Alpha.76 fixes asset consistency. Alpha.77 candidate adds bounded structural editing paths."
+    "scope": "No measured performance claim; Alpha.77 adds bounded structural edit paths."
   },
   "workflow": {
     "kind": "six_zone_reference_adoption",
     "heartbeat": "PAUSED; the overnight assignment ended and was not restarted",
     "requested_authority": "User commissioned real six-zone structural adoption and documentation of HA-owned light/Sonos principles; no household actuator test or control handover.",
     "household_binding_changed": true,
-    "phase": "Alpha.76 installed; Alpha.77 local candidate under test; two zone conflicts remain open."
+    "phase": "Alpha.77 installed; six HA-owned reference zones documented. Structural differences and physical acceptance remain open."
   },
   "candidate": {
     "version": "0.1.0-alpha.77",
     "branch": "feat/zone-reference-adoption",
-    "status": "local development, not published or installed",
-    "local_python_passed": 739,
-    "local_javascript_passed": 77,
-    "api_contracts": 68,
-    "structural_browser": "passed with link-only and large-label fallback regressions",
-    "household_paths_unverified": true
+    "status": "merged in PR #161 and installed",
+    "candidate_commit": "b7f9e66ba2faa273075b2e5bdbafc2f7c985754d",
+    "candidate_ci_run_id": 37173914432,
+    "household_paths_verified": "Authenticated link-only Kochbereich and bounded Badbereich import saved and read back."
   }
 }

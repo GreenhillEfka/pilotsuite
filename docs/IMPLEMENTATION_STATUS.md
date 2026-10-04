@@ -1,4 +1,18 @@
-# PilotSuite capability ledger — Alpha.76 installed, Alpha.77 under review
+# PilotSuite capability ledger — Alpha.77 installed, six-zone references read back
+
+Alpha.77 was delivered in PR #161. Exact candidate/main CI
+`37173914432`/`37174021635` passed all five jobs; fresh scoped PilotSuite-only
+backup `51227e96` preceded one targeted update. Installed version is
+`0.1.0-alpha.77`, started/current with unchanged four options and ready runtime.
+Authenticated Ingress confirmed revision-bound link-only saving for Kochbereich
+while its 419 old members stayed untouched, and an area-scoped Bad/Toilette
+import of 145 enabled members from 281 candidates with HA roles preserved.
+All six zones now have checked HA light/shutdown references; four have native
+Sonos Sound-Cloud references. Only Eingangsbereich fully matches HA structure.
+Other label extras and renamed identities remain open. No household actuator,
+HA metadata or automation was changed by this release/adoption.
+
+## Historical Alpha.76 and Alpha.77 candidate checkpoint
 
 Alpha.76 fixes the mixed cached editor assets. PR #160 and exact candidate/main
 CI passed all five jobs; fresh scoped backup `4c016987` preceded one app update.
