@@ -1,6 +1,8 @@
 """Progressive workspace shell. The existing HTML and configuration owners stay canonical."""
+import re
 from pathlib import Path
 from aiohttp import web
+from . import VERSION
 
 ASSETS = ("workspace-model.js", "workspace.js", "workspace.css", "appearance.js", "presence-shadow.js", "zone-presence.js", "zone-presence.css", "zone-presence-model.js")
 
@@ -12,7 +14,10 @@ def workspace_page(web_dir: Path) -> str:
     source = source.replace('</head>', '<link rel="stylesheet" href="assets/workspace.css">\n  </head>')
     for name in ('drafts', 'history'):
         source = source.replace(f'<script src="assets/{name}.js" defer></script>', '')
-    return source.replace('</body>', '<script src="assets/workspace.js" defer></script>\n  </body>')
+    source = source.replace('</body>', '<script src="assets/workspace.js" defer></script>\n  </body>')
+    # A new app image must never combine fresh markup with an older cached editor.
+    return re.sub(r'((?:src|href)="assets/[^"?]+\.(?:js|css))"',
+                  lambda match: f'{match.group(1)}?v={VERSION}"', source)
 
 
 def register_workspace(app: web.Application, web_dir: Path) -> None:

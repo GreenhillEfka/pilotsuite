@@ -5,6 +5,7 @@ from pathlib import Path
 from dataclasses import replace
 from aiohttp.test_utils import TestClient, TestServer
 from pilotsuite.app import create_app, SERVICE_KEY
+from pilotsuite import VERSION
 from pilotsuite.core.settings import Settings
 
 class WorkspaceTests(unittest.IsolatedAsyncioTestCase):
@@ -22,6 +23,10 @@ class WorkspaceTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(1,html.count('assets/'+name))
             response=await self.client.get('/assets/'+name)
             self.assertEqual(200,response.status);self.assertIn('no-cache',response.headers['Cache-Control'])
+        self.assertIn(f'assets/app.js?v={VERSION}', html)
+        response=await self.client.get('/assets/app.js')
+        self.assertEqual(200,response.status)
+        self.assertIn('no-cache', response.headers['Cache-Control'])
         for identity in ('context-form','zone-form','routine-form','selection-save','history-section'):
             self.assertEqual(1,html.count('id="'+identity+'"'))
         self.assertIn("script-src 'self'",response.headers['Content-Security-Policy'])

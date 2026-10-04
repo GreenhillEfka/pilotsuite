@@ -373,19 +373,19 @@ async def _index(request: web.Request) -> web.StreamResponse:
 
 
 async def _javascript(_: web.Request) -> web.FileResponse:
-    return web.FileResponse(WEB_DIR / "app.js", headers={"Content-Type": "text/javascript"})
+    return web.FileResponse(WEB_DIR / "app.js", headers={"Content-Type": "text/javascript", "Cache-Control": "no-cache"})
 
 
 async def _history_javascript(_: web.Request) -> web.FileResponse:
-    return web.FileResponse(WEB_DIR / "history.js", headers={"Content-Type": "text/javascript"})
+    return web.FileResponse(WEB_DIR / "history.js", headers={"Content-Type": "text/javascript", "Cache-Control": "no-cache"})
 
 
 async def _stylesheet(_: web.Request) -> web.FileResponse:
-    return web.FileResponse(WEB_DIR / "styles.css", headers={"Content-Type": "text/css"})
+    return web.FileResponse(WEB_DIR / "styles.css", headers={"Content-Type": "text/css", "Cache-Control": "no-cache"})
 
 
 async def _selection_javascript(_: web.Request) -> web.FileResponse:
-    return web.FileResponse(WEB_DIR / "selections.js", headers={"Content-Type": "text/javascript"})
+    return web.FileResponse(WEB_DIR / "selections.js", headers={"Content-Type": "text/javascript", "Cache-Control": "no-cache"})
 
 
 async def _health(_: web.Request) -> web.Response:

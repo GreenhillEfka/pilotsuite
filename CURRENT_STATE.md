@@ -1,24 +1,24 @@
-# Current state — Alpha.74 installed
+# Current state — Alpha.75 installed; Alpha.76 cache fix in development
 
-## Alpha.75 local candidate — not yet published or installed
+## Alpha.76 local candidate — not yet published or installed
 
-The current working branch adds registry-identity-backed references for the
-existing HA light group, light opt-in, shutdown action and, where confirmed,
-native Sonos Sound-Cloud player, presence opt-in, user-facing `switch`, favorite
-selector and daytime-volume opt-in. PilotSuite shows them in setup and zone
-documentation with fresh identity readback. It neither issues HA control calls
-nor claims accepted presence, light or media behavior. The actual six-zone HA
-mapping is recorded in [docs/HA_ZONE_REFERENCES.md](docs/HA_ZONE_REFERENCES.md).
-When importing an existing HA-tagged zone, the editor can explicitly replace
-untouched type-based role suggestions with observed HA roles. Saved and manually
-edited choices remain untouched.
+Alpha.75's source passed all five jobs in PR #159 (candidate CI 37170519075)
+and on merged main `5a1fdcf6a693c399e8424c15a540f804ceb43421`
+(CI 37170647256). A native PilotSuite-only Alpha.74 backup `71ba105e` was
+completed and scope-checked before one update. HA reports Alpha.75 installed
+and started with the four prior options unchanged. Authenticated Ingress shows
+the new read-only documentation. Runtime is ready, stream-connected and fresh,
+but `zone_resolved=False`, also present before the update. This is not a claim
+of six-zone structural or control acceptance.
 
-Local evidence so far: 68 API contracts, 737 Python tests, 77 JavaScript tests,
-and the structural synthetic browser passed. The latter produced responsive
-screenshots inspected in dark and light themes. A candidate CI, container build,
-disposable HA protocol, scoped backup, installation and real six-zone readback
-remain pending. The installed app still reports Alpha.74. No household mutation
-was performed by this development work.
+The real Ingress editor exposed a mixed-asset failure: fresh Alpha.75 markup and
+documentation but old cached `app.js` left the eight light/Sound-Cloud selectors
+empty. Alpha.76 versions the workspace assets and requires script revalidation;
+it does not change HA control or saved zone assignments. The new regression,
+all 737 Python tests, 77 JavaScript tests, 68 API contracts and structural
+synthetic browser pass locally. Candidate CI, a new scoped backup, installation
+and real browser confirmation remain open. Do not save zone drafts until the
+updated selectors are visible and stable.
 
 ## New HA structure evidence, 04.10.2026 — not a PilotSuite adoption receipt
 
