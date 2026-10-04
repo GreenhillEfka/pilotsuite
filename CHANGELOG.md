@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-alpha.75] - 2026-10-04
+
+- Document existing Home Assistant light groups, light opt-ins, shutdown actions,
+  native Sonos players, Sound-Cloud opt-ins, zone switches, favorites and volume
+  policies as stable, read-only zone links in the setup and zone documentation.
+- Reject missing, replaced or conflicting links and report fresh identity readback;
+  assigning links grants no PilotSuite control or new data permission.
+- Let operators restore observed HA display roles instead of type suggestions
+  when adopting an already tagged zone, preserving saved manual decisions.
+
 ## [0.1.0-alpha.74] - 2026-09-30
 
 - Preselect editable Habitus display roles for newly imported entities from their

@@ -18,6 +18,15 @@ Alpha.73 setzt diese Richtung um und ist nach geprüfter Auslieferung installier
 und benötigt die angemeldete Prüfung der tatsächlichen Zuordnungen. Aktive Lichtsteuerung bleibt offen. Erst nach tragfähiger Struktur folgen Präsenz/Helfer, dann Licht und später
 Klima, Multimedia und Mustererkennung.
 
+HA-Bestandsabgleich vom 04.10.2026: sechs öffentliche Habituszonen-Anker sind
+vorhanden; weitere Zonen sollen ohne feste Anzahl ergänzt werden können. Jede der
+sechs HA-Zonen besitzt eine Lichtgruppe mit vorhandener Lichtautomatik-Freigabe.
+Vier Zonen (Bad, Gang, Küche, Wohnen) besitzen außerdem eine optionale
+präsenzgeführte Sonos-Sound-Cloud-Kopplung. Das sind HA-eigene Funktionen, keine
+PilotSuite-Licht-/Medienmodule und kein Beleg für bereits synchronisierte
+PilotSuite-Zonen. Die spätere Einbindung nutzt denselben geklärten Zonen- und
+Präsenzbezug, ohne eine konkurrierende Licht- oder Sound-Engine zu bauen.
+
 ## Nachgelagerte Vision und bestehende fachliche Grundlagen
 
 Die folgenden Abschnitte bewahren Ziele und technische Invarianten des bisherigen
@@ -95,7 +104,8 @@ Bestandsstatus darf niemals unbemerkt durch die eigene Berechnung ersetzt werden
 Diese Darstellungsrichtung ist keine bereits erfolgte Steuerungsübergabe.
 Quellenkonfiguration, Verlauf und Diagnose werden bei Bedarf geöffnet. Das Dashboard
 „Habituszonen“ bleibt ontologische und gestalterische Referenz, nicht Wahrheitsbeweis.
-Alle vier gespeicherten Zonen und laufende Entitätsbereinigung bleiben erhalten.
+Alle gespeicherten Zonen und die laufende Entitätsbereinigung bleiben erhalten;
+vier war der dokumentierte PilotSuite-Bestand am 30.09.2026, keine feste Obergrenze.
 
 `relevant` autorisiert Live- und verfügbare historische Auswertung ohne weitere
 Datenfreigabe. Pause, Aufbewahrung, Export und Löschen sind eigene Funktionen.

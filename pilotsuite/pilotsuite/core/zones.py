@@ -64,6 +64,7 @@ class ZoneStore:
 
     def _save(self, definition, zone_id, revision, setup=None, relevant=None):
         from .context import ContextStore
+        from .organization import same_identity
         from .zone_structure import KEY
         with closing(sqlite3.connect(self.selections.path, timeout=10)) as db, db:
             db.execute('BEGIN IMMEDIATE')
@@ -95,6 +96,12 @@ class ZoneStore:
                                   bool(other.get('label_name')) and other['label_name'].casefold() == setup['label_name'].casefold())
                     if other_id != zone_id and same_label:
                         raise SelectionConflict('Dieses Zonenlabel ist bereits mit einer anderen Zone verbunden')
+                    if other_id != zone_id:
+                        for kind in ('light_group', 'sound_player'):
+                            linked = other.get('ha_links', {}).get(kind)
+                            chosen = setup.get('ha_links', {}).get(kind)
+                            if linked and chosen and same_identity(linked['identity'], chosen['identity']):
+                                raise SelectionConflict('Diese HA-Steuerung ist bereits einer anderen Zone zugeordnet: ' + chosen['entity_id'])
                 before = cfg.get(KEY)
                 if before and before['label_id'] is not None and before['label_id'] != setup['label_id']:
                     raise SelectionConflict('Die Zone ist bereits mit einem anderen Label verbunden; Umstellung gesondert prüfen')

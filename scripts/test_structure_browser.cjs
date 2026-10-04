@@ -57,12 +57,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.setViewportSize({width:1440,height:1100});
 
   assert.equal(await member('binary_sensor.demo_presence').getByLabel('Habitus Übersicht',{exact:true}).isChecked(),true,'existing label wins over type');
+  await page.locator('#zone-ha-links select[data-ha-link="light_group"]').selectOption('light.demo');
+  assert.equal(await page.locator('#zone-ha-links select[data-ha-link="light_group"]').inputValue(),'light.demo');
   await light.getByLabel('Habitus Bedienung',{exact:true}).uncheck();
   await page.locator('#zone-label-import').click();await page.waitForFunction(()=>!zoneLabelBusy);
   await light.locator('summary').click();
   assert.equal(await light.getByLabel('Habitus Bedienung',{exact:true}).isChecked(),false,'intentional empty role draft survives reimport');
   await light.getByRole('button',{name:'Typbasierte Vorauswahl übernehmen',exact:true}).click();
   assert.equal(await light.getByLabel('Habitus Bedienung',{exact:true}).isChecked(),true);
+  await page.locator('#zone-use-ha-roles').click();
+  assert.equal(await light.getByLabel('Habitus Bedienung',{exact:true}).isChecked(),false,'HA role import can explicitly discard only type defaults');
+  await light.locator('summary').click();
+  await light.getByRole('button',{name:'Typbasierte Vorauswahl übernehmen',exact:true}).click();
 
   await member('binary_sensor.demo_presence').locator('input[type=checkbox]').first().uncheck();
   await page.locator('#zone-label-import').click();await page.waitForFunction(()=>!zoneLabelBusy);
@@ -91,6 +97,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   const downloadEvent=page.waitForEvent('download');await page.locator('#ps-structure-export').click();const doc=await downloadEvent;
   const exported=JSON.parse(await fs.readFile(await doc.path(),'utf8'));assert.equal(exported.verification.state,'synchronized');
   assert.equal(exported.verification.control_accepted,false);assert.equal(exported.plans[0].state,'verified');
+  assert.equal(exported.structure.ha_links.light_group.entity_id,'light.demo');
+  assert.equal(exported.verification.ha_links.light_group.status,'bound');
+  assert.equal(exported.verification.ha_links_control_accepted,false);
   const directory=process.env.PILOTSUITE_SCREENSHOTS||'/tmp/pilotsuite-structure-review';await fs.mkdir(directory,{recursive:true});
   for(const [width,theme] of [[1440,'light'],[820,'dark'],[390,'light'],[390,'dark']]){
    await page.setViewportSize({width,height:1000});await page.getByLabel('Farbschema').selectOption(theme);

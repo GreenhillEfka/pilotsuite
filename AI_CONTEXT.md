@@ -13,7 +13,10 @@ docs/UX_WORKSPACE.md and ADR-043 define the zone-first setup concept.
 
 - Presence first: continuous/pulse/support differ; unknown is never silently vacant.
 - Relevance authorizes live and available history. Write authority is separate.
-- Preserve four saved zones and entity cleanup. HA areas do not redefine zones.
+- Preserve all saved zones and entity cleanup. Authenticated PilotSuite UI on
+  04 October still listed four (Erdkeller, Koch, Wohn, Bad), while HA had six public
+  zone anchors. Gang and Eingangsbereich are absent from the PilotSuite list. Neither
+  count is a product limit; more zones are expected. HA areas do not redefine zones.
 - Habituszonen is an ontology/layout reference, not proof of occupancy.
 - One app, existing SQLite owners, no second engine or configuration.
 - Ingress/authentication/sandbox remain intact. No household test switching.
@@ -49,6 +52,10 @@ the next UI. Read ADR-044 and docs/HABITUS_FOUNDATION_RESET.md before any next c
 The reduced flow remains installed. Alpha.74 adds editable display-role defaults
 from HA category, device class and type; tags and saved/manual empty choices win.
 No guessed zone anchor or new analysis/control permission. Real structural adoption is open.
+The six HA zones already have HA-owned light groups and opt-ins; four have
+presence-bound Sonos Sound-Cloud options. These are context for future zone
+documentation and later separately accepted modules, not PilotSuite lighting or
+media control. A cross-zone Light-Cloud is not established by the existing groups.
 Preserve existing data and owners; do not conflate hiding modules with stopping
 runtime outputs. The user now explicitly requests real structural zone acceptance/adoption.
 Inspect real saved bindings, confirm concrete metadata changes and verify fresh HA

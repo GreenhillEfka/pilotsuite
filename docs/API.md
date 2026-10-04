@@ -248,12 +248,24 @@ identity receipts are historical creation evidence, not current functionality;
 lost responses never authorize blind replay or ownership inferred from a name.
 
 
-### Unreleased connected zone setup
+### Connected zone setup (Alpha.75 candidate)
 
 The optional zone `setup` accepts an existing `label_id`, or `label_id: null` plus
 `label_name` (1–80 characters) to plan a new zone label. This saves intent only.
 `entity_ids`, `relevant_entity_ids` and optional per-member `roles` are validated
 against stable registry identities. Areas/extra candidates are read-only proposals.
+`ha_links` is an optional map of existing, registry-backed Home Assistant entities:
+`light_group` (`light`), `light_automation` (`input_boolean`),
+`shutdown_script` (`script`), `sound_player` (`media_player`),
+`sound_presence` (`input_boolean`), `sound_cloud_switch` (`switch`),
+`sound_favorite` (`input_select`) and `sound_daytime_volume` (`input_boolean`).
+Omission preserves previous links; an explicit empty map removes them. A light
+automation link requires a light group; Sound-Cloud settings require a player.
+The server saves platform/unique-ID identities, refuses disabled or ambiguous
+links and detects duplicate light groups or players across PilotSuite zones.
+Fresh structure readback reports each link's bound/renamed/disabled/unresolved
+state. Links document HA-owned behavior only: they grant no actuator, media,
+automation, presence or analysis permission and do not change HA configuration.
 Pending names cannot duplicate another planned zone or an existing HA label.
 An unbound pending label can be explicitly replaced with an existing label after
 an unresolved creation; name equality never silently establishes ownership.
