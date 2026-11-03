@@ -97,6 +97,64 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await page.locator('#zone-ha-links select[data-ha-link="light_group"]').selectOption('light.demo');
   await page.locator('#zone-links-save').click();
   await page.waitForFunction(()=>!zoneFormOpen && !zoneSaving && !selectionBusy);
+  const linkBaseline=await command({action:'snapshot'});
+  const assertLinkPreserved=snapshot=>{
+   for(const key of ['structure','zones','roles','learning','mode','organization','helper_creates',
+    'label_creates','output_calls','metadata_calls','history_reads','automation_reads'])
+    assert.deepEqual(snapshot[key],linkBaseline[key],key+' changed during link fault');
+   assert.deepEqual(snapshot.selections.decisions,linkBaseline.selections.decisions);
+  };
+  const linkSelector='#zone-ha-links select[data-ha-link="light_group"]';
+  for(const [variant,status] of [['missing','identity_unresolved'],['disabled','disabled'],['renamed','renamed']]){
+   await command({action:'ha_link_identity',variant});await openEditor();
+   assert.equal(await page.locator(linkSelector).inputValue(),'light.demo');
+   assert.match(await page.locator(linkSelector+' option:checked').innerText(),/nicht verfügbar; Zuordnung erhalten/);
+   await page.locator('#zone-links-save').click();
+   await page.waitForFunction(()=>!zoneFormOpen && !zoneSaving && !selectionBusy);
+   assertLinkPreserved(await command({action:'snapshot'}));
+   await page.getByRole('link',{name:'Zonendokumentation',exact:true}).click();
+   await page.locator('#ps-structure-verify').click();
+   await page.waitForFunction(status=>structureData?.verification?.ha_links?.light_group?.status===status,status);
+   assert.match(await page.locator('#ps-structure-body').innerText(),/Zuordnung prüfen:/);
+   assert.equal(await page.locator('#ps-structure-status').innerText(),'Abweichungen in der Struktur');
+   if(variant==='missing'){
+    await page.setViewportSize({width:390,height:1000});await page.getByLabel('Farbschema').selectOption('dark');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+    await page.screenshot({path:path.join(roleDirectory,'missing-link-390-dark.png'),fullPage:true});
+    await page.setViewportSize({width:1440,height:1100});
+   }
+   await command({action:'ha_link_identity',variant:'normal'});
+  }
+  await command({action:'ha_link_identity',variant:'replaced'});await openEditor();
+  await page.locator('#zone-name').fill('Entwurf bei Identitätskonflikt behalten');
+  const beforeConflict=await command({action:'snapshot'});
+  await page.locator('#zone-links-save').click();
+  await page.waitForFunction(()=>!zoneSaving && document.getElementById('zone-message').textContent.includes('wurde ersetzt'));
+  assert.equal(await page.locator('#zone-name').inputValue(),'Entwurf bei Identitätskonflikt behalten');
+  assert.equal(await page.locator('#zone-form').isVisible(),true);
+  assertLinkPreserved(await command({action:'snapshot'}));
+  assert.equal((await command({action:'snapshot'})).selections.revision,beforeConflict.selections.revision);
+  await page.locator('#zone-cancel').click();await command({action:'ha_link_identity',variant:'normal'});
+  // Another editor's successful save makes this open draft stale. The rejected
+  // attempt must retain both unsaved text and the intended link selection.
+  await openEditor();await page.locator('#zone-name').fill('Entwurf bei Versionskonflikt behalten');
+  const current=await command({action:'snapshot'});
+  const concurrent=await page.request.patch(new URL('api/v1/zones/room',info.url).href,{
+   data:{revision:current.selections.revision,ha_links:{}}});
+  assert.equal(concurrent.status(),200);
+  const afterConcurrent=await command({action:'snapshot'});
+  assert.ok(afterConcurrent.selections.revision>current.selections.revision,'concurrent edit must actually advance the revision');
+  await page.locator(linkSelector).selectOption('');await page.locator('#zone-links-save').click();
+  await page.waitForFunction(()=>!zoneSaving && document.getElementById('zone-message').textContent.includes('Entwurf bleibt erhalten'));
+  assert.equal(await page.locator('#zone-name').inputValue(),'Entwurf bei Versionskonflikt behalten');
+  assert.equal(await page.locator(linkSelector).inputValue(),'');
+  assert.deepEqual(await command({action:'snapshot'}),afterConcurrent);
+  await page.locator('#zone-cancel').click();
+  await openEditor();await page.locator(linkSelector).selectOption('light.demo');
+  await page.locator('#zone-links-save').click();
+  await page.waitForFunction(()=>!zoneFormOpen && !zoneSaving && !selectionBusy);
+  assertLinkPreserved(await command({action:'snapshot'}));
+  console.log('ok - missing/disabled/renamed links survive; replaced identity and stale revision preserve drafts without writes');
   await page.getByRole('link',{name:'Zonendokumentation',exact:true}).click();await page.locator('#ps-structure-verify').click();
   await page.waitForFunction(()=>document.getElementById('ps-structure-status').textContent==='Abweichungen in der Struktur');
   await page.locator('#ps-structure-sync').click();await page.getByRole('button',{name:'Genau diese Labels abgleichen',exact:true}).waitFor();

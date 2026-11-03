@@ -147,3 +147,15 @@ kann die Vorauswahl ausdrücklich erneut übernommen werden. Herkunft und aktuel
 Rollen sind am Eintrag sichtbar. Unbekannter Typ oder fehlende/deaktivierte
 Identität erzeugt keinen geratenen Vorschlag. „Habitus Zone“ bleibt eine bewusste
 Zuordnung. Speichern/HA-Abgleich und alle bisherigen Rechte bleiben getrennt.
+
+## Eigenständige Ausfallprüfung, 03.11.2026
+
+Die vorhandene Struktur-Browserprüfung deckt zusätzlich fehlende, deaktivierte und
+umbenannte Lichtverknüpfungen ab: gespeicherte ID bleibt ausgewählt, unverändertes
+Speichern erhält die Identität, frische Prüfung zeigt die Abweichung statt Erfolg.
+Ein Ersatz unter derselben Entity-ID und eine echte konkurrierende Revision sperren
+den Save; offener Name und Verknüpfungsentwurf bleiben erhalten. Mitglieder, Rollen,
+Auswertungsentscheidungen und HA-Aufrufzähler werden im isolierten System verglichen.
+Diese neuen Regressionen bestehen gegen Alpha.77; kein Produktionsfix behauptet.
+Die reale App war gestoppt und wurde nicht für Tests gestartet. Synthetische Bilder
+und Tests ersetzen weder eine aktuelle Anmeldung noch die physische Haushaltsabnahme.

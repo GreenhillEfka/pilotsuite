@@ -26,29 +26,31 @@ control or grant learning just from a structural link.
 
 ## Current continuation
 
-Alpha.76 from PR #160 is installed, started, ready, stream-connected and fresh.
-Its versioned frontend assets were checked in authenticated Ingress after a
-mixed-cache failure in Alpha.75. Its four app options stayed unchanged. Current
-readiness reports a resolved zone after the Wohnbereich mapping correction.
-`CURRENT_STATE.md` and `docs/RELEASE_STATE.json` own the source, CI and scoped
-backup receipt; the narrow user-approved Synology backup-list exception remains
-defined in the release runbook. The night heartbeat stays paused.
+Alpha.77 from PR #161 is installed. Fresh metadata on 3 November 2026 reports
+the app stopped, with options unchanged during this check. The stop reason is
+unknown; do not start it merely to complete a test. October's healthy runtime
+and authenticated structural readback are historical evidence, not current status.
+The user now requests autonomous work without household testing. The current package
+extends isolated structural failure/regression coverage and corrects this handoff;
+no application version or behavior change. CURRENT_STATE.md and RELEASE_STATE.json
+separate delivery, latest observation and acceptance. The narrow Synology backup-list
+exception remains in the runbook. The night heartbeat stays paused.
 
 The visible product is still reduced to creating, displaying and documenting
 Habituszonen. Preserve existing runtime stores and execution gates; hiding
-modules is not evidence that background work stopped. Six current HA zones have
+modules is not evidence that background work stopped. The 4 October snapshot had
+six HA zones with
 HA-owned light groups and positive opt-ins; Bad, Gang, Koch and Wohnbereich have
 optional native Sonos Sound-Cloud presence coupling. PilotSuite documents these
 relations by stable identity and does not own their execution. A cross-zone
 Light-Cloud is not established by the current groups.
 
-Authenticated structural adoption saved/read back Erdkellerbereich,
-Gangbereich, Wohnbereich and Eingangsbereich with curated members and read-only
-HA links. Only Eingangsbereich currently matches HA structure without deviations.
-Kochbereich has an old replaced member identity; Badbereich's HA label has 858
-members. Alpha.77 locally develops revision-bound link-only saving and a
-labelled area subset for these cases. Neither path is released or household-
-accepted yet. Do not silently migrate stale identities or bulk accept disabled
-label members. Active light/media actuation, presence/control takeover and
-physical household acceptance remain deferred. Re-read live registries before
+Authenticated structural adoption on 4 October saved/read back all six reference
+zones. Alpha.77's revision-bound link-only save and labelled area subset were
+released and exercised: Kochbereich retained 419 old members and eight links;
+Badbereich saved 145 enabled members and eight links from its bounded area subset.
+Only Eingangsbereich fully matched HA then. Renamed members and broad labels remain
+open, not permission for silent migration or bulk acceptance. These counts are not
+fresh November readbacks. Active light/media actuation, presence/control takeover
+and physical household acceptance remain deferred. Re-read current registries before
 further association. Do not restart the heartbeat or create extra agents/tasks.

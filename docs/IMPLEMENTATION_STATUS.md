@@ -1,5 +1,13 @@
 # PilotSuite capability ledger — Alpha.77 installed, six-zone references read back
 
+Fresh observation, 3 November 2026: Alpha.77 remains installed but is stopped.
+No restart or household test was performed. Autonomous verification passed 739
+Python / 77 JS / 68 contracts, zero ResourceWarnings and five current browser suites.
+The structural suite now covers missing/disabled/renamed/replaced links and competing
+revision conflicts, with draft, identity and no-write assertions. Existing application
+behavior passed these checks; no new production feature or release is claimed.
+The following running/Ingress observations are dated **4 October**, not current status.
+
 Alpha.77 was delivered in PR #161. Exact candidate/main CI
 `37173914432`/`37174021635` passed all five jobs; fresh scoped PilotSuite-only
 backup `51227e96` preceded one targeted update. Installed version is

@@ -52,6 +52,7 @@ async def main():
   old=next(z for z in await s.zones.list() if z['zone_id']==zid)
   await s.zones.save({'name':title,'area_ids':[zid],'extra_entity_ids':[],'enabled':zid!='z_paused','profile':'observe'},zid,old['revision'])
  source_registration=deepcopy(next(row for row in world['entities'] if row['entity_id']==SOURCE))
+ light_registration=deepcopy(next(row for row in world['entities'] if row['entity_id']=='light.demo'))
  s.client.snapshot=AsyncMock(side_effect=lambda:deepcopy(world))
  registry=deepcopy(world['entities'])
  states={e['entity_id']:deepcopy(e) for e in world['states']}
@@ -128,6 +129,17 @@ async def main():
     if cmd['variant']=='ambiguous':world['entities'].append({**row,'entity_id':'binary_sensor.demo_duplicate'})
     registry[:]=deepcopy(world['entities'])
     await s.world.replace(deepcopy(world))
+   elif cmd['action']=='ha_link_identity':
+    if cmd['variant'] not in ('normal','missing','disabled','renamed','replaced'):
+     raise ValueError('Invalid synthetic link variant')
+    world['entities']=[row for row in world['entities'] if row['entity_id'] not in ('light.demo','light.demo_renamed')]
+    row=deepcopy(light_registration)
+    if cmd['variant']=='disabled':row['disabled_by']='user'
+    elif cmd['variant']=='renamed':row['entity_id']='light.demo_renamed'
+    elif cmd['variant']=='replaced':row['unique_id']='synthetic-replacement'
+    if cmd['variant']!='missing':world['entities'].append(row)
+    registry[:]=deepcopy(world['entities'])
+    await s.world.replace(deepcopy(world))
    elif cmd['action']=='tag_membership_change':
     changed=cmd['changed']
     for row in world['entities']:
@@ -149,6 +161,7 @@ async def main():
    print(json.dumps({'view':await s.zone_presence_view('room'),'zones':[{k:v for k,v in z.items() if k!='revision'} for z in await s.zones.list()],'mode':(cfg.get(KEY)or{}).get('mode'),
     'learning':cfg['learning'],'roles':cfg['roles'],'selections':await s.selections.get('room'),'history_reads':s.client.history.await_count,
     'automation_reads':s.client.automation_config.await_count,'organization':cfg.get('organization'),
+    'structure':cfg.get('zone_structure'),
     'helper_creates':s.client.zone_create_storage_helper.await_count+s.client.zone_create_binary_sensor.await_count,
     'label_creates':s.client.zone_create_label.await_count,'output_calls':s.client.zone_output_service.await_count,'metadata_calls':s.client.zone_set_metadata.await_count},allow_nan=False),flush=True)
  finally:
