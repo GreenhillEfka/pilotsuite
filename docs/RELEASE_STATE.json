@@ -173,5 +173,36 @@
     "candidate_commit": "b7f9e66ba2faa273075b2e5bdbafc2f7c985754d",
     "candidate_ci_run_id": 37173914432,
     "household_paths_verified": "Authenticated link-only Kochbereich and bounded Badbereich import saved and read back."
+  },
+  "latest_observation": {
+    "verified_at_utc": "2026-11-03T20:04:56Z",
+    "installed_version": "0.1.0-alpha.77",
+    "offered_version": "0.1.0-alpha.77",
+    "state": "stopped",
+    "stop_reason": "not established",
+    "options_unchanged_during_check": true,
+    "app_lifecycle_calls": 0,
+    "household_writes": 0,
+    "current_ingress_readback": false,
+    "interpretation": "October release/startup/adoption evidence above remains historical. No current readiness or fresh six-zone readback is claimed. App was not started for testing."
+  },
+  "autonomous_quality_check": {
+    "date": "2026-11-03",
+    "branch": "test/structure-offline-reliability",
+    "scope": "Root-level synthetic tests and state-document corrections only; published app tree unchanged.",
+    "local_python_passed": 739,
+    "local_javascript_passed": 77,
+    "api_contracts": 68,
+    "local_browser_suites": 5,
+    "resource_warnings": 0,
+    "new_cases": [
+      "Missing, disabled and renamed saved light references remain selected and visibly unresolved.",
+      "Stable-identity replacement is rejected without losing the editor draft.",
+      "A genuine competing revision rejects a stale save without persistent changes."
+    ],
+    "production_bug_fix_claimed": false,
+    "household_acceptance": false,
+    "release_or_installation_performed": false,
+    "remote_ci_evidence": "Record exact checks in this package's PR; do not create another documentation PR solely for its CI."
   }
 }
